@@ -79,7 +79,7 @@ public:
 
    void Init ();
    void ShutMIn (), RedoMIn ();
-   void DumpEv  (ubyte mi, MidiEv e);
+   void TestI (ubyte mi, MidiEv e);
 
 signals:
   void Reload ();

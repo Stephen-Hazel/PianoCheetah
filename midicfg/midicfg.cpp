@@ -5,8 +5,6 @@
 //    /<devtype>/ccin.txt  ccmap.txt  ccout.txt  sound.txt
 
 #include "midicfg.h"
-#include <execinfo.h>
-#include <signal.h>
 
 struct {TStr nm, info;   ubyt4 sz;} DTyp [100];   ubyte NDTyp;
 BStr DevTyp;
@@ -266,18 +264,9 @@ bool MidiCfg::eventFilter (QObject *ob, QEvent *ev)
 }
 
 
-void MidiCfg::TestO ()
-{ Tabl  t (ui->tblO);
-  MidiO m (t.Get (t.CurRow (), 0), 'x');    // no gm init
-   m.Put (9, MDrm(CC("snar")), 0x80|90);   m.Put (0, MKey (CC("4C")), 0x80|90);
-   Zzz (300);                          // 3/10 sec
-   m.Put (9, MDrm(CC("snar")),      64);   m.Put (0, MKey (CC("4C")),      64);
-}
-
-
 char *CtrlSt [3] = {CC("Prog"),CC("Prss"),CC("PBnd")};
 
-void MidiCfg::DumpEv (ubyte mi, MidiEv e)
+void MidiCfg::TestI (ubyte mi, MidiEv e)
 { TStr  buf, b2;
   BStr  t;
   ubyt4 i, ln;
@@ -306,9 +295,18 @@ void MidiCfg::DumpEv (ubyte mi, MidiEv e)
 }
 
 
+void MidiCfg::TestO ()
+{ Tabl  t (ui->tblO);
+  MidiO m (t.Get (t.CurRow (), 0), 'x');    // no gm init
+   m.Put (9, MDrm(CC("snar")), 0x80|90);   m.Put (0, MKey (CC("4C")), 0x80|90);
+   Zzz (300);                          // 3/10 sec
+   m.Put (9, MDrm(CC("snar")),      64);   m.Put (0, MKey (CC("4C")),      64);
+}
+
+
 void MidiCfg::MidiIEv ()
 { MidiEv e;
-   for (ubyte i = 0; i < _nMI; i++)  while (_mi [i]->Get (& e))  DumpEv (i, e);
+   for (ubyte i = 0; i < _nMI; i++)  while (_mi [i]->Get (& e))  TestI (i, e);
 }
 
 
