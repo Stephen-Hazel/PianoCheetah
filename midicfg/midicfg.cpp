@@ -1,4 +1,4 @@
-// midicfg.cpp - midi configurin - edit stuff in PianoCheetah's device dir
+// midicfg.cpp - midi configurin - edit stuff in pianocheetah/device dir
 // /device.txt
 // /cc.txt  (comes from install)
 // these all have to be d/l via devtype or text edited:
@@ -36,7 +36,7 @@ void InitDevTyp ()
 
 
 void MidiCfg::ShutMIn ()
-{  while (_nMI) {
+{  while (_nMI) {                      // shut midi ins
       --_nMI;
       disconnect (_mi [_nMI], & MidiI::MidiIEv, this, & MidiCfg::MidiIEv);
       delete _mi [_nMI];   _mi [_nMI] = nullptr;
@@ -90,8 +90,7 @@ DBG("  new dsc=`s", dsc [i]);
          {StrCp (c[0], "keytar");   StrCp (c[1], "alesis_vortex");}
 */
 void MidiCfg::Load ()
-{ Tabl ti (ui->tblI), to (ui->tblO);
-  ubyte i;
+{ ubyte i;
   TStr  nm, ty, ds, dv, chk;
   char *rp [4];
    Midi.Load ();
@@ -117,10 +116,10 @@ void MidiCfg::Load ()
    }
    rp [0] = nm;   rp [1] = ty;   rp [2] = ds;   rp [3] = nullptr;
                                          *ds = '\r';
-   ti.Open ();   to.Open ();
-   for (i = 0;  Midi.GetPos ('i', i, nm, ty, & ds [1], dv);  i++)  ti.Put (rp);
-   for (i = 0;  Midi.GetPos ('o', i, nm, ty, & ds [1], dv);  i++)  to.Put (rp);
-   ti.Shut ();   to.Shut ();
+   _ti.Open ();   _to.Open ();
+   for (i = 0;  Midi.GetPos ('i', i, nm, ty, & ds [1], dv);  i++)  _ti.Put (rp);
+   for (i = 0;  Midi.GetPos ('o', i, nm, ty, & ds [1], dv);  i++)  _to.Put (rp);
+   _ti.Shut ();   _to.Shut ();
    RedoMIn ();
 }
 
@@ -133,7 +132,7 @@ void MidiCfg::Save ()
 DBG("Save");
    if (Midi._len == 0)
       Gui.Hey ("You don't SEEM to have any midi devices :(");
-   App.Path (fn, 'c');   StrAp (fn, CC("/device/device.txt"));
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/device.txt"));
    if (! f.Open (fn, "w"))
       {Gui.Hey ("Save couldn't write device.txt");   return;}
 // in
@@ -180,7 +179,7 @@ DBG("Save");
 // for (d = 0;  d < n;  d++)  DLDevTyp (dt [d]);
 // turn off devs if they hit cancel on devtyp d/l
 
-// if ( 0 == system (StrFmt (ts, "cat `s", fn))) {}
+// App.Run (StrFmt (ts, "cat `s", fn));
    emit Reload ();
 }
 
@@ -190,10 +189,10 @@ void MidiCfg::Mv (char du)
 DBG("a");
    if ((_io != 'i') && (_io != 'o'))  {Gui.Hey ("Click a row, dude");   return;}
   ubyte cr, r;
-  Tabl  t ((_io == 'i') ? ui->tblI : ui->tblO);
   TStr  n;
+  CtlTabl *t = (_io == 'i') ? & _ti : & _to;
 DBG("b");
-   StrCp (n, t.Get (cr = t.CurRow (), 0));
+   StrCp (n, t->Get (cr = t->CurRow (), 0));
    for (r = 0;  r < Midi._len;  r++)
       if ((_io == Midi._lst [r].io) && (! StrCm (n, Midi._lst [r].name)))
          break;
@@ -201,11 +200,11 @@ DBG("du=`c io=`c n=`s row=`d => Midi row=`d", du, _io, n, cr, r);
 // can't use RecMv's built in rec check cuz 2 weird lists in arr
    if ((du == 'u') && (cr == 0))
       {Gui.Hey ("you're already at the top");      return;}
-   if ((du == 'd') && (cr == t.NRow ()-1))
+   if ((du == 'd') && (cr == t->NRow ()-1))
       {Gui.Hey ("you're already at the bottom");   return;}
    RecMv (Midi._lst, Midi._len, sizeof (Midi._lst [0]), r, du);
    Save ();
-   t.HopTo ((du == 'd') ? cr+1 : cr-1, 0);
+   t->HopTo ((du == 'd') ? cr+1 : cr-1, 0);
 }
 
 void MidiCfg::Dn ()  {Mv ('d');}
@@ -214,12 +213,12 @@ void MidiCfg::Up ()  {Mv ('u');}
 
 void MidiCfg::Updt ()
 {  if ((_io != 'i') && (_io != 'o'))  {Gui.Hey ("Click a row, dude");   return;}
-  Tabl t ((_io == 'i') ? ui->tblI : ui->tblO);
+  CtlTabl *t = ((_io == 'i') ? & _ti : & _to);
   TStr  nm, ty, ds;
-  ubyte c = t.CurCol ();
-  sbyt2 r = t.CurRow (), ro;
-   StrCp (nm, t.Get (r, 0));   StrCp (ty, t.Get (r, 1));
-   StrCp (ds, t.Get (r, 2));
+  ubyte c = t->CurCol ();
+  sbyt2 r = t->CurRow (), ro;
+   StrCp (nm, t->Get (r, 0));   StrCp (ty, t->Get (r, 1));
+   StrCp (ds, t->Get (r, 2));
 DBG("Updt r=`d c=`d nm=`s ty=`s ds=`s", r, c, nm, ty, ds);
    if (c == 0) {
    // test nonempty, <= 32 chars, no spaces, nondup
@@ -286,18 +285,18 @@ void MidiCfg::TestI (ubyte mi, MidiEv e)
    }
    else     StrFmt (& buf [StrLn (buf)], "`s=`d",
                                             MCtl2Str (b2, e.ctrl, 'r'), e.valu);
-   StrCp (t, UnQS (ui->txtEv->toPlainText ()));
+  CtlText tx (ui->txtEv);
+   StrCp (t, tx.Get ());
    ln = 0;
    for (i = 0;  i < StrLn (t);  i++)  if (t [i] == '\n')  ln++;
    if (ln >= 20)  StrCp (t, StrCh (t, '\n') + 1);
    StrAp (t, buf);   StrAp (t, CC("\n"));
-   ui->txtEv->clear ();   ui->txtEv->insertPlainText (t);
+   tx.Clr ();   tx.Add (t);
 }
 
 
 void MidiCfg::TestO ()
-{ Tabl  t (ui->tblO);
-  MidiO m (t.Get (t.CurRow (), 0), 'x');    // no gm init
+{ MidiO m (_to.Get (_to.CurRow (), 0), 'x');    // no gm init
    m.Put (9, MDrm(CC("snar")), 0x80|90);   m.Put (0, MKey (CC("4C")), 0x80|90);
    Zzz (300);                          // 3/10 sec
    m.Put (9, MDrm(CC("snar")),      64);   m.Put (0, MKey (CC("4C")),      64);
@@ -311,52 +310,51 @@ void MidiCfg::MidiIEv ()
 
 
 void MidiCfg::Init ()
-{  _io = ' ';
-  TBar tb (this,
-   "view-refresh"
-    "`Refresh device lists\n"
-    "(if you've installed/uninstalled/forgot to power on devices)`\0"
-   "go-up"
-    "`Scoot device up a row`\0"
-   "go-down"
-    "`Scoot device down a row`\0");
-  Tabl ti (ui->tblI), to (ui->tblO);
-   ti.SetHdr (
-      "input device\0"
-      "type\0"
+{  _io = ' ';   _nMI = 0;
+TRC("Init");   
+   Gui.WinLoad ();
+   InitDevTyp ();
+  CtlTBar tb (this,
+      "Refresh device lists\n"
+       "(if you've installed/uninstalled/forgot to power on devices)"
+                                "`view-refresh`\0"
+      "Scoot device up a row"   "`go-up`\0"
+      "Scoot device down a row" "`go-down`\0"
+   );
+   connect (tb.Act (0), & QAction::triggered, this, & MidiCfg::Load);
+   connect (tb.Act (1), & QAction::triggered, this, & MidiCfg::Up);
+   connect (tb.Act (2), & QAction::triggered, this, & MidiCfg::Dn);
+  
+   _ti.Init (ui->tblI,
+      "_input device\0"
+      "^type\0"
+       "driver description\0"); 
+   _to.Init (ui->tblO,
+      "_output device\0"
+      "^type\0"
       "driver description\0");
-   to.SetHdr (
-      "output device\0"
-      "type\0"
-      "driver description\0");
-   connect (tb.Act (0), & QAction::triggered,        this, & MidiCfg::Load);
-   connect (tb.Act (1), & QAction::triggered,        this, & MidiCfg::Up);
-   connect (tb.Act (2), & QAction::triggered,        this, & MidiCfg::Dn);
-   connect (ui->tblI,   & QTableWidget::itemChanged, this, & MidiCfg::Updt);
-   connect (ui->tblO,   & QTableWidget::itemChanged, this, & MidiCfg::Updt);
-   connect (ui->tblO,   & QTableWidget::itemClicked, this, & MidiCfg::TestO);
-   connect (this, & MidiCfg::Reload, this, & MidiCfg::Load,
-            Qt::QueuedConnection);
+   connect (ui->tblI, & QTableWidget::itemChanged, this, & MidiCfg::Updt);
+   connect (ui->tblO, & QTableWidget::itemChanged, this, & MidiCfg::Updt);
+   connect (ui->tblO, & QTableWidget::itemClicked, this, & MidiCfg::TestO);
    ui->tblI->installEventFilter (this);
    ui->tblO->installEventFilter (this);
-   ui->tblI->setItemDelegate (new CmboDel (ui->tblI));
-   ui->tblO->setItemDelegate (new CmboDel (ui->tblO));
-   ui->tblI->setEditTriggers (QAbstractItemView::SelectedClicked |
-                              QAbstractItemView::AnyKeyPressed);
-   ui->tblO->setEditTriggers (QAbstractItemView::SelectedClicked |
-                              QAbstractItemView::AnyKeyPressed);
-   _nMI = 0;
+   
+   connect (this, & MidiCfg::Reload, this, & MidiCfg::Load,
+            Qt::QueuedConnection);
    emit Reload ();
+TRC("Init end");   
 }
+
+
+void MidiCfg::Quit ()  {ShutMIn ();   Gui.WinSave ();}
 
 
 int main (int argc, char *argv [])
 { QApplication app (argc, argv);
   MidiCfg      win;
-   App.Init (CC("pcheetah"), CC("MidiCfg"));
-   Gui.Init (& app, & win);   win.Init ();   InitDevTyp ();
-  int rc = Gui.Loop ();
-   win.ShutMIn ();
+   App.Init (CC("pcheetah"), CC("midicfg"), CC("MidiCfg"));
+   Gui.Init (& app, & win);   win.Init ();   
+  int rc = Gui.Loop ();       win.Quit ();
    return rc;
 }
 

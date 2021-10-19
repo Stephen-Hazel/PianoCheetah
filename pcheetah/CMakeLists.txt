@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(midicfg VERSION 0.1 LANGUAGES CXX)
+project(pcheetah VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -15,45 +15,67 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
-        midicfg.cpp
-        midicfg.h
-        midicfg.ui
+        glo.h
+        pcheetah.h
+        pcheetah.cpp
+        pcheetah.ui
+        ctlNt.h
+        ctlNt.cpp
+        dlgFL.cpp
+        dlgfl.ui
+        dlgCfg.cpp
+        dlgcfg.ui
+        song.h
+        song.cpp
+        sTime.cpp
+        sDevTyp.cpp
+        sDevice.cpp
+        sFile.cpp
+        sRecord.cpp
+        sNote.cpp
+        sChrd.cpp
+        sEdit.cpp
+        sReDo.cpp
+        sCmd.cpp
+        sDump.cpp
         ../../stv/os.cpp
         ../../stv/ui.cpp
+        ../../stv/uiKey.cpp
+        ../../stv/timer.h
         ../../stv/midi.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(midicfg
+    qt_add_executable(pcheetah rc/rc.qrc
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
 # Define target properties for Android with Qt 6 as:
-#    set_property(TARGET midicfg APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#    set_property(TARGET pcheetah APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
-        add_library(midicfg SHARED
+        add_library(pcheetah SHARED
             ${PROJECT_SOURCES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(midicfg
+        add_executable(pcheetah
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(midicfg PRIVATE Qt${QT_VERSION_MAJOR}::Widgets asound)
+target_link_libraries(pcheetah PRIVATE Qt${QT_VERSION_MAJOR}::Widgets asound)
 
-set_target_properties(midicfg PROPERTIES
+set_target_properties(pcheetah PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(midicfg)
+    qt_finalize_executable(pcheetah)
 endif()

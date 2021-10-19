@@ -9,54 +9,6 @@
 
 extern BStr DevTyp;
 
-class CmboDel: public QStyledItemDelegate {
-   Q_OBJECT
-public:
-   CmboDel (QObject *par = nullptr): QStyledItemDelegate (par)  {}
-  ~CmboDel ()  {}
-
-public slots:
-   void cbChanged (int i)
-   { QComboBox *cb = static_cast<QComboBox *>(sender ());
-      (void)i;
-      emit commitData (cb);   emit closeEditor (cb);
-   }
-
-public:
-   QWidget *createEditor (QWidget *par, const QStyleOptionViewItem &opt,
-                          const QModelIndex &ind)  const override
-   {  if (ind.column () == 1) {
-        char *s;
-        QComboBox *cb = new QComboBox (par);
-         for (s = DevTyp;  *s;  s = & s [StrLn (s)+1])  cb->addItem (s);
-         return cb;
-      }
-      return QStyledItemDelegate::createEditor (par, opt, ind);
-   }
-
-   void setEditorData (QWidget *ed, const QModelIndex &ind)  const override
-   { QComboBox *cb = qobject_cast<QComboBox *>(ed);
-      if (cb) {
-        int i = cb->findText (ind.data (Qt::EditRole).toString ());
-         if (i < 0)  i = 0;
-         cb->setCurrentIndex (i);   cb->showPopup ();
-         connect (cb, SIGNAL(currentIndexChanged(int)),
-                  this, SLOT(cbChanged(int)));
-      }
-      else
-         QStyledItemDelegate::setEditorData (ed, ind);
-   }
-
-   void setModelData (QWidget *ed, QAbstractItemModel *mod,
-                      const QModelIndex &ind)  const override
-   { QComboBox *cb = qobject_cast<QComboBox *>(ed);
-      if (cb) mod->setData (ind, cb->currentText (), Qt::EditRole);
-      else
-         QStyledItemDelegate::setModelData (ed, mod, ind);
-   }
-};
-
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MidiCfg; }
 QT_END_NAMESPACE
@@ -68,8 +20,12 @@ private:
    MidiI *_mi [16];
    ubyte _nMI;
    char   _io;
-
+   CtlTabl _ti, _to;
+   
    void Save (), Mv (char du);
+
+protected:
+   bool eventFilter (QObject *ob, QEvent *ev);
 
 public:
    MidiCfg (QWidget *par = nullptr)
@@ -77,15 +33,12 @@ public:
 
   ~MidiCfg ()   {delete ui;}
 
-   void Init ();
+   void Init (), Quit ();
    void ShutMIn (), RedoMIn ();
    void TestI (ubyte mi, MidiEv e);
 
 signals:
-  void Reload ();
-
-protected:
-   bool eventFilter (QObject *ob, QEvent *ev);
+   void Reload ();
 
 public slots:
    void Load  ();
