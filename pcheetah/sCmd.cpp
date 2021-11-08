@@ -241,7 +241,6 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
 // 0=learn  1=hand  2=color  3=hearLoop  4=focus  5=shh  6=prac
 { ubyte e = ChkETrk (), t;
   char  c;
-   NotesOff ();
    if      (ofs == 0) {                // learn - toggle _f.lrn
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))  break;
       if (t >= Up.rTrk) {

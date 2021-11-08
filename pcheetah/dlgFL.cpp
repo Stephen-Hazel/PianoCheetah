@@ -351,13 +351,13 @@ void DlgFL::Brow ()
 void DlgFL::Up ()
 { ubyt4 p = FL.pos;
    if (p == 0)  return;
-   FL.lst.MvUp (p);   FL.pos--;   ReDo ();
+   FL.lst.MvUp (p);   FL.pos--;   FL.Save ();   ReDo ();
 }
 
 void DlgFL::Dn ()
 { ubyt4 p = FL.pos;
    if (p >= FL.lst.Ln-1)  return;
-   FL.lst.MvDn (p);   FL.pos++;   ReDo ();
+   FL.lst.MvDn (p);   FL.pos++;   FL.Save ();   ReDo ();
 }
 
 

@@ -16,9 +16,8 @@ void Song::ReTrk ()
       Up.trk [r].drm = TDrm (r);
       StrCp (Up.trk [r].lrn, _f.trk [r].shh ? CC("mute")
                           : (_f.trk [r].lrn ? CC("lrn") : CC("")));
-      c = _f.trk [r].ht;   s [1] = '\0';
-      if ((c >= '1') && (c <= '7')) 
-         {StrCp (s, CC("*ez9"));   s [3] = c;}
+      c = *s = _f.trk [r].ht;   s [1] = '\0';
+      if ((c >= '1') && (c <= '7'))  {StrCp (s, CC("*ez9"));   s [3] = c;}
       StrCp (Up.trk [r].ez, s);
       StrCp (Up.trk [r].name, _f.trk [r].name);
       StrCp (s, SndName (r));
@@ -43,7 +42,7 @@ void Song::ReTrk ()
                       (_f.trk [r].nn - _f.trk [r].nb)*2);
       StrCp (Up.trk [r].ctrls, s);
    }
-TRC("Song::ReTrk eTrk=`d ln=`d", Up.eTrk, r);
+TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
    emit sgUpd ("trk");
 }
 
@@ -444,13 +443,13 @@ void Song::SetSym ()
 //TStr ts1, ts2;
    W = Up.w;   H = Up.h;
 TRC("SetSym w=`d h=`d", W, H);
-   nw = W_NT;   ww = 24;   th = 8;   //_c->txH;    // dem consts
+   nw = W_NT;   ww = 24;   th = Up.txH;     // dem consts
    for (cw = 0, p = 0;  p < _f.ctl.Ln;  p++)  if (_f.ctl [p].sho)  cw += th;
    _pag.Ln = _col.Ln = _blk.Ln = _sym.Ln = 0;
    for (b = 1;  b <= _bEnd;) {
       if (_pag.Full ()) {
 TRC("SetSym end - w,h too small");
-         return;       // prob screen too small - give up
+         return;                       // prob screen too small - give up
       }
       np = _pag.Ins ();                // init pag[np]
       _pag [np].col = & _col [pc1 = _col.Ln];
@@ -713,10 +712,10 @@ TRC("ReDo");
    if (_lrn.POZ)                       Shush (false);
    NotesOff ();
    if ((! Up.uPoz) && _timer->Pause ())  Poz (false);
-TRC("clear stuph");
+TRC(" clear stuph");
    MemSet (_lrn.rec,   0, sizeof (_lrn.rec));
    MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
-TRC("redo vwNt/ez/rHop");
+TRC(" redo vwNt/ez/rHop");
    _lrn.vwNt = _lrn.ez = _lrn.rHop = false;
    for (t = 0; t < Up.rTrk; t++)  {if (TSho (t))  _lrn.vwNt = true;
                                    if (TEz  (t))  _lrn.ez   = true;}
@@ -733,13 +732,11 @@ TRC("redo vwNt/ez/rHop");
          if (_f.trk [t].ht == 'L')  _lrn.hand = (_lrn.hand == 'R') ? 'B' : 'L';
          if (_f.trk [t].ht == 'R')  _lrn.hand = (_lrn.hand == 'L') ? 'B' : 'R';
       }
-TRC("vwNt=`b ez=`b rHop=`b hand=`c", _lrn.vwNt, _lrn.ez, _lrn.rHop, _lrn.hand);
-TRC("set icos");
+TRC(" vwNt=`b ez=`b rHop=`b hand=`c", _lrn.vwNt, _lrn.ez, _lrn.rHop, _lrn.hand);
+TRC(" set icos");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
-TRC("ReEv; SetDn; SetNt; TmHop");
-   ReEv ();
-   SetDn ();   SetNt ();   TmHop (_now);   
-   _pg = _tr = 0;   emit sgUpd ("nt");
-   ReTrk ();   DscSave ();
+TRC(" ReEv; SetDn; SetNt; TmHop");
+   ReEv ();   SetDn ();   SetNt ();   TmHop (_now);   
+   _pg = _tr = 0;   SetSym ();   Draw ();   ReTrk ();   DscSave ();
 TRC("ReDo end");
 }

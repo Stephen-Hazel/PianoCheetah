@@ -237,7 +237,7 @@ int DTrCmp (void *p1, void *p2)  // ...TrkEv sortin for DrumExp() by DrumNt,
 void Song::DrumExp (bool setBnk)
 // expand any (per dev) DrumTrack tracks to a track per dev/drum
 // use _f.mapD (already set up) to override default drum params
-{ ubyte t, nD, d [128], x, i, syn;
+{ ubyte t, nD, d [128], x, i;
   ubyt4 e, neX, neT;
   TStr  s, s2;
   TrkEv *ev;
@@ -246,7 +246,7 @@ TRC("DrumExp rTrk=`d setBnk=`b", Up.rTrk, setBnk);
 TRC(" t=`d", t);
       if (! TDrm (t))  t++;
       else {
-TRC("  got dr.  ne=`d", _f.trk [t].ne);
+TRC("  got dr trk - ne=`d", _f.trk [t].ne);
       // split drum events - sort by MDrum pos
          ev = _f.trk [t].e;   neT = _f.trk [t].ne;
          Sort (ev, neT, sizeof (TrkEv), DTrCmp);
@@ -283,7 +283,6 @@ TRC("  t=`d ne=`d", t, neT);
                _f.trk [t+x].drm = d [x];
             }
          }
-         syn = MAX_DEV;
       // so far .e,ne,dur,drm are set;  set rest;  _mapD overrides defaults now
          for (i = 0;  i < nD;  i++) {
 TRC("  top=`d i=`d => set trk `d", t, i, t+i);
@@ -305,11 +304,6 @@ TRC("  top=`d i=`d => set trk `d", t, i, t+i);
 TRC("   set trk `d snd from mapD[`d]=`d", t+i, x, _f.trk [t+i].snd);
                break;                  // on to the next drum
             }                          // uh oh, if no map syn NEEDS .snd :(
-            if ((x >= _f.mapD.Ln) && (syn < MAX_DEV)) {
-               _f.trk [t+i].snd =
-                  Up.dvt [syn].SndID (MDrm2StG (s, _f.trk [t+i].drm));
-TRC("   set trk `d snd (syn)=`d", t+i, _f.trk [t+i].snd);
-            }
             MDrm2Str (_f.trk [t+i].name, _f.trk [t+i].drm);
             if (_f.trk [t+i].drm != _f.trk [t+i].din)
                StrFmt (_f.trk [t+i].name, "`s => `s",
@@ -317,7 +311,7 @@ TRC("   set trk `d snd (syn)=`d", t+i, _f.trk [t+i].snd);
                        MDrm2Str (s2, _f.trk [t+i].drm));
          }
 TRC("  t=`d nTr=`d dev=`d dvt=`d",
-t, Up.rTrk, Up.trk [t].dev, Up.dev [_f.trk [t].dev].dvt);
+t, Up.rTrk, _f.trk [t].dev, Up.dev [_f.trk [t].dev].dvt);
          if (_f.trk [t].snd == SND_NONE) {
             _f.trk [t].snd =
                Up.dvt [Up.dev [_f.trk [t].dev].dvt].SndID (CC("Drum/Drum"));
@@ -337,7 +331,7 @@ TRC("DrumExp end");
 ubyte Song::DrumCon ()
 // build _f.mapD for caller n
 // join all individual drum tracks back into ONE DrumTrack per dev
-{ ubyte nD, x, syn, otr = MAX_TRK;
+{ ubyte nD, x, otr = MAX_TRK;
   ubyt4 t = 0, tt;
 TRC("DrumCon");
    _f.mapD.Ln = 0;
@@ -348,7 +342,6 @@ TRC("DrumCon");
                                   TDrm ((ubyte)t+nD) )   nD++;
    // write _f.mapD before we kill the info
       _f.mapD.Ln = nD;
-      syn = MAX_DEV;
       for (x = 0;  x < nD;  x++) {
          _f.mapD [x].ctl = _f.trk [t+x].drm;
          _f.mapD [x].shh = _f.trk [t+x].shh;
@@ -357,12 +350,7 @@ TRC("DrumCon");
          _f.mapD [x].inp = _f.trk [t+x].din;
          _f.mapD [x].vol = 127;
          _f.mapD [x].pan = 64;
-         _f.mapD [x].snd = SND_NONE;     // default if non syn
-         if (syn < MAX_DEV) {
-            _f.mapD [x].snd = _f.trk [t+x].snd;
-            _f.mapD [x].vol = _f.trk [t+x].vol;
-            _f.mapD [x].pan = _f.trk [t+x].pan;
-         }
+         _f.mapD [x].snd = SND_NONE;
       }
    // adj all .trk refs
       if (Up.eTrk > t) Up.eTrk -= (nD-1);
@@ -440,7 +428,7 @@ static int IniTSigCmp (void *p1, void *p2)  // by .bar
 void Song::Load (char *fn)
 // ok, go thru the BRUTAL HELL to load in a song, etc...
 { TStr  fnt, buf;
-  ubyte nt, t, dt, i, syn;
+  ubyte nt, t, dt, i;
   ubyt4 ln, e, ne, pe, te, tm, mint;
   char *m, *p, ud;
   File  f;
@@ -578,6 +566,7 @@ TRC("init _f.ev, _f.trk[].e, build _f.ctl[].s");
          }
       }
       else {                           // note
+//TStr db1;DBG("note trk=`d tm=`s buf=`s", t, TmS (db1, e2->time), buf);
          i = MDrm (p = buf);
          if (i == (ubyte)128) i = MKey (buf, & p);   else p += 4;
          ud = *p++;
@@ -640,9 +629,9 @@ TRC("lyr");
    _hLyr = (e >= _f.lyr.Ln) ? 1 : 2;
 
 TRC("soundbank init");
-   for (syn = MAX_DEV, dt = MAX_TRK, t = 0;  t < Up.rTrk;  t++)
-      if (TDrm (t)) {dt = t;   break;}      // got drum trk ?
-//st [TB_DRM].Dump ();   DBG("syn=`d dtrk=`d", syn, dt);
+   for (dt = MAX_TRK, t = 0;  t < Up.rTrk;  t++)  if (TDrm (t))
+      {dt = t;   break;}               // got drum trk ?
+//DBG("dtrk=`d", dt);   st [TB_DRM].Dump ();
    _f.mapD.Ln = st [TB_DRM].NRow ();   // load _mapD so DrumExp can sep drm trks
    for (e = 0;  e < _f.mapD.Ln;  e++) {
    // defaults
@@ -659,16 +648,9 @@ TRC("soundbank init");
       StrCp (buf, st [TB_DRM].Get (e, 6));
       if (*buf != '.')  if (MDrm (buf) < 128)
                              _f.mapD [e].inp = MDrm (buf);
-      StrCp (buf, st [TB_DRM].Get (e, 1));       // sound
-      if (syn < MAX_DEV) {                       // now overwrite IFF syn
-//DBG("dmap [`d].sndStr=`s", e, buf);
-         if (*buf == '.')  MDrm2StG (buf, _f.mapD [e].ctl);
-         _f.mapD [e].snd = Up.dvt [syn].SndID (buf);
-         _f.mapD [e].vol = (ubyte)Str2Int (st [TB_DRM].Get (e, 2));
-         _f.mapD [e].pan = (ubyte)Str2Int (st [TB_DRM].Get (e, 3));
-      }
-      else if ((e == 0) && StrCm (buf, CC(".")))
-      // non syn can have drum progch in 1st .snd
+      StrCp (buf, st [TB_DRM].Get (e, 1));  // sound
+      if ((e == 0) && StrCm (buf, CC(".")))
+      // can have drum progch in 1st .snd
          _f.mapD [0].snd = Up.dvt [Up.dev [_f.trk [dt].dev].dvt].SndID (buf);
    }
 TStr t1, t2;  TRC("mapD shh lrn ht inp ctl vol pan snd");

@@ -108,7 +108,7 @@ ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
 //DBG("b=> NONE");
       if (xmatch)  return SND_NONE;    // no resolving
 
-   // chop off at trailing _ then trailing \ while we got em and try that
+   // chop off at trailing _ then trailing / while we got em and try that
       if ((p = StrCh (nm, '_')))  *p = '\0';
       for (;;) {
 //DBG("find `s", nm);
@@ -151,7 +151,7 @@ ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
    }
    if (xmatch)  return SND_NONE;
 
-// chop off at trailing _ then trailing \ while we got em and try that
+// chop off at trailing _ then trailing / while we got em and try that
    if ((p = StrCh (nm, '_')))  *p = '\0';
    for (;;) {
 //DBG("find `s", nm);
@@ -168,7 +168,7 @@ ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
       else break;
    }
 
-// give up - use 1st sound (Piano\AcousticGrand for GM, or whatever ya got)
+// give up - use 1st sound (Piano/AcousticGrand for GM, or whatever ya got)
    return _nDr;  // SndID ("Piano/AcousticGrand");
 }
 

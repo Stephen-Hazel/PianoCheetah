@@ -181,7 +181,7 @@ TRC("TmHop `s",TmSt(str,tm));
    if (! (_lrn.hLrn = (PRAC || PLAY) ? false : true))
       for (t = Up.rTrk;  t < _f.trk.Ln;  t++)  if (_f.trk [t].nn)
                                                   {_lrn.hLrn = false;   break;}
-TRC("lrn=`d hLrn=`b", Up.lrn, _lrn.hLrn);
+TRC(" lrn=`d hLrn=`b", Up.lrn, _lrn.hLrn);
    for (cc = 0;  cc < _cch.Ln;  cc++) {
       _cch [cc].time = 0;
       _cch [cc].valu = _cch [cc].val2 = _cch [cc].trk = 0;
@@ -199,7 +199,7 @@ TRC("lrn=`d hLrn=`b", Up.lrn, _lrn.hLrn);
              _cch [cc].val2 = MCC [c].dflt >> 7;   break;}
 //DBG(" trk=`d valu=`d val2=`d", _cch [cc].trk, _cch [cc].valu, _cch [cc].val2);
    }
-TRC("chase ctl actual valu in _f.trk[].e, set .p");
+TRC(" chase ctl actual valu in _f.trk[].e, set .p");
    for (t = 0;  t < _f.trk.Ln;  t++) {
       d = _f.trk [t].dev;   c = _f.trk [t].chn;
       for (p = 0, ne = _f.trk [t].ne, e = _f.trk [t].e;
@@ -222,7 +222,7 @@ TRC("chase ctl actual valu in _f.trk[].e, set .p");
       }
       _f.trk [t].p = p;                // chase _f.trk[].p
    }
-TRC("put each ctl");
+TRC(" put each ctl");
    for (cc = 0;  cc < _cch.Ln;  cc++) {
       c  = _cch [cc].ctl & 0x7F;
       v  = _cch [cc].valu;
@@ -250,13 +250,13 @@ TRC("put each ctl");
       _dn [p].nt [c].nt &= 0x7F;       // clear all hi bits to unhit
    MemSet (_lrn.nt,  0, sizeof (_lrn.nt ));
    MemSet (_lrn.rec, 0, sizeof (_lrn.rec));
-TRC("timerset");                       // unpoz unless uPoz
+TRC(" timerset");                      // unpoz unless uPoz
    _timer->Set (_pNow = 1 + (_rNow = _now = tm));   _onBt = true;
    _lrn.POZ = false;   Poz (Up.uPoz);
    Draw ();
-TRC("timerset2");
+TRC(" timerset2");
    _timer->Set (_now);                 // Draw takes a while :/
 TStr d1,d2,d3;
-TRC("TmHop: timer=`s timerSig=`s _now=`s",
+TRC("TmHop end: timer=`s timerSig=`s _now=`s",
 TmSt(d1,_timer->Get ()), TmSt(d2,_timer->Sig ()), TmSt(d3,_now));
 }

@@ -128,38 +128,38 @@ DBG("   Local Control=ON for `s", nm);
 //______________________________________________________________________________
 // MidiOut stuph
 void Song::NotesOff ()                 // playing notes n hold cc go off
-{ ubyte d;
-TRC("NotesOff");
-   for (d = 0;  d < Up.dev.Ln;  d++)   if (Up.dev [d].mo)
-                                                     Up.dev [d].mo->NotesOff ();
+{  for (ubyte d = 0;  d < Up.dev.Ln;  d++)  if (Up.dev [d].mo)
+                                                Up.dev [d].mo->NotesOff ();
 }
 
 
 void Song::PickDev (ubyte tr, char *sndName, char *devName)
 // map a dev,chn for track tr given it's devName,sndName and other trks' chans
 { ubyte i, d, c = 0, nD = 0, m, x;
-  TStr  dLst [MAX_TRK][2], buf, xs, t, cmap;
+  TStr  dLst [MAX_TRK][2], buf, ty, xs, dv, cmap;
   bool  cOk;
   DevTyp dt;
 TRC("PickDev tr=`d snd=`s dev=`s", tr, sndName, devName?devName:"");
-   if ( _f.trk [tr].grp  &&  tr  &&    // sanity check grp w drum-ness
+   if ( _f.trk [tr].grp  &&  tr  &&    // sanity check grp w GOT prv & drum-ness
         ( (MemCm (sndName, CC("drum"), 4) ? 0 : 1) ==
           (TDrm (tr-1) ? 1 : 0)) )
         {d = _f.trk [tr-1].dev;   c = _f.trk [tr-1].chn;}
    else {
-   // list off all the output device,dtypes we got in the order we got em
+   // list all output device,dtypes we got (skippin OFF,dead) in order we got em
       d = 0;
-      while (Midi.GetPos ('o', d++, buf, t, xs, xs))  if (StrCm (t, CC("OFF")))
-         {StrCp (dLst [nD][0], buf);   StrCp (dLst [nD++][1], t);}
-      if (nD == 0)  DBG("There are no MIDI output devices.\n"
-                        "Please connect one and run MidiCfg.");
+      while (Midi.GetPos ('o', d++, buf, ty, xs, dv))
+         if (StrCm (ty, CC("OFF")) && (*dv != '?'))
+            {StrCp (dLst [nD][0], buf);   StrCp (dLst [nD++][1], ty);}
+      if (nD == 0)
+Die(CC("There are no MIDI output devices.\n"
+       "Please connect one and run MidiCfg."));
    // if got arg dev, hop it to list's top
       if (devName)
          for (i = 0;  i < nD;  i++)  if (! StrCm (dLst [i][0], devName)) {
-            StrCp  (t, dLst [i][1]);   // swap to top
+            StrCp  (ty, dLst [i][1]);  // swap to top
             RecDel (dLst, nD--, sizeof (dLst [0]), i);
             RecIns (dLst, ++nD, sizeof (dLst [0]), 0);
-            StrCp  (dLst [0][0], devName);   StrCp (dLst [0][1], t);
+            StrCp  (dLst [0][0], devName);   StrCp (dLst [0][1], ty);
             break;
          }
    // look at each devtype for an exact sound match;  then again for mapped snd
@@ -192,19 +192,21 @@ tr+1, sndName);
             return;
          }
       }
-      d = OpenDev (dLst [d][0]);
+      d = OpenDev (dLst [d][0]);       // HEY!  d changes to pos in Up.dev !!
       if (d == MAX_DEV)  return;
    }
    _f.trk [tr].dev = d;   _f.trk [tr].drm = PRG_NONE;
    _f.trk [tr].chn = c;   _f.trk [tr].snd = SND_NONE;
    if (c != 9)  _f.trk [tr].snd =
                           Up.dvt [Up.dev [_f.trk [tr].dev].dvt].SndID (sndName);
-TRC("PickDev: `s(`s).`d sn=`d", dLst [d][0], dLst [d][1], c+1, _f.trk [tr].snd);
+TRC("PickDev end:  dev=`s(`s).`d snd=`d=`s",
+Up.dev [d].mo->Name (), Up.dev [d].mo->Type (), c+1,
+_f.trk [tr].snd, (c==9)?"-":sndName);
 }
 
 
 ubyte Song::OpenDev (char *nm)
-// return _f.dev pos if got;  else KICK it up n return new pos (n maybe devtype)
+// return Up.dev pos if got;  else KICK it up n return new pos (n maybe devtype)
 { ubyte d, t;
 TRC("OpenDev `s", nm);
    for (d = 0;  d < Up.dev.Ln;  d++)   // already open?

@@ -87,11 +87,12 @@ void Song::PutTs (ubyte n, ubyte d, ubyte sb)
 
 
 void Song::PutLy ()
-// sorry this code is terrible :(
+// sorry this code is terrible :(  but kinda necessary :/
+// b is hilite start pos.  e is hilite OFF pos (not len)
 { ubyt4 ne, pos, p, b, e, pp, ps, ln, lc;
   char  buf [1000], *pc, nl = 0;
   bool  got = false;
-   *Up.lyr = '\0';   Up.lyrHiF = Up.lyrHiL = 0;
+   *Up.lyr = '\0';   Up.lyrHiB = Up.lyrHiE = 0;
    if (*Up.hey)  {StrCp (Up.lyr, Up.hey);   *Up.hey = '\0';   
                   emit sgUpd ("lyr");   return;}
 // ain't got none so bail
@@ -101,7 +102,7 @@ void Song::PutLy ()
    if ((pos = _pLyr))  {pos--;   got = true;}
 //DBG("PutLy _hLyr=`d _pLyr=`d pos=`d ne=`d got=`b _now=`d",
 //_hLyr, _pLyr, pos, ne, got, _now);
-//for (ubyt4 i = 0;  i < _f.lyr.Ln;  i++) DBG("`d: `d '`s'",
+//for (ubyt4 i = 0;  i < _f.lyr.Ln;  i++) DBG(" `d: `d '`s'",
 //i, _f.lyr [i].time, _f.lyr [i].s);
    if (_hLyr > 1) {                    // stanzaz ta do...
       if      (! got)                  // nothin
@@ -121,20 +122,20 @@ void Song::PutLy ()
          b = e = 0;   p++;   got = false;
       }
       for (;  p < ne;  p++) {
-//DBG("a b=`d e=`d buf='`s' got=`b p=`d pos=`d", b, e, buf, got, p, pos);
+//DBG(" a b=`d e=`d buf='`s' got=`b p=`d pos=`d", b, e, buf, got, p, pos);
          if ((! got) && (p == pos)) {
             b = StrLn (buf);   StrAp (buf, _f.lyr [p].s);
             e = StrLn (buf);   got = true;
          }
          else                  StrAp (buf, _f.lyr [p].s);
-//DBG("b b=`d e=`d buf='`s'", b, e, buf);
+//DBG(" b b=`d e=`d buf='`s'", b, e, buf);
          while ((pc = StrCh (buf, '/'))) {
             if (++nl == 2)  {*pc = '\0';   p = ne;   break;}    // DONE !!
             *pc = '\n';
          }
       }
-//DBG("c b=`d e=`d buf='`s'", b, e, buf);
-      StrCp (Up.lyr, buf);   Up.lyrHiF = b;   Up.lyrHiL = e;
+//DBG(" c b=`d e=`d buf='`s'", b, e, buf);
+      StrCp (Up.lyr, buf);   Up.lyrHiB = b;   Up.lyrHiE = e;
       emit sgUpd ("lyr");
       return;
    }
@@ -154,7 +155,7 @@ void Song::PutLy ()
       buf [pp += lc] = '\0';
    }
    StrCp (Up.lyr, buf);
-   Up.lyrHiF = 20;   Up.lyrHiL = 20 + StrLn (_f.lyr [pos].s);
+   Up.lyrHiB = 20;   Up.lyrHiE = 20 + StrLn (_f.lyr [pos].s);
    emit sgUpd ("lyr");
 }
 

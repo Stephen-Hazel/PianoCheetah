@@ -18,11 +18,8 @@ void PCheetah::LoadGo ()
 
 void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open  ();}
 void PCheetah::GCfg ()                         {_dCfg->Open ();}
-
-void PCheetah::MCfg ()                 // kick midicfg.  quit cuz midi sharin'
-{  StrCp (Kick, CC("midicfg &"));   Gui.Quit ();  }
-
-
+void PCheetah::MCfg ()  {StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
+                             // kick midicfg.  quit cuz midi sharin'
 void PCheetah::SongNxt ()
 { ubyt4 p = FL.pos, ln = FL.lst.Ln;
   TStr  s;
@@ -152,7 +149,8 @@ DBG("done dr=`s", dr);
 
 void TrPop (char *ls, ubyt2 r, ubyte c)    
 // pop HT, sounddir, sound CtlList
-{  *ls = '\0';   //DBG("TrPop r=`d c=`d", r, c);
+{  *ls = '\0';   
+TRC("TrPop r=`d c=`d", r, c);
    if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm))
       MemCp (ls, CC("-\0L\0R\0ez1\0ez2\0ez3\0ez4\0ez5\0ez6\0ez7\0"), 
                      3*2+7*4+1);   
@@ -168,7 +166,7 @@ void TrPop (char *ls, ubyt2 r, ubyte c)
 void PCheetah::TrClk ()
 { ubyt2 r = _tr.CurRow ();
   ubyte c = _tr.CurCol ();
-DBG("TrClk(L) r=`d c=`d", r, c);
+TRC("TrClk(L) r=`d c=`d", r, c);
 //ulong b = _tr;
 //ubyte nt = Up.rTrk, tr;
 //TrkRow *trk =     & _s->_f.trk [0];
@@ -196,7 +194,7 @@ void PCheetah::TrClkR (const QPoint &pos)
 { ubyt2 r = _tr.CurRow ();
   ubyte c = _tr.CurCol ();
    (void)pos;
-DBG("TrClkR r=`d c=`d", r, c);
+TRC("TrClkR r=`d c=`d", r, c);
    Up.eTrk = (ubyte)r;  
    if      (c == 0)  emit sgCmd ("mute");    
    else if (c == 1)  emit sgCmd ("showAll");
@@ -208,7 +206,8 @@ void PCheetah::TrUpd ()
 { ubyt2 r = _tr.CurRow ();
   ubyte c = _tr.CurCol ();
   TStr  s;
-DBG("TrUpd r=`d c=`d", r, c);
+   Up.eTrk = (ubyte)r;  
+TRC("TrUpd r=`d c=`d", r, c);
    switch (c) {
       case 1:                          // hand type
          emit sgCmd (StrFmt (s, "htype `s", _tr.Get (r, 1)));   break;
@@ -274,16 +273,16 @@ DBG("Upd `s", u);
      CtlText t (ui->lyr);
      QColor  fg = t.Fg (), hi = t.Hi ();
       t.Clr ();   
-      if (! Up.lyrHiL)  {t.SetFg (fg);   t.Add (Up.lyr);}
+      if (! Up.lyrHiE)  {t.SetFg (fg);   t.Add (Up.lyr);}
       else {
-        ubyte b = Up.lyrHiF, e = Up.lyrHiL;
+        ubyte b = Up.lyrHiB, e = Up.lyrHiE;
         TStr  s;
          StrCp (s, Up.lyr);
-//DBG("lyr='`s' b=`d e=`d", Up.lyr, Up.lyrHiF, Up.lyrHiL);
-         if (b)  {s [b] = '\0';       t.SetFg (fg);   t.Add (s);}
-         StrCp (s, & Up.lyr [b]);   s [e] = '\0';
-                                      t.SetFg (hi);   t.Add (s);
-         StrCp (s, & Up.lyr [b+e]);   t.SetFg (fg);   t.Add (s);
+//DBG("lyr='`s' b=`d e=`d", Up.lyr, Up.lyrHiB, Up.lyrHiE);
+         if (b)  {s [b] = '\0';     t.SetFg (fg);   t.Add (s);}
+         StrCp (s, & Up.lyr [b]);   s [e-b] = '\0';
+                                    t.SetFg (hi);   t.Add (s);
+         StrCp (s, & Up.lyr [e]);   t.SetFg (fg);   t.Add (s);
       }
    }
 
@@ -298,7 +297,8 @@ DBG("Upd `s", u);
          rp [8] = Up.trk [i].ctrls;     rp [9] = nullptr;
          _tr.Put (rp);
          if (Cfg.ntCo == 2) {          // color by track
-            if ((rp [0][0] == 'l') || (rp [1][0] == 'S')) 
+            if (((rp [0][0] == 'l') || (rp [1][0] == 'S')) && 
+                (! Up.trk [i].drm))
                _tr.SetColor (i, CMap (tc++));
          }
          else {
@@ -336,13 +336,19 @@ TRC("keypressEvent `s", s);
 void PCheetah::Init ()
 {  *Kick = '\0';
 TRC("PCheetah::Init");
+   Midi.Load ();
+  ubyte i = 0;
+  TStr  nm, ty, ds, dv;
+   while (Midi.GetPos ('o', i++, nm, ty, ds, dv))  
+      if (StrCm (ty, CC("OFF")) && (*dv == '?')) 
+         {Gui.Hey ("a midi device is off, pal...");   break;}
 TRC("  song init");
    _s = new Song;                      // git song worker thread goin
 
    CInit ();                           // init all them thar colors
-
-  QFontMetrics fm (Gui.A ()->font ());
-   Up.txH = fm.height ()-1;
+   Gui.WinLoad (ui->spl);
+   Up.cnv.SetFont ("Noto Sans", 12);   Up.tcnv.SetFont ("Noto Sans", 12);
+   Up.txH  = Up.cnv.FontH ();
    Up.oct  = new QPixmap (":/oct.png");
    Up.pnbg = new QPixmap (":/pnbg.png");    // all dem bitmaps
    Up.now  = new QPixmap (":/now.png");
@@ -362,10 +368,9 @@ TRC("  song init");
    _thr.start ();
    emit sgCmd ("init");
 
-   Gui.WinLoad (ui->spl);
-   setFocusPolicy (Qt::StrongFocus);
+   setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
 TRC("  tbar init");
-  CtlTBar tb (this,                 // top
+  CtlTBar tb (this,                    // top
       "show / hide track editing\n"
          "the grid that picks which tracks to practice, RH/LH, sound, etc"
                       "`view-media-lyrics" "`v\0"
@@ -473,7 +478,8 @@ TRC("  lyr,tr,nt init");
        "Mix\0"
       ">Notes\0"
       ">Ctrls\0", TrPop);
-   _tr.SetRowH (Up.txH - 4);
+   _tr.SetRowH (Gui.FontH ());
+   
    ui->tr->setContextMenuPolicy (Qt::CustomContextMenu); 
    connect (ui->tr, & QTableWidget::itemClicked, this, & PCheetah::TrClk);
    connect (ui->tr, & QTableWidget::customContextMenuRequested, 
@@ -515,7 +521,7 @@ TRC("  Win,dlg save");
 TRC("  thrEnd");
    _thr.quit ();   _thr.wait ();
 TRC("  kick=`s", Kick);
-// if (*Kick)  execl (Kick);
+   if (*Kick)  App.Spinoff (Kick);
 TRC("PCheetah::Quit end");
 }
 

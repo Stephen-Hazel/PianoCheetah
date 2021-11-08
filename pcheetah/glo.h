@@ -93,7 +93,7 @@ struct UpdLst {
    bool  uPoz;                         // user said poz, not just learn mode
    char  lrn;
    TStr  ttl, song, time, bars, tmpo, tsig, lyr, hey;
-   ubyte lyrHiF, lyrHiL;
+   ubyte lyrHiB, lyrHiE;
    Arr<DevTyp,MAX_DEV>  dvt;
    Arr<DevRow,MAX_DEV>  dev;
    Arr<UTrkRow,MAX_TRK> trk;           // n trk picked for editin

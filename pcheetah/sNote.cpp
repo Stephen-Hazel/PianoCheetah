@@ -39,7 +39,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
   PagDef *pg = & _pag [pp];
   ColDef  co;
   DownRow *dn;
-//DBG("Song::DrawRec all=`b pp=`d", all, pp);
+//DBG("DrawRec all=`b pp=`d", all, pp);
    if (all) {
       for (pMn = pMx = 0, t = Up.rTrk;  t < _f.trk.Ln;  t++) {
          ne = _f.trk [t].ne;
@@ -156,8 +156,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
                   if (((t2 = e [p].time) >= pMn) && (t2 <= pMx)) {
                      if (cc [tt].ty == 'x') {
                         CtlX2Str (str, cc [tt].s, & e [p]);
-                        Up.cnv.TextVC ((ubyt2)x+th, Tm2Y (t2, & co), str,
-                                                                        CBLACK);
+                        Up.cnv.TextVC (x, Tm2Y (t2, & co), str, CBLACK);
                      }
                      else if (cc [tt].ty == 'o') {
                         t1 = cc [tt].tm;
@@ -315,7 +314,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
          }
       }
    }
-//DBG("Song::DrawRec  END");
+//DBG("DrawRec  END");
    return tp;
 }
 
@@ -459,7 +458,7 @@ void Song::DrawPg (ubyt4 pp)
   PagDef *pg = & _pag [0];
   ColDef  co;
   BlkDef *bl;
-TRC("Song::DrawPg `d", pp);
+TRC("DrawPg `d", pp);
 // load constant-ish stuffs
    trk = & _f.trk [0];   nTrk = Up.rTrk;   tw = 8;   th = Up.txH;
    Up.cnv.RectF (0, 0, Up.w, Up.h, CWHITE);     // cls to white
@@ -512,10 +511,10 @@ TRC("Song::DrawPg `d", pp);
 
       // label at b|c borders;  also middle c line unless at left border
          StrFmt (str, "`d", oc-1);
-         if (nt ==  0) {Up.cnv.Text (x+2,      9, str);
+         if (nt ==  0) {Up.cnv.Text (x+2,      13, str);
                         if ((oc == 5) && (x != nx))
                            Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);}
-         if (nd == 11)  Up.cnv.Text (x+w-tw-3, 9, str);
+         if (nd == 11)  Up.cnv.Text (x+w-tw-3, 13, str);
 
       // draw curr keysig;  if in scale, put step color
          w2 = 3;
@@ -532,7 +531,7 @@ TRC("Song::DrawPg `d", pp);
          if (KeyCol [nd] == 'w') {
             if (nd && (nd != 11))
                {StrFmt (str, "`d", nt/12-1);
-                Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 9, str);}
+                Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 13, str);}
             break;
          }
       }
@@ -542,7 +541,7 @@ TRC("Song::DrawPg `d", pp);
          if (KeyCol [nd] == 'w') {
             if (nd && (nd != 11))
                {StrFmt (str, "`d", nt/12-1);
-                Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 9, str);}
+                Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 13, str);}
             break;
          }
       }
@@ -579,11 +578,10 @@ TRC("Song::DrawPg `d", pp);
       for (x = x1, p = 0;  p < co.nDrm;  p++) {
          t = co.dMap [p];
          StrCp (str, trk [t].name);   str [4] = '\0';
-         Up.cnv.TextV (x+th-2, 3, str);   x += W_NT;
+                               Up.cnv.TextV (x, 3, str);   x += W_NT;
       }
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)
-         if (_f.ctl [t].sho)
-            {Up.cnv.TextV (x+th-2, 3, _f.ctl [t].s);   x += th;}
+         if (_f.ctl [t].sho)  {Up.cnv.TextV (x, 3, _f.ctl [t].s);   x += th;}
       if ((x > x1) && (c < pg [pp].nCol-1))
          Up.cnv.RectF (x1, 0, x-x1-1, 2, CBLACK);
    //__________________________________
@@ -595,7 +593,7 @@ TRC("Song::DrawPg `d", pp);
       Up.cnv.RectF (qx, y, qw, co.h-y, CTnt [3]);
 
    // FIRST (v/c/b/etc rect hilites so underneath-est (text later)
-      Up.cnv.TextVC (qx+qw, 0, CC("Cues"), CBLACK);
+      Up.cnv.TextVC (qx, 0, CC("Cues"), CBLACK);
       for (ne = _f.cue.Ln, p = 0;  p < ne;  p++)
          if (* (StrCp (str, _f.cue [p].s)) == '(') {
             t1 = _f.cue [p].time;   t2 = Bar2Tm (9999);
@@ -653,7 +651,7 @@ TRC("Song::DrawPg `d", pp);
                   StrFmt (str, "break `d",  br);
             else  StrCp  (str, & str [1]);
             y = Tm2Y (t1, & co);
-            Up.cnv.TextVC (qx+qw-1, y+4, str, CBLACK);
+            Up.cnv.TextVC (qx, y+4, str, CBLACK);
 
             *str = '(';             // sorry !!
          }
@@ -670,13 +668,12 @@ TRC("Song::DrawPg `d", pp);
          else if (! StrCm (str, CC("`mad")))  {x = 136;   w = 24;}
          if (x)  Up.cnv.Blt (*Up.cue, (ubyt2)qx+qw-w, y, x, 0,
                                                           w, Up.cue->height ());
-         else    Up.cnv.TextVC ((ubyt2)qx+qw-1, y, str, CBLACK);
+         else    Up.cnv.TextVC (qx, y, str, CBLACK);
       }
 
    // chords (in their own column)
       if (_lrn.chd) {
-         Up.cnv.TextVC (qx+th, 0, CC("Chds"), CBLACK);
-         qx += th;
+         Up.cnv.TextVC (qx, 0, CC("Chds"), CBLACK);
          for (ne = _f.chd.Ln, p = 0;
                  (p < ne) && (_f.chd [p].time < tMn);  p++)  sw = (! sw);
          for (;  (p < ne) && (_f.chd [p].time < tMx);  p++) {sw = (! sw);
@@ -715,7 +712,7 @@ TRC("Song::DrawPg `d", pp);
    // bar #s on top
       for (p = 0;  p < co.nBlk;  p++)
          {StrFmt (str, "`d", co.blk [p].bar);
-          Up.cnv.TextC (nx+1, co.blk [p].y, str, CDBLU);}
+          Up.cnv.TextC (nx+1, co.blk [p].y+3, str, CDBLU);}
 
    //__________________________________
    // ok, dump the note symbols
@@ -801,8 +798,7 @@ TRC("Song::DrawPg `d", pp);
 //DBG("cc  p=`d/`d pTm=`s pVl=`d", p, ne, TmSt(z1,e [p].time), e [p].valu);
                if      (vt == 'x') {
                   CtlX2Str (str, cs, & e [p]);
-                  Up.cnv.TextVC ((ubyt2)x+th, Tm2Y (e [p].time, & co), str,
-                                                                        CBLACK);
+                  Up.cnv.TextVC (x, Tm2Y (e [p].time, & co), str, CBLACK);
                }
                else if (vt == 'o') {
                   y2 = Tm2Y (e [p].time, & co);
@@ -884,7 +880,7 @@ TRC("Song::DrawPg `d", pp);
          Up.cnv.RectF ((ubyt2)(c * Up.w / 128), Up.h-4, w, 4, CRng [c]);
    }
    DrawRec (true, pp);
-TRC("Song::DrawPg end");
+TRC("DrawPg end");
 }
 
 
@@ -900,13 +896,13 @@ void Song::DrawNow ()
   ColDef   co;
   NtDef   *np;
   TrkRow  *tk = & _f.trk [0];
-TRC("Song::DrawNow _pg=`d", _pg);
+TRC("DrawNow _pg=`d", _pg);
    if (! (p = _pg))  return;           // don't know pg at the moment :/
 
-   Up.tcnv.begin (Up.tpm);
+   Up.tcnv.bgn (Up.tpm);
    p--;   pn = _pNow;   n = _rNow;
 //TStr d1,d2;
-//DBG("Song::DrawNow pg=`d pNow=`s rNow=`s",
+//DBG("DrawNow pg=`d pNow=`s rNow=`s",
 //p, TmSt (d1,pn), TmSt (d2,n));
    if (pn)  DrawRec (false, p);        // pm gets JUST new rec nts
 
@@ -1006,7 +1002,7 @@ TRC("Song::DrawNow _pg=`d", _pg);
    Up.tpos.setLeft  (co.x);   Up.tpos.setTop    (yOvr);
    Up.tpos.setWidth (co.w);   Up.tpos.setHeight (H_T);
    emit sgUpd ("nt");
-TRC("Song::DrawNow end");
+TRC("DrawNow end");
 }
 
 
@@ -1019,15 +1015,14 @@ void Song::Draw ()
   PagDef *pg = & _pag [0];
   ColDef  co;
    if (Up.pm == nullptr)  return;
-   Up.cnv.begin (Up.pm);   Up.tcnv.begin (Up.tpm);
-
-TRC("Song::Draw _rNow=`s np=`d pPg=`d pTr=`d", 
+   Up.cnv.bgn (Up.pm);   Up.tcnv.bgn (Up.tpm);
+TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d",
 TmSt(d1,_rNow), _pag.Ln, _pg, _tr);
    if (_pag.Ln == 0) {                 // nothin therez yet - cls
       Up.cnv.RectF  (0, 0, Up.w, Up.h, CWHITE);
       MemSet (& Up.tpos, 0, sizeof (QRect));
       Up.cnv.end ();   Up.tcnv.end ();
-      return;          
+      return;
    }
    for (n = _rNow, np = _pag.Ln,  p = 0;  p < np;  p++)
       if (                (n >= pg [p  ].col [0].blk [0].tMn) &&
@@ -1035,7 +1030,7 @@ TmSt(d1,_rNow), _pag.Ln, _pg, _tr);
    if (p >= np)  --p;
    t = ((p+1 < np) && (n >= Bar2Tm (pg [p+1].col [0].blk [0].bar-1))) ? 1:0;
    if ((p+1 != _pg) || (t != _tr)) {
-TRC("new pg,tr: pPg=`d pTr=`d pg=`d tr=`d", _pg, _tr, p, t);
+TRC(" new pg,tr: _pg=`d _tr=`d p=`d t=`d", _pg, _tr, p, t);
       if (p+1 != _pg)  {_pg = p+1;   DrawPg (p);}
       if (t) {                         // trans - draw next pg, last bar on top
          MemCp (& co, & pg [p].col [pg [p].nCol-1], sizeof (co));
@@ -1058,5 +1053,5 @@ TRC("new pg,tr: pPg=`d pTr=`d pg=`d tr=`d", _pg, _tr, p, t);
    }
    Up.cnv.end ();   Up.tcnv.end ();
    DrawNow ();
-TRC("Song::Draw end");
+TRC("Draw end");
 }
