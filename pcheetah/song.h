@@ -63,7 +63,8 @@ struct KSgRow  {ubyt4 time;  ubyte key, min, flt;};             // keysig
 
 
 //______________________________________________________________________________
-extern int EvCmp (void *p1, void *p2);      // ..._TrkEv[] sortin
+extern int   EvCmp   (void *p1, void *p2);       // ..._TrkEv[] sortin
+extern char *SongRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr);
 //extern KSgRow CSig;
 
 const ubyte TB_DSC = 0;                // my .song table format stuph
@@ -136,7 +137,7 @@ class Song: public QObject {
 
 public:
    Song ()                             // prep for 1st Wipe()
-   {  _eOn = false;   _f.ev = nullptr;   _nt = nullptr;   }
+   {  _eOn = false;   *_f.fn = '\0';   _f.ev = nullptr;   _nt = nullptr;   }
 
 private:
 // sTime.cpp
@@ -241,15 +242,14 @@ private:
    bool  TxtIns  (ubyt4 tm, char *s, Arr<TxtRow,MAX_LYR> *at, char cue = '\0');
    void  TrkSnd  (ubyt4 snew);
    void  NewSnd  (char ofs);
-   void  NewGrp  (char *grp),  NewSnd  (char *snd);
-   void  NewDev  (char *dev);
+   void  NewGrp  (char *grp),  NewSnd (char *snd),  NewDev (char *dev);
    void  TrkSplt ();
    void  TrkDel  (ubyte t);
    ubyte TrkIns  (ubyte t = MAX_TRK, char *name = NULL, char *snd = NULL);
    void  DrMap   (char *d);
    void  TrkEd   (char *op);
-   ubyte GetSct  (TxtRow *sct);        // pull sections outa _f.lyr[] - sct[64]!
-   void  TrkDr   (char *d);
+   ubyte GetSct  (TxtRow *sct);        // pull sections outa _f.cue[] > sct[64]
+   void  TrkDr   (char *ro);
    void  TmpoPik (char o_r);           // stamp cur tmpo w orig or rec'd vals
 
 // sCmd.cpp
@@ -266,6 +266,7 @@ private:
    bool  TEz     (ubyte t);
    bool  TDrm    (ubyte t);
    void  ReTrk   ();                   // give gui _trk info ta draw
+   void  ReTDr   ();
    void  BarH    (ubyt2 *h, ubyte *sb, ubyt2 b);
    void  SetDn   (char q = '\0'),      // default to no quantize
          SetNt   (),

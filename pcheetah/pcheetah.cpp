@@ -19,7 +19,9 @@ void PCheetah::LoadGo ()
 void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open  ();}
 void PCheetah::GCfg ()                         {_dCfg->Open ();}
 void PCheetah::MCfg ()  {StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
-                             // kick midicfg.  quit cuz midi sharin'
+                                       // ^kick midicfg.  quit cuz midi sharin'
+void PCheetah::TDr ()   {_dTDr->Open ();}
+
 void PCheetah::SongNxt ()
 { ubyt4 p = FL.pos, ln = FL.lst.Ln;
   TStr  s;
@@ -145,7 +147,7 @@ DBG("done dr=`s", dr);
 
 
 //______________________________________________________________________________
-// _tr (ui->tblTr) stuph...
+// _tr (ui->tr) stuph...
 
 void TrPop (char *ls, ubyt2 r, ubyte c)    
 // pop HT, sounddir, sound CtlList
@@ -153,11 +155,19 @@ void TrPop (char *ls, ubyt2 r, ubyte c)
 TRC("TrPop r=`d c=`d", r, c);
    if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm))
       MemCp (ls, CC("-\0L\0R\0ez1\0ez2\0ez3\0ez4\0ez5\0ez6\0ez7\0"), 
-                     3*2+7*4+1);   
+                     3*2+7*4+1); 
+   if (c == 5) {
+     ubyte d = 0;
+     TStr  n, t, x;
+      StrCp (ls, CC("+"));   ls += 2;
+      while (Midi.GetPos ('o', d++, n, t, x, x))  if (StrCm (t, CC("OFF")))  
+         {StrCp (ls, n);   ls += (StrLn (n)+1);}
+      *ls = '\0';
+      return;
+   }
    if ((c != 3) && (c != 4))  return;
    
-   if (! MemCm (Up.trk [r].grp, CC("Drum/"), 5))
-      {Gui.Hey (CC("can't edit drum sounds"));   return;}
+   if (! Up.trk [r].drm)  {Gui.Hey (CC("can't edit drum sounds"));   return;}
   ubyte dvt = Up.trk [r].dvt;
    if (c == 3)  Up.dvt [dvt].SGrp (ls);  
    if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp);      
@@ -181,13 +191,13 @@ TRC("TrClk(L) r=`d c=`d", r, c);
       }
 */
    }
-   else if (c == 6) { 
-/*      DlgMix dlg (_song, arg);
-         dlg.Ok (Wndo ());
-         StrFmt (cmd, "`d `d", arg [0], arg [1]);   SongCmd ("mix", cmd);
-         _song->ReDo ();
-*/
+/* else if (c == 6) { 
+     DlgMix dlg (_song, arg);
+      dlg.Ok (Wndo ());
+      StrFmt (cmd, "`d `d", arg [0], arg [1]);   SongCmd ("mix", cmd);
+      _song->ReDo ();
    }
+*/
 }
 
 void PCheetah::TrClkR (const QPoint &pos)
@@ -198,7 +208,7 @@ TRC("TrClkR r=`d c=`d", r, c);
    Up.eTrk = (ubyte)r;  
    if      (c == 0)  emit sgCmd ("mute");    
    else if (c == 1)  emit sgCmd ("showAll");
-   else if (c == 8)  emit sgCmd ("recWipe");
+   else if (c == 7)  emit sgCmd ("recWipe");
 }
 
 
@@ -228,7 +238,7 @@ void PCheetah::Upd (QString upd)
 { TStr  u, s;
   ubyte i;
    StrCp (u, UnQS (upd));
-DBG("Upd `s", u);
+//DBG("Upd `s", u);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, CC(UCmd [i].cmd)))  break;
    if (i < NUCmd) {
       if (i > 5) {emit sgCmd (s);   return;}
@@ -288,13 +298,12 @@ DBG("Upd `s", u);
 
    if (! StrCm (u, CC("trk"))) {
      char *rp [32];
-      _tr.Open ();
+      _tr.Open ();   rp [8] = nullptr;
       for (ubyte i = 0, tc = 0;  i < Up.rTrk;  i++) {
-         rp [0] = Up.trk [i].lrn;       rp [1] = Up.trk [i].ez;
-         rp [2] = Up.trk [i].name;      rp [3] = Up.trk [i].grp;
-         rp [4] = Up.trk [i].snd;       rp [5] = Up.trk [i].dev;
-         rp [6] = CC("");               rp [7] = Up.trk [i].notes;
-         rp [8] = Up.trk [i].ctrls;     rp [9] = nullptr;
+         rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ez;
+         rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
+         rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
+         rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;     
          _tr.Put (rp);
          if (Cfg.ntCo == 2) {          // color by track
             if (((rp [0][0] == 'l') || (rp [1][0] == 'S')) && 
@@ -308,8 +317,7 @@ DBG("Upd `s", u);
                default:   tc = 9;
             }
             if (tc < 2)  _tr.SetColor (i, CTnt [tc]);
-         }
-         
+         }        
       }
       _tr.Shut ();   _tr.HopTo (Up.eTrk, 0);
    }
@@ -452,7 +460,7 @@ TRC("  tbar init");
    connect (tb6.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd sp");});
    connect (tb6.Act (1), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkDr x");});
+            this, & PCheetah::TDr);
    connect (tb6.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd +");});
    connect (tb6.Act (3), & QAction::triggered,
@@ -474,8 +482,7 @@ TRC("  lyr,tr,nt init");
       "_Track\0"
       "^SoundDir\0"
       "^Sound\0"
-       "Dev.Chan\0"
-       "Mix\0"
+      "^Dev.Chan\0"
       ">Notes\0"
       ">Ctrls\0", TrPop);
    _tr.SetRowH (Gui.FontH ());
@@ -493,8 +500,14 @@ TRC("  lyr,tr,nt init");
 TRC("  dlg init");
    _dFL  = new DlgFL  (this);   _dFL->Init  ();
    _dCfg = new DlgCfg (this);   _dCfg->Init ();
+   _dTDr = new DlgTDr (this);   _dTDr->Init ();
    connect (_dFL, & QDialog::accepted, this, & PCheetah::LoadGo);
    connect (_dFL, & QDialog::rejected, this, & PCheetah::Quit);
+   connect (_dTDr, & DlgTDr::sgTDr, this, [this](ubyte r) {
+     TStr s;
+      StrFmt (s, "trkDr `d", r);   emit sgCmd (s);
+   });
+   
 TRC("  midiimp");
    App.Run (CC("midimp &"));
 

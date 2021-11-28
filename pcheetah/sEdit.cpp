@@ -920,88 +920,101 @@ void Song::NewSnd (char ofs)
 
 
 //______________________________________________________________________________
-void Song::NewDev (char *dv)                // slam trk to new dev picked by gui
-{ char *p, cmap [17];
-  ubyte d, od, och, nch;
-  ubyt4 t, to, t1, t2;
-  TStr  snm;
+void Song::NewDev (char *dNm)          // slam trk to new dev picked by gui
+{ ubyte d, oDv, oCh, nCh, tr, t, t1, t2;
+  char  cmap [17];
+  TStr  sNm;
   bool  got;
-  TrkRow tr;
-   ChkETrk ();   to = Up.eTrk;
-TRC("NewDev t=`d `s", to, dv);              // set old trk,dev,chn
-   if ((p = StrCh (dv, ' ')))  *p = '\0';   // dv is "devName devType" or +
-   d = od = _f.trk [to].dev;   och = _f.trk [to].chn;
-   if ( (   _f.trk [to].grp  && (! StrCm (dv, CC("+")))) || // no change?  scram
-        ((! _f.trk [to].grp) && (! StrCm (dv, DevName ((ubyte)to)))) )  return;
-   if      (! StrCm (dv, CC("+"))) {        // to grouped?
-      if      (to == 0)
-         {Hey (CC("can't + the 1st track"));   return;}
-      else if ( (   TDrm ((ubyte)to)  && (! TDrm ((ubyte)to-1))) ||
-                ((! TDrm ((ubyte)to)) &&    TDrm ((ubyte)to-1) ) )
-         {Hey (CC("drum and melodic sounds can't share a channel"));   return;}
-      d = _f.trk [to-1].dev;       nch = _f.trk [to-1].chn;
+  TrkRow ro;
+   ChkETrk ();   tr = Up.eTrk;
+TRC("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
+   d = oDv = _f.trk [tr].dev;   oCh = _f.trk [tr].chn;
+//DBG(" old dv=`d ch=`d", oDv, oCh+1);
+   if ( (   _f.trk [tr].grp  && (! StrCm (dNm, CC("+")))) ||    // no change?
+        ((! _f.trk [tr].grp) && (! StrCm (dNm, DevName (tr)))) )  return;
+   if      (! StrCm (dNm, CC("+"))) {  // to grouped?
+      if      (tr == 0)
+         {Hey (CC("can't + the 1st track"));                 return;}
+      else if ( (   TDrm (tr)  && (! TDrm (tr-1))) ||
+                ((! TDrm (tr)) &&    TDrm (tr-1) ) )
+         {Hey (CC("can't share channel with prev track"));   return;}
+      d = _f.trk [tr-1].dev;   nCh = _f.trk [tr-1].chn;
    }
-   else if (TDrm ((ubyte)to))  nch = 9;
+   else if (TDrm (tr))         nCh = 9;
    else {                              // all melo chans of new dev in use?
       StrCp (cmap, CC("         x      "));
       for (t = 0;  t < Up.rTrk;  t++)
-         if (! StrCm (DevName ((ubyte)t), dv))  cmap [_f.trk [t].chn] = 'x';
-      for (nch = 0; nch < 16; nch++)  if (cmap [nch] != 'x')  break;
-      if (nch == 16)
-         {Hey (CC("That device's channels are all in use"));   return;}
+         if (! StrCm (DevName (t), dNm))  cmap [_f.trk [t].chn] = 'x';
+      for (nCh = 0;  nCh < 16;  nCh++)  if (cmap [nCh] != 'x')  break;
+      if (nCh == 16)
+         {Hey (CC("device's channels are all in use"));      return;}
    }
+//DBG(" new ch=`d", nCh+1);
 
 // get prev snd name as str
-   if (nch != 9) {
-      if (_f.trk [to].snd != SND_NONE)
-            StrCp (snm, Up.dvt [Up.dev [d].dvt].Snd (_f.trk [to].snd)->name);
-      else  StrCp (snm, CC("Piano/AcousticGrand"));
+   if (nCh != 9) {
+      if (_f.trk [tr].snd != SND_NONE)
+            StrCp (sNm, Up.dvt [Up.dev [d].dvt].Snd (_f.trk [tr].snd)->name);
+      else  StrCp (sNm, CC("Piano/AcousticGrand"));
+//DBG(" sNm=`s", sNm);
    }
 
 // t1-t2 covers my group range...
-   t1 = t2 = to;
-   while (                   _f.trk [t1  ].grp)   t1--;
+   t1 = t2 = tr;
+   while (                     _f.trk [t1  ].grp)   t1--;
    while ((t2+1 < Up.rTrk) && (_f.trk [t2+1].grp))  t2++;
+//DBG(" tr rng=`d - `d", t1, t2);
 
 // goin to ungrouped?  gotta scoot below old grp
-   if (_f.trk [to].grp && StrCm (dv, CC("+"))) {
-      if (to != t2) {                  // scoot if not already at bot
-         MemCp (& tr,          & _f.trk [to], sizeof (TrkRow));
-         MemCp (& _f.trk [to], & _f.trk [t2], sizeof (TrkRow));
-         MemCp (& _f.trk [t2], & tr,          sizeof (TrkRow));
-         Up.eTrk = (ubyte)(to = t2);
+   if (_f.trk [tr].grp && StrCm (dNm, CC("+"))) {
+//DBG(" goin to ungrouped");
+      if (tr != t2) {                       // scoot if not already at bot
+         MemCp (& ro,          & _f.trk [tr], sizeof (ro));
+         MemCp (& _f.trk [tr], & _f.trk [t2], sizeof (ro));
+         MemCp (& _f.trk [t2], & ro,          sizeof (ro));
+         Up.eTrk = tr = t2;
       }
-      _f.trk [to].grp = false;
-      _f.trk [to].snd = _f.trk [t1].snd;    // ungroup,set snd to orig top trk
-      t1 = t2 = to;
+      _f.trk [tr].grp = false;
+      _f.trk [tr].snd = _f.trk [t1].snd;    // ungroup,set snd to orig top trk
+      t1 = t2 = tr;
    }
 
 // will old dev be gonzo?
    NotesOff ();
    for (got = false, t = 0;  t < Up.rTrk;  t++)  if ((t < t1) || (t > t2))
-      if (od == _f.trk [t1].dev)  got = true;
-   if (! got)  ShutDev (_f.trk [t1].dev);
+      if (oDv == _f.trk [t1].dev)  got = true;
+   if (! got) {
+//DBG(" shut old dev");
+      ShutDev (_f.trk [t1].dev);
+   }
 
-   if (StrCm (dv, CC("+")))  d = OpenDev (dv);   // unless +, get new one
+   if (StrCm (dNm, CC("+"))) {
+      d = OpenDev (dNm);      // unless +, get new one
+//DBG(" open new dev=`d", d);
+   }
 
 // redo cch[]
-   for (t = 0;  t < _cch.Ln;  t++)  if ((_cch [t].dev == od) &&
-                                        (_cch [t].chn == och))
-                                       {_cch [t].dev = d;   _cch [t].chn = nch;}
-   _f.trk [to].dev = d;
-   _f.trk [to].chn = nch;
-   _f.trk [to].grp = (StrCm (dv, CC("+")) ? false : true);
+   for (t = 0;  t < _cch.Ln;  t++)  if ((_cch [t].dev == oDv) &&
+                                        (_cch [t].chn == oCh))
+                                       {_cch [t].dev = d;   _cch [t].chn = nCh;}
+   _f.trk [tr].dev = d;
+   _f.trk [tr].chn = nCh;
+   _f.trk [tr].grp = (StrCm (dNm, CC("+")) ? false : true);
+//DBG(" new dv=`d ch=`d grp=`b", d, nCh+1, _f.trk [tr].grp);
 
 // new sndid since new dev :/
    got = false;                        // drum syn check
-   if (nch != 9)  _f.trk [t1].snd = Up.dvt [Up.dev [d].dvt].SndID (snm);
-   else
-      got = true;                      // hello syn
+   if (nCh != 9)  _f.trk [t1].snd = Up.dvt [Up.dev [d].dvt].SndID (sNm);
+   else           got = true;          // hello syn
+//DBG(" tr=`d sndid=`d", t1, _f.trk [t1].snd);
 
 // setup all trks of grp
-   for (t = t1+1; t <= t2; t++)
-      {_f.trk [t].dev = _f.trk [t1].dev;   _f.trk [t].chn = _f.trk [t1].chn;
-       if (! got)  _f.trk [t].snd = _f.trk [t1].snd;}
+   for (t = t1+1;  t <= t2;  t++) {
+//DBG(" tr=`d too", t);
+      _f.trk [t].dev = _f.trk [t1].dev;
+      _f.trk [t].chn = _f.trk [t1].chn;
+      if (! got)  _f.trk [t].snd = _f.trk [t1].snd;
+   }
 // redo drum sounds fer syn (toss the useless _f.mapD n DrumExp recalcs
    if (got)  {DrumCon ();   _f.mapD.Ln = 0;   DrumExp ();}
    else      {SetBnk ();   SetChn ();}      // just in case :/
@@ -1218,7 +1231,7 @@ DBG("cb=`s ce=`s cd=`s", TmSt(d1,cb), TmSt(d2,ce), TmSt(d3,cd));
 }
 
 
-ubyte Song::GetSct (TxtRow *sct)       // put sections of _f.lyr[] into arr[64]
+ubyte Song::GetSct (TxtRow *sct)       // put sections of _f.cue[] into sct[64]
 { ubyt4 i;
   ubyte ns = 0;
    MemSet (sct, 0, sizeof (TxtRow)*64);
@@ -1232,65 +1245,34 @@ i,sct[i].s,sct[i].time,TmSt(x,sct[i].time));
 }
 
 
-extern char *SongRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr);
-
-void Song::TrkDr (char *arg)
-{ ubyte nIt, j, k, t;
-  TStr   it [64][4], s;
-  ubyt4  i, ln, pLn;
-  BStr   b;
-  char  *p, *e, ud;
+void Song::TrkDr (char *ro)
+{ ubyte j, k, t;
+  TStr  s;
+  ubyt4 i, ln, pLn;
+  BStr  b;
+  char *p, *e, ud;
   TrkEv *e2;
-  ColSep ss (arg, 5);
    NotesOff ();
-
-// set it[nIt][0] w distinct sections
-   nIt = 0;
-   for (i = 0;  i < _f.cue.Ln;  i++)  if (_f.cue [i].s [0] == '(') {
-      for (j = 0;  j < nIt;  j++)
-         if (! StrCm (& _f.cue [i].s [1], it [j][0]))  break;
-      if (j >= nIt) {
-         StrCp (it [nIt][1], CC("(off)"));   StrCp (it [nIt][2], CC("(off)"));
-                                             StrCp (it [nIt][3], CC("(off)"));
-         StrCp (it [nIt++][0], & _f.cue [i].s [1]);
-      }                             // ^ new section
-   }
-
-// search thru DSC lines n set a,b,f [1..3] w pata,patb,fill for section
-   DscGet (CC("drumpat={"), b);   ln = 0;  pLn = 0;
-   do {
-      p = & b [pLn];
-      if ((e = StrSt (p, CC("\n"))))  for (i = 0;  i < nIt;  i++) {
-         StrFmt (s, "`s=", it [i][0]);
-         if (! MemCm (p, s, StrLn (s))) {
-            p += StrLn (s);
-            MemCp (s, p, (e-p));   s [e-p] = '\0';
-           ColSep ss (s, 3);
-            StrCp (it [i][1], ss.Col [0]);   StrCp (it [i][2], ss.Col [1]);
-                                             StrCp (it [i][3], ss.Col [2]);
-         }
-      }
-   } while ((pLn = LinePos (b, ++ln)));
-
-// now set new thingy n DscPut it
-   for (j = 0;  j < nIt;  j++)  if (! StrCm (it [j][0], ss.Col [0]))  break;
-   k = ss.Col [4][0] - '0';
-   StrCp (it [j][k+1], ss.Col [1+k]);
-   StrCp (b, CC("drumpat={\n"));
-   for (j = 0;  j < nIt;  j++)  StrAp (b, StrFmt (s, "`s=`s `s `s\n",
-                                   it [j][0], it [j][1], it [j][2], it [j][3]));
+   
+// set new dsc
+   StrCp (b, CC("drumpat={\n"));       
+   for (j = 0;  j < Up.nTDr;  j++)  
+      StrAp (b, StrFmt (s, "`s=`s `s `s\n",
+             Up.tDr [j][0], Up.tDr [j][1], Up.tDr [j][2], Up.tDr [j][3]));
    StrAp (b, CC("}"));
    DscPut (b);
-
-// now do it - make song.txt file with section patterns
+   
+// unique sections from _f.cue w time
   TxtRow m [64];
+  ubyte nm;
+   nm = GetSct (m);
+   
+// make song.txt file with section patterns
   bool  co;
-  ubyte nm = 0;
   ubyt2 b1 = 1, br, bb, be;            // bars start at 1 not 0 !
   TStr  fn, pt [3];
   FDir  d;
   File  f;
-   nm = GetSct (m);
    App.Path (fn, 'd');   StrAp (fn, CC("/4_queue/drumpat"));   d.Make (fn);
    StrAp (fn, CC("/drumpat.txt"));
    if (! f.Open (fn, "w"))  Die (StrFmt (s, "can't write song file `s", fn));
@@ -1304,16 +1286,18 @@ void Song::TrkDr (char *arg)
       for (j = 1;  j < b1;  j++)  f.Put (CC("w\n"));
       f.Put (CC("--\n"));
    }                                   // sigh, watch out for weirdness
-   if (! StrCm (it [0][1], CC("(continue)")))  StrCp (it [0][1], CC("(off)"));
+   if (! StrCm (Up.tDr [0][1], CC("(continue)")))  
+      StrCp (   Up.tDr [0][1], CC("(off)"));
    for (i = 0;  i < nm;) {
-   // j = section's pos in it[]
-      for (j = 0;  j < nIt;  j++)  if (! StrCm (& m [i].s [1], it [j][0])) {
-         for (k = 0;  k < 3;  k++) {   // load pattern in pt[]
-            if (StrCm (it [j][k+1], CC("(off)")))
-                         StrFmt (pt [k], "#Drum/`s/`s\n",
-                                         (k<2) ? "main" : "fill", it [j][k+1]);
-            else if (k)  StrCp  (pt [k], pt [k-1]);
-            else         StrCp  (pt [k], CC("w\n"));
+   // j = section's pos in tDr[]
+      for (j = 0;  j < Up.nTDr;  j++)  
+         if (! StrCm (& m [i].s [1], Up.tDr [j][0])) {
+            for (k = 0;  k < 3;  k++) {     // load pattern in pt[]
+               if (StrCm (Up.tDr [j][k+1], CC("(off)")))
+                            StrFmt (pt [k], "#Drum/`s/`s\n",
+                                    (k<2) ? "main" : "fill", Up.tDr [j][k+1]);
+               else if (k)  StrCp  (pt [k], pt [k-1]);
+               else         StrCp  (pt [k], CC("w\n"));
          }
          break;
       }
@@ -1323,8 +1307,9 @@ void Song::TrkDr (char *arg)
          if (i >= nm)  {be = _bEnd+1;   break;}
 
          be = Tm2Bar (m [i].time);
-         for (j = 0;  j < nIt;  j++)  if (! StrCm (& m [i].s [1], it [j][0])) {
-            co = StrCm (it [j][1], CC("(continue)")) ? false : true;
+         for (j = 0;  j < Up.nTDr;  j++)  
+            if (! StrCm (& m [i].s [1], Up.tDr [j][0])) {
+               co = StrCm (Up.tDr [j][1], CC("(continue)")) ? false : true;
             break;
          }
       }
@@ -1381,11 +1366,8 @@ void Song::TrkDr (char *arg)
    }
 
 // cleanup n TmHop
-   Fn2Path (fn);   d.Kill (fn);    // comment to keep em
-   DrumExp ();   ReDo ();
-   for (t = 0;  t < nm;  t++)  if (! StrCm (& m [t].s [1], ss.Col [0]))  break;
-   TmHop (m [t].time);
-   _rcrd = true;
+   Fn2Path (fn);   d.Kill (fn);       
+   _rcrd = true;   DrumExp ();   ReDo ();   TmHop (m [Str2Int (ro)].time);
 }
 
 

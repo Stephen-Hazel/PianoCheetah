@@ -13,7 +13,6 @@ void CtlNt::RePM ()
    if (Up.pm == nullptr)  DBG("couldn't alloc CtlNt pixmap :(");
 }
 
-
 void CtlNt::paintEvent (QPaintEvent *e)
 {  (void)e;
    if (Up.pm == nullptr)  {DBG("no pm");   return;}
@@ -22,7 +21,6 @@ void CtlNt::paintEvent (QPaintEvent *e)
    c.Blt (*Up.tpm,  Up.tpos.left (), Up.tpos.top (),  0, 0,
                                            Up.tpos.width (), Up.tpos.height ());
 }
-
 
 void CtlNt::resizeEvent (QResizeEvent *e)
 {  Up.w = (ubyt2)e->size ().width  (); // maybe we changed screens
@@ -33,44 +31,38 @@ TRC("resize w=`d h=`d", Up.w, Up.h);
    emit sgReSz ();
 }
 
-
 void CtlNt::keyPressEvent (QKeyEvent *e)
 { KeyMap km;
   key    k;
    if ((k = km.Map (e->modifiers (), e->key ())))  DBG("nt key=`s", km.Str (k));
 }
 
-
 void CtlNt::wheelEvent (QWheelEvent *e)
 { int j = e->angleDelta ().y () / 40;
-DBG("wheel=`d", j);
+DBG("nt wheel=`d", j);
 }
-
-
-void CtlNt::mouseMoveEvent (QMouseEvent *e)
-{ int b, x, y;
-   b = e->buttons ();   x = e->pos ().x ();   y = e->pos ().y ();
-DBG("msMv b=`d x=`d y=`d", b, x, y);
-}
-
 
 void CtlNt::mousePressEvent (QMouseEvent *e)
-{ int b, x, y;
-   b = e->buttons ();   x = e->pos ().x ();   y = e->pos ().y ();
-DBG("msDn b=`d x=`d y=`d", b, x, y);
+{ int x = e->pos ().x (), 
+      y = e->pos ().y ();//DBG("nt msDn b=`d x=`d y=`d", e->buttons (), x, y);
+   MsDn (e->buttons (), x, y);
 }
 
+void CtlNt::mouseMoveEvent (QMouseEvent *e)
+{ int x = e->pos ().x (), 
+      y = e->pos ().y ();//DBG("nt msMv b=`d x=`d y=`d", e->buttons (), x, y);
+   MsMv (e->buttons (), x, y);
+}
 
 void CtlNt::mouseReleaseEvent (QMouseEvent *e)
-{ int b, x, y;
-   b = e->buttons ();   x = e->pos ().x ();   y = e->pos ().y ();
-DBG("msUp b=`d x=`d y=`d", b, x, y);
+{ int x = e->pos ().x (), 
+      y = e->pos ().y ();//DBG("nt msUp b=`d x=`d y=`d", e->buttons (), x, y);
+   MsUp (e->buttons (), x, y);
 }
 
 
-
+//______________________________________________________________________________
 /*
-//------------------------------------------------------------------------------
 CtlListHdr CtlHdr [] = { {"show", 'l'}, {"control", 'l'} };
 
 class DlgCtl: public Dialog {          // show/hide ctl
@@ -84,7 +76,7 @@ private:
    CtlList _ls;
 
    void Pik (LPARAM l)
-   { sword p = _ls.Pos ();
+   { sbyt2 p = _ls.Pos ();
      TStr  s;
       if (p >= 0)
          {_ls.SetPos (p);   _ls.GetCol (p, 0, s);
@@ -93,7 +85,7 @@ private:
 
    void Open ()
    { char *ro [10];
-     uword i, j;
+     ubyt2 i, j;
      TStr  ts;
       _t.Init  (Wndo(), IDB_OKCAN);
       _ck.Init (Wndo(), IDC_CHD);
@@ -117,19 +109,19 @@ private:
    }
 
    void Done ()                        // set _f.ctl[].sho's
-   { uword i, e;
+   { ubyt2 i, e;
      TStr  s;                          // skip if hit cancel
       if (_ok) {
          _s->_lrn.chd = _ck.Check () ? true : false;
-         e = (uword)_s->_f.ctl.Ln;
+         e = (ubyt2)_s->_f.ctl.Ln;
          for (i = 0;  i < e;  i++) {
-            _ls.GetCol ((sword)i, 0, s);
+            _ls.GetCol ((sbyt2)i, 0, s);
             _s->_f.ctl [i].sho = (*s == 'y') ? true : false;
          }
          for (i = e;  i < _ls.Len ();  i++) {
-            _ls.GetCol ((sword)i, 0, s);
+            _ls.GetCol ((sbyt2)i, 0, s);
             if (*s == 'y') {
-               _ls.GetCol ((sword)i, 1, s);
+               _ls.GetCol ((sbyt2)i, 1, s);
                _s->_f.ctl.Ln++;
                StrCp (_s->_f.ctl [e].s, s);   _s->_f.ctl [e++].sho = true;
             }
@@ -177,7 +169,7 @@ private:
    CtlCmbo _key, _maj;
 
    void Pik (LPARAM l)
-   { sword p = _key.Pos ();
+   { sbyt2 p = _key.Pos ();
       _key.LstZZ (_maj.Pos () ? Mi : Ma);   _key.SetPos (p);
    }
 
@@ -287,7 +279,7 @@ private:
    Control _c;
    Toolbar _t, _t2, _t3;
    void Open ()
-   { uword x, y, w, h;
+   { ubyt2 x, y, w, h;
       _t.Init (Wndo(), IDB_TBARCUE, TBCueID,
          "re-init loops and erase all bug history\0" "delete this cue\0"
       );
@@ -385,7 +377,7 @@ private:
 
    void Open ()
    { Control ic;
-     uword   x, y;
+     ubyt2   x, y;
       _t.Init (Wndo (), IDB_TBARFING, TBFingID,
          "swap note to other hand's track\0"
          "delete this note\0"
@@ -437,29 +429,36 @@ private:
       return false;
    }
 };
+*/
 
 
-//------------------------------------------------------------------------------
-void CtlNt::DragRect ()
-{ Canvas c (Wndo ());
-  sword  x1, x2, y1, y2;
+//______________________________________________________________________________
+void CtlNt::DragRc ()
+{ 
+/*   
+  Canvas c (Wndo ());
+  sbyt2  x1, x2, y1, y2;
    c.SetROp (R2_NOTXORPEN);
    x1 = _x1;   x2 = _x2;   if (x2 < x1) {x2 = _x1;  x1 = _x2;}
    y1 = _y1;   y2 = _y2;   if (y2 < y1) {y2 = _y1;  y1 = _y2;}
    c.Rect (x1, y1, x2-x1+1, y2-y1+1);
+*/
 }
 
 
-const ulong DRAG = 2;                  // drag threshold (if <, then plain clik)
+const ubyt4 DRAG = 2;                  // drag threshold (if <, then plain clik)
 
-char CtlNt::MsPos (sword x, sword y)
+char CtlNt::MsPos (sbyt2 x, sbyt2 y)
 // find our _pg _co _tm n _pos:
 //    \0 [k]eys [c]hord [q]cue [r]cue.tend [x]control [f]inger [d]ur [n]ewNote
 //    _got=\0 or 'y' for pos=q,r,x
 // _pos x:    _ct
 // _pos f,d:  _sy
-{ ulong c, p, ne, tm1, tm2;
-  uword nx, cx, th = _c->txH;
+{  
+   return '\0';
+/*
+  ubyt4 c, p, ne, tm1, tm2;
+  ubyt2 nx, cx, th = Up.txH;
   PagDef *pg;
   ColDef  co;
    _pos = _got = '\0';   p = _s->_pgP;   if (! p)  return _pos;
@@ -498,13 +497,13 @@ char CtlNt::MsPos (sword x, sword y)
       return (_pos = 'q');             // if new just do q
    }
    else if (x >= cx) {                 // control area
-     sword tx = (sword)cx;
+     sbyt2 tx = (sbyt2)cx;
       _cp = 0;
       for (ubyte i = 0;  i < _s->_f.ctl.Ln;  i++)  if (_s->_f.ctl [i].sho)
          {if (x < (tx += th))  {_ct = i;   break;}
           else                  _cp++;}
      TrkEv *e;
-     ulong ne;
+     ubyt4 ne;
      TStr  cs;
      bool  cg = false;
      ubyte td = 255;
@@ -531,7 +530,7 @@ char CtlNt::MsPos (sword x, sword y)
 // ok, has ta be nt area so hunt down a symbol
 // d[ur] for bot half, f[ing] for top, n[ew] for not over sym
   SymDef *it = NULL;
-  ulong   s, sy1;
+  ubyt4   s, sy1;
    for (s = 0;  s < co.nSym;  s++)
       if ((x >= nx+co.sym [s].x) && (x < nx+co.sym [s].x + co.sym [s].w) &&
           (y >=    co.sym [s].y) && (y <    co.sym [s].y + co.sym [s].h))
@@ -540,28 +539,33 @@ char CtlNt::MsPos (sword x, sword y)
    _sy = sy1;
    if ((it->h >= 10) && (y >= it->y + it->h*2/3))  return (_pos = 'd');
                                                    return (_pos = 'f');
+*/                                                   
 }
 
 
-void CtlNt::MsDn (ulong btn, sword x, sword y)
+void CtlNt::MsDn (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
 // given _pos, see if we're dragging
 // _drg:  [q]cue [x]ctlUpd rect[m]ov [d]ur [n]oteHop
-{ PagDef *pg;
+{ 
+/*
+  PagDef *pg;
   ColDef  co;
   TStr    s;
-  uword   nx;
-   if (! MsPos (x, y))        return;
-   if (   btn & MK_RBUTTON) {          // just for ctl killin
+  ubyt2   nx;
+*/
+   if (! MsPos (x, y))          return;
+/*
+   if (   b & Qt::RightButton) {            // just for ctl killin
       if ((_pos == 'x') && _got) {
          StrFmt (s, "`d `d 0 KILL KILL", _tr, _p);
          _dt->SongCmd ("setCtl", s);
       }
       return;
    }
-   if (! (btn & MK_LBUTTON))  return;  // need regular button
+   if (! (b & Qt::LeftButton))  return;     // need regular button
 
 DBG("CtlNt::MsDn x=`d y=`d btn=`d _pos=`c _got=`c _drg=`c",
-x, y, btn, _pos, _got ? _got : ' ', _drg ? _drg : ' ');
+x, y, b, _pos, _got ? _got : ' ', _drg ? _drg : ' ');
    pg = & _s->_pag [_pg];
    MemCp (& co, & pg->col [_co], sizeof (co));   // load column
    nx = _s->Nt2X (co.nMn, & co);
@@ -582,24 +586,24 @@ x, y, btn, _pos, _got ? _got : ' ', _drg ? _drg : ' ');
    if ((_pos == 'q') || (_pos == 'r')) {    // cue time or tend
       _drg = _pos;   _x1 = co.x+4;    _x2 = co.x + co.w - 4;
                      _yp = _y1 = y;   _y2 = y + 1;
-      DragRect ();   return;
+      DragRc ();   return;
    }
    if (_pos == 'x') {                  // control area - drag time,valu
       _drg = 'x';   _xp = x;   _x1 = nx;   _x2 = x;
                     _yp = y;   _y1 = y;    _y2 = y+1;
-      DragRect ();   return;
+      DragRc ();   return;
       return;
    }
 
    if (_pos == 'n') {                  // not on sym: drag rect n move nt group
       _drg = 'm';   _x1 = _x2 = x;   _y1 = _y2 = y;             // else ins note
-      DragRect ();   return;
+      DragRc ();   return;
    }
   SymDef *it = & co.sym [_sy];
    if (_pos == 'd') {                  // drag a new dur
       _drg = 'd';   _x1 = nx + it->x;   _x2 = nx + it->w - 1;
                     _y1 = it->y;        _y2 = y;
-      DragRect ();   return;
+      DragRc ();   return;
    }
    if (_pos == 'f') {                  // hop a note else fingering dlg
       _drg = 'n';
@@ -607,25 +611,28 @@ x, y, btn, _pos, _got ? _got : ' ', _drg ? _drg : ' ');
                                            _x2 = _x1 + W_NT;
       _yp = y;   _yo = y -       it->y;    _y1 = y - _yo;
                                            _y2 = _y1 + W_NT*2;
-      DragRect ();   return;
+      DragRc ();   return;
    }
+*/
 }
 
 
-void CtlNt::MsMv (ulong btn, sword x, sword y)
-{ LPCTSTR c;
+void CtlNt::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
+{ 
+/*
+  LPCTSTR c;
   static LPCTSTR pC = 0;
   PagDef *pg;
   ColDef  co;
-  ulong   t;
-  uword   cx, th = _c->txH;
+  ubyt4   t;
+  ubyt2   cx, th = _c->txH;
   ubyte   v1;
   TStr    s, s2, cs;
   char    ct;
   TrkEv  *e;
 //DBG("CtlNt::MsMv x=`d y=`d btn=`d _pos=`c _got=`c _drg=`c",
 //x, y, btn, _pos ? _pos : ' ', _got ? _got : ' ', _drg ? _drg : ' ');
-   if (! btn) {
+   if (! b) {
       switch (MsPos (x, y)) {
          case 'q':
          case 'r': if (_got)  {c = IDC_SIZENS;    break;}
@@ -643,7 +650,7 @@ void CtlNt::MsMv (ulong btn, sword x, sword y)
         ubyte  nt, tr = co.sym [_sy].tr;
         bool       dr = _s->TDrm (tr);
 //DBG("pg=`d co=`d sy=`d", _pg, _co, _sy);
-        ulong  tm, te;
+        ubyt4  tm, te;
         TrkEv *ev = NULL;
          if (_s->TEz (tr)) {
             tm = te = co.sym [_sy].tm;   nt = (ubyte)co.sym [_sy].nt;
@@ -675,7 +682,7 @@ void CtlNt::MsMv (ulong btn, sword x, sword y)
          if (! StrCm (cs, "tmpo"))
             StrAp (s, StrFmt (s2, "=`d", _s->TmpoAct (v1 | e->val2 << 8)));
          else if (ct != 'x')
-            StrAp (s, StrFmt (s2, "=`d", (ct=='s') ? ((slong)v1-64) : v1));
+            StrAp (s, StrFmt (s2, "=`d", (ct=='s') ? ((sbyt4)v1-64) : v1));
          _s->Heya (s);
       }
 //DBG("_pos=`c got=`b _str=`s", _pos, _got, _str);
@@ -689,11 +696,11 @@ void CtlNt::MsMv (ulong btn, sword x, sword y)
 
 // draggin - erase old cursor rect n draw new one
    if ((_drg == 'q') || (_drg == 'r'))
-                     {DragRect ();   _y1 = y;   _y2 = y + 1;   DragRect ();
+                     {DragRc ();   _y1 = y;   _y2 = y + 1;   DragRc ();
       pg = & _s->_pag [_pg];   MemCp (& co, & pg->col [_co], sizeof (co));
       t = _s->Y2Tm (y, & co);   _s->TmSt (s, t);   _s->Heya (s);
    }
-   if (_drg == 'x')  {DragRect ();   _y1 = y;   _y2 = y + 1;   DragRect ();
+   if (_drg == 'x')  {DragRc ();   _y1 = y;   _y2 = y + 1;   DragRc ();
       pg = & _s->_pag [_pg];   MemCp (& co, & pg->col [_co], sizeof (co));
       t = _s->Y2Tm (y, & co);   _s->TmSt (s, t);
       StrCp (cs, _s->_f.ctl [_ct].s);
@@ -708,30 +715,33 @@ void CtlNt::MsMv (ulong btn, sword x, sword y)
          if (x >= _xp)                                     // offset by xpos
                {if ((x - _xp) >= (127-v1))  v1  = 127;   else v1 += (x - _xp);}
          else  {if ((_xp - x) <=      v1 )  v1  = 0;     else v1 -= (_xp - x);}
-         StrAp (s2, StrFmt (s, " value=`d", (ct=='s') ? ((slong)v1-64) : v1));
+         StrAp (s2, StrFmt (s, " value=`d", (ct=='s') ? ((sbyt4)v1-64) : v1));
       }
       _s->Heya (s2);
    }
-   if (_drg == 'm')  {DragRect ();   _x2 = x;   _y2 = y;       DragRect ();}
-   if (_drg == 'd')  {DragRect ();   _y2 = y;                  DragRect ();}
-   if (_drg == 'n')  {DragRect ();   _x1 = x - _xo;   _x2 = _x1 + W_NT;
+   if (_drg == 'm')  {DragRc ();   _x2 = x;   _y2 = y;       DragRc ();}
+   if (_drg == 'd')  {DragRc ();   _y2 = y;                  DragRc ();}
+   if (_drg == 'n')  {DragRc ();   _x1 = x - _xo;   _x2 = _x1 + W_NT;
            // NAW keep time/dur same _y1 = y - _yo;   _y2 = _y1 + W_NT*2;
-                                                               DragRect ();}
+                                                             DragRc ();}
+*/   
 }
 
 
-void CtlNt::MsUp (ulong btn, sword x, sword y)
-{ TStr  st, c, s1, s2;
+void CtlNt::MsUp (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
+{ 
+/*
+  TStr  st, c, s1, s2;
   ubyte t, v1;
-  uword cx, th = _c->txH;
+  ubyt2 cx, th = Up.txH;
   char  ct;
   PagDef *pg;
   ColDef  co;
-   if (! (btn & MK_LBUTTON))  return;
+   if (! (b & Qt::LeftButton))  return;
 
 DBG("CtlNt::MsUp x=`d y=`d btn=`d _pos=`c _got=`c _drg=`c",
-x, y, btn, _pos ? _pos : ' ', _got ? _got : ' ', _drg ? _drg : ' ');
-   if (_drg)  DragRect ();             // clear it out
+x, y, b, _pos ? _pos : ' ', _got ? _got : ' ', _drg ? _drg : ' ');
+   if (_drg)  DragRc ();               // clear it out
 
    if ((_drg == 'q') || (_drg == 'r')) {         // cue
       _y2 = _y1 = y;
@@ -764,7 +774,7 @@ x, y, btn, _pos ? _pos : ' ', _got ? _got : ' ', _drg ? _drg : ' ');
          if (dlg.Ok (Wndo ())) {
             if (! StrCm (_str, "loopInit"))   _dt->SongCmd (_str, "x");
             else if (*_str != '[') {   // can't del loops
-              ulong tm = _tm, te = 0;
+              ubyt4 tm = _tm, te = 0;
                if (_got)  {tm = _s->_f.cue [_p].time;
                            te = _s->_f.cue [_p].tend;   _s->_f.cue.Del (_p);}
                if (*_str) {
@@ -863,6 +873,5 @@ x, y, btn, _pos ? _pos : ' ', _got ? _got : ' ', _drg ? _drg : ' ');
       if (! _pPoz) _s->Poz (false);
    }
    _drg = '\0';
-}
-
 */
+}

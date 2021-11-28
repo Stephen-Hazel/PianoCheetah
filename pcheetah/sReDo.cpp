@@ -3,6 +3,20 @@
 #include "song.h"
 
 
+// TDrm says whether drum or melodic
+// TLrn says if ?
+// TEz says if ez mode is on, melodic, and ? track
+//    ez can only be on for all melodic or off for everything hard mode
+//       ? drums are always hard mode
+//       rHop says if we're waiting (versus syncd to pc clock)
+// TSho says if track is drawn in notation
+bool Song::TDrm (ubyte t)  {return (_f.trk [t].chn == 9)  ? true : false;}
+bool Song::TLrn (ubyte t)  {return   _f.trk [t].lrn;}
+bool Song::TEz  (ubyte t)  {return ((_f.trk [t].ht>='1') &&
+                                    (_f.trk [t].ht<='7')) ? true : false;}
+bool Song::TSho (ubyte t)  {return (TLrn (t) || (_f.trk [t].ht == 'S'))
+                                                          ? true : false;}
+
 void Song::ReTrk ()
 // give gui what it needs in Up.tr
 { ubyte r;
@@ -10,7 +24,7 @@ void Song::ReTrk ()
   TStr  s, g;
   char *sl;
    Up.trk.Ln = 0;
-   for (r = 0;  r < _f.trk.Ln;  r++) {
+   for (r = 0;  r < Up.rTrk;  r++) {
       Up.trk.Ins (r);
       Up.trk [r].dvt = Up.dev [_f.trk [r].dev].dvt;
       Up.trk [r].drm = TDrm (r);
@@ -47,19 +61,41 @@ TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
 }
 
 
-// TDrm says whether drum or melodic
-// TLrn says if ?
-// TEz says if ez mode is on, melodic, and ? track
-//    ez can only be on for all melodic or off for everything hard mode
-//       ? drums are always hard mode
-//       rHop says if we're waiting (versus syncd to pc clock)
-// TSho says if track is drawn in notation
-bool Song::TDrm (ubyte t)  {return (_f.trk [t].chn == 9)  ? true : false;}
-bool Song::TLrn (ubyte t)  {return   _f.trk [t].lrn;}
-bool Song::TEz  (ubyte t)  {return ((_f.trk [t].ht>='1') &&
-                                    (_f.trk [t].ht<='7')) ? true : false;}
-bool Song::TSho (ubyte t)  {return (TLrn (t) || (_f.trk [t].ht == 'S'))
-                                                          ? true : false;}
+void Song::ReTDr ()
+// load Up.nTDr/.tDr[] w song's section cues n drum rhy picks
+{ ubyte n, j;
+  ubyt4 i, ln, pLn;
+  BStr  b;
+  TStr  s;
+  char *p, *e;
+   n = Up.nTDr = 0; 
+   for (i = 0;  i < _f.cue.Ln;  i++)  if (_f.cue [i].s [0] == '(') {
+      for (j = 0;  j < n;  j++)
+         if (! StrCm (& _f.cue [i].s [1], Up.tDr [j][0]))  break;
+      if (j >= n) {
+         StrCp (s, CC("(off)"));
+         StrCp (Up.tDr [n][1], s);   StrCp (Up.tDr [n][2], s);
+                                     StrCp (Up.tDr [n][3], s);
+         StrCp (Up.tDr [n++][0], & _f.cue [i].s [1]);
+      }                                // ^ new section
+   }
+   DscGet (CC("drumpat={"), b);
+// search thru song's drumpat desc lines n set pata,patb,fill per section
+   ln = 0;  pLn = 0;
+   do {
+      p = & b [pLn];
+      if ((e = StrCh (p, '\n')))  for (i = 0;  i < n;  i++) {
+         StrFmt (s, "`s=", Up.tDr [i][0]);
+         if (! MemCm (p, s, StrLn (s))) {
+            p += StrLn (s);
+            MemCp (s, p, (e-p));   s [e-p] = '\0';
+           ColSep ss (s, 3);
+            for (j = 0;  j < 3;  j++)  StrCp (Up.tDr [i][j+1], ss.Col [j]);   
+         }
+      }
+   } while ((pLn = LinePos (b, ++ln)));
+   Up.nTDr = n;
+}
 
 
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
@@ -737,6 +773,6 @@ TRC(" set icos");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
 TRC(" ReEv; SetDn; SetNt; TmHop");
    ReEv ();   SetDn ();   SetNt ();   TmHop (_now);   
-   _pg = _tr = 0;   SetSym ();   Draw ();   ReTrk ();   DscSave ();
+   _pg = _tr = 0;   SetSym ();   Draw ();   ReTrk ();   ReTDr ();   DscSave ();
 TRC("ReDo end");
 }

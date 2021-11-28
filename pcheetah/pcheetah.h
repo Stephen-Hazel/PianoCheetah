@@ -6,10 +6,11 @@
 #include "ui_pcheetah.h"
 #include "ui_dlgcfg.h"
 #include "ui_dlgfl.h"
+#include "ui_dlgtdr.h"
 #include "ctlNt.h"
 #include "song.h"
 
-extern TStr Kick;                      // kick up an app after me like MidiCfg
+extern TStr Kick;                      // kick up an app on exit - like MidiCfg
 
 namespace Ui { class DlgFL; }
 
@@ -60,6 +61,33 @@ private:
 
 
 //______________________________________________________________________________
+namespace Ui { class DlgTDr; }
+
+class DlgTDr: public QDialog {
+   Q_OBJECT
+   
+public:
+   explicit DlgTDr (QWidget *parent = nullptr)
+   : QDialog (parent)
+   {  ui = new Ui::DlgTDr;   ui->setupUi (this);  }   
+  ~DlgTDr ()         {delete ui;}
+    
+   void Init (), Quit (), Open (), Shut ();
+   void closeEvent (QCloseEvent *e)  {(void)e;   Shut ();}
+   
+public slots:
+   void Upd ();
+   
+signals:
+   void sgTDr (ubyte r);
+   
+private:
+   Ui::DlgTDr *ui;
+   CtlTabl    _t;
+};
+
+
+//______________________________________________________________________________
 QT_BEGIN_NAMESPACE
 namespace Ui { class PCheetah; }
 QT_END_NAMESPACE
@@ -83,6 +111,7 @@ private:
    CtlNt       *_nt;
    DlgFL       *_dFL;
    DlgCfg      *_dCfg;
+   DlgTDr      *_dTDr;
    QThread      _thr;
 
    void SongRand (), SongKill (), SongRate ();
@@ -91,10 +120,11 @@ protected:
    void keyPressEvent (QKeyEvent *e);
    
 public slots:
-   void Load ();
+   void Load   ();
    void LoadGo ();
-   void MCfg ();
-   void GCfg ();
+   void MCfg   ();
+   void GCfg   ();
+   void TDr  ();
 
    void SongPrv ();
    void SongNxt ();

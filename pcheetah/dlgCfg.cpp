@@ -1,4 +1,4 @@
-// dlgcfg.cpp - load/save/edit global Cfg biz
+// dlgCfg.cpp - load/save/edit global Cfg biz
 //              and per song cfg via CfgInit/CfgLoad/CfgSave
 
 #include "pcheetah.h"

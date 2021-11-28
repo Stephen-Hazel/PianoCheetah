@@ -86,22 +86,27 @@ struct UTrkRow {
    ubyte dvt;   bool drm;   TStr lrn, ez, name, grp, snd, dev, notes, ctrls;
 };
 struct UpdLst {
-   QPixmap *oct, *pnbg, *now, *dot, *fng, *cue, *bug, *lhmx, *fade, *tr;
-   QIcon   *tbiPoz [2], *tbiLrn [3];
-   QAction *tbbPoz,     *tbbLrn;
    ubyt2 txH;
+   QPixmap *oct, *pnbg, *now, *dot, *fng, *cue, *bug, *lhmx, *fade, *tr;
+   QAction *tbbPoz,     *tbbLrn;
+   QIcon   *tbiPoz [2], *tbiLrn [3];
+// stuff Song sets for gui
    bool  uPoz;                         // user said poz, not just learn mode
    char  lrn;
-   TStr  ttl, song, time, bars, tmpo, tsig, lyr, hey;
+   TStr  hey, ttl, song, time, bars, tmpo, tsig, lyr;
    ubyte lyrHiB, lyrHiE;
    Arr<DevTyp,MAX_DEV>  dvt;
    Arr<DevRow,MAX_DEV>  dev;
    Arr<UTrkRow,MAX_TRK> trk;           // n trk picked for editin
    ubyte rTrk, eTrk;                   // _f.trk.Ln-2 where rec drm,mel trks are
+// CtlNt's stuff
    ubyt2    w, h;                      // ctlNt's size
    QRect    tpos;                      // drawnow's area to update
    QPixmap *pm, *tpm;                  // main(all) and now(update) note pixmaps
    Canvas   cnv, tcnv;
+// DlgTDr's stuff
+   ubyte   nTDr;
+   TStr     tDr [64][4];
 };
 extern UpdLst Up;                      // what gui needs from song
 

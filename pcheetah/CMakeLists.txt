@@ -16,16 +16,18 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
         glo.h
-        pcheetah.h
-        pcheetah.cpp
-        pcheetah.ui
         ctlNt.h
+        song.h
+        pcheetah.h
+        pcheetah.ui
+        dlgfl.ui
+        dlgcfg.ui
+        dlgtdr.ui
+        pcheetah.cpp
         ctlNt.cpp
         dlgFL.cpp
-        dlgfl.ui
         dlgCfg.cpp
-        dlgcfg.ui
-        song.h
+        dlgTDr.cpp
         song.cpp
         sTime.cpp
         sDevTyp.cpp
