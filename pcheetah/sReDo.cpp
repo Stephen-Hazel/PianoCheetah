@@ -61,43 +61,6 @@ TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
 }
 
 
-void Song::ReTDr ()
-// load Up.nTDr/.tDr[] w song's section cues n drum rhy picks
-{ ubyte n, j;
-  ubyt4 i, ln, pLn;
-  BStr  b;
-  TStr  s;
-  char *p, *e;
-   n = Up.nTDr = 0; 
-   for (i = 0;  i < _f.cue.Ln;  i++)  if (_f.cue [i].s [0] == '(') {
-      for (j = 0;  j < n;  j++)
-         if (! StrCm (& _f.cue [i].s [1], Up.tDr [j][0]))  break;
-      if (j >= n) {
-         StrCp (s, CC("(off)"));
-         StrCp (Up.tDr [n][1], s);   StrCp (Up.tDr [n][2], s);
-                                     StrCp (Up.tDr [n][3], s);
-         StrCp (Up.tDr [n++][0], & _f.cue [i].s [1]);
-      }                                // ^ new section
-   }
-   DscGet (CC("drumpat={"), b);
-// search thru song's drumpat desc lines n set pata,patb,fill per section
-   ln = 0;  pLn = 0;
-   do {
-      p = & b [pLn];
-      if ((e = StrCh (p, '\n')))  for (i = 0;  i < n;  i++) {
-         StrFmt (s, "`s=", Up.tDr [i][0]);
-         if (! MemCm (p, s, StrLn (s))) {
-            p += StrLn (s);
-            MemCp (s, p, (e-p));   s [e-p] = '\0';
-           ColSep ss (s, 3);
-            for (j = 0;  j < 3;  j++)  StrCp (Up.tDr [i][j+1], ss.Col [j]);   
-         }
-      }
-   } while ((pLn = LinePos (b, ++ln)));
-   Up.nTDr = n;
-}
-
-
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
 { ubyte t, c, d, nn, x;
@@ -772,7 +735,7 @@ TRC(" vwNt=`b ez=`b rHop=`b hand=`c", _lrn.vwNt, _lrn.ez, _lrn.rHop, _lrn.hand);
 TRC(" set icos");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
 TRC(" ReEv; SetDn; SetNt; TmHop");
-   ReEv ();   SetDn ();   SetNt ();   TmHop (_now);   
-   _pg = _tr = 0;   SetSym ();   Draw ();   ReTrk ();   ReTDr ();   DscSave ();
+   ReEv ();   SetDn ();   SetNt ();   TmHop (_now);
+   _pg = _tr = 0;   SetSym ();   Draw ();   ReTrk ();   DscSave ();
 TRC("ReDo end");
 }

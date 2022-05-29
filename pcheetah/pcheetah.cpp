@@ -8,19 +8,21 @@ void PCheetah::Trak ()
 { QSplitter *sp = ui->spl;
   QList<int> sz = sp->sizes ();
    if (sz [0])                         // table does minimumExpand ta werk
-        {Gui.FullSc (true);   sp->setSizes (QList<int>() << 0  <<  width ());}   
-   else {Gui.FullSc (false);  sp->setSizes (QList<int>() << 90 << 
-                                                              (width () - 90));}      
+        {Gui.FullSc (true);   sp->setSizes (QList<int>() << 0  <<  width ());}
+
+   else {Gui.FullSc (false);  sp->setSizes (QList<int>() << 90 <<
+                                                              (width () - 90));}
+
 }
 
 void PCheetah::LoadGo ()
 { TStr s;   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));  }
 
-void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open  ();}
-void PCheetah::GCfg ()                         {_dCfg->Open ();}
+void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open ();}
+void PCheetah::GCfg ()                        {_dCfg->Open ();}
 void PCheetah::MCfg ()  {StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
                                        // ^kick midicfg.  quit cuz midi sharin'
-void PCheetah::TDr ()   {_dTDr->Open ();}
+void PCheetah::TDr ()   {emit sgCmd ("preTDr");}
 
 void PCheetah::SongNxt ()
 { ubyt4 p = FL.pos, ln = FL.lst.Ln;
@@ -54,7 +56,7 @@ void PCheetah::SongRand ()
    for (q = 0;  q < ln;  q++)  if (StrSt (FL.lst [q], CC("4_queue")))  break;
    for (unp = tot = 0, i = q;  i < ln;  i++)  if (Rate (FL.lst [i]) == r)
       {tot++;   if (FL.lst [i][FL.X] == 'n')  unp++;}
-   if (tot == 0)  
+   if (tot == 0)
       {Gui.Hey (CC("no songs with that rating in queue"));   return;}
    if (unp == 0) {                  // reset all
       for (i = q;  i < ln;  i++)
@@ -149,28 +151,28 @@ DBG("done dr=`s", dr);
 //______________________________________________________________________________
 // _tr (ui->tr) stuph...
 
-void TrPop (char *ls, ubyt2 r, ubyte c)    
+void TrPop (char *ls, ubyt2 r, ubyte c)
 // pop HT, sounddir, sound CtlList
-{  *ls = '\0';   
+{  *ls = '\0';
 TRC("TrPop r=`d c=`d", r, c);
    if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm))
-      MemCp (ls, CC("-\0L\0R\0ez1\0ez2\0ez3\0ez4\0ez5\0ez6\0ez7\0"), 
-                     3*2+7*4+1); 
+      MemCp (ls, CC("-\0L\0R\0ez1\0ez2\0ez3\0ez4\0ez5\0ez6\0ez7\0"),
+                     3*2+7*4+1);
    if (c == 5) {
      ubyte d = 0;
      TStr  n, t, x;
       StrCp (ls, CC("+"));   ls += 2;
-      while (Midi.GetPos ('o', d++, n, t, x, x))  if (StrCm (t, CC("OFF")))  
+      while (Midi.GetPos ('o', d++, n, t, x, x))  if (StrCm (t, CC("OFF")))
          {StrCp (ls, n);   ls += (StrLn (n)+1);}
       *ls = '\0';
       return;
    }
    if ((c != 3) && (c != 4))  return;
-   
+
    if (! Up.trk [r].drm)  {Gui.Hey (CC("can't edit drum sounds"));   return;}
   ubyte dvt = Up.trk [r].dvt;
-   if (c == 3)  Up.dvt [dvt].SGrp (ls);  
-   if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp);      
+   if (c == 3)  Up.dvt [dvt].SGrp (ls);
+   if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp);
 }
 
 void PCheetah::TrClk ()
@@ -191,7 +193,7 @@ TRC("TrClk(L) r=`d c=`d", r, c);
       }
 */
    }
-/* else if (c == 6) { 
+/* else if (c == 6) {
      DlgMix dlg (_song, arg);
       dlg.Ok (Wndo ());
       StrFmt (cmd, "`d `d", arg [0], arg [1]);   SongCmd ("mix", cmd);
@@ -205,8 +207,8 @@ void PCheetah::TrClkR (const QPoint &pos)
   ubyte c = _tr.CurCol ();
    (void)pos;
 TRC("TrClkR r=`d c=`d", r, c);
-   Up.eTrk = (ubyte)r;  
-   if      (c == 0)  emit sgCmd ("mute");    
+   Up.eTrk = (ubyte)r;
+   if      (c == 0)  emit sgCmd ("mute");
    else if (c == 1)  emit sgCmd ("showAll");
    else if (c == 7)  emit sgCmd ("recWipe");
 }
@@ -216,7 +218,7 @@ void PCheetah::TrUpd ()
 { ubyt2 r = _tr.CurRow ();
   ubyte c = _tr.CurCol ();
   TStr  s;
-   Up.eTrk = (ubyte)r;  
+   Up.eTrk = (ubyte)r;
 TRC("TrUpd r=`d c=`d", r, c);
    switch (c) {
       case 1:                          // hand type
@@ -255,19 +257,30 @@ void PCheetah::Upd (QString upd)
 
    if (! StrCm (u, CC("ttl")))
       Gui.SetTtl (StrFmt (s, "`s - PianoCheetah", Up.ttl));
-   
+
    if (! StrCm (u, CC("FLdn"))) {if (FL.pos < FL.lst.Ln-1)
                                               {++FL.pos;   _dFL->ReDo ();}}
    if (! StrCm (u, CC("FLup"))) {if (FL.pos)  {--FL.pos;   _dFL->ReDo ();}}
    if (! StrCm (u, CC("FLgo"))) {_dFL->Shut ();   LoadGo ();}
    if (! StrCm (u, CC("FLex"))) {_dFL->Shut ();   Gui.Quit ();}
-   
-   if (! StrCm (u, CC("nt")))    _nt->update ();
-   if (! StrCm (u, CC("time"))) { 
-     CtlLabl l (ui->time);  
+
+   if (! StrCm (u, CC("nt")))     _nt->update ();
+   if (! StrCm (u, CC("ntCur")))  _nt->Cur ();
+   if (! StrCm (u, CC("dTDr")))   _dTDr->Open ();
+   if (! StrCm (u, CC("dCue")))   _dCue->Open ();
+   if (! StrCm (u, CC("dChd")))   _dChd->Open ();
+   if (! StrCm (u, CC("dCtl")))   _dCtl->Open ();
+   if (! StrCm (u, CC("dTpo")))   _dTpo->Open ();
+   if (! StrCm (u, CC("dTSg")))   _dTSg->Open ();
+   if (! StrCm (u, CC("dKSg")))   _dKSg->Open ();
+   if (! StrCm (u, CC("dFng")))   _dFng->Open ();
+   if (! StrCm (u, CC("dMov")))   _dMov->Open ();
+
+   if (! StrCm (u, CC("time"))) {
+     CtlLabl l (ui->time);
      TStr s;
-      StrCp (s, Up.time);  
-      if (*s == 'X')  
+      StrCp (s, Up.time);
+      if (*s == 'X')
          StrFmt (s, "<span style='color: red;'>`s</span>", & Up.time [1]);
       l.Set (s);
    }
@@ -282,7 +295,7 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, CC("lyr"))) {
      CtlText t (ui->lyr);
      QColor  fg = t.Fg (), hi = t.Hi ();
-      t.Clr ();   
+      t.Clr ();
       if (! Up.lyrHiE)  {t.SetFg (fg);   t.Add (Up.lyr);}
       else {
         ubyte b = Up.lyrHiB, e = Up.lyrHiE;
@@ -303,10 +316,10 @@ void PCheetah::Upd (QString upd)
          rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ez;
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
-         rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;     
+         rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;
          _tr.Put (rp);
          if (Cfg.ntCo == 2) {          // color by track
-            if (((rp [0][0] == 'l') || (rp [1][0] == 'S')) && 
+            if (((rp [0][0] == 'l') || (rp [1][0] == 'S')) &&
                 (! Up.trk [i].drm))
                _tr.SetColor (i, CMap (tc++));
          }
@@ -317,11 +330,11 @@ void PCheetah::Upd (QString upd)
                default:   tc = 9;
             }
             if (tc < 2)  _tr.SetColor (i, CTnt [tc]);
-         }        
+         }
       }
       _tr.Shut ();   _tr.HopTo (Up.eTrk, 0);
    }
-   
+
    if (! MemCm (u, CC("die "), 4))  {Gui.Hey (& u [4]);   Gui.Quit ();}
 }
 
@@ -333,11 +346,11 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
   key   k;
   TStr  s;
    if (! (k = km.Map (e->modifiers (), e->key ())))  return;
-   StrCp (s, km.Str (k));   
+   StrCp (s, km.Str (k));
 TRC("keypressEvent `s", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
    if (i < 6)             Upd (UCmd [i].cmd);
-   if (i < NUCmd)  emit sgCmd (UCmd [i].cmd);   
+   if (i < NUCmd)  emit sgCmd (UCmd [i].cmd);
 }
 
 
@@ -347,8 +360,8 @@ TRC("PCheetah::Init");
    Midi.Load ();
   ubyte i = 0;
   TStr  nm, ty, ds, dv;
-   while (Midi.GetPos ('o', i++, nm, ty, ds, dv))  
-      if (StrCm (ty, CC("OFF")) && (*dv == '?')) 
+   while (Midi.GetPos ('o', i++, nm, ty, ds, dv))
+      if (StrCm (ty, CC("OFF")) && (*dv == '?'))
          {Gui.Hey ("a midi device is off, pal...");   break;}
 TRC("  song init");
    _s = new Song;                      // git song worker thread goin
@@ -383,7 +396,7 @@ TRC("  tbar init");
          "the grid that picks which tracks to practice, RH/LH, sound, etc"
                       "`view-media-lyrics" "`v\0"
       "pick from song list"    "`:/tbar/0" "`\0"
-      "configure midi devices" "`:/tbar/1" "`\0" 
+      "configure midi devices" "`:/tbar/1" "`\0"
       "settings and junk"      "`:/tbar/2" "`\0");
    connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
    connect (tb.Act (1), & QAction::triggered, this, & PCheetah::Load);
@@ -398,11 +411,11 @@ TRC("  tbar init");
    connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::SongNxt);
 
   CtlTBar tb3 (this,                 // transport - play/pause/etc
-      "restart"            "`:/tbar/time/0" "`1\0"     
-      "previous loop/page" "`:/tbar/time/1" "`Left\0"  
-      "previous bar"       "`:/tbar/time/2" "`2\0"     
+      "restart"            "`:/tbar/time/0" "`1\0"
+      "previous loop/page" "`:/tbar/time/1" "`Left\0"
+      "previous bar"       "`:/tbar/time/2" "`2\0"
       "play / pause"       "`:/tbar/time/3" "`Space\0"
-      "next bar"           "`:/tbar/time/4" "`3\0"    
+      "next bar"           "`:/tbar/time/4" "`3\0"
       "next loop/page"     "`:/tbar/time/5" "`Right\0",
       "tbTime");
    Up.tbbPoz = tb3.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
@@ -486,28 +499,44 @@ TRC("  lyr,tr,nt init");
       ">Notes\0"
       ">Ctrls\0", TrPop);
    _tr.SetRowH (Gui.FontH ());
-   
-   ui->tr->setContextMenuPolicy (Qt::CustomContextMenu); 
+
+   ui->tr->setContextMenuPolicy (Qt::CustomContextMenu);
    connect (ui->tr, & QTableWidget::itemClicked, this, & PCheetah::TrClk);
-   connect (ui->tr, & QTableWidget::customContextMenuRequested, 
+   connect (ui->tr, & QTableWidget::customContextMenuRequested,
                                                  this, & PCheetah::TrClkR);
    connect (ui->tr, & QTableWidget::itemChanged, this, & PCheetah::TrUpd);
-   
+
    _nt = ui->nt;
    connect (_nt, & CtlNt::sgReSz, _s, & Song::ReSz);
+   connect (_nt, & CtlNt::sgMsDn, _s, & Song::MsDn);
+   connect (_nt, & CtlNt::sgMsMv, _s, & Song::MsMv);
+   connect (_nt, & CtlNt::sgMsUp, _s, & Song::MsUp);
    _nt->Init (ui->nt->width (), ui->nt->height ());
 
 TRC("  dlg init");
-   _dFL  = new DlgFL  (this);   _dFL->Init  ();
+   _dFL  = new DlgFL  (this);    _dFL->Init ();
    _dCfg = new DlgCfg (this);   _dCfg->Init ();
    _dTDr = new DlgTDr (this);   _dTDr->Init ();
-   connect (_dFL, & QDialog::accepted, this, & PCheetah::LoadGo);
-   connect (_dFL, & QDialog::rejected, this, & PCheetah::Quit);
-   connect (_dTDr, & DlgTDr::sgTDr, this, [this](ubyte r) {
-     TStr s;
-      StrFmt (s, "trkDr `d", r);   emit sgCmd (s);
-   });
-   
+   _dCue = new DlgCue (this);   _dCue->Init ();
+   _dChd = new DlgChd (this);   _dChd->Init ();
+   _dCtl = new DlgCtl (this);   _dCtl->Init ();
+   _dTpo = new DlgTpo (this);   _dTpo->Init ();
+   _dTSg = new DlgTSg (this);   _dTSg->Init ();
+   _dKSg = new DlgKSg (this);   _dKSg->Init ();
+   _dFng = new DlgFng (this);   _dFng->Init ();
+   _dMov = new DlgMov (this);   _dMov->Init ();
+   connect (_dFL,  & QDialog::accepted, this, & PCheetah::LoadGo);
+   connect (_dFL,  & QDialog::rejected, this, & PCheetah::Quit);
+   connect (_dTDr, & DlgTDr::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dCue, & QDialog::accepted, this, [this]() {emit sgCmd ("cue");});
+   connect (_dChd, & DlgChd::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dCtl, & QDialog::accepted, this, [this]() {emit sgCmd ("ctl");});
+   connect (_dTpo, & DlgTpo::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dTSg, & DlgTSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dKSg, & DlgKSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dFng, & DlgFng::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dMov, & QDialog::accepted, this, [this]() {emit sgCmd ("mov");});
+
 TRC("  midiimp");
    App.Run (CC("midimp &"));
 
@@ -524,13 +553,18 @@ TRC("PCheetah::Init end");
 
 
 void PCheetah::Quit ()
-{  
+{
 TRC("PCheetah::Quit");
 TRC("  emit quit");
-   emit sgCmd (CC("quit"));   
+   emit sgCmd (CC("quit"));
 TRC("  Win,dlg save");
    Gui.WinSave (ui->spl);
-   _dFL->Quit ();   _dCfg->Quit ();   delete _dFL;   delete _dCfg;
+   _dFL->Quit ();    _dCfg->Quit ();   _dTDr->Quit ();
+   _dCtl->Quit ();   _dCue->Quit ();   _dMov->Quit ();
+   delete _dFL;    delete _dCfg;   delete _dTDr;
+   delete _dCue;   delete _dChd;   delete _dCtl;
+   delete _dTpo;   delete _dTSg;   delete _dKSg;
+   delete _dFng;   delete _dMov;
 TRC("  thrEnd");
    _thr.quit ();   _thr.wait ();
 TRC("  kick=`s", Kick);

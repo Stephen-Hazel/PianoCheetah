@@ -30,8 +30,8 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
 { ubyte nt, dnt, t, tt, dPos, c, ncc,      tp;
   ubyt2 nx, cx, h, x, x1, x2, y, y2, th = Up.txH, tpMn, tpMx, vl, v2;
   bool  drm, got, cl;
-  ubyt4 tMn, tMx, pMn, pMx, t1, t2, p, ne, tDn, tUp, on [128];
   char  bad;
+  ubyt4 tMn, tMx, pMn, pMx, t1, t2, p, ne, tDn, tUp, on [128];
   TStr  str;
   TrkEv  *e, ev;
   TpoRow *te;
@@ -593,7 +593,7 @@ TRC("DrawPg `d", pp);
       Up.cnv.RectF (qx, y, qw, co.h-y, CTnt [3]);
 
    // FIRST (v/c/b/etc rect hilites so underneath-est (text later)
-      Up.cnv.TextVC (qx, 0, CC("Cues"), CBLACK);
+      Up.cnv.TextVC (nx-W_Q, 0, CC("Cues"), CBLACK);
       for (ne = _f.cue.Ln, p = 0;  p < ne;  p++)
          if (* (StrCp (str, _f.cue [p].s)) == '(') {
             t1 = _f.cue [p].time;   t2 = Bar2Tm (9999);
@@ -607,7 +607,7 @@ TRC("DrawPg `d", pp);
                if      (! StrCm (str, CC("(verse")))   cno = 0;
                else if (! StrCm (str, CC("(chorus")))  cno = 1;
                else if (  StrSt (str, CC("(break")))   cno = 2;
-               else                                cno = 3;
+               else                                    cno = 3;
                Up.cnv.RectF (qx, y, qw, y2-y+1, CTnt [cno]);
             }
          }
@@ -623,10 +623,10 @@ TRC("DrawPg `d", pp);
          y  = Tm2Y (t1, & co);   y2 = Tm2Y (t2, & co)-1;
          if (y2-y+1 < 8)  continue;
 
-         else if (*str == '<')  {Up.cnv.Line (qx+qw/2,   y, qx,      y2);
-                                 Up.cnv.Line (qx+qw/2+1, y, qx+qw-1, y2);}
-         else if (*str == '>')  {Up.cnv.Line (qx,      y, qx+qw/2,   y2);
-                                 Up.cnv.Line (qx+qw-1, y, qx+qw/2+1, y2);}
+         else if (*str == '<')  {Up.cnv.Line (nx-W_Q/2,   y, nx-W_Q,     y2);
+                                 Up.cnv.Line (nx-W_Q/2+1, y, nx-1,       y2);}
+         else if (*str == '>')  {Up.cnv.Line (nx-W_Q,     y, nx-W_Q/2,   y2);
+                                 Up.cnv.Line (nx-1,       y, nx-W_Q/2+1, y2);}
       }
    // FINALLY (v/c/b/etc text and non range cues on top
       for (p = 0;  (p < ne) && (_f.cue [p].time < tMn);  p++) {
@@ -651,7 +651,7 @@ TRC("DrawPg `d", pp);
                   StrFmt (str, "break `d",  br);
             else  StrCp  (str, & str [1]);
             y = Tm2Y (t1, & co);
-            Up.cnv.TextVC (qx, y+4, str, CBLACK);
+            Up.cnv.TextVC (nx-W_Q, y+4, str, CBLACK);
 
             *str = '(';             // sorry !!
          }
@@ -659,16 +659,16 @@ TRC("DrawPg `d", pp);
 
          y = Tm2Y (_f.cue [p].time, & co);
          x = 0;
-         if      (        *str == '.'  )  {x =   1;   w =  7;}    // 2px over
+         if      (        *str == '.'     )   {x =   1;   w =  7;}   // 2px over
          else if (! StrCm (str, CC("`fer")))  {x =  24;   w = 24;}
          else if (! StrCm (str, CC("`tre")))  {x =  48;   w = 17;}
          else if (! StrCm (str, CC("`sta")))  {x =  65;   w = 23;}
          else if (! StrCm (str, CC("`hap")))  {x =  88;   w = 25;}
          else if (! StrCm (str, CC("`sad")))  {x = 113;   w = 23;}
          else if (! StrCm (str, CC("`mad")))  {x = 136;   w = 24;}
-         if (x)  Up.cnv.Blt (*Up.cue, (ubyt2)qx+qw-w, y, x, 0,
-                                                          w, Up.cue->height ());
-         else    Up.cnv.TextVC (qx, y, str, CBLACK);
+         if (x)  Up.cnv.Blt (*Up.cue, (ubyt2)nx-W_Q, y, x, 0,
+                                                        w, Up.cue->height ());
+         else    Up.cnv.TextVC (nx-W_Q, y, str, CBLACK);
       }
 
    // chords (in their own column)

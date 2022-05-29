@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DlgTDr</class>
- <widget class="QDialog" name="DlgTDr">
+ <class>DlgCue</class>
+ <widget class="QDialog" name="DlgCue">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
-    <height>179</height>
+    <width>838</width>
+    <height>53</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Edit Cue</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTableWidget" name="t"/>
+    <widget class="QLineEdit" name="str"/>
    </item>
   </layout>
  </widget>

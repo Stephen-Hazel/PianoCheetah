@@ -64,7 +64,9 @@ TRC("g");
 }
 
 
-void Song::Hey (char *msg)  {  StrCp (Up.hey, msg);  }
+void Song::Hey (char *msg)
+{  StrCp (Up.hey, msg);   PutLy ();  }
+
 void Song::Die (char *msg)  { TStr s;   emit sgUpd (StrFmt (s, "die `s", msg));}
 
 

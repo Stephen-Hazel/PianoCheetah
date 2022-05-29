@@ -24,42 +24,9 @@ extern QColor CMap (ubyte n);
 extern char  KeyCol [13];              // in sEdit.cpp
 extern ubyte WXOfs  [12];
 
-
-//______________________________________________________________________________
 struct UCmdDef {const char *cmd, *nt, *ky, *grp, *desc;};
 extern UCmdDef UCmd [];                // in sCmd.cpp
 extern ubyte  NUCmd;
-
-
-//______________________________________________________________________________
-// note cache stuph
-struct NtDef   {ubyte t, nt;   ubyt4 p;};   // evTrk, melo/drum nt, evPos
-
-struct DownRow {ubyt4 time;  ubyte w, nNt;  NtDef nt [14]; // prac/play defs
-                ubyt4 msec;  ubyt2 tmpo;  bool clip;};     // tmpo rec'd at
-                                            // w used by TrkEZ,  any nt missed
-struct TrkNt   {ubyt4 dn, up, tm, te;   ubyte nt;   bool ov;};
-
-// drum map cache - use: into drumCon, outa drumExp (Load,Save) n temp in SetBnk
-struct MapDRow {ubyte ctl, inp, vol, pan;   ubyt4 snd;   bool shh, lrn;
-                                                         char ht;};
-
-//______________________________________________________________________________
-struct TrkRow  {ubyte  dev, chn,   din, drm,   vol, pan;
-                bool   grp, shh, lrn;       // ^these 2 JUST for syn drum chans
-                char   ht;
-                TStr   name;
-                ubyt4  snd;
-                TrkEv *e;
-                TrkNt *n;
-                ubyt4 ne, nn, nb, p;};           // #e, #n, #broke, pos
-struct CtlRow  {WStr s;   bool sho;};            // song's ctl map
-struct CChRow  {ubyte dev, chn, ctl, trk, valu, val2;  ubyt4 time;};
-struct CDoRow  {ubyte dev, chn, ctl, valu;};
-struct TxtRow  {ubyt4 time, tend;  TStr s;};     // lyr,sct,chd,cue,bug
-struct TpoRow  {ubyt4 time;  ubyt2 val;};                       // tempo (orig)
-struct TSgRow  {ubyt4 time;  ubyte num, den, sub;  ubyt2 bar;}; // timesig
-struct KSgRow  {ubyt4 time;  ubyte key, min, flt;};             // keysig
 
 
 //______________________________________________________________________________
@@ -122,8 +89,8 @@ struct LrnDef {
 // notation stuph
 struct BlkDef  {ubyt2 bar, y, h;   ubyt4 tMn, tMx;   ubyte sb;};
                                                  // bar's tm block, y scale
-struct SymDef  {ubyte tr;   ubyt4 nt;
-                bool top, bot;   ubyt2 x, y, w, h;};  // note's symbols
+struct SymDef  {ubyte tr;   ubyt4 nt, tm;
+                bool top, bot, bar;   ubyt2 x, y, w, h;};  // note's symbols
 struct ColDef  {BlkDef *blk;   SymDef *sym;   ubyt4 nBlk,  nSym;
                 ubyte nMn, nMx, nDrm, dMap [128];   ubyt2 x, w, h;};
 struct PagDef  {ColDef *col;   ubyt4 nCol;   ubyt2 w, h;};
@@ -137,7 +104,9 @@ class Song: public QObject {
 
 public:
    Song ()                             // prep for 1st Wipe()
-   {  _eOn = false;   *_f.fn = '\0';   _f.ev = nullptr;   _nt = nullptr;   }
+   {  _eOn = false;   *_f.fn = '\0';   _f.ev = nullptr;   _nt = nullptr;   
+      Up.pos.at = Up.pos.drg = '\0';
+   }
 
 private:
 // sTime.cpp
@@ -208,11 +177,12 @@ private:
    void  EvRcrd  (ubyte dev, MidiEv *ev);
 
 // sChrd.cpp
-   void  DoChrd (char *arg);
+   void  PreChd ();
+   void  Chd    (char *arg);
    void  PopChd (ubyt4 tm);
    void  ChdArr (ubyt4 tm);
 
-// sEdit.cpp
+// sUtil.cpp
    ubyt4 GetDn   (TrkEv *e, ubyt4 p, ubyte nt);
    ubyt4 GetUp   (TrkEv *e, ubyt4 p, ubyt4 ne, ubyte nt);
    ubyt2 Nt2X    (ubyte n, ColDef *co, char gr = '\0');
@@ -233,12 +203,7 @@ private:
    void  EvInsT  (ubyte t, MidiEv *ev);
    void  NtIns   (ubyte t, ubyt4 tm, ubyt4 te, ubyte c, ubyte v = 100);
    ubyt4 NtHit   (ubyte t, ubyt4 tmn, ubyt4 tmx, ubyte nmn, ubyte nmx);
-   void  NtUpd   (char *tnf);
-   void  NtHop   (char *arg);
-   void  NtDur   (char *arg);
-   void  RcMov   (char *arg);
    void  Split   ();
-   void  setCtl  (char *arg);
    bool  TxtIns  (ubyt4 tm, char *s, Arr<TxtRow,MAX_LYR> *at, char cue = '\0');
    void  TrkSnd  (ubyt4 snew);
    void  NewSnd  (char ofs);
@@ -249,9 +214,26 @@ private:
    void  DrMap   (char *d);
    void  TrkEd   (char *op);
    ubyte GetSct  (TxtRow *sct);        // pull sections outa _f.cue[] > sct[64]
-   void  TrkDr   (char *ro);
    void  TmpoPik (char o_r);           // stamp cur tmpo w orig or rec'd vals
+   
+// sEdit.cpp
+   void  PreTDr  (bool kick = true);
+   void  TDr     (char *arg);
+   void  PreCtl  ();
+   void  Cue     ();
+   void  Ctl     ();
+   void  SetCtl  (char *arg);
+   void  PreFng  ();
+   void  Fng     (char *tnf);
+   void  NtDur   ();
+   void  NtHop   ();
+   void  Mov     ();
 
+// sEdMs.cpp
+   void  DragRc  ();
+   char  MsPos   (sbyt2 x, sbyt2 y);
+   void  DbgPos  ();                   // MsDn,Mv,Up are slots below
+   
 // sCmd.cpp
    ubyte ChkETrk ();
    void  Msg (char *s), LoopInit (), RecWipeQ (),
@@ -266,7 +248,6 @@ private:
    bool  TEz     (ubyte t);
    bool  TDrm    (ubyte t);
    void  ReTrk   ();                   // give gui _trk info ta draw
-   void  ReTDr   ();
    void  BarH    (ubyt2 *h, ubyte *sb, ubyt2 b);
    void  SetDn   (char q = '\0'),      // default to no quantize
          SetNt   (),
@@ -323,14 +304,17 @@ private:
    Arr<SymDef,131584>  _sym;
    Arr<LHMxRow, 16*1024> _lm;          // for LH shading
 // DWORD _syn, _lzr;                   // other .EXEs (IPC)
-
+   
 public slots:
    void Cmd (QString s);               // gui listenin
    void ReSz ()                        // note widget resize/repixmap
    {  TRC("Song::ReSz");   _pg = _tr = 0;   SetSym ();   Draw ();  }
 
-   void Put ();                        // pcheetah's heartbeat
-   void MIn ();                        // top o da recordin' biz
+   void Put  ();                       // pcheetah's heartbeat
+   void MIn  ();                       // top o da recordin' biz
+   void MsDn (Qt::MouseButton  b, sbyt2 x, sbyt2 y);  // edit bizzz
+   void MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y);
+   void MsUp (Qt::MouseButton  b, sbyt2 x, sbyt2 y);   
 
 signals:
    void sgCmd (QString cmd);

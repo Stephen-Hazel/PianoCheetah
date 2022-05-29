@@ -1,4 +1,4 @@
-// glo.h - global vars sigh
+﻿// glo.h - global vars sigh
 
 #ifndef GLO_H
 #define GLO_H
@@ -29,6 +29,37 @@ const ubyte PRG_NONE = 255;            // prg value for "no program"
 const ubyt2 SND_MAX  = 63*1024;        // max sounds per DevTyp
 const ubyt2 SND_MAXD = 1024;           // max sound dirs per DevTyp
 const ubyt4 SND_NONE = 0xFFFFFFFF;     // no sound
+
+
+//______________________________________________________________________________
+// note cache stuph
+struct NtDef   {ubyte t, nt;   ubyt4 p;};   // evTrk, melo/drum nt, evPos
+
+struct DownRow {ubyt4 time;  ubyte w, nNt;  NtDef nt [14]; // prac/play defs
+                ubyt4 msec;  ubyt2 tmpo;  bool clip;};     // tmpo rec'd at
+                                            // w used by TrkEZ,  any nt missed
+struct TrkNt   {ubyt4 dn, up, tm, te;   ubyte nt;   bool ov;};
+
+// drum map cache - use: into drumCon, outa drumExp (Load,Save) n temp in SetBnk
+struct MapDRow {ubyte ctl, inp, vol, pan;   ubyt4 snd;   bool shh, lrn;
+                                                         char ht;};
+
+//______________________________________________________________________________
+struct TrkRow  {ubyte  dev, chn,   din, drm,   vol, pan;
+                bool   grp, shh, lrn;       // ^these 2 JUST for syn drum chans
+                char   ht;
+                TStr   name;
+                ubyt4  snd;
+                TrkEv *e;
+                TrkNt *n;
+                ubyt4 ne, nn, nb, p;};           // #e, #n, #broke, pos
+struct CtlRow  {WStr s;   bool sho;};            // song's ctl map
+struct CChRow  {ubyte dev, chn, ctl, trk, valu, val2;  ubyt4 time;};
+struct CDoRow  {ubyte dev, chn, ctl, valu;};
+struct TxtRow  {ubyt4 time, tend;  TStr s;};     // lyr,sct,chd,cue,bug
+struct TpoRow  {ubyt4 time;  ubyt2 val;};                       // tempo (orig)
+struct TSgRow  {ubyt4 time;  ubyte num, den, sub;  ubyt2 bar;}; // timesig
+struct KSgRow  {ubyt4 time;  ubyte key, min, flt;};             // keysig
 
 
 //______________________________________________________________________________
@@ -82,6 +113,20 @@ private:
 
 
 //______________________________________________________________________________
+// edit pos junkss   
+struct PosDef {
+   char  at, got, drg;                 // sEdit.cpp docs these
+   ubyt4 pg, co, tm, sy, p;            // page, column, time, symbol, trk ev pos
+   ubyt4 tmBr, tmBt, hBt;              // trunc'd bar time, nearest beat,
+   sbyt2 x1, y1, x2, y2, xp, yp, xo, yo;               // n half beat dur
+   ubyte ct, cp, tr;                   // control, ctl pos, track
+   TStr  str, etc;
+   KSgRow kSg;
+   bool  pPoz;                         // pause prev on
+};
+
+
+//______________________________________________________________________________
 struct UTrkRow {
    ubyte dvt;   bool drm;   TStr lrn, ez, name, grp, snd, dev, notes, ctrls;
 };
@@ -100,13 +145,17 @@ struct UpdLst {
    Arr<UTrkRow,MAX_TRK> trk;           // n trk picked for editin
    ubyte rTrk, eTrk;                   // _f.trk.Ln-2 where rec drm,mel trks are
 // CtlNt's stuff
+   QPointF  gp;                        // globalPos() x,y for movin dlgs
+   char     ntCur;
    ubyt2    w, h;                      // ctlNt's size
-   QRect    tpos;                      // drawnow's area to update
+   QRect    tpos, drag;                // drawnow's area to update, ms drag rc
    QPixmap *pm, *tpm;                  // main(all) and now(update) note pixmaps
    Canvas   cnv, tcnv;
-// DlgTDr's stuff
-   ubyte   nTDr;
-   TStr     tDr [64][4];
+   PosDef   pos;                       // edit pos junkss
+
+// Dlg val passin (TDr, Ctl, etc)
+   ubyte   nR;
+   TStr     d [256][4];
 };
 extern UpdLst Up;                      // what gui needs from song
 
@@ -139,6 +188,9 @@ struct FLstDef {
    bool DoDir (char *dir, char *srch = nullptr);
 };
 extern FLstDef FL;
+
+
+extern ubyte ChdBtw (TStr **out, char *i1, char *i2);      // in sChd.cpp
 
 
 #endif  // GLO_H

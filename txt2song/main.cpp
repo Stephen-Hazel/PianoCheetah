@@ -328,7 +328,7 @@ char *DoChord (char *b, ubyte l)
 //------------------------------------------------------------------------------
 void EndTrack ()
 // set Trk[] ne n dur;  bump NTrk;  reset E,NE,Time
-{  TrkNE [NTrk] = NE;
+{  TrkNE [NTrk++] = NE;
    if (Time > DurMax)  DurMax = Time;
    E = & TEv [NTrk][0];   NE = Time = 0;
 }
@@ -413,9 +413,13 @@ void Put ()
    for (i = t = 0;  t < NTrk;  t++)  if (TNm [t][0] == '?')  {i = 1;   break;}
    f.Put (i ? CC("Learn=3\n") : CC("Learn=0\n"));    // play : hearall
    f.Put (    CC("Track:\n"));
-   for (t = 0;  t < NTrk;  t++)  f.Put (StrFmt (s, ".  `s  .`s  `s\n",
-                       TSn [t][0] ? TSn [t] : "Piano/AcousticGrand",
-                       TMd [t], TNm [t]));
+   for (t = 0;  t < NTrk;  t++) {
+      f.Put (StrFmt (s, ".  `s  .`s  `s\n",
+         TSn [t][0] ? TSn [t] : "Piano/AcousticGrand",
+         TMd [t], TNm [t]));
+TRC("t=`d nEv=`d", t+1, TrkNE [t]);
+   }
+TRC("NSct=`d", NSct);
    if (NSct) {
       f.Put (CC("Lyric:\n"));
       for (i = 0;  i < ly.NRow ();  i++) {
@@ -578,7 +582,7 @@ void DoFile (char *ifn)
       StrCp (ErrFN, fn);   ErrLine = 0;
       if ((msg = f.DoText (ErrFN, nullptr, DoLine)))  Die (msg);
    }
-   StrCp (ErrFN, pFn);   ErrLine = pLn;
+   StrCp (ErrFN, pFn);   ErrLine = pLn;   
 }
 
 
@@ -592,7 +596,7 @@ char *DoLine (char *b, ubyt2 l, ubyt4 line, void *ptr)
   static ubyte unr = 0;
    (void)ptr;
    ErrLine = line;
-
+DBG("ErrFN=`s line=`d NE=`d Time=`d", ErrFN, ErrLine, NE, Time);
    if (! StrCm (b, CC("unroll")))  {unr = 1;  return nullptr;}
    if (unr) {
       if (NSct >= BITS (Sct))

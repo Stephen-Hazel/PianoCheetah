@@ -1,4 +1,4 @@
-// sChrd.cpp - auto calc chords and stick em in _f.chd
+// sChd.cpp - auto calc chords and stick em in _f.chd
 
 #include "song.h"
 
@@ -134,107 +134,6 @@ static ubyt4 Score (ubyt4 p, ubyt4 ln, char *lbl = NULL, bool fl = false,
    }
 //DBG("} Score");
    return rc;
-}
-
-
-void Song::DoChrd (char *arg)
-{ ubyte  on [128], t, bass;
-  bool   got = true, dn;
-  TrkEv *e;
-  ubyt4  tm = 0, p, p2, csc, ne, lp, tp [MAX_TRK];
-  TStr   lbl;
-  bool   fl;
-  char   tmp [sizeof (MChdX [0].tmp)];
-  TSgRow *ts;
-   if (*arg == '+')  return PopChd (Str2Int (& arg [1]));
-   if (*arg == '@')  return ChdArr (Str2Int (& arg [1]));
-
-// kill em all
-   _f.chd.Ln = 0;   _pChd = 0;   //((CtlNt *)_c->nt)->Draw ();
-   if (*arg == '-')  return;           // just wiping em?
-
-// recalc em all
-   NSet = 0;
-   MemSet (on, 0, sizeof (on));        // notes all off, track poss all 0
-   MemSet (tp, 0, sizeof (tp));
-
-// get each unique time and assoc'd notesets
-   while (got) {
-      got = dn = false;                // get 1st time of note across melo trks
-      for (   t = 0; t < Up.rTrk; t++)  if ((! TDrm (t)) && TLrn (t))
-         for (p = tp [t], e = _f.trk [t].e, ne = _f.trk [t].ne;  p < ne;  p++)
-            if (! (e [p].ctrl & 0x80)) {
-               if      (! got)           {tm = e [p].time;   got = true;}
-               else if (e [p].time < tm)  tm = e [p].time;
-               break;
-            }
-      if (got) {                       // build on[] noteset from note evs @ tm
-         for (t = 0; t < Up.rTrk; t++)  if ((! TDrm (t)) && TLrn (t)) {
-            for (p = tp [t], e = _f.trk [t].e, ne = _f.trk [t].ne;
-                 (p < ne) && (e [p].time <= tm);  p++)
-               if (! (e [p].ctrl & 0x80)) {
-                  if      (! (e [p].valu & 0x80))  on [e [p].ctrl]--;
-                  else if (! (e [p].val2 & 0x80))     // skip prss evs
-                                     {dn = true;   on [e [p].ctrl]++;}
-               }
-            tp [t] = p;
-         }
-      // stamp a Set unless had ONLY noteoffs
-         if (dn) {
-            if (NSet >= BITS (Set))  Die (CC("DoChrd  outa room in Set[]"));
-            Set [NSet].time = tm;   SetSet (Set [NSet].nmap, on);
-            NSet++;
-         }
-      }
-   }
-
-TRC("get initial 1 Set scores");
-   for (p = 0;  p < NSet;  p++)  Set [p].scor = Score (p, 1);
-
-TRC("keep tacking on trailing Sets while combo scores better");
-   for (p = 0;  p < NSet;  p = p2) {
-//TStr db; DBG(" p=`d/`d `s",  p, NSet, TmSt(db,Set [p].time));
-      for (p2 = p+1;  p2 < NSet;) {
-         csc = Score (p, p2-p+1);
-//DBG("   comb=`d vs sep=`d(`d + `d)",
-//csc, Set [p].scor + Set [p2].scor,  Set [p].scor, Set [p2].scor);
-         if (csc >= (Set [p].scor + Set [p2].scor)) {
-//DBG("   GLUE");
-            Set [p].scor = csc;   Set [p2].time = SKIP;   p2++;
-         }
-         else  break;
-      }
-//DBG("   p2=`d num=`d", p2, p2-p+1);
-   }
-
-TRC("draw in chords");
-   for (p = 0;  p < NSet;  p = ++p2) {
-      for (p2 = p;  Set [p2+1].time == SKIP;  p2++)  ;
-      fl = KSig (Set [p2].time)->flt ? true : false;
-      if (Score (p, p2-p+1, lbl, fl, tmp, & bass) && (! _f.chd.Full ())) {
-//TStr db; DBG("p=`d p2=`d tm=`s lbl=`s", p, p2, TmSt (ts, Set [p].time), lbl);
-      // ins chord time,label in _f.chd[]
-         lp = _f.chd.Ins ();   _f.chd [lp].time = Set [p].time;
-                        StrCp (_f.chd [lp].s, lbl);
-      }
-   }
-// kill chords with teeny durs
-   for (p = 0;  p < _f.chd.Ln;) {
-      if (p+1 < _f.chd.Ln) {
-         ts = TSig (_f.chd [p].time);
-         if ( (_f.chd [p+1].time - _f.chd [p].time) < ((M_WHOLE/ts->den)/2) )
-               _f.chd.Del (p);
-         else  p++;
-      }
-      else     p++;
-   }
-// kill resulting same following chords
-   for (p = 1;  p < _f.chd.Ln;) {
-      if (! StrCm (_f.chd [p-1].s, _f.chd [p].s))  _f.chd.Del (p);
-      else                                                     p++;
-   }
-
-// ((CtlNt *)_c->nt)->Draw ();
 }
 
 
@@ -608,4 +507,169 @@ TRC(" ftb=`s fte=`s", TmSt (s1, ftb), TmSt (s2, fte));
    ReDo ();
    _rcrd = true;
    TmHop (itm);
+}
+
+
+void Song::PreChd ()
+{ ubyt4 cp, i, tm1, tm = Up.pos.tm, hbt = Up.pos.hBt;
+  TStr  ch1, ch2, s;
+  bool  got;
+// if we got a chd within hbt of orig tm, use that time instead
+   cp = _f.chd.Ln;                     // default to NO _f.chd[] pos
+   *s = '\0';
+   for (i = 0;  i < _f.chd.Ln;  i++) {
+      if (_f.chd [i].time     >  tm+hbt)  break;
+      if (_f.chd [i].time+hbt >= tm) {
+         if      (cp >= _f.chd.Ln)                            cp = i;
+         else if (ABSL((sbyt4)_f.chd [cp].time - (sbyt4)tm) >
+                  ABSL((sbyt4)_f.chd [i ].time - (sbyt4)tm))  cp = i;
+      }
+   }
+   tm1 = 0;   StrCp (ch1, CC("C"));   StrCp (ch2, ch1);
+   if (cp == _f.chd.Ln) {              // new dude, use bar,beat time
+      got = false;                     // no chd pos yet
+      tm  = Up.pos.tmBt;               // closest bar to click point
+      for (cp = 0;  cp < _f.chd.Ln;  cp++)
+         if (_f.chd [cp].time >= tm)  break;     // ins point
+
+   // use cp-1,cp for ChdBtw
+      if (cp)               {StrCp (ch1, _f.chd [cp-1].s);
+                             tm1 =       _f.chd [cp-1].time;}
+      if (cp < _f.chd.Ln)    StrCp (ch2, _f.chd [cp  ].s);
+   }
+   else {
+      got = true;                      // got existin cp
+      tm =      _f.chd [cp].time;
+      StrCp (s, _f.chd [cp].s);
+
+   // use cp-1,cp+1 for ChdBtw
+      if (cp)               {StrCp (ch1, _f.chd [cp-1].s);
+                             tm1 =       _f.chd [cp-1].time;}
+      if (cp+1 < _f.chd.Ln)  StrCp (ch2, _f.chd [cp+1].s);
+   }
+
+// passin got, cp, tm, s(this chord)
+// tm1(for hopTo), ch1, ch2, (for ChdBtw)
+   Up.pos.got = got ? 'y' : '\0';
+   Up.pos.cp = cp;   Up.pos.tm = tm;   Up.pos.tmBt = tm1;
+   StrCp (Up.pos.str, s);   StrCp (Up.d [0][0], ch1);   
+                            StrCp (Up.d [0][1], ch2);
+   MemCp (& Up.pos.kSg, KSig (tm), sizeof (KSgRow));
+   emit sgUpd ("dChd");
+}
+
+
+void Song::Chd (char *arg)
+{ ubyte  on [128], t, bass;
+  bool   got = true, dn;
+  TrkEv *e;
+  ubyt4  tm = 0, p, p2, csc, ne, lp, tp [MAX_TRK];
+  TStr   lbl, chd, s;
+  bool   fl;
+  char   tmp [sizeof (MChdX [0].tmp)];
+  TSgRow *ts;
+   if (*arg == '+')  return PopChd (Str2Int (& arg [1]));
+   if (*arg == '@')  return ChdArr (Str2Int (& arg [1]));
+   if (*arg == '.') {                  // ins/upd/del a chord
+     ColSep c (& arg [2], 4);
+      got = (arg [1] == 'y') ? true : false;
+      p   = Str2Int (c.Col [1]);
+      tm  = Str2Int (c.Col [2]);
+      StrCp (chd, c.Col [3]);
+   // update _f.chd (ins/del/upd) based on got,p,tm,chd
+      *s = '\0';   if (got)  StrCp (s, _f.chd [p].s);
+DBG("new: chd='`s' old: s='`s' got=`b", chd, s, got);
+      if (StrCm (s, chd)) {            // diff?  set _f.chd [_cp], _got
+         if      (   got  && (! *chd))  _f.chd.Del (p);
+         else if ((! got) &&    *chd )  _f.chd.Ins (p);
+         if (*chd)  {StrCp (_f.chd [p].s, chd);
+                            _f.chd [p].time = tm;}
+      }      
+      return;
+   }
+// kill em all
+   _f.chd.Ln = 0;   _pChd = 0;
+   if (*arg == 'x')  return;           // just wiping em?
+
+// arg was ? so recalc em
+   NSet = 0;
+   MemSet (on, 0, sizeof (on));        // notes all off, track poss all 0
+   MemSet (tp, 0, sizeof (tp));
+
+// get each unique time and assoc'd notesets
+   while (got) {
+      got = dn = false;                // get 1st time of note across melo trks
+      for (   t = 0; t < Up.rTrk; t++)  if ((! TDrm (t)) && TLrn (t))
+         for (p = tp [t], e = _f.trk [t].e, ne = _f.trk [t].ne;  p < ne;  p++)
+            if (! (e [p].ctrl & 0x80)) {
+               if      (! got)           {tm = e [p].time;   got = true;}
+               else if (e [p].time < tm)  tm = e [p].time;
+               break;
+            }
+      if (got) {                       // build on[] noteset from note evs @ tm
+         for (t = 0; t < Up.rTrk; t++)  if ((! TDrm (t)) && TLrn (t)) {
+            for (p = tp [t], e = _f.trk [t].e, ne = _f.trk [t].ne;
+                 (p < ne) && (e [p].time <= tm);  p++)
+               if (! (e [p].ctrl & 0x80)) {
+                  if      (! (e [p].valu & 0x80))  on [e [p].ctrl]--;
+                  else if (! (e [p].val2 & 0x80))     // skip prss evs
+                                     {dn = true;   on [e [p].ctrl]++;}
+               }
+            tp [t] = p;
+         }
+      // stamp a Set unless had ONLY noteoffs
+         if (dn) {
+            if (NSet >= BITS (Set))  Die (CC("DoChd  outa room in Set[]"));
+            Set [NSet].time = tm;   SetSet (Set [NSet].nmap, on);
+            NSet++;
+         }
+      }
+   }
+
+TRC("get initial 1 Set scores");
+   for (p = 0;  p < NSet;  p++)  Set [p].scor = Score (p, 1);
+
+TRC("keep tacking on trailing Sets while combo scores better");
+   for (p = 0;  p < NSet;  p = p2) {
+//TStr db; DBG(" p=`d/`d `s",  p, NSet, TmSt(db,Set [p].time));
+      for (p2 = p+1;  p2 < NSet;) {
+         csc = Score (p, p2-p+1);
+//DBG("   comb=`d vs sep=`d(`d + `d)",
+//csc, Set [p].scor + Set [p2].scor,  Set [p].scor, Set [p2].scor);
+         if (csc >= (Set [p].scor + Set [p2].scor)) {
+//DBG("   GLUE");
+            Set [p].scor = csc;   Set [p2].time = SKIP;   p2++;
+         }
+         else  break;
+      }
+//DBG("   p2=`d num=`d", p2, p2-p+1);
+   }
+
+TRC("draw in chords");
+   for (p = 0;  p < NSet;  p = ++p2) {
+      for (p2 = p;  Set [p2+1].time == SKIP;  p2++)  ;
+      fl = KSig (Set [p2].time)->flt ? true : false;
+      if (Score (p, p2-p+1, lbl, fl, tmp, & bass) && (! _f.chd.Full ())) {
+//TStr db; DBG("p=`d p2=`d tm=`s lbl=`s", p, p2, TmSt (ts, Set [p].time), lbl);
+      // ins chord time,label in _f.chd[]
+         lp = _f.chd.Ins ();   _f.chd [lp].time = Set [p].time;
+                        StrCp (_f.chd [lp].s, lbl);
+      }
+   }
+// kill chords with teeny durs
+   for (p = 0;  p < _f.chd.Ln;) {
+      if (p+1 < _f.chd.Ln) {
+         ts = TSig (_f.chd [p].time);
+         if ( (_f.chd [p+1].time - _f.chd [p].time) < ((M_WHOLE/ts->den)/2) )
+               _f.chd.Del (p);
+         else  p++;
+      }
+      else     p++;
+   }
+// kill resulting same following chords
+   for (p = 1;  p < _f.chd.Ln;) {
+      if (! StrCm (_f.chd [p-1].s, _f.chd [p].s))  _f.chd.Del (p);
+      else                                                     p++;
+   }
+   ReDo ();
 }

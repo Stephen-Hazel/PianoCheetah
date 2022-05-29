@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DlgTDr</class>
- <widget class="QDialog" name="DlgTDr">
+ <class>DlgCtl</class>
+ <widget class="QDialog" name="DlgCtl">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
-    <height>179</height>
+    <width>324</width>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Show/Hide Controls</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTableWidget" name="t"/>
    </item>

@@ -84,12 +84,6 @@ DBG("Cmd='`s'", c);
    else if (! StrCm (c, CC("wipe")))        Wipe ();
    else if (! MemCm (c, CC("load "),   5))  Load (& c [5]);
    else if (! StrCm (c, CC("dump")))        Dump (true);
-   else if (! StrCm (c, CC("loopInit x")))  LoopInit ();
-   else if (! MemCm (c, CC("noteUpd "),8))  NtUpd  (& c [8]);
-   else if (! MemCm (c, CC("noteDur "),8))  NtDur  (& c [8]);
-   else if (! MemCm (c, CC("noteHop "),8))  NtHop  (& c [8]);
-   else if (! MemCm (c, CC("rectMov "),8))  RcMov  (& c [8]);
-   else if (! MemCm (c, CC("setCtl "), 7))  setCtl (& c [7]);
    else if (! MemCm (c, CC("tran "),   5))
       {NotesOff ();   _f.tran  = (sbyte) Str2Int (& c [5]);       DscSave ();}
    else if (! MemCm (c, CC("ezHop "),  6))
@@ -111,17 +105,23 @@ DBG("Cmd='`s'", c);
       }
       ReDo ();
    }
-   else if (! MemCm (c, CC("htype "),  6))  HType  (& c [6]);
-   else if (! MemCm (c, CC("trk "),    4))
+   else if (! MemCm (c, CC("htype "), 6))  HType  (& c [6]);
+   else if (! MemCm (c, CC("trk "),   4))
                             {StrCp (_f.trk [Up.eTrk].name, & c [4]);   ReDo ();}
-   else if (! MemCm (c, CC("grp "),    4))  NewGrp (& c [4]);
-   else if (! MemCm (c, CC("snd "),    4))  NewSnd (& c [4]);
-   else if (! MemCm (c, CC("dev "),    4))  NewDev (& c [4]);
-   else if (! MemCm (c, CC("mix "),    4))  Mix    (& c [4]);
-   else if (! MemCm (c, CC("chd "),    4))  DoChrd (& c [4]);
-   else if (! MemCm (c, CC("drmap "),  6))  DrMap  (& c [6]);
-   else if (! MemCm (c, CC("trkEd "),  6))  TrkEd  (& c [6]);
-   else if (! MemCm (c, CC("trkDr "),  6))  TrkDr  (& c [6]);
+   else if (! MemCm (c, CC("grp "),   4))  NewGrp (& c [4]);
+   else if (! MemCm (c, CC("snd "),   4))  NewSnd (& c [4]);
+   else if (! MemCm (c, CC("dev "),   4))  NewDev (& c [4]);
+   else if (! MemCm (c, CC("mix "),   4))  Mix    (& c [4]);
+   else if (! MemCm (c, CC("drmap "), 6))  DrMap  (& c [6]);
+   else if (! MemCm (c, CC("trkEd "), 6))  TrkEd  (& c [6]);
+   else if (! MemCm (c, CC("preTDr"), 6))  PreTDr ();
+   else if (! MemCm (c, CC("tDr "),   4))     TDr (& c [4]);
+   else if (! MemCm (c, CC("ctl"),    3))  Ctl    ();
+   else if (! StrCm (c, CC("cue")))        Cue    ();
+   else if (! MemCm (c, CC("chd "),   4))  Chd    (& c [4]);
+   else if (! MemCm (c, CC("fng "),   4))  Fng    (& c [4]);
+   else if (! MemCm (c, CC("setCtl "),7))  SetCtl (& c [7]);
+   else if (! StrCm (c, CC("mov")))        Mov    ();
    Put ();
 }
 
