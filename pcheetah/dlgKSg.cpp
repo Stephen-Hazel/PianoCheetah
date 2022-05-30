@@ -48,7 +48,8 @@ void DlgKSg::Shut ()
 
 void DlgKSg::Init ()
 {  Gui.DlgLoad (this, "DlgKSg");
-   connect (ui->maj, & QComboBox::currentIndexChanged, this, [this]() {
+   connect (ui->maj, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this]() {
      ubyt2   p =  ui->key->currentIndex ();
      CtlList key (ui->key, ui->maj->currentIndex () ? Mi : Ma);
       key.Set (p);

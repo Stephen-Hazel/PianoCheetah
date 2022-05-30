@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec="/opt/app/pcheetah/pcheetah" %F
+Name=PianoCheetah
+GenericName=PianoCheetah
+Icon=/opt/app/pcheetah/pcheetah.ico
+Terminal=false
+Categories=Multimedia

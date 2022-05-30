@@ -95,7 +95,7 @@ void DlgChd::Init ()
    connect (ui->shhh, & QPushButton::clicked, this, [this]()
                                               {emit sgCmd (CC("timePause"));});
    connect (ui->undo, & QPushButton::clicked, this, [this]() {UnDo ();});
-   connect (ui->pop,  & QComboBox::currentIndexChanged,
+   connect (ui->pop,  QOverload<int>::of(& QComboBox::currentIndexChanged),
                                               this, [this]() {Pop  ();});
 }
 
