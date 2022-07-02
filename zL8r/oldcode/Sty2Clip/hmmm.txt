@@ -1,0 +1,291 @@
+// section names
+// init-ers (within bar 1)    no notes (or portamento) in these
+//    SFF1
+//       tsig; tmpo; copyright; mark=SFF1; trackname; sysex:
+//    SInt
+//       F0 7E 7F 09 01 F7   midi on sysex
+//       cc vol;  cc rvrb;  cc chor;  bank msb;  bank lsb;  progch;  sysex:
+// regular-ers   (bar 2 and on;
+//                no rpn,nrpn,data entry,attack/release time ccs in these)
+//    Intro A    (B,C,D=rare)
+//    Main A     (B,C,D)
+//    Fill In AA (BB,CC,DD,BA=Break,AB=rare)
+//    Ending A   (B,C,D=rare)
+
+// destination channels                   allowed notes for default C M7
+//  9=sub rhythm  2ndary drums            all
+// 10=rhythm      main drums              all
+// 11=bass                                c,d,e,g,a,b  (all if intro/ending
+// 12=chord 1     often rhythm guitar     c,  e,g,  b   and no transposing)
+// 13=chord 2     often piano             c,  e,g,  b   "
+// 14=pad         often violins,strings   c,  e,g,  b   "
+// 15=phrase 1    often brass             c,d,e,g,a,b   "
+// 16=phrase 2    often brass             c,d,e,g,a,b   "
+char *DChn [] = {
+   "=rhy1",  "=rhy2",  "=bass",  "=chd1",  "=chd2",  "=pad ",  "=phr1",  "=phr2"
+};
+
+// chordtype bitmap
+// byte 0  bit 7-4 = unused, always 0
+//         bit 3 = ? (maybe unused?)   (drum only)
+//         bit 2 = autostart enable    (drum only)start playing when key hit
+//         bit 1 = 1+2+5       bit 0 = sus4               (^if sync start is on)
+// byte 1  bit 7 = 1+5         bit 6 = 1+8
+//         bit 5 = 7aug        bit 4 = Maj7aug
+//         bit 3 = 7(#9)       bit 2 = 7(b13)
+//         bit 1 = 7(b9)       bit 0 = 7(13)
+// byte 2  bit 7 = 7#11        bit 6 = 7(9)
+//         bit 5 = 7b5         bit 4 = 7sus4
+//         bit 3 = 7th         bit 2 = dim7
+//         bit 1 = dim         bit 0 = minMaj7(9)
+// byte 3  bit 7 = minMaj7     bit 6 = min7(11)
+//         bit 5 = min7(9)     bit 4 = min(9)
+//         bit 3 = m7b5        bit 2 = min7
+//         bit 1 = min6        bit 0 = min
+// byte 4  bit 7 = aug         bit 6 = Maj6(9)
+//         bit 5 = Maj7(9)     bit 4 = Maj(9)
+//         bit 3 = Maj7#11     bit 2 = Maj7
+//         bit 1 = Maj6        bit 0 = Maj
+
+char *SrcQual [] = {
+   "maj",    "6",     "M7",    "M7#11",  "2",     "M9",   "6,9",    "aug",
+   "m",      "m6",    "m7",    "m7b5",   "m2",    "m9",   "m7,11",  "mM7",
+   "mM7,9",  "dim",   "dim7",  "7",      "7sus",  "7b5",  "9",      "7#11",
+   "7,13",   "7b9",   "7b13",  "7#9",    "M7#5",  "7#5",  "oct",    "5",
+   "sus",    "sus2",  "off"
+};
+
+
+// NTR
+// 0=rootTransposition  same inv of chord is used (for melodic lines)
+// 1=rootFixed          notes kept close to prev note range
+//                      (for chordal parts like rhythm guitar)
+// 2?=guitar            notes transposed to approx chords played with natural
+//                      guitar fingering
+char *TrnRule [] = {
+   "",             // "rootTransp",
+   ".vxLead",      // "rootFixed",
+   ".guitar"
+};
+
+
+// NTT values - note transposition table - method to use for source transposing
+// 0=Bypass  no transposition - ignore played chord.  Must be used for drum chn
+//           sometimes for intros,endings
+// 1=Melody  use for melodic channels like 15,16 - phrase 1,2
+// 2=Chord   use for chord channels like 12,13 - chord 1,2 (piano,guitar)
+// 3=Bass    use for 11=bass;  like melody but "on-bass" chords allowed in
+//           "fingered 2" fingering mode
+// 4=Melodic Minor   use for melodic channels like 15,16 where only major/minor
+//                   chords are played like intros,endings
+//                   lowers the 3rd when chord changes from M to m
+//                   raises when from m to M.  other notes unchanged
+// 5=Harmonic Minor  use for chord channels like 12,13
+//                   lowers/raises only the 3rd and 6th
+// these are only in Cntt  (bass=on means recog on-bass chords allowed in
+//                          fingered on bass mode regardless of NTT setting)
+// 6=Harmonic Minor 5th var - aug,dim chords affect the 5th
+// 7=Natural Minor          - affects 3,6,7th
+// 8=Natural Minor 5th var
+// 9=Dorian Minor           - affects 3,7th
+// A=Dorian Minor 5th var
+// for guitar NTR:  all purpose(both stroke+arp)
+//                  stroke(some notes sound muted);
+//                  arpeggio(4 note arpeggios)
+char *TrnTbl [] = {
+   "OFF",          // Bypass (also means IGNORE NTR)
+   "Melody",                           // found a ntt=81 ntr=01
+   "Chord",
+   "Melody",       // bass=Melody w bassOn
+   "MeloMin",
+   "HarmMin"
+};
+char *TrnTbl2 [] = {
+   "OFF",          // if bass=off, not defined
+   "Melody",       // "  (Melody/Bass)
+   "Chord",        // "
+   "MeloMin",      // "
+   "MeloMin5",
+   "HarmMin",      // "
+   "HarmMin5",
+   "NatrMin",
+   "NatrMin5",
+   "Dorian",
+   "Dorian5",
+   "guitarBoth",
+   "guitarStroke",
+   "guitarArpegg"
+};
+
+
+// RTR values - retrigger rule - how notes behave thru chord change
+// 0=Stop
+// 1=Pitch shift          pitchbend to match type of new chord
+// 2=Pitch shift to root  pitchbend to root of new chord
+// 3=Retrigger            new note to match type of new chord
+// 4=Retrigger to root    new to to root of new chord
+// 5=Note generator       only if programmed in original style
+//                        pitch,dur,velo matching new chord
+char *ReTrig [] = {
+   " retrig=stop",
+   "",             // default is bend
+   " retrig=bend2root",
+   " retrig=note",
+   " retrig=note2root",
+   " retrig=noteGen"
+};
+
+
+typedef struct {
+   ubyte len;
+   ubyte srcChn;                       // 0-15
+   char  name [8];                     // not \0 term'd, space padded
+   ubyte dstChn,                       // 8-15
+         rdonly,                       // 1=not editable, 0=editable
+         ntMute [2],                   // byte 0 bit 3-0=B-G#  1=play accomp
+                                       // byte 1 bit 7-0=G-C   usually 0FFF
+         chdMute [5],                  // chordtype bitmap (above)
+         srcRoot,                      // 0-11=C..B  root of src chn  dflt: 0=C
+         srcQual,                      // 0-34       qual of src chan dflt: 2=M7
+         transRule,                    // (NTR) 0=rootTrans;  1=rootFixed
+         transTbl,                     // (NTT) 0-5 (above)
+         keyHi,                        // (when NTR=0)  roots above mvd oct down
+                                       // often 6=F#
+         ntLo,                         // outside this range notes moved within
+         ntHi,                         //    at least an octave
+         retrig,                       // (RTR) retrigger rule - how notes held
+                                       // thru chord are handled
+         x [40],                       // special features (0=none,
+         ntt2;                         // 1=extra break drum voice in Fill In BA
+} CtabDef;         // 27 bytes long for x[0]==0
+                   // len=37 means 10 extra bytes?
+
+   "OFF",          // if bass=off, not defined
+   "Melody",       // "  (Melody/Bass)
+   "Chord",        // "
+   "MeloMin",      // "
+   "MeloMin5",
+   "HarmMin",      // "
+   "HarmMin5",
+   "NatrMin",
+   "NatrMin5",
+   "Dorian",
+   "Dorian5",
+
+ntt2 ntt ntr bass rowbgn rowend rows  bass vxLd etc
+n    00  00  n    1      3760   3760            off
+     00  01       3761   11234  7474       y    off
+     01  00       11235  13133  1899            melo
+     01  01       13134  13450   317       y    melo
+     02  00       14451  17709  3259            chrd
+     02  01       17710  25886  8177       y    chrd
+     03  00  y    25887  30902  5016  y         melo
+     03  01  y    30903  30933    31  y    y    melo
+     04  00  n    30934  31672   739            meloMin
+     04  01       31673  31674     2       y    meloMin
+     05  00       31675  32535   861            harmMin
+y    00  00       32536  40441  7906            off
+     00  01       40442  55642 15201       y    off
+     01  00       55643  59543  3901            melo
+     01  01       59544  60048   505       y    melo
+     02  00       60049  66601  6553            chrd
+     02  01       66602  80280 13678       y    chrd
+     03  00       80281  86705  6425            meloMin
+     03  01       86706  86744    39       y    meloMin
+     04  00       86745  88957  2213            meloMin5
+     04  01       88958  88959     2       y    meloMin5
+     05  00       88960  92354  3395            harmMin
+     05  01       92355  92358     4       y    harmMin
+     07  00       92359  92364     6            natrMin
+     0A  00       92365  92382    18            dorn5
+     80  00  y    92383  92392    10  y         off
+     80  01       92393  92417    25  y    y    off
+     81  00       92418  94623   206  y         melo
+     81  01       94624  94633    10  y    y    melo
+     82  00       94634  94658    25  y         chrd
+     84  00       94659  94670    12  y         meloMin
+     85  00       94671  94674     4  y         harmMin
+     8A  00       94675  94684    10  y         dorn5
+
+combine ntt2=n,y
+
+ntt ntr bass rowbgn rowend rows   count  NTT      bass NTR
+00  00  n    1      3760   3760   11666  off
+00  01       3761   11234  7474   22675  off           y
+80  01       92393  92417    25      25  off      y    y
+80  00  y    92383  92392    10      10  off      y
+01  00       11235  13133  1899    5800  melo
+01  01       13134  13450   317     822  melo          y
+03  01  y    30903  30933    31      41  melo     y    y
+03  00  y    25887  30902  5016    5222  melo     y
+02  00       14451  17709  3259    9812  chrd
+02  01       17710  25886  8177   21855  chrd          y
+82  00       94634  94658    25      25  chrd     y
+04  00  n    30934  31672   739    7164  meloMin
+04  01       31673  31674     2      41  meloMin       y
+84  00       94659  94670    12      12  meloMin  y
+05  00       31675  32535   861    4256  harmMin
+05  01       92355  92358     4       4  harmMin       y
+85  00       94671  94674     4       4  harmMin  y
+04  00       86745  88957  2213    2213  meloMin5
+04  01       88958  88959     2       2  meloMin5      y
+07  00       92359  92364     6       6  natrMin
+0A  00       92365  92382    18      18  dorn5
+8A  00       94675  94684    10      10  dorn5    y
+
+NTR means voicelead chords or not
+
+NTT
+off,vcLd=y  no transpose at all (drums,etc)
+off,vcLd=n  transpose to root, but no chordal offset (straight halfstep)
+chrd        recogize chordals(1,3,5,7,etc) from sty channel chord quality
+            adjust to equiv played chord chordal
+melody      i think it's same as off,vcLd=n
+meloMin     adjust 3rd from source chan note to played chord quality
+meloMin5    " 3,5
+harmMin     " 3,6
+harmMin5    " 3,5,6
+natrMin     " 3,6,7
+natrMin5    " 3,5,6,7
+dorian      " 3,7
+dorian5     " 3,5,7
+
+basson means slam the slash halfstep onto the octave of all sty notes in chan
+
+
+track types =I'm= gonna have
+
+off   no transpose at all
+melo  transpose to root (only - no chordal adjustments)
+bass  transpose to root or slash (if chord is a slash chord)
+chrd  transpose to root plus adjust chordals from sty chord to play chord
+         (only played chordals go out)
+
+if      (ntt=0 && ntr=1) use off
+else if (ntt=chrd)       use chrd
+else if (bass=y)         use bass
+else                     use melo
+
+count  NTT      bass NTR
+22675  off           y    off                   (ntt=0,ntr=1)
+   25  off      y    y    off+bass ??  =>off
+11666  off                root                  (ntt!=chord|0,bass=n)
+ 5800  melo               root
+  822  melo          y    root
+ 7164  meloMin            root
+   41  meloMin       y    root
+ 4256  harmMin            root
+    4  harmMin       y    root
+ 2213  meloMin5           root
+    2  meloMin5      y    root
+    6  natrMin            root
+   18  dorn5              root
+   10  off      y         root+bass             (ntt!=chord|0,bass=y)
+   41  melo     y    y    root+bass
+ 5222  melo     y         root+bass
+   12  meloMin  y         root+bass
+    4  harmMin  y         root+bass
+   10  dorn5    y         root+bass
+ 9812  chrd               chrd                  (ntt==chord)
+21855  chrd          y    chrd
+   25  chrd     y         chrd+bass ?? => chrd
