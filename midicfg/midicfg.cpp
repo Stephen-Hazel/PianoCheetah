@@ -34,6 +34,9 @@ void InitDevTyp ()
    DevTyp [q] = '\0';
 }
 
+void TPop (char *ls, ubyt2 r, ubyte c)
+{  *ls = '\0';   if (c == 1) ZZCp (ls, DevTyp);  }
+
 
 void MidiCfg::ShutMIn ()
 {  while (_nMI) {                      // shut midi ins
@@ -95,10 +98,10 @@ void MidiCfg::Load ()
   char *rp [4];
    Midi.Load ();
    *chk = '\0';
-   for (i = 0;  Midi.GetPos ('i', i, nm, ty, & ds [1], dv);  i++)
-      if (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, & ds [1]);   break;}
-   for (i = 0;  Midi.GetPos ('o', i, nm, ty, & ds [1], dv);  i++)
-      if (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, & ds [1]);   break;}
+   for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)
+      if (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
+   for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++)
+      if (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
    if (*chk) {
       Gui.Hey (StrFmt (nm,
          "Is device `s off?\n"
@@ -115,10 +118,9 @@ void MidiCfg::Load ()
       if (*nm)  Save ();
    }
    rp [0] = nm;   rp [1] = ty;   rp [2] = ds;   rp [3] = nullptr;
-                                         *ds = '\r';
    _ti.Open ();   _to.Open ();
-   for (i = 0;  Midi.GetPos ('i', i, nm, ty, & ds [1], dv);  i++)  _ti.Put (rp);
-   for (i = 0;  Midi.GetPos ('o', i, nm, ty, & ds [1], dv);  i++)  _to.Put (rp);
+   for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)  _ti.Put (rp);
+   for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++)  _to.Put (rp);
    _ti.Shut ();   _to.Shut ();
    RedoMIn ();
 }
@@ -129,7 +131,6 @@ void MidiCfg::Save ()
   ubyte i, d, n;
   bool  got;
   File  f;
-DBG("Save");
    if (Midi._len == 0)
       Gui.Hey ("You don't SEEM to have any midi devices :(");
    App.Path (fn, 'd');   StrAp (fn, CC("/device/device.txt"));
@@ -168,7 +169,7 @@ DBG("Save");
             Midi._lst [i].name, Midi._lst [i].type, Midi._lst [i].desc));
    f.Shut ();
 
-// collect our distinct devTypes in dt [n]
+// collect our distinct devTypes in dt [n] to make sure they're downloaded
    n = 0;
    for (i = 0;  i < Midi._len;  i++) {
       StrCp (ts, Midi._lst [i].type);
@@ -185,18 +186,14 @@ DBG("Save");
 
 
 void MidiCfg::Mv (char du)
-{
-DBG("a");
-   if ((_io != 'i') && (_io != 'o'))  {Gui.Hey ("Click a row, dude");   return;}
+{  if ((_io != 'i') && (_io != 'o'))  {Gui.Hey ("Click a row, dude");   return;}
   ubyte cr, r;
   TStr  n;
   CtlTabl *t = (_io == 'i') ? & _ti : & _to;
-DBG("b");
    StrCp (n, t->Get (cr = t->CurRow (), 0));
    for (r = 0;  r < Midi._len;  r++)
       if ((_io == Midi._lst [r].io) && (! StrCm (n, Midi._lst [r].name)))
          break;
-DBG("du=`c io=`c n=`s row=`d => Midi row=`d", du, _io, n, cr, r);
 // can't use RecMv's built in rec check cuz 2 weird lists in arr
    if ((du == 'u') && (cr == 0))
       {Gui.Hey ("you're already at the top");      return;}
@@ -217,9 +214,9 @@ void MidiCfg::Updt ()
   TStr  nm, ty, ds;
   ubyte c = t->CurCol ();
   sbyt2 r = t->CurRow (), ro;
+//DBG("Updt r=`d c=`d", r, c);
    StrCp (nm, t->Get (r, 0));   StrCp (ty, t->Get (r, 1));
    StrCp (ds, t->Get (r, 2));
-DBG("Updt r=`d c=`d nm=`s ty=`s ds=`s", r, c, nm, ty, ds);
    if (c == 0) {
    // test nonempty, <= 32 chars, no spaces, nondup
       if (StrLn (nm) == 0)
@@ -300,6 +297,7 @@ void MidiCfg::TestO ()
    m.Put (9, MDrm(CC("snar")), 0x80|90);   m.Put (0, MKey (CC("4C")), 0x80|90);
    Zzz (300);                          // 3/10 sec
    m.Put (9, MDrm(CC("snar")),      64);   m.Put (0, MKey (CC("4C")),      64);
+   Zzz (300);                          // 3/10 sec
 }
 
 
@@ -311,7 +309,7 @@ void MidiCfg::MidiIEv ()
 
 void MidiCfg::Init ()
 {  _io = ' ';   _nMI = 0;
-TRC("Init");   
+TRC("Init");
    Gui.WinLoad ();
    InitDevTyp ();
   CtlTBar tb (this,
@@ -324,25 +322,27 @@ TRC("Init");
    connect (tb.Act (0), & QAction::triggered, this, & MidiCfg::Load);
    connect (tb.Act (1), & QAction::triggered, this, & MidiCfg::Up);
    connect (tb.Act (2), & QAction::triggered, this, & MidiCfg::Dn);
-  
+
    _ti.Init (ui->tblI,
       "_input device\0"
       "^type\0"
-       "driver description\0"); 
+      "driver description\0",
+      TPop);
    _to.Init (ui->tblO,
       "_output device\0"
       "^type\0"
-      "driver description\0");
+      "driver description\0",
+      TPop);
    connect (ui->tblI, & QTableWidget::itemChanged, this, & MidiCfg::Updt);
    connect (ui->tblO, & QTableWidget::itemChanged, this, & MidiCfg::Updt);
    connect (ui->tblO, & QTableWidget::itemClicked, this, & MidiCfg::TestO);
    ui->tblI->installEventFilter (this);
    ui->tblO->installEventFilter (this);
-   
+
    connect (this, & MidiCfg::Reload, this, & MidiCfg::Load,
             Qt::QueuedConnection);
    emit Reload ();
-TRC("Init end");   
+TRC("Init end");
 }
 
 
@@ -352,8 +352,10 @@ void MidiCfg::Quit ()  {ShutMIn ();   Gui.WinSave ();}
 int main (int argc, char *argv [])
 { QApplication app (argc, argv);
   MidiCfg      win;
+   qRegisterMetaType<ubyte>("ubyte");
+   qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
    App.Init (CC("pcheetah"), CC("midicfg"), CC("MidiCfg"));
-   Gui.Init (& app, & win);   win.Init ();   
+   Gui.Init (& app, & win);   win.Init ();
   int rc = Gui.Loop ();       win.Quit ();
    return rc;
 }

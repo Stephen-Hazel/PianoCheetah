@@ -583,6 +583,8 @@ int main (int argc, char *argv [])
    App.Init (CC("pcheetah"), CC("pcheetah"), CC("PianoCheetah"));
 // if (Update ())  return 0;
    Gui.Init (& app, & win);   win.Init ();   RandInit ();
+   qRegisterMetaType<ubyte>("ubyte");
+   qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
   int rc = Gui.Loop ();       win.Quit ();
    return rc;
 }
