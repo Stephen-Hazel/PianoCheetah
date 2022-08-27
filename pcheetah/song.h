@@ -104,7 +104,7 @@ class Song: public QObject {
 
 public:
    Song ()                             // prep for 1st Wipe()
-   {  _eOn = false;   *_f.fn = '\0';   _f.ev = nullptr;   _nt = nullptr;   
+   {  _eOn = false;   *_f.fn = '\0';   _f.ev = nullptr;   _nt = nullptr;
       Up.pos.at = Up.pos.drg = '\0';
    }
 
@@ -215,7 +215,7 @@ private:
    void  TrkEd   (char *op);
    ubyte GetSct  (TxtRow *sct);        // pull sections outa _f.cue[] > sct[64]
    void  TmpoPik (char o_r);           // stamp cur tmpo w orig or rec'd vals
-   
+
 // sEdit.cpp
    void  PreTDr  (bool kick = true);
    void  TDr     (char *arg);
@@ -233,7 +233,7 @@ private:
    void  DragRc  ();
    char  MsPos   (sbyt2 x, sbyt2 y);
    void  DbgPos  ();                   // MsDn,Mv,Up are slots below
-   
+
 // sCmd.cpp
    ubyte ChkETrk ();
    void  Msg (char *s), LoopInit (), RecWipeQ (),
@@ -298,13 +298,13 @@ private:
    ubyt4                _pDn;
 
    ubyt4  _pg;   ubyte _tr;   QRect _rc;    // ...notation junk
-   Arr<PagDef,200   >  _pag;
+   Arr<PagDef,200   >  _pag;                // page and transitioning?
    Arr<ColDef,500   >  _col;
    Arr<BlkDef,9999  >  _blk;
    Arr<SymDef,131584>  _sym;
    Arr<LHMxRow, 16*1024> _lm;          // for LH shading
 // DWORD _syn, _lzr;                   // other .EXEs (IPC)
-   
+
 public slots:
    void Cmd (QString s);               // gui listenin
    void ReSz ()                        // note widget resize/repixmap
@@ -314,7 +314,7 @@ public slots:
    void MIn  ();                       // top o da recordin' biz
    void MsDn (Qt::MouseButton  b, sbyt2 x, sbyt2 y);  // edit bizzz
    void MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y);
-   void MsUp (Qt::MouseButton  b, sbyt2 x, sbyt2 y);   
+   void MsUp (Qt::MouseButton  b, sbyt2 x, sbyt2 y);
 
 signals:
    void sgCmd (QString cmd);

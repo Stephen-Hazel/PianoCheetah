@@ -169,7 +169,7 @@ TRC("TrPop r=`d c=`d", r, c);
    }
    if ((c != 3) && (c != 4))  return;
 
-   if (! Up.trk [r].drm)  {Gui.Hey (CC("can't edit drum sounds"));   return;}
+   if (Up.trk [r].drm)  {Gui.Hey (CC("can't edit drum sounds"));   return;}
   ubyte dvt = Up.trk [r].dvt;
    if (c == 3)  Up.dvt [dvt].SGrp (ls);
    if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp);
@@ -584,6 +584,8 @@ int main (int argc, char *argv [])
 // if (Update ())  return 0;
    Gui.Init (& app, & win);   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
+   qRegisterMetaType<sbyt2>("sbyt2");
+   qRegisterMetaType<Qt::MouseButton>("Qt::MouseButton");
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
   int rc = Gui.Loop ();       win.Quit ();
    return rc;

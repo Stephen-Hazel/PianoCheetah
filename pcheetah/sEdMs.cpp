@@ -17,8 +17,8 @@ void Song::DragRc ()
 const ubyt4 DRAG = 2;                  // drag threshold (if <, then plain clik)
 
 char Song::MsPos (sbyt2 x, sbyt2 y)
-// find our pg co tm n at:
-//    \0 [k]eys [c]hord [q]cue [r]cue.tend [x]control [f]inger [d]ur [n]ewNote
+// find mouse n set Up.pos.pg co tm etc
+// at:  \0 [k]eys [c]hord [q]cue [r]cue.tend [x]control [f]inger [d]ur [n]ewNote
 // at q,r,x:  got=\0 or 'y'
 // at x:      ct
 // at f,d:    sy
@@ -55,10 +55,10 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
       if ((t2 - tm) < (tm - t1))  bt++;     // find NEARest beat
       Up.pos.tmBr = Bar2Tm (br);
       Up.pos.tmBt = Bar2Tm (br, bt);
-DBG("t=`d t1=`d t2=`d hbt=`d br=`d bt=`d s=`s", 
-tm, t1, t2, hbt, br, bt, s);
+//DBG("MsPos t=`d t1=`d t2=`d hbt=`d br=`d bt=`d s=`s",
+//tm, t1, t2, hbt, br, bt, s);
    }
-                                          
+
    if (y < H_KB)  return (Up.pos.at = 'k');      // keys area?
 
    if      (x < nx) {                  // chord/cue area
@@ -88,8 +88,8 @@ tm, t1, t2, hbt, br, bt, s);
      TrkEv *e;
      ubyt4 ne;
      TStr  cs;
-     bool  cg = false;
-     ubyte td = 255;
+     bool  cg = false;                 // global ctl? (tmpo,ksig,tsig)
+     ubyte tr, td = 255;               // ...so look for it on drum trk
       StrCp (cs, _f.ctl [Up.pos.ct].s);
       if ( (! StrCm (CC("tmpo"), cs)) || (! StrCm (CC("ksig"), cs)) ||
                                          (! StrCm (CC("tsig"), cs)) ) {
@@ -97,18 +97,18 @@ tm, t1, t2, hbt, br, bt, s);
          for (ubyte t = 0;  t < Up.rTrk;  t++)
             if (TDrm (t))  {td = t;   break;}
       }
-      for (_tr = 0;  _tr < Up.rTrk;  _tr++)
-                  if ( (   cg  && (td == Up.pos.tr)) ||
-                       ((! cg) && TSho  (Up.pos.tr)) ) {
-         for (e = _f.trk [Up.pos.tr].e, ne = _f.trk [Up.pos.tr].ne,
+      for (tr = 0;  tr < Up.rTrk;  tr++)
+                  if ( (   cg  && (td == tr)) ||
+                       ((! cg) &&  TSho (tr)) ) {
+         for (e = _f.trk [tr].e, ne = _f.trk [tr].ne,
               Up.pos.p = 0;  Up.pos.p < ne;  Up.pos.p++)
             if ( (e [Up.pos.p].ctrl == (0x80|Up.pos.ct)) &&
                  (e [Up.pos.p].time >= tm1) && (e [Up.pos.p].time <= tm2) )
-               {Up.pos.got = 'y';   break;}
+               {Up.pos.tr = tr;   Up.pos.got = 'y';   break;}
          if (Up.pos.got)  break;       // break out ALL the way :/
       }
-//DBG("pos=x ct=`d cp=`d got=`b tr=`d p=`d tm=`d",
-//Up.pos.ct, Up.pos.cp, Up.pos.got, Up.pos.tr, Up.pos.p, Up.pos.tm);
+DBG("pos=x ct=`d cp=`d got=`b tr=`d p=`d tm=`d",
+Up.pos.ct, Up.pos.cp, Up.pos.got, Up.pos.tr, Up.pos.p, Up.pos.tm);
       return (Up.pos.at = 'x');
    }
 // ok, has ta be nt area so hunt down a symbol
@@ -271,6 +271,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          if (! dr)  StrAp (s, StrFmt (s2, ".`d", _f.trk [tr].chn+1));
          Hey (s);
       }
+DBG("Up.pos=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
       if ((Up.pos.at == 'x') && Up.pos.got) {
          e = &      _f.trk [Up.pos.tr].e [Up.pos.p];
          StrCp (cs, _f.ctl [Up.pos.ct].s);
@@ -284,7 +285,6 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
             StrAp (s, StrFmt (s2, "=`d", (ct=='s') ? ((sbyt4)v1-64) : v1));
          Hey (s);
       }
-//DBG("Up.pos=`c got=`b _str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
       if ( (Up.pos.at == 'q') && Up.pos.got &&
            (((Up.pos.str [0] == '(') && (! StrCh (CC("vc"), Up.pos.str [1]))) ||
             (*Up.pos.str == '.')) )

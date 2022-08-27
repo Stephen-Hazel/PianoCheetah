@@ -40,7 +40,8 @@ void CtlNt::mousePressEvent   (QMouseEvent *e)
 
 void CtlNt::mouseMoveEvent    (QMouseEvent *e)
 { sbyt2 x = e->pos ().x (), 
-        y = e->pos ().y ();   emit sgMsMv (e->buttons (), x, y); }
+        y = e->pos ().y ();   emit sgMsMv (e->buttons (), x, y);
+}
 
 void CtlNt::mouseReleaseEvent (QMouseEvent *e)
 { sbyt2 x = e->pos ().x (), 
