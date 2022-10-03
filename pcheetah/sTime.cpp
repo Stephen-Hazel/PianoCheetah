@@ -181,7 +181,7 @@ TRC("TmHop `s",TmSt(str,tm));
    if (! (_lrn.hLrn = (PRAC || PLAY) ? false : true))
       for (t = Up.rTrk;  t < _f.trk.Ln;  t++)  if (_f.trk [t].nn)
                                                   {_lrn.hLrn = false;   break;}
-TRC(" lrn=`d hLrn=`b", Up.lrn, _lrn.hLrn);
+TRC(" `s hLrn=`b", LrnS (), _lrn.hLrn);
    for (cc = 0;  cc < _cch.Ln;  cc++) {
       _cch [cc].time = 0;
       _cch [cc].valu = _cch [cc].val2 = _cch [cc].trk = 0;

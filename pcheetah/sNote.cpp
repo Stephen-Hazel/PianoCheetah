@@ -39,7 +39,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
   PagDef *pg = & _pag [pp];
   ColDef  co;
   DownRow *dn;
-//DBG("DrawRec all=`b pp=`d", all, pp);
+//TRC("DrawRec all=`b pp=`d", all, pp);
    if (all) {
       for (pMn = pMx = 0, t = Up.rTrk;  t < _f.trk.Ln;  t++) {
          ne = _f.trk [t].ne;
@@ -314,7 +314,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
          }
       }
    }
-//DBG("DrawRec  END");
+//TRC("DrawRec  END");
    return tp;
 }
 
@@ -899,7 +899,7 @@ void Song::DrawNow ()
 TRC("DrawNow _pg=`d", _pg);
    if (! (p = _pg))  return;           // don't know pg at the moment :/
 
-   Up.tcnv.bgn (Up.tpm);
+   Up.cnv.bgn (Up.pm);   Up.tcnv.bgn (Up.tpm);   // need pm too for DrawRec
    p--;   pn = _pNow;   n = _rNow;
 //TStr d1,d2;
 //DBG("DrawNow pg=`d pNow=`s rNow=`s",
@@ -980,29 +980,29 @@ TRC("DrawNow _pg=`d", _pg);
                {np = & dn->nt [nn];   break;}
       // red dot if down per .rec[], not in _dn, not held (in .nt[])
          if (_lrn.rec [0][nt].tm && (! np) && (! (_lrn.nt [nt] & 0x80)) ) {
-            x = Nt2X (nt, & co);        ww = W_NT/2;
-            if (KeyCol [nt%12] == 'w')  ww = 24/2;
-            Up.tcnv.Blt (*Up.dot, nx+x+ww-8, H_NW-9,  0, 0,  16, 16);
+            x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
+            if (KeyCol [nt%12] == 'w')    ww = 24/2;
+            Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  0, 0,  16, 16);
          }
       }
    // green dots if in _dn, no .rec[] (or again)
       for (nn = 0;  nn < dn->nNt;  nn++)  if (tk [dn->nt [nn].t].chn != 9) {
          np = & dn->nt [nn];   nt = np->nt;
          if ( (g == 2) || (_lrn.rec [0][nt].tm <= pt) ) {
-            x = Nt2X (nt, & co);        ww = W_NT/2;
-            if (KeyCol [nt%12] == 'w')  ww = 24/2;
-            Up.tcnv.Blt (*Up.dot, nx+x+ww-8, H_NW-9,  g*16, 0,  16, 16);
+            x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
+            if (KeyCol [nt%12] == 'w')    ww = 24/2;
+            Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  g*16, 0,  16, 16);
             if ((f = tk [np->t].e [np->p].val2 & 0x1F))
-               DrawFng (nx+x+ww/2, H_NW-8, f, 't');
+               DrawFng (x+ww/2, H_NW-8, f, 't');
          }
       }
    }
    _pNow = n+1;
-   Up.tcnv.end ();
    Up.tpos.setLeft  (co.x);   Up.tpos.setTop    (yOvr);
    Up.tpos.setWidth (co.w);   Up.tpos.setHeight (H_T);
-   emit sgUpd ("nt");
 TRC("DrawNow end");
+   Up.cnv.end ();   Up.tcnv.end ();
+   emit sgUpd ("nt");
 }
 
 
@@ -1016,8 +1016,7 @@ void Song::Draw ()
   ColDef  co;
    if (Up.pm == nullptr)  return;
    Up.cnv.bgn (Up.pm);   Up.tcnv.bgn (Up.tpm);
-TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d",
-TmSt(d1,_rNow), _pag.Ln, _pg, _tr);
+TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d", TmSt(d1,_rNow), _pag.Ln, _pg, _tr);
    if (_pag.Ln == 0) {                 // nothin therez yet - cls
       Up.cnv.RectF  (0, 0, Up.w, Up.h, CWHITE);
       MemSet (& Up.tpos, 0, sizeof (QRect));
@@ -1051,7 +1050,8 @@ TRC(" new pg,tr: _pg=`d _tr=`d p=`d t=`d", _pg, _tr, p, t);
       _tr = t;
       _pNow = 0;                       // naw fer DrawRec cuz DrawPg did it all
    }
-   Up.cnv.end ();   Up.tcnv.end ();
+   Up.cnv.end ();   Up.tcnv.end ();    // DrawNow sometimes needs em on its own
+                                       // and it'll kick nt update
    DrawNow ();
 TRC("Draw end");
 }

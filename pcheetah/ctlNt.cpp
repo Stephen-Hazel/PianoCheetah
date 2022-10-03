@@ -35,16 +35,16 @@ DBG("nt wheel=`d", j);
 
 void CtlNt::mousePressEvent   (QMouseEvent *e)
 { Up.gp = e->globalPos ();
-  sbyt2 x = e->pos ().x (), 
+  sbyt2 x = e->pos ().x (),
         y = e->pos ().y ();   emit sgMsDn (e->button  (), x, y); }
 
 void CtlNt::mouseMoveEvent    (QMouseEvent *e)
-{ sbyt2 x = e->pos ().x (), 
+{ sbyt2 x = e->pos ().x (),
         y = e->pos ().y ();   emit sgMsMv (e->buttons (), x, y);
 }
 
 void CtlNt::mouseReleaseEvent (QMouseEvent *e)
-{ sbyt2 x = e->pos ().x (), 
+{ sbyt2 x = e->pos ().x (),
         y = e->pos ().y ();   emit sgMsUp (e->button  (), x, y); }
 
 
@@ -53,21 +53,23 @@ void CtlNt::paintEvent (QPaintEvent *e)
 {  (void)e;
    if (Up.pm == nullptr)  {DBG("no pm");   return;}
   Canvas c (this);
+//DBG("CtlNt::paintEvent w=`d h=`d  tx=`d ty=`d tw=`d th=`d",
+//Up.w, Up.h, Up.tpos.left(), Up.tpos.top(), Up.tpos.width(), Up.tpos.height());
    c.Blt (*Up.pm,   0, 0,  0, 0,  Up.w, Up.h);
-   c.Blt (*Up.tpm,  Up.tpos.left (), Up.tpos.top (),  0, 0,
-                                           Up.tpos.width (), Up.tpos.height ());
+   c.Blt (*Up.tpm,  Up.tpos.left (),  Up.tpos.top (),  0, 0,
+                    Up.tpos.width (), Up.tpos.height ());
    if (Up.drag.width ()) {
-//    c.Blt (*Up.lhmx, Up.drag.left  (), Up.drag.top    (), 
+//    c.Blt (*Up.lhmx, Up.drag.left  (), Up.drag.top    (),
 //                     Up.drag.width (), Up.drag.height (), 0, 0, 1, 1);
      QPainter *p = c.Painter ();
       p->setCompositionMode (QPainter::RasterOp_SourceXorDestination);
       p->setPen (QColor (0xff, 0xff, 0xff));
-      p->drawRect (Up.drag);       
+      p->drawRect (Up.drag);
    }
 }
 
 void CtlNt::Cur ()
-{ Qt::CursorShape c; 
+{ Qt::CursorShape c;
 //DBG("ntCur `c", Up.ntCur);
    switch (Up.ntCur) {
    case '|': c = Qt::SizeVerCursor;    break;

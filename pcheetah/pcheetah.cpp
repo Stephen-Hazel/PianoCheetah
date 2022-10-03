@@ -347,10 +347,11 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
   TStr  s;
    if (! (k = km.Map (e->modifiers (), e->key ())))  return;
    StrCp (s, km.Str (k));
-TRC("keypressEvent `s", s);
+DBG("keypressEvent `s", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
-   if (i < 6)             Upd (UCmd [i].cmd);
-   if (i < NUCmd)  emit sgCmd (UCmd [i].cmd);
+   if (i < 6)                        Upd (UCmd [i].cmd);
+   if (i < NUCmd)             emit sgCmd (UCmd [i].cmd);
+   if (! StrCm (s, CC("d")))  emit sgCmd ("dump");
 }
 
 

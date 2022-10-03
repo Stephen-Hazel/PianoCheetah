@@ -10,8 +10,9 @@ TRC("Song::Init");                     // init that there stuff we need...
    Midi.Load ();
 
    _timer = new Timer ();              // boot timer
-   connect (_timer, & Timer::TimerEv, this, & Song::Put);
-
+   connect (_timer, & Timer::TimerEv,   this, & Song::Put);
+   connect (_timer, & Timer::TimerMsEv, this,
+            [this]()  {if (_lrn.POZ)  Shush (true);});
    OpenMIn ();                         // boot MidiI's
    for (ubyte d = 0;  d < _mi.Ln;  d++)
       QObject::connect (_mi [d].mi, & MidiI::MidiIEv, this, & Song::MIn);
@@ -95,7 +96,7 @@ void Song::PutLy ()
   char  buf [1000], *pc, nl = 0;
   bool  got = false;
    *Up.lyr = '\0';   Up.lyrHiB = Up.lyrHiE = 0;
-   if (*Up.hey)  {StrCp (Up.lyr, Up.hey);   *Up.hey = '\0';   
+   if (*Up.hey)  {StrCp (Up.lyr, Up.hey);   *Up.hey = '\0';
                   emit sgUpd ("lyr");   return;}
 // ain't got none so bail
    if (! (ne = _f.lyr.Ln))  {emit sgUpd ("lyr");   return;}
@@ -227,7 +228,7 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
    else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
 if (App.trc) {TStr d1,d2;
               StrFmt (d1, "PutNt `s.`d tmr=`s bg=`b",
-                 Up.dev [dv].mo->Name (), ch, TmSt (d2, _timer->Get ()), bg);
+                 Up.dev [dv].mo->Name (), ch+1, TmSt (d2, _timer->Get ()), bg);
               DumpEv (e, t, _f.trk [t].p, d1);}
    Up.dev [dv].mo->Put (ch, ctrl, valu, e->val2);
 // if (_lzr)  PosTM (_lzr, MSG_CLOSE+1, (ch<<8)|ctrl, valu);
@@ -271,7 +272,7 @@ TRC(" end o song");
    // get bar.beat str for now n tL8r (default to wakeup on next subbeat)
       TmStr (bar, _now, & tL8r);
       if (_onBt) {                     // on beat|64th, update time ctrl
-TRC(" beat"); 
+TRC(" beat");
          StrFmt (Up.time, "`s`s", _timer->Pause () ? "X" : "", bar);
          emit sgUpd ("time");          // draw bar.beat
         char *bp = 1 + StrCh (bar, '.');
@@ -293,15 +294,11 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
       if ((PRAC || (_lrn.pLrn == LPRAC)) &&
           _lrn.lpEnd && (_now >= _lrn.lpEnd)) {
 TStr s1,s2;
-TRC(" eoLoop a lrn=`d pLrn=`d dWip=`b hVal=`d lpBgn=`s lpEnd=`s",
-Up.lrn, _lrn.pLrn, _lrn.dWip, _lrn.hVal, TmSt(s1,_lrn.lpBgn),
-TmSt(s2,_lrn.lpEnd));
+TRC(" eoLoop a `s dWip=`b hVal=`d lpBgn=`s lpEnd=`s",
+LrnS (), _lrn.dWip, _lrn.hVal, TmSt(s1,_lrn.lpBgn), TmSt(s2,_lrn.lpEnd));
          Cmd (CC("timeBar1"));   _lrn.dWip = true;   _lrn.hVal = 0;
          SetLp ('.');
-TRC(" eoLoop b lrn=`d pLrn=`d dWip=`b hVal=`d",
-Up.lrn, _lrn.pLrn, _lrn.dWip, _lrn.hVal);
-TRC("Put end - did eoLoop hop lrn=`d pLrn=`d dWip=`b hVal=`d",
-Up.lrn, _lrn.pLrn, _lrn.dWip, _lrn.hVal);
+TRC("Put end - eoLoop b `s dWip=`b hVal=`d", LrnS (), _lrn.dWip, _lrn.hVal);
          return;
       }
 

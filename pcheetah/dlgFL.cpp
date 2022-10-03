@@ -337,7 +337,7 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
 void DlgFL::Find ()
 { TStr srch, dir;
    App.CfgGet (CC("DlgFL_dir"), dir);
-   if (*dir == '\0')  StrCp (dir, CC("/"));
+   if (*dir == '\0')  StrCp (dir, getenv ("HOME"));
    if (! Gui.AskDir (dir, "pick top dir to search for songs in (NOT / please)"))
       return;
    App.CfgPut (CC("DlgFL_dir"), dir);
@@ -364,7 +364,7 @@ void DlgFL::Dn ()
 //______________________________________________________________________________
 void DlgFL::Open ()  {ReDo ();   show ();   raise ();   activateWindow ();}
 
-void DlgFL::Shut ()  
+void DlgFL::Shut ()
 {  FL.pos = _t.CurRow ();   done (true);   lower ();   hide ();  }
 
 void DlgFL::Init ()
@@ -388,11 +388,11 @@ void DlgFL::Init ()
    _t.Init (ui->fLst, "Stage\0Song\0");
    connect (ui->fLst, &QTableWidget::itemClicked,       this, & DlgFL::Pik);
    connect (ui->fLst, &QTableWidget::itemDoubleClicked, this, & DlgFL::Shut);
- 
+
   CtlLine s (ui->srch);
   TStr t;
    App.CfgGet (CC("DlgFL_srch"), t);   if (*t) s.Set (t);
- 
+
    connect (ui->all, &QCheckBox::stateChanged, this, & DlgFL::ReDo);
 }
 
@@ -400,5 +400,5 @@ void DlgFL::Quit ()
 { CtlLine s (ui->srch);
   TStr t;
    StrCp (t, s.Get ());   App.CfgPut (CC("DlgFL_srch"), t);
-   Gui.DlgSave (this, "DlgFL", ui->spl);   
+   Gui.DlgSave (this, "DlgFL", ui->spl);
 }

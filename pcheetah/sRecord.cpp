@@ -11,7 +11,7 @@ void Song::Shush (bool tf)
   ubyte  t, dt;
   ubyt2  craw;
 DBG("Shush `b", tf);
-   for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t)) {
+   for (t = 0;  t < Up.rTrk;  t++)  if (! TLrn (t)) {
       mo = Up.dev [_f.trk [t].dev].mo;
       got = false;                     // already did w my dev,chn?
       for (dt = 0;  dt < t;  dt++)  if ((_f.trk [t].dev == _f.trk [dt].dev) &&
@@ -22,7 +22,7 @@ DBG("Shush `b", tf);
          if ((craw = Up.dvt [dt].CCID (CC("Vol"))))
             mo->Put (_f.trk [t].chn,
                      craw, tf ? 0 : CCValAt (_now, t, CC("Vol")), 0);
-DBG("   t=`d vol(`d)=`d", t, craw, tf ? 0 : CCValAt(_now, t, CC("Vol")));
+//DBG("   t=`d vol=`d", t, tf ? 0 : CCValAt (_now, t, CC("Vol")));
       }
    }
    if (! tf)  _lrn.POZ = false;
@@ -179,16 +179,19 @@ char Song::DnOK (char nxt)             // \0=current(default) or n[ext]
 
 
 void Song::RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL)
-// get out dev,chn (and LH dev,chn) from lrn trks given ev/ez/drum/etccc
+// given mEv n _lrn, get out dev,chn (and LH dev,chn) from lrn trks
 { ubyte t;
    *d = *dL = 0;   *c = *cL = 16;
    if (ev->chan == 9) {                // drums are just a dev to lookup
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && TDrm (t))
                {*d  = _f.trk [t].dev;   *c  = 9;   break;}
+DBG("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
       return;
    }
-//TODO so far, no echoing of ctrls in ez/rHop.  maybe a cc#=>1-7 map later
+
+// no echoing of ctrls in ez/rHop
    if (_lrn.ez && MCTRL (ev))  return;
+
    for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && (! TDrm (t))) {
       if (_lrn.ez) {
          if (_f.trk [t].ht == (ev->ctrl / 12 - 1 + '0'))
@@ -200,11 +203,13 @@ void Song::RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL)
          else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
       }
    }
+DBG("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
 }
 
 
 void Song::RecDvCh (ubyte ti,
                     TrkEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL)
+// given trk,tEv n _lrn here
 { ubyte t;
    *d = *dL = 0;   *c = *cL = 16;
    if (ti == Up.rTrk) {                // drums are just a dev to lookup
@@ -212,8 +217,10 @@ void Song::RecDvCh (ubyte ti,
                {*d  = _f.trk [t].dev;   *c  = 9;   break;}
       return;
    }
-//TODO so far, no echoing of ctrls in ez.  maybe a cc#=>1-7 map later
+
+// no echoing of ctrls in ez
    if (_lrn.ez && MCTRL (ev))  return;
+
    for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && (! TDrm (t))) {
       if (_lrn.ez) {
          if (_f.trk [t].ht == (ev->ctrl / 12 - 1 + '0'))
@@ -229,70 +236,6 @@ void Song::RecDvCh (ubyte ti,
 
 
 //------------------------------------------------------------------------------
-void Song::PozBuf (MidiEv *ev, char *cSt)
-// during pause, WE echo events cuz time has stopped so Put() ain't goin
-// then evs are buffered for recording last state of note/ctrl on unpoz
-// upon POZ, toRec init'd to 0 except notes w _lrn.rec[][].tm == 0 - set to 0080
-{ ubyte t, dv, ch, d2, c2, dr, nt, c, t1, n;
-  ubyt2 craw;
-  bool  ntDn = false;
-   t = Up.rTrk;   if (ev->chan != 9)  t++;  // to rec trk (drum or melo)
-   RecDvCh (ev, & dv, & ch, &d2, &c2);      // get rec out dev,chn from lrn trks
-
-// echo dat ev on out
-   craw = nt = (ubyte)ev->ctrl;
-   if (*cSt) {                         // tmpo,tsig,prog won't come in midi
-      if (_lrn.ez)  return;            // ez/rHop - no ctrls yet
-//TStr s1,s2;
-//DBG("PozCC `s.`d `s `d,`d  tr=`d r2=`b  tm=`s tmr=`s",
-//_f.dev [dv].mo->Name (), ch, cSt, ev->valu, ev->val2, t, r2,
-//TmSt(s1,ev->time),TmSt(s2,_timer->Get ()));
-      c = (ubyte)(ev->ctrl) & 0x7F;    // might be filtered?
-      if ((craw = Up.dvt [Up.dev [d2].dvt].CCMap [c])) {
-         if (ch != 16)  Up.dev [dv].mo->Put (ch, craw, ev->valu, ev->val2);
-         if (c2 != 16)  Up.dev [d2].mo->Put (c2, craw, ev->valu, ev->val2);
-      }                                // LH might be diff than RH,HT
-   }
-   else {                              // note
-      if (ch != 9)  craw += Cfg.tran;
-TStr s1,s2,s3;
-TRC("PozNt `s.`d `s`c`d  tr=`d  tm=`s tmr=`s",
-Up.dev [dv].mo->Name (), ch, MKey2Str (s1,(ubyte)craw),
-(ev->valu & 0x80)?'_':'^',ev->valu & 0x7F, t,
-TmSt(s2,ev->time), TmSt(s3,_timer->Get ()));
-      if (ev->val2 & 0x40)  Up.dev [d2].mo->Put (c2, craw, ev->valu, ev->val2);
-      else                  Up.dev [dv].mo->Put (ch, craw, ev->valu, ev->val2);
-   }
-
-// track what notes/ctrls to rec later when we UNpause
-// for ctrls, bit 7 means "record it" (last val we get)
-// for notes, bit 7 sez Dn/Up (set=Dn)
-//            bits0-6 being non0 means "record it"
-   dr = (ev->chan == 9) ? 1 : 0;
-   if (*cSt)  _lrn.toRec [dr][0x80 | c] = 0x0080 | ev->valu;
-   else {
-      _lrn.toRec [dr][nt] &= 0x0080;   // reset to just flag of dn/up
-      if ((ev->valu & 0x80) == _lrn.toRec [dr][nt])   // not flippin dn/up??
-         {if (! (t1 = ev->valu & 0x7F))  t1 = 0x01;   // replace velo,val2
-          _lrn.toRec [dr][nt] |= ((ev->val2 << 8) | t1);}  // velo always non0
-      if (EDOWN (ev))  {if (! EPRSS (ev))  ntDn = true;}
-      else  // ntUp in _dn[].nt[], rec it n buf any following ntDn
-         for (n = 0;  n < _dn [_pDn].nNt;  n++)
-            if ( (nt ==        _dn [_pDn].nt [n].nt) &&
-                 (dr == (TDrm (_dn [_pDn].nt [n].t) ? 1 : 0)) ) {
-TRC("PozBuf ntUp rec, reflag ntDn t=`d nt=`d", t, nt);
-               EvInsT (t, ev);   _f.trk [t].p++;
-               _lrn.toRec [dr][nt] = (ev->val2 << 8) | 0x0080;
-            }
-   }
-   if (ntDn && (DnOK () == 'y')) {     // only ntDn can unpause us
-TRC("PozBuf  UNPOZ !");
-      PozIns ();   SetMSec (_pDn, ev);      // buf rec trks, adj .time per .msec
-      _lrn.POZ = false;   _timer->Set (_now);   Shush (false);   Poz (false);
-   }
-}
-
-
 void Song::PozIns ()
 // insert buffered toRec note/ctrl events into respective trks
 { ubyte c, d, t;
@@ -453,6 +396,217 @@ TRC(" upd ntUp=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
 }
 
 
+void Song::PozBuf (MidiEv *ev, char *cSt)
+// during pause, WE echo events cuz time has stopped so Put() ain't goin
+// then evs are buffered for recording last state of note/ctrl on unpoz
+// upon POZ, toRec init'd to 0 except notes w _lrn.rec[][].tm == 0 - set to 0080
+{ ubyte t, dv, ch, dL, cL, dr, nt, c, t1, n;
+  ubyt2 craw;
+  bool  ntDn = false, lh;
+   dr = (ev->chan == 9) ? 1 : 0;
+   t  = Up.rTrk;   if (! dr)  t++;          // to rec trk (drum or melo)
+   RecDvCh (ev, & dv, & ch, &dL, &cL);      // get rec out dev,chn from lrn trks
+
+// echo dat ev on out
+   craw = nt = (ubyte)ev->ctrl;
+   if (*cSt) {                         // tmpo,tsig,prog won't come in midi
+      if (_lrn.ez)  return;            // ez/rHop - no ctrls yet
+//TStr s1,s2;
+//DBG("PozCC `s.`d `s=`d,`d  rTrk=`d  r2=`b  tm=`s tmr=`s",
+//Up.dev [dv].mo->Name (), ch+1, cSt, ev->valu, ev->val2, t, r2,
+//TmSt(s1,ev->time),TmSt(s2,_timer->Get ()));
+      c = (ubyte)(ev->ctrl) & 0x7F;    // might be filtered?
+      if ((craw = Up.dvt [Up.dev [dL].dvt].CCMap [c])) {
+         if (ch != 16)  Up.dev [dv].mo->Put (ch, craw, ev->valu, ev->val2);
+         if (cL != 16)  Up.dev [dL].mo->Put (cL, craw, ev->valu, ev->val2);
+      }                                // LH might be diff than RH,HT
+   }
+   else {                              // note
+      if (ch != 9)  craw += Cfg.tran;
+      lh = (ev->val2 & 0x40) ? true : false;
+TStr s1,s2;
+TRC("PozNt echo to `s.`d  rTrk=`d  tm=`s tmr=`s",
+Up.dev [lh?dL:dv].mo->Name (), (lh?cL:ch)+1, t,
+TmSt(s1,ev->time), TmSt(s2,_timer->Get ()));
+      if (lh)  Up.dev [dL].mo->Put (cL, craw, ev->valu, ev->val2);
+      else     Up.dev [dv].mo->Put (ch, craw, ev->valu, ev->val2);
+   }
+
+// track what notes/ctrls to rec later when we UNpause
+// for ctrls, bit 7 means "record it" (last val we get)
+// for notes, bit 7 sez Dn/Up (set=Dn)
+//            bits0-6 being non0 means "record it"
+   if (*cSt)  _lrn.toRec [dr][(ubyte)0x80 | c] = 0x0080 | ev->valu;
+   else {
+      _lrn.toRec [dr][nt] &= 0x0080;   // reset to just flag of dn/up
+      if ((ev->valu & 0x80) == _lrn.toRec [dr][nt])   // not flippin dn/up??
+         {if (! (t1 = ev->valu & 0x7F))  t1 = 0x01;   // replace velo,val2
+          _lrn.toRec [dr][nt] |= ((ev->val2 << 8) | t1);}  // velo always non0
+      if (EDOWN (ev))  {if (! EPRSS (ev))  ntDn = true;}
+      else  // ntUp in _dn[].nt[], rec it n buf any following ntDn
+         for (n = 0;  n < _dn [_pDn].nNt;  n++)
+            if ( (nt ==        _dn [_pDn].nt [n].nt) &&
+                 (dr == (TDrm (_dn [_pDn].nt [n].t) ? 1 : 0)) ) {
+TStr s1;
+TRC("PozBuf ntUp rec, reflag ntDn t=`d nt=`s", t, MKey2Str (s1,nt));
+               EvInsT (t, ev);   _f.trk [t].p++;
+               _lrn.toRec [dr][nt] = (ev->val2 << 8) | 0x0080;
+            }
+   }
+   if (ntDn && (DnOK () == 'y')) {     // only ntDn can unpause us
+TRC("PozBuf  UNPOZ !");
+      PozIns ();   SetMSec (_pDn, ev);      // buf rec trks, adj .time per .msec
+      _lrn.POZ = false;   _timer->Set (_now);   Shush (false);   Poz (false);
+   }
+}
+
+
+//------------------------------------------------------------------------------
+void Song::NtGet (MidiEv *ev)
+// map if drum note n got .din
+// NtUp - clears _lrn.rec n uses prev 0x40 LH for rec nt
+// NtDn - sets   _lrn.rec
+//   find lrn trk - look in _dn[_pDn], then _pDn+1, else _lm
+//   set velo[] if ez;  set veloRec/veloSng if hard
+//   ht in hard mode only - store in ev->val2 bit 0x40 for LH
+//   and does some weird sync junk :/
+{ ubyte dr, nt, tr, n, v, t;
+  ubyt4 i;
+  char  kind;
+  TStr  s;
+  DownRow *dn;
+// only messin w ntDn/Up in prac/play mode
+   if ( MCTRL (ev) || (! (PRAC || PLAY)) )  return;
+
+// map raw drum .din => .drm
+   dr = (ev->chan == 9) ? 1 : 0;   nt = (ubyte) ev->ctrl;
+   if (dr)  for (t = 0;  t < Up.rTrk;  t++)      // might hafta map
+      if (TLrn (t) && TDrm (t) && (_f.trk [t].din == nt))
+         {ev->ctrl = nt = _f.trk [t].drm;   break;}
+
+// if non NtDn, clear _lrn.rec n scram
+   if (! MNTDN (ev)) {
+      _lrn.rec [dr][nt].tm = _lrn.rec [dr][nt].ms = 0;
+      ev->val2 = _lrn.recLH [nt];
+DBG("NtGet NtUp val2=$`02x", ev->val2);
+      return;
+   }
+
+// NtDn - set _lrn.rec
+   _lrn.rec [dr][nt].tm = ev->time + (ev->time ? 0 : 1);
+   _lrn.rec [dr][nt].ms = ev->msec;
+
+// try to match ev to _dn[_pDn].nt[] n get lrn trk
+// kind for debuggin - wrong/curr/next
+   dn = & _dn [_pDn];
+   tr = 0x80;                          // default to no matched lrn trk from _dn
+   kind = 'w';                         // default to wrong
+
+// check ez first;  else is fer hard
+//TODO why the weird tLate condition?
+   if (_lrn.ez && (! dr)) {
+     ubyt4 t, p, ne;
+     TrkEv *e, te;
+TStr d1,d2,d3;   // debug this when testin ez mode
+DBG("   wtf tLate=`s tSoon=`s ev->time=`s",
+TmSt(d1,_tLate), TmSt(d2,_tSoon), TmSt(d3,ev->time));
+      if ((ev->time >= _tLate) && (ev->time <= _tLate))  return;
+      if (ev->time < _tLate) {
+         t = ev->time;
+         for (n = 0;  n < dn->nNt;  n++)
+            if ( (! TDrm (dn->nt [n].t)) &&
+                 (nt ==   dn->nt [n].nt) ) {     // ding ding ding
+               tr = dn->nt [n].t;   kind = 'c';  // curr pDn
+               break;
+            }
+      }
+      else if ((ev->time > _tSoon) && (_pDn+1 < _dn.Ln)) {
+         dn++;                         // has to BE a next
+         t = dn->time;
+         for (n = 0;  n < dn->nNt;  n++)
+            if ( (! TDrm (dn->nt [n].t)) &&
+                 (nt ==   dn->nt [n].nt) ) {     // ding ding ding
+               tr = dn->nt [n].t;   kind = 'n';  // next pDn
+               break;
+            }
+      }
+TRC("NtGet ez lrnTrk=`d `s",
+tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"));
+
+   // PutNt/CC till now on trk if < tLate;  till pDn+1 time if < tSoon
+      if (tr < (ubyte)0x80) {
+         _lrn.velo [_f.trk [tr].lrn - '1'] = ev->valu & 0x7F;
+TRC("bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
+         for (e = _f.trk [tr].e,  ne = _f.trk [tr].ne,  p = _f.trk [tr].p;
+              (p < ne) && (e [p].time <= t);  p++) {
+            if (ECTRL (& e [p]))  PutCC (tr, & e [p]);
+            else {
+               MemCp (& te, & e [p], sizeof (TrkEv));
+               if (ENTDN (e))  te.valu = ev->valu;
+               PutNt (tr, & te);
+            }
+         }
+TRC("bump time b p=`d", p);
+         _f.trk [tr].p = p;
+      }
+      return;
+   }
+
+// just hard from here on
+   if (ev->time <= dn->time) {         // only lookin to get tr if curr dn
+      for (n = 0;  n < dn->nNt;  n++)
+         if ( (dr == (TDrm (dn->nt [n].t) ? 1 : 0)) &&
+              (nt ==        dn->nt [n].nt) ) {   // ding ding ding
+            tr = dn->nt [n].t;   kind = 'c';     // curr pDn
+            break;
+         }
+   }
+// else we're seein bout _pDn+1 (to bump time, unpoz, hop forward IFF rHop)
+   else if (_pDn+1 < _dn.Ln) {         // has to BE a next
+      dn++;
+      for (n = 0;  n < dn->nNt;  n++)
+         if ( (dr == (TDrm (dn->nt [n].t) ? 1 : 0)) &&
+              (nt ==        dn->nt [n].nt) ) {   // ding ding ding
+            tr = dn->nt [n].t;   kind = 'n';     // next pDn
+            if (_lrn.rHop && (DnOK ('n') == 'y')) {   // HOP ok?
+               SetMSec (_pDn+1, ev);                  // BOING !!
+               if (! _lrn.POZ) {                      // else PozBuf/Ins unpozs
+TRC("NtGet hard BOING");
+                  for (ubyte d = 0;  d < _mi.Ln;  d++)
+                     _mi [d].mi->BufAdj ((sbyt4)dn->time-(sbyt4)ev->time);
+                  ev->time = dn->time;
+                  for (n = 0;  n < dn->nNt;  n++) {
+                     dr = TDrm (dn->nt [n].t) ? 1 : 0;
+                     nt =       dn->nt [n].nt;
+                     _lrn.rec [dr][nt].tm = dn->time;
+                  }
+                  _timer->SetSig (dn->time);   _timer->Set (dn->time);
+               }
+            }
+            break;
+         }
+   }
+// matched to lrn trk ev?  stamp rec ev velo versus lrn trk velo
+   if (tr < (ubyte)0x80) {
+     TrkEv *e = _f.trk [tr].e;
+     ubyt4  p = dn->nt [n].p;
+      if ((v = e [p].valu & 0x7F))
+         {_lrn.veloRec = ev->valu & 0x7F;   _lrn.veloSng = v;}
+      ev->val2 = (e [p].val2 & 0x7F) | ((_f.trk [tr].ht == 'L') ? 0x40 : 0);
+   }
+   else if ((! dr) && _lm.Ln) {        // for wrong melo nts by LH max split
+      for (i = 0;  i < _lm.Ln;  i++)  if (ev->time <= _lm [i].tm)  break;
+      if (i >= _lm.Ln)  i--;
+      ev->val2 = (nt <= _lm [i].nt) ? 0x40 : 0;
+TRC("wrong nt LH=`b", (ev->val2 & 0x40) ? true : false);
+   }
+   _lrn.recLH [nt] = ev->val2 & 0x40;
+TRC("NtGet hard lrnTrk=`d `s ht=`s",
+tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"),
+(ev->val2 & 0x40)?"LH":"RH/HT");
+}
+
+
 //------------------------------------------------------------------------------
 void Song::Record (MidiEv *ev)
 // filter lame ntUps due to EdCmd n looping leftovers
@@ -476,152 +630,23 @@ t, MNt2Str (s1, ev), TmSt (s2, _now), p);
 
 
 //------------------------------------------------------------------------------
-void Song::NtGet (MidiEv *ev)
-// only for note evs in lrn mode.  map if drum note n got .din
-// NtUp only clears _lrn.rec;  NtDns...
-// need fing,ht from lrn tr - store in  ev->val2
-//    look in _dn[_pDn], then _pDn+1, else _lm for ht/trk
-// set _lrn.rec[].* and veloRec/veloSng or velo[]
-{ ubyte dr, nt, tr, n, v, t;
-  ubyt4 i;
-  char  kind;
-  TStr  s;
-  DownRow *dn;
-// only messin w ntDn/Up in prac/play mode
-   if ( MCTRL (ev) || (! (PRAC || PLAY)) )  return;
-
-// map raw drum .din => .drm;   if non NtDn clear _lrn.rec n scram
-   dr = (ev->chan == 9) ? 1 : 0;   nt = (ubyte) ev->ctrl;
-   if (dr)  for (t = 0;  t < Up.rTrk;  t++)      // might hafta map
-      if (TLrn (t) && TDrm (t) && (_f.trk [t].din == nt))
-         {ev->ctrl = nt = _f.trk [t].drm;   break;}
-   if (! MNTDN (ev)) {                 // ntup,nprs?  clear _lrn.rec
-      _lrn.rec [dr][nt].tm = _lrn.rec [dr][nt].ms = 0;   // clear .tm,.ms
-      return;
-   }
-
-// ntDn - set .rec, match up _dn[] to get .ht
-   _lrn.rec [dr][nt].tm = ev->time + (ev->time ? 0 : 1);
-   _lrn.rec [dr][nt].ms = ev->msec;
-
-// try to match ev to _dn[_pDn].nt[] n use trk's ht;  kind=wrong/curr/
-   dn = & _dn [_pDn];                                   // next/hop/split
-   tr = 0x80;                          // default to no matched lrn trk from _dn
-   kind = 'w';                         // default to wrong
-
-   if (_lrn.ez && (! dr)) {
-     ubyt4 t, p, ne;
-     TrkEv *e, te;
-      if ((ev->time >= _tLate) && (ev->time <= _tLate))  return;
-      if (ev->time < _tLate) {
-         t = ev->time;
-         for (n = 0;  n < dn->nNt;  n++)
-            if ( (! TDrm (dn->nt [n].t)) &&
-                 (nt ==   dn->nt [n].nt) ) {     // ding ding ding
-               tr = dn->nt [n].t;   kind = 'c';  // curr pDn
-               break;
-            }
-      }
-      else if ((ev->time > _tSoon) && (_pDn+1 < _dn.Ln)) {
-         dn++;                         // has to BE a next
-         t = dn->time;
-         for (n = 0;  n < dn->nNt;  n++)
-            if ( (! TDrm (dn->nt [n].t)) &&
-                 (nt ==   dn->nt [n].nt) ) {     // ding ding ding
-               tr = dn->nt [n].t;   kind = 'n';  // next pDn
-               break;
-            }
-      }
-TRC("NtGet tr=`d nt=`s val2=`02x kind=`c",
-tr, MKey2Str(s,(ubyte)(ev->ctrl)), ev->val2, kind);
-   // PutNt/CC till now on trk if < tLate;  till pDn+1 time if < tSoon
-      if (tr < 0x80) {
-TRC("t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
-         for (e = _f.trk [tr].e,  ne = _f.trk [tr].ne,  p = _f.trk [tr].p;
-              (p < ne) && (e [p].time <= t);  p++) {
-            if (ECTRL (& e [p]))  PutCC (tr, & e [p]);
-            else {
-               MemCp (& te, & e [p], sizeof (TrkEv));
-               if (ENTDN (e))  te.valu = ev->valu;
-               PutNt (tr, & te);
-            }
-         }
-TRC("new p=`d", p);
-         _f.trk [tr].p = p;
-      }
-      return;
-   }
-
-// just hard from here on
-   if (ev->time <= dn->time) {         // only lookin to get tr if curr dn
-      for (n = 0;  n < dn->nNt;  n++)
-         if ( (dr == (TDrm (dn->nt [n].t) ? 1 : 0)) &&
-              (nt ==        dn->nt [n].nt) ) {   // ding ding ding
-            tr = dn->nt [n].t;   kind = 'c';     // curr pDn
-            break;
-         }
-   }
-// else we're seein bout _pDn+1 (to bump time, unpoz, hop forward IFF rHop)
-   else if (_pDn+1 < _dn.Ln) {         // has to BE a next
-      dn++;
-      for (n = 0;  n < dn->nNt;  n++)
-         if ( (dr == (TDrm (dn->nt [n].t) ? 1 : 0)) &&
-              (nt ==        dn->nt [n].nt) ) {   // ding ding ding
-            tr = dn->nt [n].t;   kind = 'n';     // next pDn
-            if (_lrn.rHop && (DnOK ('n') == 'y')) {   // HOP?
-               SetMSec (_pDn+1, ev);                  // BOING !!
-               if (! _lrn.POZ) {                      // else PozBuf/Ins unpozs
-                  kind = 'h';          // update fer debuggin
-                  for (ubyte d = 0;  d < _mi.Ln;  d++)
-                     _mi [d].mi->BufAdj ((sbyt4)dn->time-(sbyt4)ev->time);
-                  ev->time = dn->time;
-                  for (n = 0;  n < dn->nNt;  n++) {
-                     dr = TDrm (dn->nt [n].t) ? 1 : 0;
-                     nt =       dn->nt [n].nt;
-                     _lrn.rec [dr][nt].tm = dn->time;
-                  }
-                  _timer->SetSig (dn->time);   _timer->Set (dn->time);
-               }
-            }
-            break;
-         }
-   }
-// matched to ? trk ev?  stamp rcrd ev velo versus ? trk velo
-   if (tr < 0x80) {
-      if (_lrn.ez)  _lrn.velo [_f.trk [tr].lrn - '1'] = ev->valu & 0x7F;
-      else {
-         if ((v = _f.trk [tr].e [dn->nt [n].p].valu & 0x7F))
-            {_lrn.veloRec = ev->valu & 0x7F;   _lrn.veloSng = v;}
-         ev->val2 = ((_f.trk [tr].e [dn->nt [n].p].val2 & 0x7F) |
-                     (_f.trk [tr].ht == 'L')) ? 0x40 : 0;
-      }
-   }
-   else if ((! dr) && _lm.Ln) {        // for wrong melo nts by LH max split
-TRC("split on LHMax");
-      for (i = 0;  i < _lm.Ln;  i++)  if (ev->time <= _lm [i].tm)  break;
-      if (i >= _lm.Ln)  i--;
-      ev->val2 = (nt <= _lm [i].nt) ? 0x40 : 0;
-      kind = 's';                      // just from split
-   }
-TRC("NtGet tr=`d nt=`s val2=`02x kind=`c",
-tr, MKey2Str(s,(ubyte)(ev->ctrl)), ev->val2, kind);
-}
-
-
 void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte t;
   TStr  cSt, cMod, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
-TRC("EvRcrd `s.`d `s `s ms=`d\n"
-"_pNow=`s _rNow=`s _now=`s tmr=`s\n"
-"_pDn=`d dn.time=`s dn+1.time=`s",
+DBG("EvRcrd `s.`d `s `s",
+// ms=`d\n"
+//"_pNow=`s _rNow=`s _now=`s tmr=`s\n"
+//"_pDn=`d dn.time=`s dn+1.time=`s",
 (dev<_mi.Ln)?_mi [dev].mi->Name ():"kbd", ev->chan+1, TmSt(s1,ev->time),
 (ev->ctrl & 0xFF80)
 ? StrFmt  (s2, "c=`s v=`d v2=`d", MCtl2Str(s3,ev->ctrl), ev->valu, ev->val2)
-: MNt2Str (s4, ev),
-ev->msec, TmSt(s5,_pNow),TmSt(s6,_rNow),TmSt(s7,_now),TmSt(s8,_timer->Get ()),
-_pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn].time):"x",
-(1+   _pDn<_dn.Ln)?TmSt(sa,_dn [_pDn+1].time):"x");
+: MNt2Str (s4, ev)
+//,
+//ev->msec, TmSt(s5,_pNow),TmSt(s6,_rNow),TmSt(s7,_now),TmSt(s8,_timer->Get ()),
+//_pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn].time):"x",
+//(1+   _pDn<_dn.Ln)?TmSt(sa,_dn [_pDn+1].time):"x"
+);
    if (! _f.trk.Ln) {                  // no song? - do DlgFL input
       if (MNTDN (ev)) {
          if      (ev->ctrl == MKey (CC("3b")))  emit sgUpd ("FLex");
@@ -664,12 +689,16 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn].time):"x",
                                        {TRC("EvRcrd: a");   return;}
    if (_lrn.rHop && _lrn.POZ) {
       PozBuf (ev, cSt);                // in rHop, on poz, buff/echo evs
-      DrawNow ();   TRC("EvRcrd: b");   return;
+      DrawNow ();
+TRC("EvRcrd: b");
+      return;
    }
    if (! _lrn.POZ)  _rNow = ev->time;
    if (PosInZZ (cSt, CC("PBnR\0Vol\0Pan\0"))) {
       CCInit (t, cSt, ev->valu);       // if special bar#1 ctl, upd/ins@tm=0
-      DrawNow ();   TRC("EvRcrd: c");   return;
+      DrawNow ();
+TRC("EvRcrd: c");
+      return;
    }
    Record (ev);                        // ins ev into rec trk
    DrawNow ();

@@ -82,7 +82,8 @@ struct LrnDef {
    ubyt2 toRec [2][256];               // buffer vals to rcrd per ctl post poz
    RecDef  rec [2][128];               // notes cur down from EvRcrd
    ubyte    nt    [128];               // track nondrum non? held notes
-};
+   ubyte recLH    [128];               // NtGet finds NtDn lh/rh but needs to
+};                                     // remember for NtUp
 
 
 //______________________________________________________________________________
@@ -155,10 +156,11 @@ private:
    void  Save    (bool prac = false);  // true for prac;  false/omit for rec
 
 // sDump.cpp
-   void DumpEv   (TrkEv *e, ubyte t, ubyt4 p = 1000000, char *pre = NULL);
-   void DumpTrEv (ubyte t);
-   void DumpRec  ();
-   void Dump     (bool ev2 = false);
+   char *LrnS     ();
+   void  DumpEv   (TrkEv *e, ubyte t, ubyt4 p = 1000000, char *pre = NULL);
+   void  DumpTrEv (ubyte t);
+   void  DumpRec  ();
+   void  Dump     (bool ev2 = false);
 
 // sRecord.cpp
    void  Shush   (bool tf);            // flip by volume cc (only) on/off

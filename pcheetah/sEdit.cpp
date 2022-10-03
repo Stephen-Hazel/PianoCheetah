@@ -247,7 +247,8 @@ TRC("setCtl tr=`d p=`d tm=`d ctl=`s val=`s", tr, p, tm, c, s);
          {ReEv ();   _prac = true;   Pract ();   ReDo ();   return;}
    }
    else {                              // need SOME track to put it in...
-      if ( (! StrCm (c, CC("ksig"))) ||     // these HAVE to go in drum trak, etc
+      if ( (! StrCm (c, CC("ksig"))) ||     // these HAVE to go in drum trak, et
+c
            (! StrCm (c, CC("tsig"))) || (! StrCm (c, CC("tmpo"))) ) {
          for (tr = 0;  tr < _f.trk.Ln;  tr++)  if (TDrm (tr))  break;
          if (tr >= _f.trk.Ln)
@@ -378,7 +379,7 @@ TRC("dst trk=`d", tc);
       if (nt->up != NONE)  EvDel (t, nt->up);    // del up 1st so dn stays
       if (nt->dn != NONE)  EvDel (t, nt->dn);    // in same pos
       if (f == 98)  {ReDo ();   return;}         // that's it for del
-//TODO wtf is tc ??
+//TODO wtf is tc ?? (dbg to remove compiler warning)
       e = _f.trk [tc].e;   ne = _f.trk [tc].ne;
       for (p = 0;  (p < ne) && (dn.time >= e [p].time);  p++)  ;
 //TStr d1;

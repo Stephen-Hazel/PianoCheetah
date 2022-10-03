@@ -2,12 +2,28 @@
 
 #include "song.h"
 
+char *Song::LrnS ()
+{ static TStr s;
+   StrCp (s, CC("x"));
+   if (Up.lrn    == LHEAR)  StrCp (s, CC("hear"));
+   if (Up.lrn    == LHLRN)  StrCp (s, CC("hLrn"));
+   if (Up.lrn    == LPRAC)  StrCp (s, CC("prac"));
+   if (Up.lrn    == LPLAY)  StrCp (s, CC("play"));
+   if (_lrn.pLrn == LHEAR)  StrAp (s, CC(" p=hear"));
+   if (_lrn.pLrn == LHLRN)  StrAp (s, CC(" p=hLrn"));
+   if (_lrn.pLrn == LPRAC)  StrAp (s, CC(" p=prac"));
+   if (_lrn.pLrn == LPLAY)  StrAp (s, CC(" p=play"));
+   return s;
+}
+
+
 void DumpZ (char const *t, char *z)
-{ char *s; 
+{ char *s;
   ubyt2 c = 0;
    DBG("`s", t);
    for (s = z;  *s;  s = & s [StrLn (s)+1])  DBG("`d: `s", c++, s);
 }
+
 
 void Song::DumpEv (TrkEv *e, ubyte t, ubyt4 p, char *pre)
 { TStr  o, s, ts;
@@ -57,13 +73,13 @@ DBG("DUMP");
       "onBt=`b now=`s pDn=`d/`s\n"
       "dn.Ln=`d nEv=`d maxEv=`d\n"
       "Cfg_cmdKey=`d ntCo=`d barCl=`b updt=`b\n"
-      "SnF_tmpo=`d tran=`d lrn=`d pLrn=`d ez=`b hand=`c\n"
+      "SnF_tmpo=`d tran=`d `s ez=`b hand=`c\n"
       "hLrn=`b vwNt=`b POZ=`b uPoz=`b",
       _rcrd, _bEnd, TmSt(t1,_tEnd), Up.rTrk, Up.eTrk, _eOn, _pLyr,
       _onBt, TmSt(t2,_now), _pDn, TmSt(t3,_dn[_pDn].time),
       _dn.Ln, _f.nEv, _f.maxEv,
       Cfg.cmdKey, Cfg.ntCo, Cfg.barCl, Cfg.updt,
-      _f.tmpo, _f.tran, Up.lrn, _lrn.pLrn, _lrn.ez, _lrn.hand?_lrn.hand:' ',
+      _f.tmpo, _f.tran, LrnS (), _lrn.ez, _lrn.hand?_lrn.hand:' ',
       _lrn.hLrn, _lrn.vwNt, _lrn.POZ, Up.uPoz
    );
 

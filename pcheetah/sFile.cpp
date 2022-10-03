@@ -744,7 +744,7 @@ TRC("save fn=`s", fns);
       for (i = 0;  i < _f.lyr.Ln;  i++) {
          StrCp (s3, _f.lyr [i].s);
          while ((m = StrCh (s3, ' ')))  *m = '_';
-         f.Put (StrFmt (s, "`s `s\n",  TmSt (s2, _f.lyr [i].time), s3));
+         f.Put (StrFmt (s, "`<9s `s\n",  TmSt (s2, _f.lyr [i].time), s3));
       }
       for (i = 0;  i < _f.lyr.Ln;)     // take em BACK on out :/
          {if (StrCh (CC("*?!"), _f.lyr [i].s [0])) _f.lyr.Del (i);   else i++;}
@@ -752,7 +752,7 @@ TRC("save fn=`s", fns);
       f.Put (CC("Event:\n"));
       for (t = 0;  t < Up.rTrk;  t++) {
          for (i = 0, e = _f.trk [t].e;  i < _f.trk [t].ne;  i++) {
-            f.Put (StrFmt (s, "`s ", TmSt (s2, e [i].time)));
+            f.Put (StrFmt (s, "`<9s ", TmSt (s2, e [i].time)));
             c = e [i].ctrl;
             if (c & 0x0080) {          // ctrl
                StrCp (s, _f.ctl [c & 0x7F].s);
