@@ -223,7 +223,7 @@ ofs, _f.tmpo, FIX1, tt, tp);
 
 
 //______________________________________________________________________________
-void Song::RecWipeQ ()                 // quicker recWipe for EvRcrd _lrn.dWip
+void Song::RecWipeQ ()                 // quicker recWipe eoloop
 { ubyte t;
    TmpoPik ('o');                      // original tempo changes;  kill evs
    for (t = Up.rTrk;  t < _f.trk.Ln;  t++)  EvDel (t, 0, _f.trk [t].ne);
@@ -252,9 +252,6 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
          if      (PLAY)  {Up.lrn = LPRAC;   SetLp ('i');}
          else if (PRAC)   Up.lrn = LHEAR;
          else             Up.lrn = LPLAY;
-         for (t = 0;  t < _f.ctl.Ln;  t++)
-            if (! StrCm (_f.ctl [t].s, CC("Tmpo")))
-               _f.ctl [t].sho = (bool)(Up.lrn == LPRAC);
       }
       ReDo ();
       if (PRAC)  {Cmd ("recWipe");   Cmd ("timeBar1");}

@@ -66,7 +66,9 @@ TRC("g");
 
 
 void Song::Hey (char *msg)
-{  StrCp (Up.hey, msg);   PutLy ();  }
+{  StrCp (Up.hey, msg);   PutLy ();
+TRC("hey=`s", msg);
+}
 
 void Song::Die (char *msg)  { TStr s;   emit sgUpd (StrFmt (s, "die `s", msg));}
 
@@ -262,7 +264,7 @@ TRC(" end o song");
          t = (PLAY && (! _lrn.pLrn)) ? true : false;  // do review?
          Cmd (CC("timeBar1"));         // restart
          if (t) {
-            _lrn.pLrn = LPLAY;   Up.lrn = LHEAR;   emit sgUpd ("lrn");
+            _lrn.pLrn = LPLAY;   Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
             TmpoPik ('r');
             _lrn.POZ = false;   Poz (false);     // and go!
             return;
@@ -291,14 +293,23 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
       }
 
    // hoppin from ] back to paired [ if prac or review of prac
-      if ((PRAC || (_lrn.pLrn == LPRAC)) &&
-          _lrn.lpEnd && (_now >= _lrn.lpEnd)) {
+      if ((PRAC || (_lrn.pLrn == LPRAC)) && _lrn.lpEnd &&
+                                   (_now >= _lrn.lpEnd)) {
 TStr s1,s2;
-TRC(" eoLoop a `s dWip=`b hVal=`d lpBgn=`s lpEnd=`s",
-LrnS (), _lrn.dWip, _lrn.hVal, TmSt(s1,_lrn.lpBgn), TmSt(s2,_lrn.lpEnd));
-         Cmd (CC("timeBar1"));   _lrn.dWip = true;   _lrn.hVal = 0;
+TRC(" eoLoop a `s lpBgn=`s lpEnd=`s", LrnS (), TmSt(s1,_lrn.lpBgn),
+                                               TmSt(s2,_lrn.lpEnd));
+      // TRICKY :/ TimeHop () resets lrn to pLrn
+        bool rv = _lrn.pLrn ? false : true;      // kick review?
+         Cmd (CC("timeBar1"));                   // or turn prac back on
          SetLp ('.');
-TRC("Put end - eoLoop b `s dWip=`b hVal=`d", LrnS (), _lrn.dWip, _lrn.hVal);
+         if (rv) {
+            _lrn.pLrn = Up.lrn;   Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
+            TmpoPik ('r');
+            _lrn.POZ = false;   Poz (false);
+         }
+         else
+            RecWipeQ ();               // kill rec evs
+TRC("Put end - eoLoop b `s", LrnS ());
          return;
       }
 
@@ -306,6 +317,28 @@ TRC("Put end - eoLoop b `s dWip=`b hVal=`d", LrnS (), _lrn.dWip, _lrn.hVal);
       if (_lrn.vwNt && (PRAC || PLAY))  while ((_pDn+1 < _dn.Ln) &&
                                                (_now >= _dn [_pDn+1].time))
                                            SetPDn (_pDn+1);
+      if (_lrn.vwNt && (PRAC || PLAY)) {
+         if (_lrn.rHop && (_now == _dn [_pDn].time))  doPoz = (DnOK () != 'y');
+         if (_pag.Ln)  draw = true;    // ^ check if we gots ta poz
+
+         if (doPoz && (! _lrn.POZ)) {
+TStr t1,t2,t3;
+TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d",
+_pDn, TmSt(t1,_dn[_pDn].time), TmSt(t2,_now), TmSt(t3,_timer->Get ()),
+_timer->MS ());
+         // for notes, set bit 7 flag for only notetype (dn/up) to rec w/in poz
+            MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
+            for (dr = 0;  dr < 2;  dr++)  for (c = 0;  c < 128;  c++)
+               if (! _lrn.rec [dr][c].tm)  _lrn.toRec [dr][c] = 0x0080;
+            _lrn.POZ = true;
+            _timer->Set (_now);
+            Poz (true, 500);           // GUI shows paused, shush after 1/2 sec
+            if (draw)  Draw ();
+TRC("Put end - due to poz");
+            return;
+         }
+      }
+
    // plow thru only rec n lrn trks from .p to _now and dump stuff to midiout
    // no shh,bg tracks till next loop
 TRC(" trk loop: lrn,rec");
@@ -342,30 +375,8 @@ TRC(" trk loop: lrn,rec");
             {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   _onBt = false;}}
       }
 
-      if (_lrn.vwNt && (PRAC || PLAY)) {
-         if (_lrn.rHop && (_now == _dn [_pDn].time))  doPoz = (DnOK () != 'y');
-         if (_pag.Ln)  draw = true;    // ^ check if we gots ta poz
-
-         if (doPoz && (! _lrn.POZ)) {
-TStr t1,t2,t3;
-TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d",
-_pDn, TmSt(t1,_dn[_pDn].time), TmSt(t2,_now), TmSt(t3,_timer->Get ()),
-_timer->MS ());
-         // for notes, set bit 7 flag for only notetype (dn/up) to rec w/in poz
-            MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
-            for (dr = 0;  dr < 2;  dr++)  for (c = 0;  c < 128;  c++)
-               if (! _lrn.rec [dr][c].tm)  _lrn.toRec [dr][c] = 0x0080;
-            _lrn.POZ = true;
-            _timer->Set (_now);
-            Poz (true, 500);           // GUI shows paused, shush after 1/2 sec
-            if (draw)  Draw ();
-TRC("Put end - due to poz");
-            return;
-         }
-      }
-
    // plow thru bg tracks from .p to _now and dump stuff to midiout
-//DBG("trk loop: non lrn,rec");
+TRC(" trk loop: non lrn,rec");
       for (t = 0;  t < Up.rTrk;  t++) {
          if (TLrn (t))  continue;      // already did
 

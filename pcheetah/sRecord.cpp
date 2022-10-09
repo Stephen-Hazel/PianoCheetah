@@ -670,20 +670,6 @@ DBG("EvRcrd `s.`d `s `s",
    NtGet (ev);                         // set _lrn.rec, check ev in Dn[]
    t = Up.rTrk;   if (ev->chan != 9)  t++;  // to rec trk (drum or melo)
 
-// gotta recWipe on 1st ntDn?  (in prac loop)
-   if (_lrn.dWip) {
-      if (! StrCm (cSt, CC("hold")))  _lrn.hVal = ev->valu;     // buf hold valu
-      else if (*cSt == '\0') {         // GO!
-         _lrn.dWip = false;
-         RecWipeQ ();                       // ok we're clean
-        MidiEv et;                          // gotta ins buf'd hold val
-         MemCp (& et, ev, sizeof (et));     // ...messy
-         et.ctrl = CCUpd (CC("hold"), t);   et.valu = _lrn.hVal;   et.val2 = 0;
-         if (_lrn.POZ)  PozBuf (& et, CC("hold"));
-         else           Record (& et);
-         Draw ();                      // and redraw
-      }
-   }
 // map cc str to pos in _f.ctl[] and fixup ev.ctrl
    if (*cSt)  if (! (ev->ctrl = CCUpd (cSt, t)))      // outa _f.ctl spots?  xit
                                        {TRC("EvRcrd: a");   return;}

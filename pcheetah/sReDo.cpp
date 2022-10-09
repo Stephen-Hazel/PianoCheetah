@@ -731,6 +731,9 @@ TRC(" redo vwNt/ez/rHop");
          if (_f.trk [t].ht == 'L')  _lrn.hand = (_lrn.hand == 'R') ? 'B' : 'L';
          if (_f.trk [t].ht == 'R')  _lrn.hand = (_lrn.hand == 'L') ? 'B' : 'R';
       }
+   for (t = 0;  t < _f.ctl.Ln;  t++)   // show tempo ctl if we're in prac
+      if (! StrCm (_f.ctl [t].s, CC("Tmpo")))
+         _f.ctl [t].sho = (bool)(PRAC);
 TRC(" vwNt=`b ez=`b rHop=`b hand=`c", _lrn.vwNt, _lrn.ez, _lrn.rHop, _lrn.hand);
 TRC(" set icos");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");

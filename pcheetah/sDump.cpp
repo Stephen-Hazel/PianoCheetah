@@ -152,8 +152,9 @@ DBG("DUMP");
          _f.kSg [s].min,
          _f.kSg [s].flt
       );
-   DBG("lrn: lpBgn=`d lpEnd=`d pg=`d veloSng=`d veloRec=`d",
-      _lrn.lpBgn, _lrn.lpEnd, _pg, _lrn.veloSng, _lrn.veloRec
+   DBG("lrn: lpBgn=`s lpEnd=`s pg=`d veloSng=`d veloRec=`d",
+      TmSt(t1,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd),
+      _pg, _lrn.veloSng, _lrn.veloRec
    );
 /*
    DBG("mapD shh ht inp ctl vol pan snd");

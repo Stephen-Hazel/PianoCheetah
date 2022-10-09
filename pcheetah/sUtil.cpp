@@ -1127,7 +1127,7 @@ void Song::TmpoPik (char o_r)
   TrkEv *e;
   MidiEv m;
 // lookup tmpo track
-TRC("TmpoPik origRecorded=`c", o_r);
+TRC("TmpoPik `s", (o_r == 'o') ? "orig" : "recd");
    for (t = 0;  t < _f.trk.Ln;  t++)  if (TDrm (t))  break;
    if (t >= _f.trk.Ln)  return;        // no tempo track??  nothin ta do
 
@@ -1135,12 +1135,12 @@ TRC("TmpoPik origRecorded=`c", o_r);
    for (cc = 0;  cc < _f.ctl.Ln;  cc++)
       if (! StrCm (_f.ctl [cc].s, CC("tmpo")))  {cc |= 0x80;   break;}
    if (! (cc & 0x80))  return;         // no tempo control??  outa herez
-TRC("tempo track=`d cc=`d e=`d ne=`d", t, cc, _f.trk [t].e, _f.trk [t].ne);
+TRC("   tempo trk=`d cc=x`02x ne=`d", t, cc, _f.trk [t].ne);
 
 // wipe existing
    for (e = _f.trk [t].e, p = 0;  p < _f.trk [t].ne;)
       {if (e [p].ctrl == cc)  EvDel (t, p);   else p++;}
-TRC("new ne=`d", _f.trk [t].ne);
+TRC("   new ne=`d", _f.trk [t].ne);
    m.ctrl = cc;
    if (o_r == 'o')
       for (p = 0;  p < _f.tpo.Ln;  p++) {
@@ -1156,5 +1156,5 @@ TRC("new ne=`d", _f.trk [t].ne);
          m.val2 = (ubyte)(_dn [p].tmpo >> 8);
          EvInsT (t, & m);
       }
-TRC("TmpoPik done");
+TRC("TmpoPik end");
 }

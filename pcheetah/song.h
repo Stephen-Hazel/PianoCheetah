@@ -13,10 +13,10 @@
 #define LHLRN  'b'
 #define LPRAC  'c'
 #define LPLAY  'd'
-#define HEAR  (Up.lrn == 'a')
-#define HLRN  (Up.lrn == 'b')
-#define PRAC  (Up.lrn == 'c')
-#define PLAY  (Up.lrn == 'd')
+#define  HEAR  (Up.lrn == LHEAR)
+#define  HLRN  (Up.lrn == LHLRN)
+#define  PRAC  (Up.lrn == LPRAC)
+#define  PLAY  (Up.lrn == LPLAY)
 
 extern void   CInit ();
 extern QColor CMap (ubyte n);
@@ -72,9 +72,7 @@ struct RecDef  {ubyt4 tm, ms;};        // map o all rec evs
 struct LrnDef {
    bool  vwNt, ez, rHop;               // any TSho() tracks;  ez mode;  sync2rec
    char  pLrn, hand;                   // prev lrn mode;  hand: \0=none/L/R/B
-   bool  hLrn,                         // hear ?ez instead of rec?  set in HopTo
-         dWip;                         // wipe on ntDn?
-   ubyte hVal;                         //    if so, hold val pre ntDn
+   bool  hLrn;                         // hear ?ez instead of rec?  set in HopTo
    ubyt4 lpBgn, lpEnd;                 // current loop's bgn,end times
    bool  POZ,                          // paused?
          chd;                          // w of cue area
@@ -262,7 +260,7 @@ private:
    void  DrawSym (SymDef *s, ColDef *co);
    void  DrawPg  (ubyt4 pp);
    void  DrawNow ();
-   void  Draw    ();                   // da top o notation drawin
+   void  Draw    (char all = '\0');    // da top o notation drawin
 
 // song.cpp
    void  PutTp   (ubyt2 tp);

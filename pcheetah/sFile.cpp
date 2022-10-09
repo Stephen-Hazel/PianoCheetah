@@ -465,6 +465,7 @@ TRC("Load fn=`s", fn);
       StrAp (_f.dsc, buf);   StrAp (_f.dsc, CC("\n"));
    }
    DscLoad ();
+   _rcrd = HEAR ? false : true;        // just listenin?
 
 TRC("init _f.ev, _f.trk[].e, build _f.ctl[].s");
    _f.maxEv = st [TB_EVT].NRow () + MAX_RCRD;    // couple extra but wtf :)
@@ -661,7 +662,7 @@ MDrm2Str(t2,_f.mapD [t].inp), MDrm2Str(t1,_f.mapD [t].ctl),
 _f.mapD [t].vol, _f.mapD [t].pan, _f.mapD [t].snd);
    DrumExp ();                         // SetBnk happens in DrumExp
    _f.got = true;                      // SetChn happens in TmHop
-   ReDo ();   SetLp ('i');
+   SetLp ('i');   ReDo ();
 if (App.trc)  Dump ();
    SetSym ();
    if (_rcrd)  Cmd (CC("timeBar1"));   else TmHop (mint);

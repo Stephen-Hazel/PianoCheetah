@@ -858,7 +858,10 @@ TRC("DrawPg `d", pp);
 
    //__________________________________
    // fade nonloop if in prac mode
-      if ((Up.lrn == LPRAC) || (_lrn.pLrn == LPRAC)) {
+      if ((PRAC || (_lrn.pLrn == LPRAC))) {
+TStr s1,s2,s3,s4;
+DBG("lpBgn=`s lpEnd=`s tMn=`s tMx=`s",
+TmSt(s1,_lrn.lpBgn), TmSt(s2,_lrn.lpEnd), TmSt(s3,tMn), TmSt(s4,tMx));
          if ((_lrn.lpBgn > tMx) || (_lrn.lpEnd < tMn))     // all faded
             Up.cnv.Blt (*Up.fade, co.x, 0, x-co.x, co.h, 0, 0, 1, 1);
          else {
@@ -1006,7 +1009,7 @@ TRC("DrawNow end");
 }
 
 
-void Song::Draw ()
+void Song::Draw (char all)
 // see where _now puts us page/trans wise.  DrawPg/trans if diff than last time
 { ubyt4 n, p, np;
   ubyt2 x, y, w, h,  xa, wa, ha, xb, yb;
@@ -1016,7 +1019,8 @@ void Song::Draw ()
   ColDef  co;
    if (Up.pm == nullptr)  return;
    Up.cnv.bgn (Up.pm);   Up.tcnv.bgn (Up.tpm);
-TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d", TmSt(d1,_rNow), _pag.Ln, _pg, _tr);
+TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d all=`c",
+TmSt(d1,_rNow), _pag.Ln, _pg, _tr, all);
    if (_pag.Ln == 0) {                 // nothin therez yet - cls
       Up.cnv.RectF  (0, 0, Up.w, Up.h, CWHITE);
       MemSet (& Up.tpos, 0, sizeof (QRect));
@@ -1028,9 +1032,9 @@ TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d", TmSt(d1,_rNow), _pag.Ln, _pg, _tr);
           ((p+1 >= np) || (n <  pg [p+1].col [0].blk [0].tMn)) )  break;
    if (p >= np)  --p;
    t = ((p+1 < np) && (n >= Bar2Tm (pg [p+1].col [0].blk [0].bar-1))) ? 1:0;
-   if ((p+1 != _pg) || (t != _tr)) {
+   if (all || (p+1 != _pg) || (t != _tr)) {
 TRC(" new pg,tr: _pg=`d _tr=`d p=`d t=`d", _pg, _tr, p, t);
-      if (p+1 != _pg)  {_pg = p+1;   DrawPg (p);}
+      if (all || (p+1 != _pg))  {_pg = p+1;   DrawPg (p);}
       if (t) {                         // trans - draw next pg, last bar on top
          MemCp (& co, & pg [p].col [pg [p].nCol-1], sizeof (co));
          x = co.x;   y = co.blk [co.nBlk-1].y;

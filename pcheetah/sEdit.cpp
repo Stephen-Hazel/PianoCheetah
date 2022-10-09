@@ -247,8 +247,7 @@ TRC("setCtl tr=`d p=`d tm=`d ctl=`s val=`s", tr, p, tm, c, s);
          {ReEv ();   _prac = true;   Pract ();   ReDo ();   return;}
    }
    else {                              // need SOME track to put it in...
-      if ( (! StrCm (c, CC("ksig"))) ||     // these HAVE to go in drum trak, et
-c
+      if ( (! StrCm (c, CC("ksig"))) ||     // these HAVE to go in drum trak
            (! StrCm (c, CC("tsig"))) || (! StrCm (c, CC("tmpo"))) ) {
          for (tr = 0;  tr < _f.trk.Ln;  tr++)  if (TDrm (tr))  break;
          if (tr >= _f.trk.Ln)

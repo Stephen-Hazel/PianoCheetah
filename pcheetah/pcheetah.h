@@ -15,6 +15,7 @@
 #include "ui_dlgtsg.h"
 #include "ui_dlgksg.h"
 #include "ui_dlgmov.h"
+#include "ui_dlghlp.h"
 #include "ctlNt.h"
 #include "song.h"
 
@@ -181,7 +182,7 @@ signals:
 private:
    ulong _cp, _tm, _tm1;
    bool  _got;
-   void ReDo (); 
+   void ReDo ();
    void Set  (char *s);
    void UnDo ();
    void Pop  ();
@@ -317,6 +318,29 @@ private:
 
 //______________________________________________________________________________
 QT_BEGIN_NAMESPACE
+namespace Ui { class DlgHlp; }
+QT_END_NAMESPACE
+
+class DlgHlp: public QDialog {
+   Q_OBJECT
+
+public:
+   explicit DlgHlp (QWidget *parent = nullptr)
+   : QDialog (parent)
+   {  ui = new Ui::DlgHlp;   ui->setupUi (this);  }
+  ~DlgHlp ()         {delete ui;}
+
+   void Init (), Quit (), Open (), Shut ();
+   void closeEvent (QCloseEvent *e)  {(void)e;   Shut ();}
+
+private:
+   Ui::DlgHlp *ui;
+   CtlTabl    _t;
+};
+
+
+//______________________________________________________________________________
+QT_BEGIN_NAMESPACE
 namespace Ui { class PCheetah; }
 QT_END_NAMESPACE
 
@@ -348,6 +372,7 @@ private:
    DlgTSg      *_dTSg;
    DlgKSg      *_dKSg;
    DlgMov      *_dMov;
+   DlgHlp      *_dHlp;
    QThread      _thr;
 
    void SongRand (), SongKill (), SongRate ();

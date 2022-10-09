@@ -240,7 +240,7 @@ void PCheetah::Upd (QString upd)
 { TStr  u, s;
   ubyte i;
    StrCp (u, UnQS (upd));
-//DBG("Upd `s", u);
+TRC("Upd `s", u);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, CC(UCmd [i].cmd)))  break;
    if (i < NUCmd) {
       if (i > 5) {emit sgCmd (s);   return;}
@@ -290,8 +290,7 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, CC("tbPoz")))
       Up.tbbPoz->setIcon (*Up.tbiPoz [Up.uPoz ? 1 : 0]);
    if (! StrCm (u, CC("tbLrn")))
-      Up.tbbLrn->setIcon (*Up.tbiLrn [(Up.lrn == LPLAY) ? 1 :
-                                     ((Up.lrn == LPRAC) ? 2 : 0)]);
+      Up.tbbLrn->setIcon (*Up.tbiLrn [PLAY ? 1 : (PRAC ? 2 : 0)]);
    if (! StrCm (u, CC("lyr"))) {
      CtlText t (ui->lyr);
      QColor  fg = t.Fg (), hi = t.Hi ();
@@ -301,7 +300,7 @@ void PCheetah::Upd (QString upd)
         ubyte b = Up.lyrHiB, e = Up.lyrHiE;
         TStr  s;
          StrCp (s, Up.lyr);
-//DBG("lyr='`s' b=`d e=`d", Up.lyr, Up.lyrHiB, Up.lyrHiE);
+TRC("lyr='`s' b=`d e=`d", Up.lyr, Up.lyrHiB, Up.lyrHiE);
          if (b)  {s [b] = '\0';     t.SetFg (fg);   t.Add (s);}
          StrCp (s, & Up.lyr [b]);   s [e-b] = '\0';
                                     t.SetFg (hi);   t.Add (s);
@@ -345,6 +344,7 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
   ubyte i;
   key   k;
   TStr  s;
+//DBG("keypressEvent raw m=`d k=`d", e->modifiers (), e->key ());
    if (! (k = km.Map (e->modifiers (), e->key ())))  return;
    StrCp (s, km.Str (k));
 DBG("keypressEvent `s", s);
@@ -352,6 +352,12 @@ DBG("keypressEvent `s", s);
    if (i < 6)                        Upd (UCmd [i].cmd);
    if (i < NUCmd)             emit sgCmd (UCmd [i].cmd);
    if (! StrCm (s, CC("d")))  emit sgCmd ("dump");
+   if (! StrCm (s, CC("f01"))) {
+DBG("help vis=`b", _dHlp->isVisible ());
+      if (_dHlp->isVisible ())  _dHlp->Shut ();
+      else                      _dHlp->Open ();
+//    _dHlp->MoveSc ("tr");
+   }
 }
 
 
@@ -499,7 +505,7 @@ TRC("  lyr,tr,nt init");
       "^Dev.Chan\0"
       ">Notes\0"
       ">Ctrls\0", TrPop);
-   _tr.SetRowH (Gui.FontH ());
+   _tr.SetRowH (Gui.FontH ()+1);
 
    ui->tr->setContextMenuPolicy (Qt::CustomContextMenu);
    connect (ui->tr, & QTableWidget::itemClicked, this, & PCheetah::TrClk);
@@ -526,6 +532,7 @@ TRC("  dlg init");
    _dKSg = new DlgKSg (this);   _dKSg->Init ();
    _dFng = new DlgFng (this);   _dFng->Init ();
    _dMov = new DlgMov (this);   _dMov->Init ();
+   _dHlp = new DlgHlp (this);   _dHlp->Init ();
    connect (_dFL,  & QDialog::accepted, this, & PCheetah::LoadGo);
    connect (_dFL,  & QDialog::rejected, this, & PCheetah::Quit);
    connect (_dTDr, & DlgTDr::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
@@ -565,7 +572,7 @@ TRC("  Win,dlg save");
    delete _dFL;    delete _dCfg;   delete _dTDr;
    delete _dCue;   delete _dChd;   delete _dCtl;
    delete _dTpo;   delete _dTSg;   delete _dKSg;
-   delete _dFng;   delete _dMov;
+   delete _dFng;   delete _dMov;   delete _dHlp;
 TRC("  thrEnd");
    _thr.quit ();   _thr.wait ();
 TRC("  kick=`s", Kick);

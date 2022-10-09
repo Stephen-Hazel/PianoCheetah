@@ -29,6 +29,7 @@ set(PROJECT_SOURCES
         dlgtpo.ui
         dlgtsg.ui
         dlgksg.ui
+        dlghlp.ui
         pcheetah.cpp
         ctlNt.cpp
         dlgFL.cpp
@@ -42,6 +43,7 @@ set(PROJECT_SOURCES
         dlgTpo.cpp
         dlgTSg.cpp
         dlgKSg.cpp
+        dlgHlp.cpp
         song.cpp
         sTime.cpp
         sDevTyp.cpp
