@@ -662,7 +662,7 @@ MDrm2Str(t2,_f.mapD [t].inp), MDrm2Str(t1,_f.mapD [t].ctl),
 _f.mapD [t].vol, _f.mapD [t].pan, _f.mapD [t].snd);
    DrumExp ();                         // SetBnk happens in DrumExp
    _f.got = true;                      // SetChn happens in TmHop
-   SetLp ('i');   ReDo ();
+   ReDo ();
 if (App.trc)  Dump ();
    SetSym ();
    if (_rcrd)  Cmd (CC("timeBar1"));   else TmHop (mint);

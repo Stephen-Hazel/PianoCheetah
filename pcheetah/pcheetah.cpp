@@ -240,7 +240,7 @@ void PCheetah::Upd (QString upd)
 { TStr  u, s;
   ubyte i;
    StrCp (u, UnQS (upd));
-TRC("Upd `s", u);
+//TRC("Upd `s", u);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, CC(UCmd [i].cmd)))  break;
    if (i < NUCmd) {
       if (i > 5) {emit sgCmd (s);   return;}
@@ -300,7 +300,7 @@ TRC("Upd `s", u);
         ubyte b = Up.lyrHiB, e = Up.lyrHiE;
         TStr  s;
          StrCp (s, Up.lyr);
-TRC("lyr='`s' b=`d e=`d", Up.lyr, Up.lyrHiB, Up.lyrHiE);
+//TRC("lyr='`s' b=`d e=`d", Up.lyr, Up.lyrHiB, Up.lyrHiE);
          if (b)  {s [b] = '\0';     t.SetFg (fg);   t.Add (s);}
          StrCp (s, & Up.lyr [b]);   s [e-b] = '\0';
                                     t.SetFg (hi);   t.Add (s);

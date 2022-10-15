@@ -10,7 +10,7 @@ void Song::Shush (bool tf)
   bool   got;
   ubyte  t, dt;
   ubyt2  craw;
-DBG("Shush `b", tf);
+TRC("Shush `b", tf);
    for (t = 0;  t < Up.rTrk;  t++)  if (! TLrn (t)) {
       mo = Up.dev [_f.trk [t].dev].mo;
       got = false;                     // already did w my dev,chn?
@@ -185,7 +185,7 @@ void Song::RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL)
    if (ev->chan == 9) {                // drums are just a dev to lookup
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && TDrm (t))
                {*d  = _f.trk [t].dev;   *c  = 9;   break;}
-DBG("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
+TRC("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
       return;
    }
 
@@ -203,7 +203,7 @@ DBG("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
          else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
       }
    }
-DBG("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
+TRC("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
 }
 
 
@@ -297,7 +297,7 @@ void Song::SetMSec (ubyt4 p, MidiEv *ev)
   ubyt4 ne, tm, nm, dn, ms, msA, tk, i;     // num, den, ev, actual msec, tick
   ubyte n, t, ent, edr, nt, dr;
   sbyte h;
-  bool  cl = false;
+  char  cl = '\0';
   TStr  ts;
   NtDef *na;
   TrkEv *e, te;
@@ -320,8 +320,8 @@ TRC(" settin tmpo");
    tp = TmpoAt (_dn [p-1].time, 'a');
 
 // clip if beyond +-1/4 of lrn tempo
-   if      (nm < (ubyt4)(tp-tp/4))  {nm = tp-tp/4;   cl = true;}
-   else if (nm > (ubyt4)(tp+tp/4))  {nm = tp+tp/4;   cl = true;}
+   if      (nm < (ubyt4)(tp-tp/4))  {nm = tp-tp/4;   cl = 's';}
+   else if (nm > (ubyt4)(tp+tp/4))  {nm = tp+tp/4;   cl = 'f';}
 
 // store it
    _dn [p-1].tmpo = TmpoSto ((ubyt2)nm);   _dn [p-1].clip = cl;
@@ -488,7 +488,7 @@ void Song::NtGet (MidiEv *ev)
    if (! MNTDN (ev)) {
       _lrn.rec [dr][nt].tm = _lrn.rec [dr][nt].ms = 0;
       ev->val2 = _lrn.recLH [nt];
-DBG("NtGet NtUp val2=$`02x", ev->val2);
+TRC("NtGet NtUp val2=$`02x", ev->val2);
       return;
    }
 

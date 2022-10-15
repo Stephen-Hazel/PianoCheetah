@@ -66,8 +66,9 @@ TRC("g");
 
 
 void Song::Hey (char *msg)
-{  StrCp (Up.hey, msg);   PutLy ();
+{
 TRC("hey=`s", msg);
+   StrCp (Up.hey, msg);   PutLy ();
 }
 
 void Song::Die (char *msg)  { TStr s;   emit sgUpd (StrFmt (s, "die `s", msg));}
@@ -292,27 +293,6 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
          if (tL8r2 < tL8r)  {draw = true;   _onBt = false;   tL8r = tL8r2;}
       }
 
-   // hoppin from ] back to paired [ if prac or review of prac
-      if ((PRAC || (_lrn.pLrn == LPRAC)) && _lrn.lpEnd &&
-                                   (_now >= _lrn.lpEnd)) {
-TStr s1,s2;
-TRC(" eoLoop a `s lpBgn=`s lpEnd=`s", LrnS (), TmSt(s1,_lrn.lpBgn),
-                                               TmSt(s2,_lrn.lpEnd));
-      // TRICKY :/ TimeHop () resets lrn to pLrn
-        bool rv = _lrn.pLrn ? false : true;      // kick review?
-         Cmd (CC("timeBar1"));                   // or turn prac back on
-         SetLp ('.');
-         if (rv) {
-            _lrn.pLrn = Up.lrn;   Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
-            TmpoPik ('r');
-            _lrn.POZ = false;   Poz (false);
-         }
-         else
-            RecWipeQ ();               // kill rec evs
-TRC("Put end - eoLoop b `s", LrnS ());
-         return;
-      }
-
    // time to bump _pDn?
       if (_lrn.vwNt && (PRAC || PLAY))  while ((_pDn+1 < _dn.Ln) &&
                                                (_now >= _dn [_pDn+1].time))
@@ -337,6 +317,27 @@ _timer->MS ());
 TRC("Put end - due to poz");
             return;
          }
+      }
+
+   // hoppin from ] back to paired [ if prac or review of prac
+      if ((PRAC || (_lrn.pLrn == LPRAC)) && _lrn.lpEnd &&
+                                   (_now >= _lrn.lpEnd)) {
+TStr s1,s2;
+TRC(" eoLoop a `s lpBgn=`s lpEnd=`s", LrnS (), TmSt(s1,_lrn.lpBgn),
+                                               TmSt(s2,_lrn.lpEnd));
+      // TRICKY :/ TimeHop () resets lrn to pLrn
+        bool rv = _lrn.pLrn ? false : true;      // kick review?
+         Cmd (CC("timeBar1"));                   // or turn prac back on
+         SetLp ('.');
+         if (rv) {
+            _lrn.pLrn = Up.lrn;   Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
+            TmpoPik ('r');
+            _lrn.POZ = false;   Poz (false);
+         }
+         else
+            RecWipeQ ();               // kill rec evs
+TRC("Put end - eoLoop b `s", LrnS ());
+         return;
       }
 
    // plow thru only rec n lrn trks from .p to _now and dump stuff to midiout

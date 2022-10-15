@@ -29,8 +29,8 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
 // very similar to DrawPg, but just a rect instead of DrawSym, etc (read it 1st)
 { ubyte nt, dnt, t, tt, dPos, c, ncc,      tp;
   ubyt2 nx, cx, h, x, x1, x2, y, y2, th = Up.txH, tpMn, tpMx, vl, v2;
-  bool  drm, got, cl;
-  char  bad;
+  bool  drm, got;
+  char  bad, cl;
   ubyt4 tMn, tMx, pMn, pMx, t1, t2, p, ne, tDn, tUp, on [128];
   TStr  str;
   TrkEv  *e, ev;
@@ -111,14 +111,18 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
                x1 = (th-2)*(vl-tpMn)/(tpMx-tpMn);
                y  = Tm2Y (t1, & co);
 //DBG("t  x1=`d y=`d", x1, y);
-               Up.cnv.RectF (x+x1, y, 2, y2-y+1, cl?CSclD[2]:CBLACK);
+               Up.cnv.RectF (x+x1, y, 2, y2-y+1,
+                              (cl=='s')?CSclD[4]:
+                             ((cl=='f')?CSclD[0]:CBLACK));
                if (v2) {
                   if      (x1 < x2) Up.cnv.RectF (x+x1, y2, x2-x1+1, 2, CBLACK);
                   else if (x1 > x2) Up.cnv.RectF (x+x2, y2, x1-x2+1, 2, CBLACK);
                }
             }
-            if (v2)  Up.cnv.RectF (x+x2-1, y2-1, 4, 4,
-                                   dn [p].clip?CSclD[2]:CBLACK);
+            if (v2) {  cl = dn [p].clip;
+                       Up.cnv.RectF (x+x2-1, y2-1, 4, 4,
+                                      (cl=='s')?CSclD[4]:
+                                     ((cl=='f')?CSclD[0]:CBLACK)); }
             t1 = t2;   vl = v2;        // ^ dot at x2,y2
                        cl = dn [p].clip;
          }
@@ -842,14 +846,14 @@ TRC("DrawPg `d", pp);
       }
 
    //__________________________________
-   // bugs on top of tmpo if hit >= 3
+   // bugs on top of tmpo
       if (tpo) {
         ubyt2 dw, dh, w = Up.bug->width (), h = Up.bug->height ();
          ne = _f.bug.Ln;
          for (p = 0;  (p < ne) && (_f.bug [p].time < tMn);  p++)  ;
-         for (;       (p < ne) && (_f.bug [p].time < tMx);  p++)
-                            if ((hit = (sbyte)Str2Int (_f.bug [p].s)) > 1) {
-            dh = h/2 + (hit-2) * 5*h/4 / 7;
+         for (;       (p < ne) && (_f.bug [p].time < tMx);  p++) {
+            hit = (sbyte)Str2Int (_f.bug [p].s) - 1;
+            dh = h/2 + hit * 5*h/4 / 8;
             dw = w*dh/h + ((w*dh%h >= h/2) ? 1:0);
             Up.cnv.Blt (*Up.bug, cx, Tm2Y (_f.bug [p].time, & co), dw, dh,
                                                               0, 0, w,  h);
@@ -859,9 +863,6 @@ TRC("DrawPg `d", pp);
    //__________________________________
    // fade nonloop if in prac mode
       if ((PRAC || (_lrn.pLrn == LPRAC))) {
-TStr s1,s2,s3,s4;
-DBG("lpBgn=`s lpEnd=`s tMn=`s tMx=`s",
-TmSt(s1,_lrn.lpBgn), TmSt(s2,_lrn.lpEnd), TmSt(s3,tMn), TmSt(s4,tMx));
          if ((_lrn.lpBgn > tMx) || (_lrn.lpEnd < tMn))     // all faded
             Up.cnv.Blt (*Up.fade, co.x, 0, x-co.x, co.h, 0, 0, 1, 1);
          else {

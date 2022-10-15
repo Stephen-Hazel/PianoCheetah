@@ -1,4 +1,4 @@
-﻿// glo.h - global vars sigh
+// glo.h - global vars sigh
 
 #ifndef GLO_H
 #define GLO_H
@@ -36,7 +36,7 @@ const ubyt4 SND_NONE = 0xFFFFFFFF;     // no sound
 struct NtDef   {ubyte t, nt;   ubyt4 p;};   // evTrk, melo/drum nt, evPos
 
 struct DownRow {ubyt4 time;  ubyte w, nNt;  NtDef nt [14]; // prac/play defs
-                ubyt4 msec;  ubyt2 tmpo;  bool clip;};     // tmpo rec'd at
+                ubyt4 msec;  ubyt2 tmpo;  char clip;};     // tmpo rec'd at
                                             // w used by TrkEZ,  any nt missed
 struct TrkNt   {ubyt4 dn, up, tm, te;   ubyte nt;   bool ov;};
 
@@ -113,7 +113,7 @@ private:
 
 
 //______________________________________________________________________________
-// edit pos junkss   
+// edit pos junkss
 struct PosDef {
    char  at, got, drg;                 // sEdit.cpp docs these
    ubyt4 pg, co, tm, sy, p;            // page, column, time, symbol, trk ev pos

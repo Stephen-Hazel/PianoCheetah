@@ -192,7 +192,6 @@ private:
    ubyt4 Y2Tm    (ubyt2 y, ColDef *co);
    ubyt4 SilPrv  (ubyt4 tm), SilNxt  (ubyt4 tm);
    ubyt4 NtDnPrv (ubyt4 tm), NtDnNxt (ubyt4 tm);
-   void  SetLp   (char dir);
    void  ReCtl   ();                   // map all DevTyps w song's _ctl[]s
    void  CtlClean();                   // redo _ctl[] to just used ones sorted
    ubyt4 ReEv    ();                   // redo _tpo,_tSg,_kSg,_tEnd,etccccc
@@ -250,6 +249,7 @@ private:
    void  ReTrk   ();                   // give gui _trk info ta draw
    void  BarH    (ubyt2 *h, ubyte *sb, ubyt2 b);
    void  SetDn   (char q = '\0'),      // default to no quantize
+         SetLp   (char dir),
          SetNt   (),
          SetSym  ();
    void  ReDo    ();

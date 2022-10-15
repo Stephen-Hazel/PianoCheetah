@@ -227,7 +227,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
   TStr    s, s2, cs;
   char    c, ct;
   TrkEv  *e;
-//DBG("Song::MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
+DBG("Song::MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
    if (! b) {
       MsPos (x, y);   //DbgPos ();
       switch (Up.pos.at) {
@@ -247,20 +247,20 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          MemCp (& co, & pg->col [Up.pos.co], sizeof (co));
         ubyte  nt,  tr = co.sym [Up.pos.sy].tr;
         bool        dr = TDrm (tr);
-//DBG("pg=`d co=`d sy=`d", Up.pos.pg, Up.pos.co, Up.pos.sy);
+DBG("pg=`d co=`d sy=`d", Up.pos.pg, Up.pos.co, Up.pos.sy);
         ubyt4  tm, te;
         TrkEv *ev = NULL;
          if (TEz (tr)) {
             tm = te =   co.sym [Up.pos.sy].tm;
             nt = (ubyte)co.sym [Up.pos.sy].nt;
             te += (M_WHOLE/8*3/4);
-//DBG("ez      tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
+DBG("ez      tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
          }
          else {
            TrkNt *n = & _f.trk [tr].n [co.sym [Up.pos.sy].nt];
             tm = n->tm;   te = n->te;   nt = n->nt;
             if (n->dn != NONE)  ev = & _f.trk [tr].e [n->dn];
-//DBG("dr/real tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
+DBG("dr/real tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
          }
          TmSt           (s , tm);    StrAp (s, CC("-"));
          StrAp (s, TmSt (s2, te));   StrAp (s, CC(" "));
@@ -342,7 +342,7 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
   char  ct;
   PagDef *pg;
   ColDef  co;
-//DBG("Song::MsUp x=`d y=`d b=`d", x, y, b);   DbgPos ();
+DBG("Song::MsUp x=`d y=`d b=`d", x, y, b);   DbgPos ();
    if (! (b == Qt::LeftButton))  return;
 
    if (Up.pos.drg)  Up.drag.setWidth (0);        // clear it out
@@ -374,11 +374,9 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
          if (*Up.pos.str == '(')       // chop section time to bar
             Up.pos.tm = Bar2Tm (Tm2Bar (Up.pos.tm));
          TxtIns (Up.pos.tm, Up.pos.str, & _f.cue, 'c');
-         ReDo ();
       }
       else
          emit sgUpd ("dCue");          // dlg fer ins/upd/del cue
-      SetLp ('.');
       _pg = 0;
       if (! Up.pos.pPoz) Poz (false);
    }
@@ -435,5 +433,7 @@ DBG("HEY str=`s etc=`s st=`s", Up.pos.str, Up.pos.etc, st);
       else                              PreFng ();
       if (! Up.pos.pPoz) Poz (false);
    }
+DBG("MsUp end");
    Up.pos.drg = '\0';
+   ReDo ();
 }

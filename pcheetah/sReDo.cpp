@@ -61,6 +61,7 @@ TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
 }
 
 
+//______________________________________________________________________________
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
 { ubyte t, c, d, nn, x;
@@ -131,7 +132,7 @@ t, p, ne, TmSt(s1,e [p].time), TmSt(s2,tm));
          _dn [_dn.Ln].time = tm;
          _dn [_dn.Ln].msec = 0;
          _dn [_dn.Ln].tmpo = 0;
-         _dn [_dn.Ln].clip = false;
+         _dn [_dn.Ln].clip = '\0';
          nn = 0;
          if (_lrn.ez) {                // ez - max o one per trk
             d = 0;
@@ -186,6 +187,123 @@ t, p, ne, TmSt(s1,e [p].time), TmSt(s2,tm));
 //    for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
    }
 TRC("SetDn end");
+}
+
+
+//______________________________________________________________________________
+static int LpCmp (void *p1, void *p2)  // by .t desc, .b desc, .tm
+{ sbyt4 *i1 = (sbyt4 *)p1, *i2 = (sbyt4 *)p2, d;
+   if ((d = i2 [2] - i1 [2]))  return d;
+   if ((d = i2 [3] - i1 [3]))  return d;
+   return   i1 [0] - i2 [0];
+}
+
+void Song::SetLp (char dir)
+// i=init to worst loop;  .=refresh(but no TmHop)  <,>=hop  f=focus
+// [cues, _dn, _bug=> calcd loops then set curr lpBgn,lpEnd n adj tempo %
+// make sure _dn is SET !
+{ ubyt4 p, x, xt, l, nl, nlB, tMn, tMx, in;
+  bool  usex = true;                   // set _lrn.lp* to lp[x] ?
+  TStr  ts, t2;
+  struct {ubyt4 tm, te, t, b, mx;} lp [4096];
+// tm-te is time range;  t is #distinct times for bugs, b is total bugs
+// mx is total possible distinct times from dn
+
+TRC("SetLp dir=`c _now=`s   loops:", dir, TmSt (ts, _now));
+// gather cue [s to remake lp[];  pick start time of loop we're in based on _now
+   nl = xt = 0;
+   for (p = 0;  p < _f.cue.Ln;  p++)
+      if (_f.cue [p].tend && (_f.cue [p].s [0]=='[')) {
+      // set lp[nl].tm - .te;  .mx = #_dn[]s;  .t,.b set later
+         lp [nl].tm = _f.cue [p].time;   lp [nl].te = _f.cue [p].tend;
+                                         lp [nl].t = lp [nl].b = lp [nl].mx = 0;
+         for (x = 0;  x < _dn.Ln;  x++)  if ((_dn [x].time >= lp [nl].tm) &&
+                                             (_dn [x].time <  lp [nl].te))
+            lp [nl].mx++;
+//DBG("   `d `s-`s mx=`d",
+//nl, TmSt(ts, lp [nl].tm), TmSt(t2, lp [nl].te), lp [nl].mx);
+      // usually want 2nd loop of an overlap cuz we're usually sittin at lpBgn
+      // so 2nd time thru will set xt again
+         if ((_now >= lp [nl].tm) && (_now <= lp [nl].te))  xt = lp [nl].tm;
+         nl++;
+      }
+
+// cleanup any junky bugs outside CURRENT loops
+   for (p = 0;  p < _f.bug.Ln;) {
+      for (in = l = 0;  l < nl;  l++)  if ((_f.bug [p].time >= lp [l].tm) &&
+                                           (_f.bug [p].time <= lp [l].te))
+         {in = 1;   break;}
+      if (in) p++;   else _f.bug.Del (p);
+   }
+TRC(" _now's lp.tm=`s nLp=`d   bugs:", xt?TmSt(ts, xt):"outside", nl);
+
+// count up distinct times n bug totals
+   for (p = 0;  p < _f.bug.Ln;  p++) {
+//DBG("   `d tm=`s n=`s", p, TmSt (ts, _f.bug [p].time), _f.bug [p].s);
+      for (l = 0;  l < nl;  l++)  if ((_f.bug [p].time >= lp [l].tm) &&
+                                      (_f.bug [p].time <= lp [l].te)) {
+      // lp[].t = #distinct times of bugs, .b = total bugs
+         lp [l].t++;   lp [l].b += (Str2Int (_f.bug [p].s) - 1);
+//DBG("   lp=`d now #times=`d #bugs=`d", l, lp [l].t, lp [l].b);
+      }
+   }
+   Sort (lp, nl, sizeof (lp[0]), LpCmp);    // by #times desc,#bugs desc,time
+
+// nlB = nLp with any bugs
+   nlB = nl;   while (nlB && lp [nlB-1].t == 0)  nlB--;
+TRC(" lp[] final  (nlB=`d)", nlB);
+for (l = 0;  l < nl;  l++)  TRC("   `d tb=`s te=`s #times=`d/`d #bugs=`d",
+l, TmSt(ts,lp [l].tm), TmSt(t2,lp [l].te), lp [l].t, lp [l].mx, lp [l].b);
+
+   if (dir == 'i')  x = 0;             // init loop to worst (top o list)
+   else {                              // refind loop havin xt for lpBgn
+      for (x = 0;  x < nl;  x++)  if (lp [x].tm == xt)  break;
+      if (x >= nl)                     // outside all lps?  use worst one
+         {x = 0;   if (dir == 'f')  dir = '.';}  // aaand focus/un => .
+TRC(" cur lp#=`d/`d", x, nl);
+      if      (dir == '<')  {if (x)         x--;}
+      else if (dir == '>')  {if (x+1 < nl)  x++;}
+TRC(" post<> lp#=`d", x);
+
+   // focus/un?  plow thru bug times again repickin lpBgn,lpEnd
+      else if (dir == 'f') {
+TRC("focus");
+         tMn = M_WHOLE*9999;   tMx = 0;
+         for (p = 0;  p < _f.bug.Ln;  p++) {
+            xt = _f.bug [p].time;
+            if ((xt >= lp [x].tm) && (xt <= lp [x].te))
+               {if (xt < tMn)  tMn = xt;   if (xt > tMx)  tMx = xt;}
+         }
+         tMn = NtDnNxt ((tMn < M_WHOLE/4) ? 0 : (tMn - M_WHOLE/4));
+         tMx = NtDnPrv (                         tMx + M_WHOLE/4 );
+         if ((_lrn.lpBgn == lp [x].tm) && (_lrn.lpEnd == lp [x].te)) {
+            _lrn.lpBgn = tMn;   _lrn.lpEnd = tMx;     // FOCUS !!
+            usex = false;                             // already did
+         }                                            // else restore
+      }
+   }
+   if (usex) {                         // gotta set em?  or did focus do it alrd
+      if (nl) {_lrn.lpBgn = lp [x].tm;   _lrn.lpEnd = lp [x].te;}
+      else    {_lrn.lpBgn = 0;           _lrn.lpEnd = _tEnd;}
+   }
+   if (dir != '.')  TmHop (_lrn.lpBgn);
+   if (x >= nlB)
+      Hey (StrFmt (ts, "in bugless loop #`d", x+1));
+   else {
+      Hey (StrFmt (ts, "in bug loop #`d of `d  (bugs=`d)", x+1, nlB, lp [x].t));
+      if (PRAC) {
+         if (lp [x].mx == 0)
+DBG("BUG!  _dn not set for SetLp() in sUtil.cpp");    // in case /0 :/
+         in = (lp [x].t * 100) / lp [x].mx;
+         if      (in < 25)  _f.tmpo = FIX1;
+         else if (in < 50)  _f.tmpo = FIX1 * 80 / 100;
+         else               _f.tmpo = FIX1 * 60 / 100;
+         p = TmpoAt (_timer->Get ());
+TRC(" in%=`d so _f.tmpo=`d TmpoAct=`d",  in, _f.tmpo, p);
+         DscSave ();   PutTp ((ubyt2)p);   ReTrk ();
+      }
+   }
+TRC("SetLp end - bgn=`s end=`s", TmSt(ts,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd));
 }
 
 
@@ -737,8 +855,8 @@ TRC(" redo vwNt/ez/rHop");
 TRC(" vwNt=`b ez=`b rHop=`b hand=`c", _lrn.vwNt, _lrn.ez, _lrn.rHop, _lrn.hand);
 TRC(" set icos");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
-TRC(" ReEv; SetDn; SetNt; TmHop");
-   ReEv ();   SetDn ();   SetNt ();   TmHop (_now);
-   _pg = _tr = 0;   SetSym ();   Draw ();   ReTrk ();   DscSave ();
+TRC(" ReEv; SetDn; SetNt; SetLp; TmHop");
+   ReEv ();   SetDn ();   SetNt ();   SetLp ('.');   TmHop (_now);
+   _pg = _tr = 0;   SetSym ();   Draw ('a');   ReTrk ();   DscSave ();
 TRC("ReDo end");
 }

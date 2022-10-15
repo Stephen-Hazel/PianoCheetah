@@ -88,7 +88,7 @@ TRC("OpenMIn");
 
    // send local control off (cc 122 0) if MidiO of same name exists
       if (Midi.Get ('o', iname, xs, xs, xs)) {
-DBG("   Local Control=OFF for `s", iname);
+TRC("   Local Control=OFF for `s", iname);
          mo = new MidiO (iname, 'n');
          if (! mo->Dead ())
             {e [0] = M_CTRL;   e [1] = M_LOCAL;   e [2] = 0;   mo->PutMEv (e);}
@@ -111,7 +111,7 @@ TRC("ShutMIn");
 
    // send local control back on (cc 122 7F) if MidiO of same name exists
       if (Midi.Get ('o', nm, xs, xs, xs)) {
-DBG("   Local Control=ON for `s", nm);
+TRC("   Local Control=ON for `s", nm);
          mo = new MidiO (nm, 'n');
          if (! mo->Dead ())
             {e [0] = M_CTRL;   e [1] = M_LOCAL;   e [2] = 0x7F;
