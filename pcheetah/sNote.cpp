@@ -557,8 +557,8 @@ TRC("DrawPg `d", pp);
          {if (x > cx) Up.cnv.RectF (x, 0, 1, co.h, CBBg);   x += th;}
 
    // draw bars/beats/subbeats background lines - 1st time is beat just b4 tMn
-      for (bt = 0, t1 = tMn;  t1 < tMx;  t1 = t2, bt++) {
-         y = Tm2Y (t1, & co, & bl);   tn = 0;
+      for (tn= bt = 0, t1 = tMn;  t1 < tMx;  t1 = t2, bt++) {
+         y = Tm2Y (t1, & co, & bl);   sb = bl->sb;
         char *bp;
          TmStr (str, t1, & t2);   bp = 1 + StrCh (str, '.');
          if (! StrCm (bp, CC("1"))) {  // beat 1 = bar:  dk bar
@@ -567,9 +567,9 @@ TRC("DrawPg `d", pp);
             tn = ((tn < 6) || (tn % 3)) ? 0 : (tn / 3);    // compound tsig num?
             bt = 0;
          }
-         else                          // color "sub compound" lighter
+         else if (sb)                  // color "sub compound" lighter
             Up.cnv.RectF (nx, y, nw, 1, (tn && (bt % 3)) ? CBt : CDBLU);
-         if ((sb = bl->sb) > 1)  while (--sb) {       // loop thu any subbt
+         if (sb > 1)  while (--sb) {   // loop thu any subbt
             ts = t1 + sb * (t2 - t1) / bl->sb;
             Up.cnv.RectF (nx, Tm2Y (ts, & co), nw, 1, CBBg);
          }

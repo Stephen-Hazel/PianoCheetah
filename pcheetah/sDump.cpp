@@ -134,14 +134,15 @@ DBG("DUMP");
          _cch [t].val2,
          _cch [t].time
       );
-   DBG("tSg     time  bar num den");
+   DBG("tSg     time  bar num den sub");
    for (s = 0; s < _f.tSg.Ln; s++)
       DBG("`>3d `>8d `>4d `>3d `>3d",
          s,
          _f.tSg [s].time,
          _f.tSg [s].bar,
          _f.tSg [s].num,
-         _f.tSg [s].den
+         _f.tSg [s].den,
+         _f.tSg [s].sub
       );
    DBG("kSg     time key min flt");
    for (s = 0; s < _f.kSg.Ln; s++)

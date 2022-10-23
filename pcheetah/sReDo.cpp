@@ -1,4 +1,4 @@
-// sReDo.cpp - init alll the data structs for learn mode tracks
+// sReDo.cpp - init alll the data structs  ...and junk
 
 #include "song.h"
 
@@ -476,38 +476,62 @@ TRC("SetNt end");
 
 
 void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
+// return h n subbeat of bar
 { bool  mt, got [9];
   ubyt4 md, tb, te, nn, p, btdur, sbdur, t1, st [9];
   ubyte sub, t, s;
   TSgRow *ts;
   TrkNt  *n;
-   tb = Bar2Tm (bar);   te = Bar2Tm (bar+1);   ts = TSig (tb);
-   if (ts->sub > 1) {                  // gonna check for ntDns outside bt spots
-      sbdur = (btdur = M_WHOLE / ts->den) / ts->sub;
-      MemSet (got, 0, sizeof (got));
-      for (t = 0;  t < ts->sub;  t++)  st [t] = (t * btdur / ts->sub) + sbdur/2;
+   tb = Bar2Tm (bar);   te = Bar2Tm (bar+1);
+   ts = TSig (tb);
+//DBG("BarH `d  `d/`d.`d", bar, ts->num, ts->den, ts->sub);
+   btdur = (M_WHOLE * ts->num / ts->den) / ts->num;
+   sbdur = btdur / ts->sub;
+// if tsig HAS subbt, try to reduce from .4=>.2=>.1 etc  (else can't even try)
+   if (ts->sub > 1) {
+      MemSet (got, 0, sizeof (got));   // default to no notes on subbts
+   // subbt time - st - time within BEAT dur of subbt boundaries (halfway thru)
+      for (t = 0;  t < ts->sub;  t++)  st [t] = (t * sbdur) + sbdur/2;
+//DBG("   btdur=`d sbdur=`d got[]=F, st:", btdur, sbdur);
+//for(t=0;t<ts->sub;t++)DBG("      `d `d", t, st[t]);
    }
-   mt = true;   md = te - tb;
+
+// empty (or notes only on bar line)?
+// mindur of fully contained notes (of shown tracks)
+// if doin subbt n NtDn in bar, set got[subbt]
+   mt = true;   md = btdur;
    for (t = 0;  t < Up.rTrk;  t++)  if (TSho (t))
       for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn;  p++)
-      // any note hittin bar makes it non empty
-         if ((n [p].te >= tb) && (n [p].tm < te)) {
-            mt = false;
-         // find min dur of notes completely within
-            if ( (n [p].tm >= tb) && (n [p].te <= te) &&
-                ((n [p].te - n [p].tm + 1) < md) )
+         if ((n [p].tm >= tb) && (n [p].tm < te)) {
+            if ((n [p].tm - tb) >= sbdur/2)  mt = false;   // NOPE !
+
+            if ( (n [p].te <= te) && ((n [p].te - n [p].tm + 1) < md) ) {
                md = n [p].te - n [p].tm + 1;
-         // mark subbt if tsig has, note starts in bar
-            if ( (ts->sub > 1) && (n [p].tm >= tb) && (n [p].tm < te) ) {
-            // get offset from beat in ticks
+//TStr d1,d2;
+//DBG("      now mindur=`d cuz tr=`d `s `s",
+//md, t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
+            }
+
+         // mark subbt if tsig has - offset from beat in ticks
+            if (ts->sub > 1) {
                t1 = n [p].tm - tb;   while (t1 >= btdur)  t1 -= btdur;
                for (s = 0;  s < ts->sub;  s++)  if (t1 < st [s])  break;
-               if (s && (s < ts->sub))  got [s] = true;
-            }                          // don't care bout "on beat" subbeats
+            // don't care bout "on beat" subbeats
+               if (s && (s < ts->sub) && (! got [s])) {
+//TStr d1,d2;
+//DBG("      now got[`d] TRUE cuz tr=`d `s `s",
+//s,  t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
+                  got [s] = true;
+               }
+            }
          }
+//DBG("   empty=`b mindur=`d, got:", mt, md);
+//if (ts->sub > 1) for(t=0;t<ts->sub;t++)DBG("      `d `d", t, got[t]);
+
    sub = 1;
    if (ts->sub > 1) {                  // see if subbt can be lessened
-      for (s = 0;  s < ts->sub;  s++)  if (got [s])  {sub = ts->sub;   break;}
+      for (s = 1;  s < ts->sub;  s++)  if (got [s])  {sub = ts->sub;   break;}
+//DBG("   init sub=`d", sub);
       switch (sub) {                   // see bout a lower div if got empty stuf
          case 4:                       // 1 . x .  makes sb=2 work
             if ((! got [1]) && (! got [3]))  sub = 2;
@@ -532,19 +556,33 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
             break;
       }
    }
-//DBG("BarH bar=`d mt=`b sub=`d md=`d", bar, mt, sub, md);
-   *sb = sub;                          // store subbeat
-// default to MAX barh - max magnif is barDur*5/16
-   *h = (ubyt2)((te - tb)*5/16);
-// usually, noteh = ntDur * barh / barDur;  calc (less) barh if md's h >14
-   if ((md*5/16) > 14)                 // then shrink so h of mindur is 14
-      *h = (ubyt2)(14 * (te - tb) / md);
+   if (mt)  sub = 0;                   // only need bar line
+//DBG("   sub=`d", sub);
+   *sb = sub;                          // store subbeat (1=beat,2+ subbt)
+
+// default to MAX barh  (768 => 240)
+   *h = (ubyt2)((te - tb) * 5 / 16);
+//DBG("   default h(max)=`d", *h);
+
+// usually, noteh = ntDur * barh / barDur
+// calc less barh if md's h >14  (make sure short notes can be seen)
+   if ((md*5/16) > 14) {               // shrink so h of mindur is 14
+      *h = (ubyt2)((te - tb) * 14 / md);
+//DBG("   shrink so h of mindur is 14=`d", *h);
+   }
+
 // got subbt>1 - expand h if needed
-   if ((sub > 1) && (*h < (ts->num * ts->sub * 8)))
-      *h =                (ts->num * ts->sub * 8);
-// absolute min bar h
-   if (mt)  *h = ts->num * 10;
-//DBG("   final h=`d sub=`d", *h, *sb);
+   if ((sub > 1) && (*h < (ubyt2)((te - tb) * 14 / (btdur / sub)))) {
+      *h =                (ubyt2)((te - tb) * 14 / (btdur / sub));
+//DBG("   expand h cuz subbt>1=`d", *h);
+   }
+// absolute min bar h  (768 => 40)
+   if (mt) {
+      *h = (ubyt2)((te - tb) * 5 / 96);
+//DBG("   mt so min h=`d", *h);
+   }
+
+//DBG("BarH end - h=`d sub=`d", *h, *sb);
 }
 
 

@@ -227,7 +227,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
   TStr    s, s2, cs;
   char    c, ct;
   TrkEv  *e;
-DBG("Song::MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
+//DBG("Song::MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
    if (! b) {
       MsPos (x, y);   //DbgPos ();
       switch (Up.pos.at) {
@@ -247,20 +247,20 @@ DBG("Song::MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
          MemCp (& co, & pg->col [Up.pos.co], sizeof (co));
         ubyte  nt,  tr = co.sym [Up.pos.sy].tr;
         bool        dr = TDrm (tr);
-DBG("pg=`d co=`d sy=`d", Up.pos.pg, Up.pos.co, Up.pos.sy);
+//DBG("pg=`d co=`d sy=`d", Up.pos.pg, Up.pos.co, Up.pos.sy);
         ubyt4  tm, te;
         TrkEv *ev = NULL;
          if (TEz (tr)) {
             tm = te =   co.sym [Up.pos.sy].tm;
             nt = (ubyte)co.sym [Up.pos.sy].nt;
             te += (M_WHOLE/8*3/4);
-DBG("ez      tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
+//DBG("ez      tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
          }
          else {
            TrkNt *n = & _f.trk [tr].n [co.sym [Up.pos.sy].nt];
             tm = n->tm;   te = n->te;   nt = n->nt;
             if (n->dn != NONE)  ev = & _f.trk [tr].e [n->dn];
-DBG("dr/real tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
+//DBG("dr/real tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
          }
          TmSt           (s , tm);    StrAp (s, CC("-"));
          StrAp (s, TmSt (s2, te));   StrAp (s, CC(" "));
@@ -271,7 +271,7 @@ DBG("dr/real tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
          if (! dr)  StrAp (s, StrFmt (s2, ".`d", _f.trk [tr].chn+1));
          Hey (s);
       }
-DBG("Up.pos=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
+//DBG("Up.pos=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
       if ((Up.pos.at == 'x') && Up.pos.got) {
          e = &      _f.trk [Up.pos.tr].e [Up.pos.p];
          StrCp (cs, _f.ctl [Up.pos.ct].s);
@@ -342,7 +342,7 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
   char  ct;
   PagDef *pg;
   ColDef  co;
-DBG("Song::MsUp x=`d y=`d b=`d", x, y, b);   DbgPos ();
+//DBG("Song::MsUp x=`d y=`d b=`d", x, y, b);   DbgPos ();
    if (! (b == Qt::LeftButton))  return;
 
    if (Up.pos.drg)  Up.drag.setWidth (0);        // clear it out
@@ -393,7 +393,7 @@ DBG("Song::MsUp x=`d y=`d b=`d", x, y, b);   DbgPos ();
          StrCp  (Up.pos.str, st);
          StrFmt (Up.pos.etc, "setCtl `d `d `d `s ",
                  Up.pos.got ? Up.pos.tr : 128, Up.pos.p, Up.pos.tm, c);
-DBG("HEY str=`s etc=`s st=`s", Up.pos.str, Up.pos.etc, st);
+//DBG("HEY str=`s etc=`s st=`s", Up.pos.str, Up.pos.etc, st);
          if      (! StrCm (c, CC("ksig")))  {emit sgUpd ("dKSg");   *st = '\0';}
          else if (! StrCm (c, CC("tsig")))  {emit sgUpd ("dTSg");   *st = '\0';}
          else if (! StrCm (c, CC("tmpo")))  {emit sgUpd ("dTpo");   *st = '\0';}
@@ -433,7 +433,7 @@ DBG("HEY str=`s etc=`s st=`s", Up.pos.str, Up.pos.etc, st);
       else                              PreFng ();
       if (! Up.pos.pPoz) Poz (false);
    }
-DBG("MsUp end");
+//DBG("MsUp end");
    Up.pos.drg = '\0';
    ReDo ();
 }
