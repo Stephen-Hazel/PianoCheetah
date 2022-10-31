@@ -180,21 +180,6 @@ DBG("DUMP");
    for (s = 0; s < _f.bug.Ln; s++)
       DBG("`d `s `s", s, TmSt(t1,_f.bug [s].time), _f.bug [s].s);
 
-  ubyt2                      nl = 0;
-  struct {ubyt4 tm; sbyte b;} l [4096];
-   for (s = 0;  s < _f.cue.Ln;  s++)
-      if (_f.cue [s].tend && (_f.cue [s].s [0] == '['))
-         {l [nl].tm = _f.cue [s].time;   l [nl].b = 0;   nl++;}
-  ubyt4 p;
-   for (s = 0;  s < _f.bug.Ln;  s++)  if (Str2Int (_f.bug [s].s) >= 3) {
-      for (p = 0;  p+1 < nl;  p++)  if (_f.bug [s].time < l [p+1].tm)  break;
-      if (p < nl)  l [p].b++;
-      else DBG("bug `d tm=`d hits=`s not in loop?",
-               s, _f.bug [s].time, _f.bug [s].s);
-   }
-   for (s = 0;  s < nl;  s++)
-      DBG("`d tm=`s bg=`d", s, TmSt (t1, l [s].tm), l [s].b);
-
 /*
 TStr d1;
    DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p");

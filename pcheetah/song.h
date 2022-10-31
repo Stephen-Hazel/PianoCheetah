@@ -167,7 +167,7 @@ private:
    bool  CCEd    (char *cSt, char *cMod, ubyte dev, MidiEv *ev);
    void  CCInit  (ubyte tr, char *cc, ubyte val);
    void  NtGet   (MidiEv *ev);
-   void  SetMSec (ubyt4 p, MidiEv *ev);
+   void  SetMSec (ubyt4 p, MidiEv *ev, char dir = 'h');    // here/forward
    void  RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL);
    void  RecDvCh (ubyte ti,
                   TrkEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL);

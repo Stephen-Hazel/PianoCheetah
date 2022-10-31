@@ -156,7 +156,6 @@ char Song::DnOK (char nxt)             // \0=current(default) or n[ext]
   ubyt4 pt, ms, mn, mx;
   char  ok, in;
   DownRow *dn;
-//DBG("{ DnOK `c", nxt);
    dn = & _dn [_pDn];   pt = _pDn ? _dn [_pDn-1].time : 0;
    if (nxt)  {if (_pDn+1 >= _dn.Ln)  return 'n';
               dn = & _dn [_pDn+1];   pt = _dn [_pDn].time;}
@@ -173,7 +172,7 @@ char Song::DnOK (char nxt)             // \0=current(default) or n[ext]
    }
 // even if all ok, if some nts not hit together, back to not ok-ish
    if ((ok == 'y') && (in == 'y') && ((mx-mn) > 100))  ok = 'a';
-//DBG("} DnOK `c", ok);
+TRC("DnOK `c=> `c", nxt?nxt:' ', ok);
    return ok;                          // y/n/a[gain]
 }
 
@@ -185,7 +184,7 @@ void Song::RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL)
    if (ev->chan == 9) {                // drums are just a dev to lookup
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && TDrm (t))
                {*d  = _f.trk [t].dev;   *c  = 9;   break;}
-TRC("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
+//TRC("RecDvChM dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
       return;
    }
 
@@ -203,7 +202,7 @@ TRC("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
          else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
       }
    }
-TRC("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
+//TRC("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
 }
 
 
@@ -215,6 +214,7 @@ void Song::RecDvCh (ubyte ti,
    if (ti == Up.rTrk) {                // drums are just a dev to lookup
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && TDrm (t))
                {*d  = _f.trk [t].dev;   *c  = 9;   break;}
+//TRC("RecDvChT dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
       return;
    }
 
@@ -232,6 +232,7 @@ void Song::RecDvCh (ubyte ti,
          else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
       }
    }
+//TRC("RecDvChT dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
 }
 
 
@@ -263,14 +264,14 @@ TRC("PozIns EvIns tr=`d drm=`d ne=`d p=`d", t, d, ne, p);
                ep->time = _now;   ep->ctrl = c;   ep->val2 = ep->x = 0;
                ep->valu = (ubyte)(_lrn.toRec [d][c] & 0x00FF);
                _f.trk [t].nb--;
-TRC("`s^`d t=`d nn=`d nb=`d", MKey2Str (d1, c), ep->valu & 0x007F,
+TRC("   `s^`d t=`d nn=`d nb=`d", MKey2Str (d1, c), ep->valu & 0x007F,
 t, _f.trk [t].nn, _f.trk [t].nb);
                ep++;
             }
             if (   _lrn.toRec [d][0x80|c] & 0x0080   ) {   // ctrls
                ep->time = _now;   ep->ctrl = 0x80|c;   ep->val2 = ep->x = 0;
                ep->valu = (ubyte)(_lrn.toRec [d][0x80|c] & 0x007F);
-TRC("`s $`02x", _f.ctl [c].s, ep->valu);
+TRC("   `s $`02x", _f.ctl [c].s, ep->valu);
                ep++;
             }
          }
@@ -281,7 +282,7 @@ TRC("`s $`02x", _f.ctl [c].s, ep->valu);
                ep->valu = (ubyte)(_lrn.toRec [d][c] & 0x00FF);
                ep->val2 = (ubyte)(_lrn.toRec [d][c] >> 8);
                _f.trk [t].nn++;   _f.trk [t].nb++;
-TRC("`s_`d t=`d nn=`d nb=`d", MKey2Str (d1, c), ep->valu & 0x007F,
+TRC("   `s_`d t=`d nn=`d nb=`d", MKey2Str (d1, c), ep->valu & 0x007F,
 t, _f.trk [t].nn, _f.trk [t].nb);
                ep++;
             }
@@ -292,12 +293,12 @@ t, _f.trk [t].nn, _f.trk [t].nb);
 }
 
 
-void Song::SetMSec (ubyt4 p, MidiEv *ev)
-{ ubyt2 tp;
-  ubyt4 ne, tm, nm, dn, ms, msA, tk, i;     // num, den, ev, actual msec, tick
+void Song::SetMSec (ubyt4 p, MidiEv *ev, char dir)
+{ ubyt2 tpP, tpR, tpS;
+  ubyt4 ms, msR, tk, nm, dn, ne, tm, i;
   ubyte n, t, ent, edr, nt, dr;
   sbyte h;
-  char  cl = '\0';
+  char  cl;
   TStr  ts;
   NtDef *na;
   TrkEv *e, te;
@@ -305,66 +306,74 @@ void Song::SetMSec (ubyt4 p, MidiEv *ev)
 TRC("SetMSec  p=`d _pDn=`d ms=`d", p, _pDn, ms);
    if (_dn [p].msec)  return;          // already got 1st note
 
-TRC(" settin msec");
+TRC(" set msec");
    _dn [p].msec = ms;   _dn [p].tmpo = 0;   if (p)  _dn [p-1].tmpo = 0;
    if ( (p == 0) || (_dn [p-1].msec == 0) || (ms <= _dn [p-1].msec) )
-      return;                          // ^ somethin not right msA wise
+      return;                          // ^ somethin not right msR wise
 
-TRC(" settin tmpo");
-   msA = ms - _dn [p-1].msec;          // actual ms in recording
+// msec = tick*625/(tmpo*2)   so tmpo=tick*625/(msec*2)
+   msR = ms - _dn [p-1].msec;          // actual ms in recording
+   tk  = _dn [p].time - _dn [p-1].time;
+   nm  = tk * 625;                     // num,den of rec tempo
+   dn  = msR * 2;
+   tpR = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );  // round it
 
-// prescribed msec = tick*625/tmpo*2
-   tk = _dn [p].time - _dn [p-1].time;
-   nm = tk * 625;   dn = msA * 2;      // played (actual) tempo
-   nm = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );   // round it
-   tp = TmpoAt (_dn [p-1].time, 'a');
+// clip if beyond +-1/4 of prescribed tempo (learn track tempo)
+   tpP = TmpoAt (_dn [p-1].time, 'a');
+   if      (tpR < (ubyt4)(tpP-tpP/4))  {tpS = tpP-tpP/4;   cl = 's';}
+   else if (tpR > (ubyt4)(tpP+tpP/4))  {tpS = tpP+tpP/4;   cl = 'f';}
+   else                                {tpS = tpR;         cl = '\0';}
 
-// clip if beyond +-1/4 of lrn tempo
-   if      (nm < (ubyt4)(tp-tp/4))  {nm = tp-tp/4;   cl = 's';}
-   else if (nm > (ubyt4)(tp+tp/4))  {nm = tp+tp/4;   cl = 'f';}
-
-// store it
-   _dn [p-1].tmpo = TmpoSto ((ubyt2)nm);   _dn [p-1].clip = cl;
-   tp = (ubyt2)nm;                     // just usin new rec'd tp now
+// store it.  just usin new tpS from now on
+   _dn [p-1].tmpo = TmpoSto ((ubyt2)tpS);
+   _dn [p-1].clip = cl;
+TRC(" msR=`d-`d=`d  tpRecd=`d tpPrescribed=`d clip=`c tpClipped=`d tpStored=`d",
+_dn[p-1].msec, ms, msR,  tpR, tpP, cl?cl:' ', tpS, _dn [p-1].tmpo);
 
 // update bug arr
-   tm = _dn [p-1].time;   ne = _f.bug.Ln;
+   tm = _dn [p].time;   ne = _f.bug.Ln;
    for (i = 0;  (i < ne) && (_f.bug [i].time < tm-6);  i++)  ;
-//TStr s1,s2;
-//DBG("bug i=`d/`d=`s tm=`s", i, ne, TmSt(s1,_f.bug [i].time), TmSt(s2, tm));
+TStr s1,s2;
+TRC(" bug pos=`d/`d  bugTm=`s dnTm=`s",
+i, ne, (i<ne)?TmSt(s1,_f.bug [i].time):"-", TmSt(s2, tm));
    if ( (i < ne) && (_f.bug [i].time > tm-6) &&
                     (_f.bug [i].time < tm+6) ) { // got existing bug to upd/del
       h = (sbyte)Str2Int (_f.bug [i].s);
       if (cl)  {if (h < 9)  h++;}   else h--;    // bump hits per clip
+TRC("    bug upd `s=>`d", _f.bug [i].s, h);
       if (h > 0)  StrCp (_f.bug [i].s, Int2Str (h, ts));
       else        _f.bug.Del (i);
    }
-   else if (cl)  TxtIns (tm, CC("1"), & _f.bug);      // got new bug to ins
+   else if (cl) {
+      TxtIns (tm, CC("1"), & _f.bug);      // got new bug to ins
+TRC("    bug ins");
+   }
 
 // adj .time given tempo n .msec, for other notes
    ent = (ubyte)ev->ctrl;   edr = (ev->chan == 9) ? 1 : 0;
    for (na = _dn [p].nt,  n = 0;  n < _dn [p].nNt;  n++)
                if ( (na [n].nt != ent) || ((TDrm (na [n].t) ? 1 : 0) != edr) ) {
       nt =           na [n].nt;   dr =      TDrm (na [n].t) ? 1 : 0;
-      t = Up.rTrk+1 - dr;
+      t  = Up.rTrk+1 - dr;
       tm = _lrn.rec [dr][nt].tm;
-TStr d1,d2,d3;TRC(" hop nt=`s t=`d tm=`s", MKey2Str(d1,nt), t, TmSt(d3, tm));
+TStr d1,d2,d3;
+TRC(" hop nt=`s tr=`d tm=`s", MKey2Str(d1,nt), t, TmSt(d3, tm));
    // ok, get it, kill it, reIns it w new time
       for (e = _f.trk [t].e, ne = _f.trk [t].ne;  ne;) {
          ne--;
-//DBG(" ne=`d nt=`s tm=`s valu=`d",
-//ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
+TRC(" ne=`d nt=`s tm=`s valu=`d",
+ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
          if (e [ne].time <= _dn [p-1].time)  break;
          if ((e [ne].ctrl == nt) && ENTDN (& e [ne]) && (e [ne].time <= tm)) {
             MemCp (& te, & e [ne], sizeof (te));
             EvDel (t, ne);
-            msA = ms - _lrn.rec [0][nt].ms;
+            msR = ms - _lrn.rec [0][nt].ms;
          // tick = msec*tmpo*2/625
-            nm = msA*tp*2;   dn = 625;
+            nm = msR*tpS*2;   dn = 625;
             nm = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );
             te.time = _dn [p].time - nm;
             if (te.time < _pNow)  _pNow = te.time;
-TRC(" upd ntDn=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
+TRC("    upd ntDn=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
             EvInsT (t, & te);
          // argh - gotta restore .nn,.nb cuzu prev EvDel :/
             _f.trk [t].nn--;   _f.trk [t].nb--;
@@ -373,19 +382,19 @@ TRC(" upd ntDn=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
       }
       for (e = _f.trk [t].e, ne = _f.trk [t].ne;  ne;) {
          ne--;
-//DBG(" ne=`d nt=`s tm=`s valu=`d",
-//ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
+TRC(" ne=`d nt=`s tm=`s valu=`d",
+ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
          if (e [ne].time < tm)  break;
          if ((e [ne].ctrl == nt) && ENTUP (& e [ne]) && (e [ne].time == tm)) {
             MemCp (& te, & e [ne], sizeof (te));
             EvDel (t, ne);
-            msA = ms - _lrn.rec [0][nt].ms;
+            msR = ms - _lrn.rec [0][nt].ms;
          // tick = msec*tmpo*2/625
-            nm = msA*tp*2;   dn = 625;
+            nm = msR*tpS*2;   dn = 625;
             nm = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );
             te.time = _dn [p].time - nm;
             if (te.time < _pNow)  _pNow = te.time;
-TRC(" upd ntUp=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
+TRC("    upd ntUp=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
             EvInsT (t, & te);
          // argh - gotta restore .nn,.nb cuzu prev EvDel :/
             _f.trk [t].nb++;
@@ -536,7 +545,7 @@ tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"));
    // PutNt/CC till now on trk if < tLate;  till pDn+1 time if < tSoon
       if (tr < (ubyte)0x80) {
          _lrn.velo [_f.trk [tr].lrn - '1'] = ev->valu & 0x7F;
-TRC("bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
+TRC(" bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
          for (e = _f.trk [tr].e,  ne = _f.trk [tr].ne,  p = _f.trk [tr].p;
               (p < ne) && (e [p].time <= t);  p++) {
             if (ECTRL (& e [p]))  PutCC (tr, & e [p]);
@@ -546,7 +555,7 @@ TRC("bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
                PutNt (tr, & te);
             }
          }
-TRC("bump time b p=`d", p);
+TRC(" bump time b p=`d", p);
          _f.trk [tr].p = p;
       }
       return;
@@ -569,9 +578,9 @@ TRC("bump time b p=`d", p);
               (nt ==        dn->nt [n].nt) ) {   // ding ding ding
             tr = dn->nt [n].t;   kind = 'n';     // next pDn
             if (_lrn.rHop && (DnOK ('n') == 'y')) {   // HOP ok?
-               SetMSec (_pDn+1, ev);                  // BOING !!
+               SetMSec (_pDn+1, ev, 'f');             // BOING !!
                if (! _lrn.POZ) {                      // else PozBuf/Ins unpozs
-TRC("NtGet hard BOING");
+TRC("NtGet hard BOING forward");
                   for (ubyte d = 0;  d < _mi.Ln;  d++)
                      _mi [d].mi->BufAdj ((sbyt4)dn->time-(sbyt4)ev->time);
                   ev->time = dn->time;
@@ -598,7 +607,7 @@ TRC("NtGet hard BOING");
       for (i = 0;  i < _lm.Ln;  i++)  if (ev->time <= _lm [i].tm)  break;
       if (i >= _lm.Ln)  i--;
       ev->val2 = (nt <= _lm [i].nt) ? 0x40 : 0;
-TRC("wrong nt LH=`b", (ev->val2 & 0x40) ? true : false);
+TRC(" wrong nt LH=`b", (ev->val2 & 0x40) ? true : false);
    }
    _lrn.recLH [nt] = ev->val2 & 0x40;
 TRC("NtGet hard lrnTrk=`d `s ht=`s",
@@ -634,18 +643,16 @@ void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte t;
   TStr  cSt, cMod, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
-DBG("EvRcrd `s.`d `s `s",
-// ms=`d\n"
-//"_pNow=`s _rNow=`s _now=`s tmr=`s\n"
-//"_pDn=`d dn.time=`s dn+1.time=`s",
+TRC("EvRcrd `s.`d `s `s\n"
+" ms=`d _pNow=`s _rNow=`s _now=`s tmr=`s\n"
+" _pDn=`d dn.time=`s dn+1.time=`s",
 (dev<_mi.Ln)?_mi [dev].mi->Name ():"kbd", ev->chan+1, TmSt(s1,ev->time),
 (ev->ctrl & 0xFF80)
 ? StrFmt  (s2, "c=`s v=`d v2=`d", MCtl2Str(s3,ev->ctrl), ev->valu, ev->val2)
-: MNt2Str (s4, ev)
-//,
-//ev->msec, TmSt(s5,_pNow),TmSt(s6,_rNow),TmSt(s7,_now),TmSt(s8,_timer->Get ()),
-//_pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn].time):"x",
-//(1+   _pDn<_dn.Ln)?TmSt(sa,_dn [_pDn+1].time):"x"
+: MNt2Str (s4, ev),
+ev->msec, TmSt(s5,_pNow),TmSt(s6,_rNow),TmSt(s7,_now),TmSt(s8,_timer->Get ()),
+_pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
+(1+   _pDn<_dn.Ln)?TmSt(sa,_dn [_pDn+1].time):"x"
 );
    if (! _f.trk.Ln) {                  // no song? - do DlgFL input
       if (MNTDN (ev)) {

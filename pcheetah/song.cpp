@@ -303,7 +303,7 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
 
          if (doPoz && (! _lrn.POZ)) {
 TStr t1,t2,t3;
-TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d",
+TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d (in Song::Put)",
 _pDn, TmSt(t1,_dn[_pDn].time), TmSt(t2,_now), TmSt(t3,_timer->Get ()),
 _timer->MS ());
          // for notes, set bit 7 flag for only notetype (dn/up) to rec w/in poz

@@ -86,7 +86,7 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
          {if (x < (tx += th))  {Up.pos.ct = i;   break;}
           else                  Up.pos.cp++;}
      TrkEv *e;
-     ubyt4 ne;
+     ubyt4 ne, pr;
      TStr  cs;
      bool  cg = false;                 // global ctl? (tmpo,ksig,tsig)
      ubyte tr, td = 255;               // ...so look for it on drum trk
@@ -97,18 +97,24 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
          for (ubyte t = 0;  t < Up.rTrk;  t++)
             if (TDrm (t))  {td = t;   break;}
       }
-      for (tr = 0;  tr < Up.rTrk;  tr++)
-                  if ( (   cg  && (td == tr)) ||
-                       ((! cg) &&  TSho (tr)) ) {
+      for (tr = 0;  tr < Up.rTrk;  tr++)  if ( (   cg  && (td == tr)) ||
+                                               ((! cg) &&  TSho (tr)) ) {
          for (e = _f.trk [tr].e, ne = _f.trk [tr].ne,
               Up.pos.p = 0;  Up.pos.p < ne;  Up.pos.p++)
-            if ( (e [Up.pos.p].ctrl == (0x80|Up.pos.ct)) &&
-                 (e [Up.pos.p].time >= tm1) && (e [Up.pos.p].time <= tm2) )
-               {Up.pos.tr = tr;   Up.pos.got = 'y';   break;}
-         if (Up.pos.got)  break;       // break out ALL the way :/
+            if (e [Up.pos.p].ctrl == (0x80|Up.pos.ct)) {
+               if (e [Up.pos.p].time > tm2)  break;
+               Up.pos.tr     = tr;   Up.pos.got = 'p';   pr = Up.pos.p;
+               if (e [Up.pos.p].time >= tm1)
+                  {Up.pos.tr = tr;   Up.pos.got = 'y';   break;}
+            }
+         if (Up.pos.got) {
+            if (Up.pos.got == 'p')  Up.pos.p = pr;
+            break;       // break out ALL the way :/
+         }
       }
-DBG("pos=x ct=`d cp=`d got=`b tr=`d p=`d tm=`d",
-Up.pos.ct, Up.pos.cp, Up.pos.got, Up.pos.tr, Up.pos.p, Up.pos.tm);
+TStr x1;
+DBG("MsPos at=x ct=`d cp=`d got=`b tr=`d p=`d tm=`s",
+Up.pos.ct, Up.pos.cp, Up.pos.got, Up.pos.tr, Up.pos.p, TmSt(x1,Up.pos.tm));
       return (Up.pos.at = 'x');
    }
 // ok, has ta be nt area so hunt down a symbol
@@ -224,7 +230,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
   ubyt4   t;
   ubyt2   cx, th = Up.txH;
   ubyte   v1;
-  TStr    s, s2, cs;
+  TStr    s, s2, s3, cs;
   char    c, ct;
   TrkEv  *e;
 //DBG("Song::MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
@@ -271,18 +277,28 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          if (! dr)  StrAp (s, StrFmt (s2, ".`d", _f.trk [tr].chn+1));
          Hey (s);
       }
-//DBG("Up.pos=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
-      if ((Up.pos.at == 'x') && Up.pos.got) {
-         e = &      _f.trk [Up.pos.tr].e [Up.pos.p];
-         StrCp (cs, _f.ctl [Up.pos.ct].s);
-         TmSt (s, e->time);   StrAp (s, CC(" "));   StrAp (s, cs);
-         for (t = 0;  t < NMCC;  t++)  if (! StrCm (MCC [t].s, cs))  break;
-         ct = (t >= NMCC) ? 'u' : MCC [t].typ;
-         v1 = e->valu;
-         if (! StrCm (cs, CC("tmpo")))
-            StrAp (s, StrFmt (s2, "=`d", TmpoAct (v1 | e->val2 << 8)));
-         else if (ct != 'x')
-            StrAp (s, StrFmt (s2, "=`d", (ct=='s') ? ((sbyt4)v1-64) : v1));
+DBG(" Up.Pos at=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
+      if (Up.pos.at == 'x') {
+         if (Up.pos.got) {
+            e = &      _f.trk [Up.pos.tr].e [Up.pos.p];
+            StrCp (cs, _f.ctl [Up.pos.ct].s);
+            TmSt (s, e->time);   StrAp (s, CC(" "));   StrAp (s, cs);
+                                                       StrAp (s, CC("="));
+            for (t = 0;  t < NMCC;  t++)  if (! StrCm (MCC [t].s, cs))  break;
+            ct = (t >= NMCC) ? 'u' : MCC [t].typ;
+            v1 = e->valu;
+            if (Up.pos.got == 'y')     // versus 'p' (prev ev)
+               {StrCp (& s [4], s);   MemCp (s, CC("[+] "), 4);}
+            if (! StrCm (cs, CC("tmpo")))
+                 StrAp (s, StrFmt (s2, "`d", TmpoAct (v1 | e->val2 << 8)));
+            else if     (ct != 'x')
+                 StrAp (s, StrFmt (s2, "`d", (ct=='s') ? ((sbyt4)v1-64) : v1));
+            else StrAp (s, CtlX2Str (s2, cs, e));
+         }
+         else {                        // gotta find it
+DBG("  nope");
+            *s = '\0';
+         }
          Hey (s);
       }
       if ( (Up.pos.at == 'q') && Up.pos.got &&
