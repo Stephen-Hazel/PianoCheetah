@@ -582,7 +582,7 @@ void DoFile (char *ifn)
       StrCp (ErrFN, fn);   ErrLine = 0;
       if ((msg = f.DoText (ErrFN, nullptr, DoLine)))  Die (msg);
    }
-   StrCp (ErrFN, pFn);   ErrLine = pLn;   
+   StrCp (ErrFN, pFn);   ErrLine = pLn;
 }
 
 
@@ -596,7 +596,7 @@ char *DoLine (char *b, ubyt2 l, ubyt4 line, void *ptr)
   static ubyte unr = 0;
    (void)ptr;
    ErrLine = line;
-DBG("ErrFN=`s line=`d NE=`d Time=`d", ErrFN, ErrLine, NE, Time);
+//DBG("FN=`s line=`d NE=`d Time=`d", ErrFN, ErrLine, NE, Time);
    if (! StrCm (b, CC("unroll")))  {unr = 1;  return nullptr;}
    if (unr) {
       if (NSct >= BITS (Sct))
