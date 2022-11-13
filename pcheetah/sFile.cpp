@@ -794,7 +794,6 @@ TRC("save fn=`s", fns);
          f.Put (StrFmt (s, "EndTrack `d #ev=`d\n", t+1, _f.trk [t].ne));
       }
       f.Shut ();
-      if (fm [1] == 'b')  App.Run (StrFmt (s, "delsame `s", fns));
    }
 // if (! pracOnly)  TmpoPik ('o');     // restore tempo from having set to rec
    DrumExp (false);
