@@ -46,8 +46,8 @@ struct MapDRow {ubyte ctl, inp, vol, pan;   ubyt4 snd;   bool shh, lrn;
 
 //______________________________________________________________________________
 struct TrkRow  {ubyte  dev, chn,   din, drm,   vol, pan;
-                bool   grp, shh, lrn;       // ^these 2 JUST for syn drum chans
-                char   ht;
+                bool   grp, shh;       // these 2^ JUST for syn drum chans
+                char   lrn, ht;
                 TStr   name;
                 ubyt4  snd;
                 TrkEv *e;
