@@ -1,8 +1,11 @@
 [Desktop Entry]
 Type=Application
-Exec="/opt/app/pcheetah/pcheetah" %F
+Categories=Multimedia;
 Name=PianoCheetah
 GenericName=PianoCheetah
+Comment=Steve's weird midi sequencer for piano practice
+Exec=/opt/app/pcheetah/pcheetah %F
+TryExec=/opt/app/pcheetah/pcheetah %F
 Icon=/opt/app/pcheetah/pcheetah.ico
+Path=
 Terminal=false
-Categories=Multimedia

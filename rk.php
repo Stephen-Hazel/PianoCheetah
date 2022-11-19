@@ -1,24 +1,62 @@
 #!/usr/bin/php
-## rk.php (release kubuntu - cp to /opt/app n create a .deb)
+<?php 
+## rk.php (release kubuntu - cp to /opt/app/$app n create a .deb)
+
+   $app = "pcheetah";   $now = date ('Ymd', time ());
+   $arc = "amd64";   
+   $siz = "2" . "000000";    // just gimme decimal megabytes
    $exe = [
-      'pcheetah', 'midicfg',                               // gui
-      'delsame', 'll', 'mid2song', 'midiimp', 'txt2song'   // background
+      $app, 'midicfg',                                     // gui
+      'delsame', 'll', 'mid2song', 'midimp', 'txt2song'    // background
    ];
-// put in my installed dir
-   foreach ($exe as $e)  system ("sudo cp ../_build/$e/$e  /opt/app/$e");
+// hopefully you send your exe build dirs to src/_build/exe 
+   $src = "/home/sh/_/src";
+   $dst = "/home/sh/_/web/PianoCheetah/download";
 
-// build a dang .deb for kubuntu
-   $dt = date ('Ymd', time ());
-   $dd = "pcheetah_$dt" . "_amd64";
-   system ("cp -r zRelease/kub /opt/app/$dd");
-   foreach ($exe as $e)  system ("cp      ../_build/$e/$e  " . 
-                                 "/opt/app/$dd/opt/app/pcheetah/$e");
+// CASE SENSITIVE filesystem dir to put our dang .deb
+   $top = "/opt/app";        
 
-#
-cp ../_build/delsame/delsame   zRelease/delsame
-cp ../_build/ll/ll             zRelease/ll
-cp ../_build/mid2song/mid2song zRelease/mid2song
-cp ../_build/midicfg/midicfg   zRelease/midicfg
-cp ../_build/midiimp/midiimp   zRelease/midiimp
-cp ../_build/pcheetah/pcheetah zRelease/pcheetah
-cp ../_build/txt2song/txt2song zRelease/txt2song
+   $deb = $app . "_$now" . "_$arc";    // our main .deb prefix / dir / etc
+   $ctl = 
+"Package: $app\n" .
+"Version: $now\n" .
+"Architecture: $arc\n" .
+"Maintainer: " . 
+   "Stephen Hazel<stephen.hazel@gmail.com> https://pianocheetah.app\n" .
+"Description: " . 
+   "PianoCheetah - Steve's weird midi sequencer for piano practice\n" .
+"Priority: optional\n" .
+"Essential: no\n" .
+"Installed-Size: $siz\n" .
+"Source:\n";
+
+// cp to my installed dir
+   foreach ($exe as $e)  system ("sudo cp $src/_build/$e/$e  $top/$app/$e");
+
+// mkdir n cp exes in prep for makin a .deb
+   system ("rm -r                    $top/$deb");
+   system ("cp -r $src/$app/zRel/kub $top/$deb");
+   $lst = "";
+   foreach ($exe as $e) {
+      $ex = "opt/app/$app/$e";
+      system ("cp $src/_build/$e/$e  $top/$deb/$ex");
+      $lst .= " $ex";
+   }
+
+// build debian/control to get our dang dependencies
+   chdir  ("$top/$deb");
+   system ("mkdir DEBIAN");
+   system ("mkdir debian");
+   file_put_contents ("debian/control", $ctl);
+   $out = `dpkg-shlibdeps -v -O $lst`;
+   $d = "";   $f = "shlibs:Depends=";
+   foreach (explode ("\n", $out) as $o) 
+      if (substr ($o, 0, strlen ($f)) == $f)  $d = substr ($o, strlen ($f));
+echo "Depends: $d\n";
+   system ("rm -fr debian");
+   file_put_contents ("DEBIAN/control", $ctl . "Depends: $d\n");
+
+   chdir ($top);
+   system ("dpkg-deb --build --root-owner-group $deb");
+   system ("mv $deb" . ".deb  $dst");
+   system ("rm -fr $deb");
