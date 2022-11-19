@@ -1,0 +1,136 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_APP DIALOGEX 20, 1, 366, 83
+STYLE DS_SETFONT | DS_3DLOOK | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_APPWINDOW
+CAPTION "Lazr"
+FONT 9, "Consolas", 0, 0, 0x1
+BEGIN
+    COMBOBOX        IDC_PICK,1,0,87,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_R,0,22,40,12,ES_RIGHT | ES_NUMBER | NOT WS_BORDER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPR,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,42,22,10,12
+    EDITTEXT        IDC_G,62,22,40,12,ES_RIGHT | ES_NUMBER | NOT WS_BORDER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPG,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,106,22,10,12
+    EDITTEXT        IDC_B,124,22,40,12,ES_RIGHT | ES_NUMBER | NOT WS_BORDER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPB,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,167,22,10,12
+    EDITTEXT        IDC_DWL,0,50,33,12,ES_RIGHT | ES_NUMBER | NOT WS_BORDER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPDWL,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,36,50,10,12
+    EDITTEXT        IDC_SEG,49,50,33,12,ES_RIGHT | ES_NUMBER | NOT WS_BORDER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPSEG,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,85,50,10,12
+    EDITTEXT        IDC_NFR,100,50,33,12,ES_RIGHT | ES_NUMBER | NOT WS_BORDER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPNFR,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,136,50,10,12
+    PUSHBUTTON      "save frame",IDC_SAVEFR,156,50,50,14
+    LTEXT           "Starting...",IDC_MSG,0,75,366,8
+    LTEXT           "rgb",IDC_STATIC,0,15,13,8
+    LTEXT           "dwell, seg, nFrame",IDC_STATIC,0,40,73,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APP                 ICON                    "app.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+1                       RT_MANIFEST             "gui_manifest.xml"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_APP, DIALOG
+    BEGIN
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_APP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

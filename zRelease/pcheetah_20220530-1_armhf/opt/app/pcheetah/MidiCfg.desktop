@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec="/opt/app/pcheetah/midicfg" %F
+Name=MidiCfg
+GenericName=PianoCheetah's Midi Config
+Icon=/opt/app/pcheetah/midicfg.ico
+Terminal=false
+Categories=Multimedia
