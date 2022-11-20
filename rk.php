@@ -1,6 +1,8 @@
 #!/usr/bin/php
 <?php 
 ## rk.php (release kubuntu - cp to /opt/app/$app n create a .deb)
+## you'll wanna first uninstall
+## sudo dpkg -P pcheetah
 
    $app = "pcheetah";   $now = date ('Ymd', time ());
    $arc = "amd64";   
@@ -58,5 +60,9 @@ echo "Depends: $d\n";
 
    chdir ($top);
    system ("dpkg-deb --build --root-owner-group $deb");
-   system ("mv $deb" . ".deb  $dst");
+   system ("cp $deb" . ".deb  $dst");
    system ("rm -fr $deb");
+
+   $ins = "sudo dpkg -i $deb" . ".deb";
+   echo `$ins`;
+   system ("rm $deb" . ".deb");
