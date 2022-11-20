@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php 
 ## rk.php (release kubuntu - cp to /opt/app/$app n create a .deb)
 ## you'll wanna first uninstall
@@ -32,11 +31,8 @@
 "Installed-Size: $siz\n" .
 "Source:\n";
 
-// cp to my installed dir
-   foreach ($exe as $e)  system ("sudo cp $src/_build/$e/$e  $top/$app/$e");
-
-// mkdir n cp exes in prep for makin a .deb
-   system ("rm -r                    $top/$deb");
+// mkdir, cp prep dir n cp exes in prep for makin a .deb
+   system ("rm -r 2>/dev/null        $top/$deb");
    system ("cp -r $src/$app/zRel/kub $top/$deb");
    $lst = "";
    foreach ($exe as $e) {
@@ -58,11 +54,12 @@ echo "Depends: $d\n";
    system ("rm -fr debian");
    file_put_contents ("DEBIAN/control", $ctl . "Depends: $d\n");
 
+// make .deb n cp to dest folder
    chdir ($top);
    system ("dpkg-deb --build --root-owner-group $deb");
-   system ("cp $deb" . ".deb  $dst");
    system ("rm -fr $deb");
+   system ("cp $deb" . ".deb  $dst");
 
-   $ins = "sudo dpkg -i $deb" . ".deb";
-   echo `$ins`;
-   system ("rm $deb" . ".deb");
+// install n kill it
+   $ins = "sudo dpkg -i $deb" . ".deb";   echo `$ins`;
+   system          ("rm $deb" . ".deb");
