@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=MidiConfig
+Comment=PianoCheetah's midi configuration
+Exec=/opt/app/pcheetah/midicfg
+Icon=/opt/app/pcheetah/midicfg.ico
+Categories=AudioVideo;Audio;Midi;
+Terminal=false
