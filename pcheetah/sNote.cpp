@@ -48,9 +48,9 @@ TRC("DrawRec all=`b pp=`d", all, pp);
       }
    }
    else  {pMn = _pNow-1;   pMx = _rNow;}
-TStr d1,d2,d3,d4;
-DBG(" pMn=`s pMx=`s  pNow=`s",
-TmSt(d1,pMn), TmSt(d2,pMx), TmSt(d3,_pNow));
+//TStr d1,d2,d3,d4;
+//DBG(" pMn=`s pMx=`s  pNow=`s",
+//TmSt(d1,pMn), TmSt(d2,pMx), TmSt(d3,_pNow));
 
 // init ctl arr cc[] w ctrl id,type,default value from _f.ctl[],cc.txt
    tp = 0;                             // default to no tempo
@@ -70,11 +70,11 @@ TmSt(d1,pMn), TmSt(d2,pMx), TmSt(d3,_pNow));
             if (tMx <= pMn)  continue;      // NEXT !
             if (tMn >= pMx)  break;         // we're done
 
-            if (t && (pMn <= tMn+M_WHOLE))  pMn = tMn - M_WHOLE;
+            if ((! all) && t && (pMn <= tMn+M_WHOLE))  pMn = tMn - M_WHOLE;
          }                                  // gotta show prev rec tempo
       }
-DBG(" cc=`s col=`d id=$`02x dflt=`d typ=`c",
-cc [ncc].s, ncc, cc [ncc].id, cc [ncc].df, cc [ncc].ty);
+//DBG(" cc=`s col=`d id=$`02x dflt=`d typ=`c",
+//cc [ncc].s, ncc, cc [ncc].id, cc [ncc].df, cc [ncc].ty);
       ncc++;
    }
 
@@ -85,9 +85,9 @@ cc [ncc].s, ncc, cc [ncc].id, cc [ncc].df, cc [ncc].ty);
       if (tMn >= pMx)  break;          // we're done
 
       nx = Nt2X (co.nMn, & co);   cx = CtlX (& co);
-DBG(" col=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d nx=`d cx=`d",
-c,TmSt(d1,tMn),TmSt(d2,tMx),
-MKey2Str(d3,co.nMn),MKey2Str(d4,co.nMx),co.w,co.h,co.x, nx,cx);
+//DBG(" col=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d nx=`d cx=`d",
+//c,TmSt(d1,tMn),TmSt(d2,tMx),
+//MKey2Str(d3,co.nMn),MKey2Str(d4,co.nMx),co.w,co.h,co.x, nx,cx);
       if (tp) {                        // tempo is super special...:/
          x  = cx + (tp-1) * th;
       // go thru prescribed tempo evs, get min,max and adjust w clip for tpMn,Mx
@@ -97,7 +97,7 @@ MKey2Str(d3,co.nMn),MKey2Str(d4,co.nMx),co.w,co.h,co.x, nx,cx);
 
       // if dot at top, no prev val: gotta init tpMn,Mx in loop
          if ((p < ne) && (te [p].time == tMn))  t1 = NONE;
-DBG("  tmpo t1=`s p=`d/`d vl=`d", TmSt(d1,t1), p, ne, vl);
+//DBG("  tmpo t1=`s p=`d/`d vl=`d", TmSt(d1,t1), p, ne, vl);
          for (     ;  (p < ne) && (te [p].time < tMx);  p++) {
             vl = TmpoAct (te [p].val);
             if (t1 == NONE)  {t1 = 0;   tpMn = tpMx = vl;}   // did init
@@ -105,7 +105,7 @@ DBG("  tmpo t1=`s p=`d/`d vl=`d", TmSt(d1,t1), p, ne, vl);
             if (vl > tpMx)   tpMx = vl;
          }
          tpMn -= (tpMn / 4);   tpMx += ( (tpMx / 4) + (((tpMx%4)>=2)?1:0) );
-DBG("  tpMn=`d tpMx=`d p=`d/`d", tpMn, tpMx, p, ne);
+//DBG("  tpMn=`d tpMx=`d p=`d/`d", tpMn, tpMx, p, ne);
 
       // go thru rec tempos n connect n dot em
          dn = & _dn [0];   ne = _dn.Ln;   t1 = NONE;   vl = 0;   cl = '\0';
@@ -114,18 +114,18 @@ DBG("  tpMn=`d tpMx=`d p=`d/`d", tpMn, tpMx, p, ne);
          vl = TmpoAct (vl);            // catch up p to min time
          if      ((vl == 0) || ((p < ne) && (dn [p].time == tMn)))  t1 = NONE;
          else if (t1 < tMn)                                         t1 = tMn;
-DBG("  init t1=`s vl=`d p=`d/`d", TmSt(d1, t1), vl, p, ne);
+//DBG("  init t1=`s vl=`d p=`d/`d", TmSt(d1, t1), vl, p, ne);
 
          for (;       (p < ne) && ((!p) || (dn [p-1].time < tMx));  p++) {
          // dn[p] => v2,t2 => x2,y2  (prev => vl,t1 => x1,y)
             v2 = TmpoAct (dn [p].tmpo);
             t2 = dn [p].time;   if (t2 > tMx)  {t2 = tMx;   v2 = 0;}
-DBG("  p=`d/`d  t1=`s vl=`d  t2=`s v2=`d",
-p, ne,  TmSt(d1, t1), vl,  TmSt(d2, t2), v2);
+//DBG("  p=`d/`d  t1=`s vl=`d  t2=`s v2=`d",
+//p, ne,  TmSt(d1, t1), vl,  TmSt(d2, t2), v2);
             if ((t1 != NONE) && vl) {
                x1 = (th-2)*(vl-tpMn)/(tpMx-tpMn);   y  = Tm2Y (t1, & co);
                x2 = (th-2)*(v2-tpMn)/(tpMx-tpMn);   y2 = Tm2Y (t2, & co);
-DBG("     x1=`d y=`d x2=`d y2=`d cl=`c", x1, y, x2, y2, cl);
+//DBG("     x1=`d y=`d x2=`d y2=`d cl=`c", x1, y, x2, y2, cl);
                qc = CBLACK;   if (cl=='s') qc = CSclD [4]; // slow=>green
                               if (cl=='f') qc = CSclD [0]; // fast=>red
                Up.cnv.RectF (x+x1, y, 2, y2-y+1, qc); // vline vl, t1-t2
@@ -137,7 +137,7 @@ DBG("     x1=`d y=`d x2=`d y2=`d cl=`c", x1, y, x2, y2, cl);
             }
             t1 = t2;   vl = v2;   cl = dn [p].clip;   // 2 becomes 1
          }
-DBG("  end p=`d/`d  t1=`s vl=`d cl=`c", p, ne, TmSt(d1,t1), vl, cl);
+//DBG("  end p=`d/`d  t1=`s vl=`d cl=`c", p, ne, TmSt(d1,t1), vl, cl);
       }
 
    // draw rec notes - cache noteon stuff, draw upon noteoff or end of loop

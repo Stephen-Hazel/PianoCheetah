@@ -434,7 +434,7 @@ void Song::PozBuf (MidiEv *ev, char *cSt)
       if (ch != 9)  craw += Cfg.tran;
       lh = (ev->val2 & 0x40) ? true : false;
 TStr s1,s2;
-TRC("PozNt echo to `s.`d  rTrk=`d  tm=`s tmr=`s",
+DBG("PozNt echo to `s.`d  rTrk=`d  tm=`s tmr=`s",
 Up.dev [lh?dL:dv].mo->Name (), (lh?cL:ch)+1, t,
 TmSt(s1,ev->time), TmSt(s2,_timer->Get ()));
       if (lh)  Up.dev [dL].mo->Put (cL, craw, ev->valu, ev->val2);
@@ -457,13 +457,13 @@ TmSt(s1,ev->time), TmSt(s2,_timer->Get ()));
             if ( (nt ==        _dn [_pDn].nt [n].nt) &&
                  (dr == (TDrm (_dn [_pDn].nt [n].t) ? 1 : 0)) ) {
 TStr s1;
-TRC("PozBuf ntUp rec, reflag ntDn t=`d nt=`s", t, MKey2Str (s1,nt));
+DBG("PozBuf ntUp rec, reflag ntDn t=`d nt=`s", t, MKey2Str (s1,nt));
                EvInsT (t, ev);   _f.trk [t].p++;
                _lrn.toRec [dr][nt] = (ev->val2 << 8) | 0x0080;
             }
    }
    if (ntDn && (DnOK () == 'y')) {     // only ntDn can unpause us
-TRC("PozBuf  UNPOZ !");
+DBG("PozBuf  UNPOZ !");
       PozIns ();   SetMSec (_pDn, ev);      // buf rec trks, adj .time per .msec
       _lrn.POZ = false;   _timer->Set (_now);   Shush (false);   Poz (false);
    }
@@ -643,7 +643,7 @@ void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte t;
   TStr  cSt, cMod, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
-TRC("EvRcrd `s.`d `s `s\n"
+DBG("EvRcrd `s.`d `s `s\n"
 " ms=`d _pNow=`s _rNow=`s _now=`s tmr=`s\n"
 " _pDn=`d dn.time=`s dn+1.time=`s",
 (dev<_mi.Ln)?_mi [dev].mi->Name ():"kbd", ev->chan+1, TmSt(s1,ev->time),
