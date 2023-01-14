@@ -379,8 +379,9 @@ bool Song::EvIns (ubyte t, ubyt4 p, ubyt4 ne)
 
 
 void Song::EvInsT (ubyte t, TrkEv *ev)
-// insert ev based on it's time;  bump nb/nn too if rec trk
-// look for time, scoot ntDn to last of evs w matchin time
+// insert ev based on it's time
+// find time pos.  for ntUp, put it in front of any ntDn w same time&key
+// bump nn,nb if note in rec trk
 { ubyt4 ne, p, x;
   TrkEv *e;
    e = _f.trk [t].e;   ne = _f.trk [t].ne;
@@ -404,7 +405,7 @@ void Song::EvInsT (ubyte t, TrkEv *ev)
 
 
 void Song::EvInsT (ubyte t, MidiEv *ev)
-// same as other EvInsT but w MidiEv
+// same as above EvInsT but w MidiEv
 { ubyt4 ne, p, x;
   TrkEv *e;
    e = _f.trk [t].e;   ne = _f.trk [t].ne;

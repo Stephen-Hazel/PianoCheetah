@@ -373,7 +373,7 @@ ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
             nm = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );
             te.time = _dn [p].time - nm;
             if (te.time < _pNow)  _pNow = te.time;
-TRC("    upd ntDn=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
+DBG("    upd ntDn=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
             EvInsT (t, & te);
          // argh - gotta restore .nn,.nb cuzu prev EvDel :/
             _f.trk [t].nn--;   _f.trk [t].nb--;
@@ -394,7 +394,7 @@ ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
             nm = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );
             te.time = _dn [p].time - nm;
             if (te.time < _pNow)  _pNow = te.time;
-TRC("    upd ntUp=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
+DBG("    upd ntUp=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
             EvInsT (t, & te);
          // argh - gotta restore .nn,.nb cuzu prev EvDel :/
             _f.trk [t].nb++;
@@ -580,7 +580,7 @@ TRC(" bump time b p=`d", p);
             if (_lrn.rHop && (DnOK ('n') == 'y')) {   // HOP ok?
                SetMSec (_pDn+1, ev, 'f');             // BOING !!
                if (! _lrn.POZ) {                      // else PozBuf/Ins unpozs
-TRC("NtGet hard BOING forward");
+DBG("NtGet hard BOING forward");
                   for (ubyte d = 0;  d < _mi.Ln;  d++)
                      _mi [d].mi->BufAdj ((sbyt4)dn->time-(sbyt4)ev->time);
                   ev->time = dn->time;
@@ -607,10 +607,10 @@ TRC("NtGet hard BOING forward");
       for (i = 0;  i < _lm.Ln;  i++)  if (ev->time <= _lm [i].tm)  break;
       if (i >= _lm.Ln)  i--;
       ev->val2 = (nt <= _lm [i].nt) ? 0x40 : 0;
-TRC(" wrong nt LH=`b", (ev->val2 & 0x40) ? true : false);
+DBG(" wrong nt LH=`b", (ev->val2 & 0x40) ? true : false);
    }
    _lrn.recLH [nt] = ev->val2 & 0x40;
-TRC("NtGet hard lrnTrk=`d `s ht=`s",
+DBG("NtGet hard lrnTrk=`d `s ht=`s",
 tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"),
 (ev->val2 & 0x40)?"LH":"RH/HT");
 }
@@ -624,12 +624,12 @@ void Song::Record (MidiEv *ev)
   TStr  s1, s2;
   TrkEv *e;
    t = Up.rTrk;   if (ev->chan != 9)  t++;  // to rec trk (drum or melo)
-TRC("Record t=`d", t);
+DBG("Record t=`d", t);
    if (MNTUP (ev)) {
       for (e = _f.trk [t].e, ne = _f.trk [t].ne,
            p = 0;  p < ne;  p++)  if (e [p].time > ev->time)  break;
       if (GetDn (e, p, (ubyte) ev->ctrl) == p) {
-TRC("Record - toss lame ntUp tr=`d `s now=`s p=`d",
+DBG("Record - toss lame ntUp tr=`d `s now=`s p=`d",
 t, MNt2Str (s1, ev), TmSt (s2, _now), p);
          return;
       }
@@ -683,14 +683,14 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
    if (_lrn.rHop && _lrn.POZ) {
       PozBuf (ev, cSt);                // in rHop, on poz, buff/echo evs
       DrawNow ();
-TRC("EvRcrd: b");
+DBG("EvRcrd: b");
       return;
    }
    if (! _lrn.POZ)  _rNow = ev->time;
    if (PosInZZ (cSt, CC("PBnR\0Vol\0Pan\0"))) {
       CCInit (t, cSt, ev->valu);       // if special bar#1 ctl, upd/ins@tm=0
       DrawNow ();
-TRC("EvRcrd: c");
+DBG("EvRcrd: c");
       return;
    }
    Record (ev);                        // ins ev into rec trk
@@ -698,5 +698,5 @@ TRC("EvRcrd: c");
 
 // stamp song as practiced?
    if (_rcrd && (! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
-TRC("EvRcrd end");
+DBG("EvRcrd end");
 }

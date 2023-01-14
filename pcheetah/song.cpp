@@ -263,6 +263,7 @@ TRC(" loopTop tmr=`s now=`s", TmSt(d1,_timer->Get ()), TmSt(d2,_now));
       if (_f.got && (_now >= tend)) {
 TRC(" end o song");
          if (! _rcrd)  {Cmd ("song>");   return;}     // kick off next song
+
          t = (PLAY && (! _lrn.pLrn)) ? true : false;  // do review?
          Cmd (CC("timeBar1"));         // restart
          if (t) {
@@ -294,32 +295,6 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
          if (tL8r2 < tL8r)  {draw = true;   _onBt = false;   tL8r = tL8r2;}
       }
 
-   // time to bump _pDn?
-      if (_lrn.vwNt && (PRAC || PLAY))  while ((_pDn+1 < _dn.Ln) &&
-                                               (_now >= _dn [_pDn+1].time))
-                                           SetPDn (_pDn+1);
-      if (_lrn.vwNt && (PRAC || PLAY)) {
-         if (_lrn.rHop && (_now == _dn [_pDn].time))  doPoz = (DnOK () != 'y');
-         if (_pag.Ln)  draw = true;    // ^ check if we gots ta poz
-
-         if (doPoz && (! _lrn.POZ)) {
-TStr t1,t2,t3;
-TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d (in Song::Put)",
-_pDn, TmSt(t1,_dn[_pDn].time), TmSt(t2,_now), TmSt(t3,_timer->Get ()),
-_timer->MS ());
-         // for notes, set bit 7 flag for only notetype (dn/up) to rec w/in poz
-            MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
-            for (dr = 0;  dr < 2;  dr++)  for (c = 0;  c < 128;  c++)
-               if (! _lrn.rec [dr][c].tm)  _lrn.toRec [dr][c] = 0x0080;
-            _lrn.POZ = true;
-            _timer->Set (_now);
-            Poz (true, 500);           // GUI shows paused, shush after 1/2 sec
-            if (draw)  Draw ();
-TRC("Put end - due to poz");
-            return;
-         }
-      }
-
    // hoppin from ] back to paired [ if prac or review of prac
       if ((PRAC || (_lrn.pLrn == LPRAC)) && _lrn.lpEnd &&
                                    (_now >= _lrn.lpEnd)) {
@@ -341,6 +316,10 @@ TRC("Put end - eoLoop b `s", LrnS ());
          return;
       }
 
+   // time to bump _pDn?
+      if (_lrn.vwNt && (PRAC || PLAY))  while ((_pDn+1 < _dn.Ln) &&
+                                               (_now >= _dn [_pDn+1].time))
+                                           SetPDn (_pDn+1);
    // plow thru only rec n lrn trks from .p to _now and dump stuff to midiout
    // no shh,bg tracks till next loop
 TRC(" trk loop: lrn,rec");
@@ -375,6 +354,29 @@ TRC(" trk loop: lrn,rec");
          _f.trk [t].p = p;
          if ((p < ne) && (! z))
             {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   _onBt = false;}}
+      }
+
+   // chek da poz !
+      if (_lrn.vwNt && (PRAC || PLAY)) {
+         if (_lrn.rHop && (_now == _dn [_pDn].time))  doPoz = (DnOK () != 'y');
+         if (_pag.Ln)  draw = true;    // ^ check if we gots ta poz
+
+         if (doPoz && (! _lrn.POZ)) {
+TStr t1,t2,t3;
+DBG("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d (in Song::Put)",
+_pDn, TmSt(t1,_dn[_pDn].time), TmSt(t2,_now), TmSt(t3,_timer->Get ()),
+_timer->MS ());
+         // for notes, set bit 7 flag for only notetype (dn/up) to rec w/in poz
+            MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
+            for (dr = 0;  dr < 2;  dr++)  for (c = 0;  c < 128;  c++)
+               if (! _lrn.rec [dr][c].tm)  _lrn.toRec [dr][c] = 0x0080;
+            _lrn.POZ = true;
+            _timer->Set (_now);
+            Poz (true, 500);           // GUI shows paused, shush after 1/2 sec
+            if (draw)  Draw ();
+TRC("Put end - due to poz");
+            return;
+         }
       }
 
    // plow thru bg tracks from .p to _now and dump stuff to midiout
