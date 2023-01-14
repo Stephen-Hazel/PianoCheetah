@@ -12,7 +12,7 @@
    ];
 // hopefully you send your exe build dirs to src/_build/exe 
    $src = "/home/sh/_/src";
-   $dst = "/home/sh/_/web/PianoCheetah/download";
+   $dst = "/home/sh/_/web/pc_web/download";
 
 // CASE SENSITIVE filesystem dir to put our dang .deb
    $top = "/opt/app";        
