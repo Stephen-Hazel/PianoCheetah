@@ -7,47 +7,29 @@ ubyt4 Len;
 
 
 void InitMe::Init ()
-{ TStr s, fn, dtGot, dtNew;
+{ TStr s, dir, fn;
   File f;
-TRC("Init");
-   StrCp (s, CC("n"));                 // default ta don't kill yerse'f
-   App.CfgGet (CC("d"), s);
-   if (*s == '\0') {                   // uh oh!  need our data dir somewherez
-     TStr d;
-      Gui.Hey (
-         "Oh hi :)\n\n"
-         "I need you to pick a directory for your pianocheetah files.\n"
-         "Your home dir is fine.\n\n"
-         "I'll make a pianocheetah dir there.");
-      StrCp (d, getenv ("HOME"));
-      if (Gui.AskDir (d, "Pick a directory to put the pianocheetah dir into")) {
-         StrFmt (fn, "`s/pianocheetah.gz", d);
-DBG("picked=`s", d);
-         if (f.Size (fn)) {
-            Gui.Hey (
-               "Ummm, there's already a pianocheetah dir there.\n"
-               "I don't wanna trash it so...\n"
-               "run PianoCheetah again to give it another shot.");
-            StrCp (s, CC("y"));
-         }
-         else {
-            Len = WGet (Buf, sizeof (Buf),
-               CC("https://pianocheetah.app/download/pianocheetah.tar.gz"));
-            f.Save (fn, Buf, Len);
-            Zip (fn, 'x');
-            App.CfgPut (CC("d"), fn);
-DBG("Ok!  dir=`s", fn);
-         }
-      }
-      else {
-         Gui.Hey (
-            "Unhh.  No directory no PianoCheetah :/\n"
-            "Run PianoCheetah again to give it another shot");
-         StrCp (s, CC("y"));
+DBG("Init");
+   Gui.Hey (
+      "Oh hi :)\n\n"
+      "I need you to pick a directory for your pianocheetah files.\n"
+      "Your home dir is fine.\n\n"
+      "I'll make a pianocheetah dir there.");
+   StrCp (dir, getenv ("HOME"));
+   if (Gui.AskDir (dir, "Pick a dir to put the pianocheetah dir into")) {
+      StrAp (dir, CC("/pianocheetah"));
+DBG("picked=`s", dir);
+      if (! f.Size (dir)) {
+         Len = WGet (Buf, sizeof (Buf),
+            CC("https://pianocheetah.app/download/pianocheetah.tar.gz"));
+         StrFmt (fn, "`s.tar.gz", dir);
+         f.Save (fn, Buf, Len);
+DBG("Len=`d size=`d", Len, f.Size (fn));
+         Zip (fn, 'x');
+         App.CfgPut (CC("d"), dir);
       }
    }
-
-TRC("Init end");
+DBG("Init end");
    Gui.Quit ();
 }
 

@@ -7,7 +7,7 @@
    $arc = "amd64";   
    $siz = "2" . "000000";    // just gimme decimal megabytes
    $exe = [
-      $app, 'midicfg', 'update',                           // gui
+      $app, 'midicfg', 'initme',                           // gui
       'delsame', 'll', 'mid2song', 'midimp', 'txt2song'    // background
    ];
 // hopefully you send your exe build dirs to src/_build/exe 
@@ -61,5 +61,6 @@ echo "Depends: $d\n";
    system ("cp $deb" . ".deb  $dst");
 
 // install n kill it
+   $del = "sudo dpkg -P $app";            echo `$del`;
    $ins = "sudo dpkg -i $deb" . ".deb";   echo `$ins`;
    system          ("rm $deb" . ".deb");
