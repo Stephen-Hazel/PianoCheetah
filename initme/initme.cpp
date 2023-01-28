@@ -1,22 +1,22 @@
-// update.cpp - updater fer pcheetah
+// initme.cpp - init fer pcheetah
 
-#include "update.h"
+#include "initme.h"
 
 char  Buf [8000000];
 ubyt4 Len;
 
 
-void Update::Init ()
+void InitMe::Init ()
 { TStr s, fn, dtGot, dtNew;
   File f;
-   TRC("Init");
+TRC("Init");
    StrCp (s, CC("n"));                 // default ta don't kill yerse'f
    App.CfgGet (CC("d"), s);
    if (*s == '\0') {                   // uh oh!  need our data dir somewherez
      TStr d;
       Gui.Hey (
-         "Oh hi.  Nice ta meetcha :)\n\n"
-         "I need you to pick a directory for your midi files.\n"
+         "Oh hi :)\n\n"
+         "I need you to pick a directory for your pianocheetah files.\n"
          "Your home dir is fine.\n\n"
          "I'll make a pianocheetah dir there.");
       StrCp (d, getenv ("HOME"));
@@ -32,9 +32,9 @@ DBG("picked=`s", d);
          }
          else {
             Len = WGet (Buf, sizeof (Buf),
-               CC("https://pianocheetah.app/download/pianocheetah.gz"));
+               CC("https://pianocheetah.app/download/pianocheetah.tar.gz"));
             f.Save (fn, Buf, Len);
-            GUnZip (fn);
+            Zip (fn, 'x');
             App.CfgPut (CC("d"), fn);
 DBG("Ok!  dir=`s", fn);
          }
@@ -47,31 +47,16 @@ DBG("Ok!  dir=`s", fn);
       }
    }
 
-// check for update
-   App.CfgGet (CC("update_dt"), dtGot);
-   WGet (dtNew, sizeof (dtNew), CC("https://pianocheetah.app/download/dtNew"));
-   dtGot [8] = dtNew [8] = '\0';
-DBG("got=`s new=`s", dtGot, dtNew);
-/*
-   if (StrCm (dtGot, dtNew) < 0) {
-      if (Gui.YNo (CC("There's a new version of PianoCheetah\n"
-                      "Do ya want it?"))) {
-      }
-      else {
-      }
-   }
-*/
-   App.CfgPut (CC("update"), s);
 TRC("Init end");
    Gui.Quit ();
 }
 
-void Update::Quit ()  {}
+void InitMe::Quit ()  {}
 
 int main (int argc, char *argv [])
 { QApplication app (argc, argv);
-  Update       win;
-   App.Init (CC("pcheetah"), CC("update"), CC("Update"));
+  InitMe       win;
+   App.Init (CC("pcheetah"), CC("initme"), CC("InitMe"));
    Gui.Init (& app, & win);   win.Init ();
   int rc = Gui.Loop ();       win.Quit ();
    return rc;
