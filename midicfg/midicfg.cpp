@@ -355,6 +355,7 @@ int main (int argc, char *argv [])
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
    App.Init (CC("pcheetah"), CC("midicfg"), CC("MidiCfg"));
+   if (App.Upd ())  return 0;          // need da latest!
    Gui.Init (& app, & win);   win.Init ();
   int rc = Gui.Loop ();       win.Quit ();
    return rc;

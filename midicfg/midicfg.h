@@ -1,4 +1,4 @@
-// midicfg.h - midi configuration fer rockin88
+// midicfg.h - midi configuration fer pcheetah
 
 #ifndef MIDICFG_H
 #define MIDICFG_H

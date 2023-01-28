@@ -7,17 +7,17 @@
    $arc = "amd64";   
    $siz = "2" . "000000";    // just gimme decimal megabytes
    $exe = [
-      $app, 'midicfg',                                     // gui
+      $app, 'midicfg', 'update',                           // gui
       'delsame', 'll', 'mid2song', 'midimp', 'txt2song'    // background
    ];
 // hopefully you send your exe build dirs to src/_build/exe 
    $src = "/home/sh/_/src";
-   $dst = "/home/sh/_/web/pc_web/download";
+   $dst = "/home/sh/_/web/pc/download";
 
 // CASE SENSITIVE filesystem dir to put our dang .deb
    $top = "/opt/app";        
 
-   $deb = $app . "_$now" . "_$arc";    // our main .deb prefix / dir / etc
+   $deb = $app . "_current_$arc";      // our main .deb prefix / dir / etc
    $ctl = 
 "Package: $app\n" .
 "Version: $now\n" .

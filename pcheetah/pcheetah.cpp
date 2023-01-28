@@ -584,12 +584,11 @@ TRC("PCheetah::Quit end");
 int main (int argc, char *argv [])
 { QApplication app (argc, argv);
   PCheetah     win;
-// if (Update ())  return 0;
 // if (! One.Open ("Ditty_is_HERE", App.parm))
 //    {DBG ("PCheetah already goin");   return 0;}
 // ::SystemParametersInfo (SPI_SETSCREENSAVEACTIVE, 0, 0, 0);   // stop scrsaver
    App.Init (CC("pcheetah"), CC("pcheetah"), CC("PianoCheetah"));
-// if (Update ())  return 0;
+   if (App.Upd ())  return 0;          // need da latest!
    Gui.Init (& app, & win);   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
