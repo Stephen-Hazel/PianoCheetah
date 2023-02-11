@@ -315,9 +315,9 @@ TRC("Init");
   CtlTBar tb (this,
       "Refresh device lists\n"
        "(if you've installed/uninstalled/forgot to power on devices)"
-                                "`view-refresh`\0"
-      "Scoot device up a row"   "`go-up`\0"
-      "Scoot device down a row" "`go-down`\0"
+                                "`:/tbar/0" "`\0"
+      "Scoot device up a row"   "`:/tbar/1" "`\0"
+      "Scoot device down a row" "`:/tbar/2" "`\0"
    );
    connect (tb.Act (0), & QAction::triggered, this, & MidiCfg::Load);
    connect (tb.Act (1), & QAction::triggered, this, & MidiCfg::Up);

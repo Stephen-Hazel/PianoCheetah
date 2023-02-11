@@ -1,5 +1,8 @@
 <RCC>
     <qresource>
         <file>app.ico</file>
+        <file>tbar/0.svg</file>       
+        <file>tbar/1.svg</file>       
+        <file>tbar/2.svg</file>       
     </qresource>
 </RCC>
