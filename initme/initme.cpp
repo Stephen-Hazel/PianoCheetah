@@ -25,12 +25,13 @@ DBG("picked=`s", dir);
          StrFmt (fn, "`s.tar.gz", dir);
          f.Save (fn, Buf, Len);
 DBG("Len=`d size=`d", Len, f.Size (fn));
-         Zip (fn, 'x');
+         Zip (dir, 'x');
          App.CfgPut (CC("d"), dir);
       }
    }
 DBG("Init end");
    Gui.Quit ();
+   DBG("got here?");
 }
 
 void InitMe::Quit ()  {}

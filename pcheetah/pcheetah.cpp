@@ -364,7 +364,8 @@ DBG("help vis=`b", _dHlp->isVisible ());
 void PCheetah::Init ()
 {  *Kick = '\0';
 TRC("PCheetah::Init");
-   Midi.Load ();
+   Midi.Load ();   if (! Midi._len)  return MCfg ();  // no point in goin on
+
   ubyte i = 0;
   TStr  nm, ty, ds, dv;
    while (Midi.GetPos ('o', i++, nm, ty, ds, dv))
@@ -401,10 +402,10 @@ TRC("  tbar init");
   CtlTBar tb (this,                    // top
       "show / hide track editing\n"
          "the grid that picks which tracks to practice, RH/LH, sound, etc"
-                      "`view-media-lyrics" "`v\0"
-      "pick from song list"    "`:/tbar/0" "`\0"
-      "configure midi devices" "`:/tbar/1" "`\0"
-      "settings and junk"      "`:/tbar/2" "`\0");
+                               "`:/tbar/0" "`v\0"
+      "pick from song list"    "`:/tbar/1" "`\0"
+      "configure midi devices" "`:/tbar/2" "`\0"
+      "settings and junk"      "`:/tbar/3" "`\0");
    connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
    connect (tb.Act (1), & QAction::triggered, this, & PCheetah::Load);
    connect (tb.Act (2), & QAction::triggered, this, & PCheetah::MCfg);
@@ -466,16 +467,16 @@ TRC("  tbar init");
 
   CtlTBar tb6 (this,
       "`split the learn track (3E and below) into new LH track"
-                                    "`split"                "`\0"
-      "`make drum track from clips" "`edit-group"           "`\0"
-      "`insert track"               "`list-add"             "`\0"
-      "`delete track"               "`list-remove"          "`\0"
-      "`scoot track up"             "`kdenlive-zindex-up"   "`\0"
-      "`scoot track down"           "`kdenlive-zindex-down" "`\0"
+                                    "`:/tbar/trak/0" "`\0"
+      "`make drum track from clips" "`:/tbar/trak/1" "`\0"
+      "`insert track"               "`:/tbar/trak/2" "`\0"
+      "`delete track"               "`:/tbar/trak/3" "`\0"
+      "`scoot track up"             "`:/tbar/trak/4" "`\0"
+      "`scoot track down"           "`:/tbar/trak/5" "`\0"
       "`time scaling - for { to } => } scales to ^"
-                                    "`handle-move"          "`\0"
+                                    "`:/tbar/trak/6" "`\0"
       "`time offsetting - for { to end => { moves to ^"
-                                    "`handle-sort"          "`\0",
+                                    "`:/tbar/trak/7" "`\0",
       "tbTrak");
    connect (tb6.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd sp");});
@@ -591,7 +592,7 @@ int main (int argc, char *argv [])
    Gui.Init (& app, & win);   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
-   qRegisterMetaType<Qt::MouseButton>("Qt::MouseButton");
+   qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton"  );
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
   int rc = Gui.Loop ();       win.Quit ();
    return rc;
