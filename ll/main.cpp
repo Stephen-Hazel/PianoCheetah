@@ -3,7 +3,9 @@
 #include "../../stv/os.h"
 
 TStr Ext, Top;
-File F;
+bool  Q;
+ulong N;
+File  F;
 
 void DoDir (char *dir)
 { FDir d;
@@ -17,16 +19,17 @@ void DoDir (char *dir)
                if ( (ln > 4) && ((! StrCm (& fn [ln-4], CC(".mid"))) ||
                                  (! StrCm (& fn [ln-4], CC(".kar"))) ||
                                  (! StrCm (& fn [ln-4], CC(".rmi")))) )
-                  {F.Put (& fn [StrLn (Top)+1]);   F.Put (CC("\n"));}
+                  {F.Put (& fn [StrLn (Top)+1]);   F.Put (CC("\n"));   N++;}
             }
             else if (! StrCm (Ext, CC("song"))) {
                if ( (ln > 7) && (! StrCm (& fn [ln-7], CC("/a.song"))) )
                   {StrCp (a, fn);   Fn2Path (a);
-                   F.Put (& a  [StrLn (Top)+1]);   F.Put (CC("\n"));}
+                   F.Put (& a  [StrLn (Top)+1]);   F.Put (CC("\n"));   N++;}
             }
             else                // "alll"
                if ( (ln < 10) || StrCm (& fn [ln-9], CC("cache.txt")) )
-                  {F.Put (& fn [StrLn (Top)+1]);   F.Put (CC("\n"));}
+                  {F.Put (& fn [StrLn (Top)+1]);   F.Put (CC("\n"));   N++;}
+            if (Q && (N >= 100))  {d.Shut ();   return;}
          }
          else  DoDir (fn);
       } while ((df = d.Next (fn)));
@@ -41,6 +44,7 @@ int main (int argc, char *argv [])
    if (argc < 3)  return 99;
    App.Init (CC("pcheetah"), CC("ll"), CC("ll"));
    StrCp (Ext, argv [1]);   StrCp (Top, argv [2]);
+   if (! StrCm (Ext, CC("songq")))  {Q = true;   StrCp (Ext, CC("song"));}
 
 // make temp out file n fill it
    p = StrLn (Top)+1;   if (! StrCm (Ext, CC("alll")))  *Ext = '\0';

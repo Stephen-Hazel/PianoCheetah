@@ -172,7 +172,6 @@ struct CfgDef {
 // global settings from etc/cfg.txt       (global prefs for all songs)
    ubyte cmdKey, ntCo;                 // cmdkey, pianonotes color
    bool  barCl;                        // send bar# to clipboard? (for lyr edit)
-   bool  updt;                         // look for pcheetah updates?
    void  Init (), Load (), Save ();    // for global settings (not song)
    sbyte tran;
    bool  ezHop;

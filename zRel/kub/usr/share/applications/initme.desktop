@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=InitMe
-Comment=PianoCheetah's data initializer
-Exec=/opt/app/pcheetah/initme
-Icon=/opt/app/pcheetah/initme.ico
-Categories=AudioVideo;Audio;Midi;
-Terminal=false

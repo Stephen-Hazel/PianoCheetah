@@ -49,7 +49,6 @@ TRC("FL.Load");
    StrFmt (fn,  "`s/3_done",       dr);   f.DoDir (fn, & t, SongOK);
    StrFmt (t.x, "`s/4_queue", dr);   StrFmt (fn, "`s/_songcache.txt", t.x);
    if (f.Size (fn))  f.DoText (fn, & t, SongOK2);     // MidImp done w my cache?
-   else              t.Add (StrFmt (c, "`s/(caching - come back later)", t.x));
    t.Sort ();
 //DBG("songs:"); t.Dump();
 

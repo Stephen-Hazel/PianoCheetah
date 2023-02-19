@@ -20,7 +20,8 @@ void PCheetah::LoadGo ()
 
 void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open ();}
 void PCheetah::GCfg ()                        {_dCfg->Open ();}
-void PCheetah::MCfg ()  {StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
+void PCheetah::MCfg ()  {DBG("gonna midicfg");
+                         StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
                                        // ^kick midicfg.  quit cuz midi sharin'
 void PCheetah::TDr ()   {emit sgCmd ("preTDr");}
 
@@ -362,10 +363,21 @@ DBG("help vis=`b", _dHlp->isVisible ());
 
 
 void PCheetah::Init ()
-{  *Kick = '\0';
+{ TStr fn;
+  File f;
 TRC("PCheetah::Init");
-   Midi.Load ();   if (! Midi._len)  return MCfg ();  // no point in goin on
+   *Kick = '\0';
+   _s    = nullptr;
+   _dFL  = nullptr;   _dCfg = nullptr;   _dTDr = nullptr;
+   _dCue = nullptr;   _dChd = nullptr;   _dCtl = nullptr;
+   _dTpo = nullptr;   _dTSg = nullptr;   _dKSg = nullptr;
+   _dFng = nullptr;   _dMov = nullptr;   _dHlp = nullptr;
 
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/device.txt"));
+   if (! f.Size (fn))  return MCfg ();      // ain't no point in goin on
+
+TRC("got device.txt");
+   Midi.Load ();
   ubyte i = 0;
   TStr  nm, ty, ds, dv;
    while (Midi.GetPos ('o', i++, nm, ty, ds, dv))
@@ -546,9 +558,6 @@ TRC("  dlg init");
    connect (_dFng, & DlgFng::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dMov, & QDialog::accepted, this, [this]() {emit sgCmd ("mov");});
 
-TRC("  midiimp");
-   App.Run (CC("midimp &"));
-
 // parse cmdline arg:  find on DIR;  else single song file
   bool ld = false;
   TStr a;
@@ -564,18 +573,24 @@ TRC("PCheetah::Init end");
 void PCheetah::Quit ()
 {
 TRC("PCheetah::Quit");
+   if (_s != nullptr) {
 TRC("  emit quit");
-   emit sgCmd (CC("quit"));
+      emit sgCmd (CC("quit"));
+   }
+   if (_dMov != nullptr) {
 TRC("  Win,dlg save");
-   Gui.WinSave (ui->spl);
-   _dFL->Quit ();    _dCfg->Quit ();   _dTDr->Quit ();
-   _dCtl->Quit ();   _dCue->Quit ();   _dMov->Quit ();
-   delete _dFL;    delete _dCfg;   delete _dTDr;
-   delete _dCue;   delete _dChd;   delete _dCtl;
-   delete _dTpo;   delete _dTSg;   delete _dKSg;
-   delete _dFng;   delete _dMov;   delete _dHlp;
+      Gui.WinSave (ui->spl);
+      _dFL->Quit ();    _dCfg->Quit ();   _dTDr->Quit ();
+      _dCtl->Quit ();   _dCue->Quit ();   _dMov->Quit ();
+      delete _dFL;    delete _dCfg;   delete _dTDr;
+      delete _dCue;   delete _dChd;   delete _dCtl;
+      delete _dTpo;   delete _dTSg;   delete _dKSg;
+      delete _dFng;   delete _dMov;   delete _dHlp;
+   }
+   if (_s != nullptr) {
 TRC("  thrEnd");
-   _thr.quit ();   _thr.wait ();
+      _thr.quit ();   _thr.wait ();
+   }
 TRC("  kick=`s", Kick);
    if (*Kick)  App.Spinoff (Kick);
 TRC("PCheetah::Quit end");
@@ -589,10 +604,12 @@ int main (int argc, char *argv [])
 //    {DBG ("PCheetah already goin");   return 0;}
 // ::SystemParametersInfo (SPI_SETSCREENSAVEACTIVE, 0, 0, 0);   // stop scrsaver
    App.Init (CC("pcheetah"), CC("pcheetah"), CC("PianoCheetah"));
+TRC("midiimp");
+   App.Run  (CC("midimp &"));
    Gui.Init (& app, & win);   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
-   qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton"  );
+   qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton" );
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
   int rc = Gui.Loop ();       win.Quit ();
    return rc;

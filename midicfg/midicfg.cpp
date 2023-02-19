@@ -346,7 +346,7 @@ TRC("Init end");
 }
 
 
-void MidiCfg::Quit ()  {ShutMIn ();   Gui.WinSave ();}
+void MidiCfg::Quit ()  {Save ();   ShutMIn ();   Gui.WinSave ();}
 
 
 int main (int argc, char *argv [])
@@ -357,6 +357,7 @@ int main (int argc, char *argv [])
    App.Init (CC("pcheetah"), CC("midicfg"), CC("MidiCfg"));
    Gui.Init (& app, & win);   win.Init ();
   int rc = Gui.Loop ();       win.Quit ();
+   App.Spinoff (CC("pcheetah"));
    return rc;
 }
 

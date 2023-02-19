@@ -11,7 +11,6 @@ void CfgDef::Init ()                   // default the global settings
    cmdKey = MKey (CC("8c"));  
    ntCo   = 0;                         // scale
    barCl  = false;
-   updt   = true;
 }
 
 void CfgDef::Load ()                   // load global settings
@@ -28,7 +27,6 @@ TRC("CfgDef::Load");
       if (StrSt (s, CC("cmdKey")))  Cfg.cmdKey = (ubyte)Str2Int (v);
       if (StrSt (s, CC("ntCo"  )))  Cfg.ntCo   = (ubyte)Str2Int (v);
       if (StrSt (s, CC("barCl" )))  Cfg.barCl  = (*v == 'y') ? true:false;
-      if (StrSt (s, CC("updt"  )))  Cfg.updt   = (*v == 'y') ? true:false;
    }
 }
 
@@ -37,8 +35,8 @@ void CfgDef::Save ()                   // save global settings
   TStr fn;
   File f;
 TRC("CfgDef::Save");
-   StrFmt (buf, "cmdKey=`d\n"  "ntCo=`d\n"  "barCl=`s\n"   "updt=`s\n",
-                 cmdKey,        ntCo,        barCl?"y":"n", updt?"y":"n");
+   StrFmt (buf, "cmdKey=`d\n"  "ntCo=`d\n"  "barCl=`s\n",
+                 cmdKey,        ntCo,        barCl?"y":"n");
    App.Path (fn, 'c');   StrAp (fn, CC("/cfg.txt"));
    f.Save (fn, buf, StrLn (buf));
 }
@@ -66,12 +64,12 @@ TRC("DlgCfg::Open");
   CtlChek e  (ui->ezHop);
   CtlLine k  (ui->cmdKey);
   CtlList c  (ui->ntCo, CC("scale\0" "velocity\0" "track\0"));
-  CtlChek b  (ui->barCl), t (ui->trc), u (ui->upd);
+  CtlChek b  (ui->barCl), t (ui->trc);
    tr.Set (Cfg.tran);
    e.Set  (Cfg.ezHop);
    k.Set  (MKey2Str (s, Cfg.cmdKey));
    c.Set  (Cfg.ntCo);
-   b.Set  (Cfg.barCl);   t.Set (App.trc);   u.Set (Cfg.updt);
+   b.Set  (Cfg.barCl);   t.Set (App.trc);
    show ();   raise ();   activateWindow ();   
 }
 
@@ -79,7 +77,7 @@ void DlgCfg::Shut ()                   // set em n save em
 { TStr s; 
 TRC("DlgCfg.Shut");
   CtlSpin tr (ui->tran);
-  CtlChek e  (ui->ezHop), b (ui->barCl), u (ui->upd), t (ui->trc);
+  CtlChek e  (ui->ezHop), b (ui->barCl), t (ui->trc);
   CtlLine k  (ui->cmdKey);
   CtlList c  (ui->ntCo);
    Cfg.tran  = tr.Get ();
@@ -87,7 +85,7 @@ TRC("DlgCfg.Shut");
    StrCp (s, k.Get ());   Cfg.cmdKey = MKey (s);
    if (! Cfg.cmdKey)      Cfg.cmdKey = MKey (CC("8c"));
    Cfg.ntCo  = c.Get ();
-   Cfg.barCl = b.Get ();   App.TrcPut (t.Get ());   Cfg.updt = u.Get ();   
+   Cfg.barCl = b.Get ();   App.TrcPut (t.Get ());
    Cfg.Save ();                        // in case we die early :/
    done (true);   lower ();   hide ();
 }

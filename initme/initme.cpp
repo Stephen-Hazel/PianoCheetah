@@ -31,7 +31,6 @@ DBG("Len=`d size=`d", Len, f.Size (fn));
    }
 DBG("Init end");
    Gui.Quit ();
-   DBG("got here?");
 }
 
 void InitMe::Quit ()  {}
@@ -41,6 +40,7 @@ int main (int argc, char *argv [])
   InitMe       win;
    App.Init (CC("pcheetah"), CC("initme"), CC("InitMe"));
    Gui.Init (& app, & win);   win.Init ();
-  int rc = Gui.Loop ();       win.Quit ();
+  int rc = Gui.Loop ();
+   win.Quit ();
    return rc;
 }

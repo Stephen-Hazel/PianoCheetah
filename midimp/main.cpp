@@ -136,19 +136,36 @@ int main (int argc, char *argv [])
    (void)argc;   (void)argv;
    App.Init (CC("pcheetah"), CC("midimp"), CC("midimp"));
    App.Path (DirF, 'd');   StrCp (DirT, DirF);
+DBG("midimp bgn");
+// from ..pianocheetah/midi_import to ..pianocheetah/4_queue
    StrAp (DirF, CC("/midi_import"));
    StrAp (DirT, CC("/4_queue"));
 
+// do short cache of song if needed (just to have somethin)
+   StrCp (c, DirT);   StrAp (c, CC("/_songcache.txt"));
+   if (! f.Size (c))
+      {StrCp (c, CC("ll songq "));   StrAp (c, DirT);   App.Run (c);}
+DBG("midimp songq end");
+
+// any 4_queue/redo.txt signals re mid2song 4_queue midi files
    StrFmt (s, "`s/redo.txt", DirF);
    if (f.Size (s)) {
+DBG("midimp redo bgn");
       f.Kill (s);
+
+   // ll every .mid(.rmi,etc) in 4_queue dir into cache
       StrCp (c, CC("ll midi "));   StrAp (c, DirT);   App.Run (c);
+
+   // (re)Mid2Song each cache fn
       StrCp (s, DirT);   StrAp (s, CC("/_midicache.txt"));
       f.DoText (s, nullptr, Redo);
+
+   // cleanup cache
       f.Kill (s);
+DBG("midimp redo end");
    }
 
-// build cache n SLMove
+// list midi files in midi_import n move+mid2song em
    StrCp (c, CC("ll midi "));   StrAp (c, DirF);   App.Run (c);
    StrCp (s, DirF);   StrAp (s, CC("/_midicache.txt"));
    f.DoText (s, nullptr, Move);
@@ -162,11 +179,13 @@ int main (int argc, char *argv [])
 
 // kill n remake DirF so left empty
    d.Kill (DirF);   d.Make (DirF);
+DBG("midimp done minus song cache");
 
 // recache 4_queue songs for pc
    App.Path (DirT, 'd');   StrAp (DirT, CC("/4_queue"));
    StrCp (c, DirT);   StrAp (c, CC("/_songcache.txt"));
    if (Did || (! f.Size (c)))
       {StrCp (c, CC("ll song "));   StrAp (c, DirT);   App.Run (c);}
+DBG("midimp end");
    return 0;
 }

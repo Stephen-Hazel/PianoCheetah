@@ -7,12 +7,11 @@ UpdLst Up;                             // what gui needs from meee
 void Song::Init ()
 {
 TRC("Song::Init");                     // init that there stuff we need...
-   Midi.Load ();
-
    _timer = new Timer ();              // boot timer
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
    connect (_timer, & Timer::TimerMsEv, this,
             [this]()  {if (_lrn.POZ)  Shush (true);});
+   Midi.Load ();
    OpenMIn ();                         // boot MidiI's
    for (ubyte d = 0;  d < _mi.Ln;  d++)
       QObject::connect (_mi [d].mi, & MidiI::MidiIEv, this, & Song::MIn);
