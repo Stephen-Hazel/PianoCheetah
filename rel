@@ -1,11 +1,8 @@
 #!/usr/bin/env php
 <?php 
-## rk.php (release kubuntu - cp to /opt/app/$app n create a .deb)
-## you'll wanna first uninstall
-## sudo dpkg -P pcheetah
+## rel (release kubuntu/rpi - cp to /opt/app/$app n create a .deb, etccc)
 
-   $arc = ($argv [1] == 'rpi') ? 'armhf' : 'amd64';
-
+   $arc = (isset ($argv [1]) && ($argv [1] == 'rpi'))   ? 'armhf' : 'amd64';
    $app = "pcheetah";   
    $exe = [
       $app, 'midicfg', 'initme',                           // gui
