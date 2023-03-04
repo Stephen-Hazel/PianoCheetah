@@ -10,19 +10,19 @@
         <file>bug.png</file>
         <file>lh.png</file>
         <file>fade.png</file>
-        <file>tbar/0.svg</file>
-        <file>tbar/1.svg</file>
-        <file>tbar/2.svg</file>
-        <file>tbar/3.svg</file>
-        <file>tbar/song/0.svg</file>
-        <file>tbar/song/1.svg</file>
-        <file>tbar/time/0.svg</file>
-        <file>tbar/time/1.svg</file>
-        <file>tbar/time/2.svg</file>
-        <file>tbar/time/3.svg</file>
-        <file>tbar/time/4.svg</file>
-        <file>tbar/time/5.svg</file>
-        <file>tbar/time/6.svg</file>
+        <file>tbar/0.png</file>
+        <file>tbar/1.png</file>
+        <file>tbar/2.png</file>
+        <file>tbar/3.ico</file>
+        <file>tbar/song/0.png</file>
+        <file>tbar/song/1.png</file>
+        <file>tbar/time/0.png</file>
+        <file>tbar/time/1.png</file>
+        <file>tbar/time/2.png</file>
+        <file>tbar/time/3.png</file>
+        <file>tbar/time/4.png</file>
+        <file>tbar/time/5.png</file>
+        <file>tbar/time/6.png</file>
         <file>tbar/tmpo/0.svg</file>
         <file>tbar/tmpo/1.svg</file>
         <file>tbar/tmpo/2.svg</file>
@@ -37,10 +37,10 @@
         <file>tbar/lrn/0.png</file>
         <file>tbar/lrn/1.png</file>
         <file>tbar/lrn/2.png</file>
-        <file>tbar/flst/0.svg</file>
+        <file>tbar/flst/0.png</file>
         <file>tbar/flst/1.svg</file>
-        <file>tbar/flst/2.svg</file>
-        <file>tbar/flst/3.svg</file>
+        <file>tbar/flst/2.png</file>
+        <file>tbar/flst/3.png</file>
         <file>tbar/cue/a0.png</file>
         <file>tbar/cue/a1.png</file>
         <file>tbar/cue/b0.png</file>
@@ -71,7 +71,7 @@
         <file>tico/mute.svg</file>
         <file>tico/L.png</file>
         <file>tico/R.png</file>
-        <file>tico/S.svg</file>
+        <file>tico/S.ico</file>
         <file>tico/rec.png</file>
         <file>tico/drm.png</file>
     </qresource>
