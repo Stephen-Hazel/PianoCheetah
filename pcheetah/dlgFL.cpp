@@ -11,7 +11,7 @@ static TStr  DirF, DirT;
 static File  FFnd;
 
 static bool SongOK (void *ptr, char dfx, char *fn)
-// find any a.song files and put em in _tb
+// find any a.song files and put em in (StrArr)ptr
 { StrArr *a = (StrArr *) ptr;
   ubyt4   ln = StrLn (fn);
    if ( (dfx == 'f') && (ln > 7) && (! StrCm (& fn [ln-7], CC("/a.song"))) )
@@ -47,8 +47,7 @@ TRC("FL.Load");
    StrFmt (fn,  "`s/1_learning",   dr);   f.DoDir (fn, & t, SongOK);
    StrFmt (fn,  "`s/2_repertoire", dr);   f.DoDir (fn, & t, SongOK);
    StrFmt (fn,  "`s/3_done",       dr);   f.DoDir (fn, & t, SongOK);
-   StrFmt (t.x, "`s/4_queue", dr);   StrFmt (fn, "`s/_songcache.txt", t.x);
-   if (f.Size (fn))  f.DoText (fn, & t, SongOK2);     // MidImp done w my cache?
+   StrFmt (fn,  "`s/4_queue",      dr);   f.DoDir (fn, & t, SongOK);
    t.Sort ();
 //DBG("songs:"); t.Dump();
 
@@ -81,7 +80,7 @@ TRC("FL.Load");
 
    r = FL.lst.Ln;                      // append done/queue to FLst[]
    for (;  i < t.num;  i++, r++) {     // FLAG init for rand load
-      FL.lst.Ins (r);   StrCp (FL.lst [r], t.str [i]);
+      FL.lst.Ins (r);    StrCp (FL.lst [r], t.str [i]);
       FL.lst [r][FL.X] = StrSt (FL.lst [r], CC("4_queue")) ? 'n' : 'y';
    }
 //for (i=0;i<FL.lst.Ln;i++) DBG("`d `c `s", i, FL.lst [i][FL.X], FL.lst [i]);

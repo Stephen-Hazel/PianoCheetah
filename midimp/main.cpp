@@ -5,63 +5,13 @@
 bool Did, Did2;
 TStr DirF, DirT;
 
-bool FixFn (char *s)
-// clean up genre/group/title of a .mid file
-// _pop/^/asdf_a_jkl => _pop/asdf/_a_jkl  or  asdfjkl => _pop/_/asdfjkl
-// kill _x_ rating n _lyr suffix n any ' or `
-// init cap
-// non rating ___x => X  spacespacespacex => X
-// kill group outa title if doesnt leave it too short
-// kill 1-9 suffix if no prev #
-// do merge check and number if needed
-{ TStr  ge, gr, t;
+void FixFn (char *s)
+// do merge check and tack on a number if needed
+{ TStr  t;
   char *p;
-  bool  got;
   ubyt4 n;
   FDir  d;
-                StrCp (ge, s);     if (! (p = StrCh (ge, '/')))  return false;
-   *p = '\0';   StrCp (gr, ++p);   if (! (p = StrCh (gr, '/')))  return false;
-   *p = '\0';   StrCp (t,  ++p);
-   if (! StrCm (gr, CC("^"))) {
-      StrCp (gr, t);
-      if      ((p = StrCh (gr, '_')))
-         {*p = '\0';   StrCp (t, & t [StrLn (gr)]);}
-      else if ((p = StrCh (gr, '-')))
-         {*p = '\0';   StrCp (t, & t [StrLn (gr)]);}
-      else if ((p = StrCh (gr, ' ')))
-         {*p = '\0';   StrCp (t, & t [StrLn (gr)]);}
-      else             StrCp (gr, CC("_"));
-   }
-   if (! MemCm (t, CC("_x_"), 3))  StrCp (t, t+3);
-   if ( (StrLn (t) > 4) && (! StrCm (& t [StrLn (t)-4], CC("_lyr"))) )
-                       StrAp (t, CC(""), 4);
-   p = gr;
-   *p = CHUP (*p);
-   while (*p) {
-      while ((*p == '`') || (*p == '\'') ||
-             (*p == '(') || (*p == ')'))  StrCp (p, p+1);
-      got = false;
-      while ((*p == '_') || (*p == ' ') ||
-                            (*p == '-'))  {got = true;   StrCp (p, p+1);}
-      if (got)  {if (*p)  *p = CHUP (*p);}   else  p++;
-   }
-   p = ((t [0] == '_') && (t [2] == '_')) ? t+3 : t;
-   *p = CHUP (*p);
-   while (*p) {
-      while ((*p == '`') || (*p == '\'') ||
-             (*p == '(') || (*p == ')'))  StrCp (p, p+1);
-      got = false;
-      while ((*p == '_') || (*p == ' ') ||
-                            (*p == '-'))  {got = true;   StrCp (p, p+1);}
-      if (got)  {if (*p)  *p = CHUP (*p);}   else  p++;
-   }
-   if ( (StrLn (t) > (StrLn (gr)+4)) && (p = StrSt (t, gr)) )
-      StrCp (p, p + StrLn (gr));
-   p = & t [StrLn (t)-1];
-   if ( (*p >= '1') && (*p <= '9') && (! CHNUM (*(p-1))) )
-      StrAp (t, CC(""), 1);
-   StrFmt (s, "`s/`s/`s", ge, gr, t);
-   StrCp       (t, DirT);   StrAp (t, CC("/"));   StrAp (t, s);
+   StrCp (t, DirT);   StrAp (t, CC("/"));   StrAp (t, s);
    if (d.Got (t)) {
       StrAp (s, CC("_2"));   StrAp (t, CC("_2"));
       while (d.Got (t)) {
@@ -71,7 +21,6 @@ bool FixFn (char *s)
       }
    }
 //DBG(s);
-   return true;
 }
 
 
@@ -99,19 +48,18 @@ char *Redo (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 
 
 char *Move (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
+// move and Mid2Song each mid
 { TStr fr, to, fnx, ext, cmd;
-  File f;                              // move and Mid2Song each mid
+  File f;
    (void)len;   (void)pos;   (void)ptr;
    StrCp (fnx, fn);
    StrCp (ext, & fnx [StrLn (fnx)-4]);   StrAp (fnx, CC(""), 4);;
-   if (FixFn (fnx)) {
-      Did = true;
-      StrFmt (fr, "`s/`s",        DirF, fn);
-      StrFmt (to, "`s/`s/orig`s", DirT, fnx, ext);
-      StrCp (cmd, CC("mid2song "));   StrAp (cmd, to);
-      f.Copy (fr, to);   f.Kill (fr);   App.Run (cmd);
-   }
-   else  DBG("bad fn `s", fnx);
+   FixFn (fnx);
+   Did = true;
+   StrFmt (fr, "`s/`s",        DirF, fn);
+   StrFmt (to, "`s/`s/orig`s", DirT, fnx, ext);
+   StrCp (cmd, CC("mid2song "));   StrAp (cmd, to);
+   f.Copy (fr, to);   f.Kill (fr);   App.Run (cmd);
    return nullptr;
 }
 
@@ -141,28 +89,17 @@ DBG("midimp bgn");
    StrAp (DirF, CC("/midi_import"));
    StrAp (DirT, CC("/4_queue"));
 
-// do short cache of song if needed (just to have somethin)
-   StrCp (c, DirT);   StrAp (c, CC("/_songcache.txt"));
-   if (! f.Size (c))
-      {StrCp (c, CC("ll songq "));   StrAp (c, DirT);   App.Run (c);}
-DBG("midimp songq end");
-
-// any 4_queue/redo.txt signals re mid2song 4_queue midi files
-   StrFmt (s, "`s/redo.txt", DirF);
+// any 4_queue/redo.txt signals
+//    ll every .mid(.rmi,etc) in 4_queue dir into midi cache n re-Mid2Song em
+   StrFmt (s, "`s/redo.txt", DirT);
    if (f.Size (s)) {
-DBG("midimp redo bgn");
+DBG("midimp 4_queue redo bgn");
       f.Kill (s);
-
-   // ll every .mid(.rmi,etc) in 4_queue dir into cache
       StrCp (c, CC("ll midi "));   StrAp (c, DirT);   App.Run (c);
-
-   // (re)Mid2Song each cache fn
       StrCp (s, DirT);   StrAp (s, CC("/_midicache.txt"));
       f.DoText (s, nullptr, Redo);
-
-   // cleanup cache
-      f.Kill (s);
-DBG("midimp redo end");
+      f.Kill (s);                      // cleanup cache
+DBG("midimp 4_queue redo end");
    }
 
 // list midi files in midi_import n move+mid2song em
@@ -176,16 +113,7 @@ DBG("midimp redo end");
    StrCp (s, DirF);   StrAp (s, CC("/_cache.txt"));
    f.DoText (s, nullptr, Wipe);
    if (! Did2)  d.Kill (DirT);         // kill it if didn't put nothin in
-
-// kill n remake DirF so left empty
-   d.Kill (DirF);   d.Make (DirF);
-DBG("midimp done minus song cache");
-
-// recache 4_queue songs for pc
-   App.Path (DirT, 'd');   StrAp (DirT, CC("/4_queue"));
-   StrCp (c, DirT);   StrAp (c, CC("/_songcache.txt"));
-   if (Did || (! f.Size (c)))
-      {StrCp (c, CC("ll song "));   StrAp (c, DirT);   App.Run (c);}
+   d.Kill (DirF);   d.Make (DirF);     // kill n remake DirF so left empty
 DBG("midimp end");
    return 0;
 }

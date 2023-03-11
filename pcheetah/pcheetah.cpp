@@ -84,7 +84,6 @@ void PCheetah::SongKill ()
       return;//{Heya ("songKill only works in 4_queue dir");   return;}
    FL.lst.Del (p);   d.Kill (dr);      // and maybe group dir too
    Fn2Path (dr);   if (d.Empty (dr))  d.Kill (dr);
-   StrAp (t, CC("_songcache.txt"));   f.Kill (t);      // cache too
    FL.pos = p;
    emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
 }
@@ -143,7 +142,6 @@ DBG("dr=`s", dr);
    }
 DBG("done dr=`s", dr);
    f.ReNm (FL.lst [p], dr);   StrCp (FL.lst [p], dr);
-   StrAp (t, CC("_songcache.txt"));   f.Kill (t);      // kill cache
    FL.pos = p;
    emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
 }
