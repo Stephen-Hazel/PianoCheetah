@@ -388,16 +388,15 @@ TRC("  song init");
    Gui.WinLoad (ui->spl);
    Up.cnv.SetFont ("Noto Sans", 12);   Up.tcnv.SetFont ("Noto Sans", 12);
    Up.txH  = Up.cnv.FontH ();
-   Up.oct  = new QPixmap (":/oct.png");
-   Up.pnbg = new QPixmap (":/pnbg.png");    // all dem bitmaps
-   Up.now  = new QPixmap (":/now.png");
-   Up.dot  = new QPixmap (":/dot.png");
-   Up.fng  = new QPixmap (":/fng.png");
-   Up.cue  = new QPixmap (":/cue.png");
-   Up.bug  = new QPixmap (":/bug.png");
-   Up.lhmx = new QPixmap (":/lhmx.png");
-   Up.fade = new QPixmap (":/fade.png");
-   Up.tr   = new QPixmap (":/trk.png");
+   Up.bug  = new QPixmap (":/bug");    // all dem bitmaps
+   Up.cue  = new QPixmap (":/cue");
+   Up.dot  = new QPixmap (":/dot");
+   Up.fade = new QPixmap (":/fade");
+   Up.fng  = new QPixmap (":/fng");
+   Up.lhmx = new QPixmap (":/lh");
+   Up.now  = new QPixmap (":/now");
+   Up.oct  = new QPixmap (":/oct");
+   Up.pnbg = new QPixmap (":/pnbg");
    Up.tpm  = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
 
    _s->moveToThread (& _thr);
@@ -413,20 +412,20 @@ TRC("  tbar init");
       "show / hide track editing\n"
          "the grid that picks which tracks to practice, RH/LH, sound, etc"
                                "`:/tbar/0" "`v\0"
-      "pick from song list"    "`:/tbar/1" "`\0"
-      "configure midi devices" "`:/tbar/2" "`\0"
-      "settings and junk"      "`:/tbar/3" "`\0");
+      "configure midi devices" "`:/tbar/1" "`\0"
+      "settings and junk"      "`:/tbar/2" "`\0");
    connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
-   connect (tb.Act (1), & QAction::triggered, this, & PCheetah::Load);
-   connect (tb.Act (2), & QAction::triggered, this, & PCheetah::MCfg);
-   connect (tb.Act (3), & QAction::triggered, this, & PCheetah::GCfg);
+   connect (tb.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
+   connect (tb.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
 
-  CtlTBar tb2 (this,                 // prev/next song
-      "`previous song" "`:/tbar/song/0" "`z\0"
-      "`next song"     "`:/tbar/song/1" "`x\0",
+  CtlTBar tb2 (this,                 // list/prev/next song
+      "pick from song list" "`:/tbar/song/0" "`\0"
+      "`previous song"      "`:/tbar/song/1" "`z\0"
+      "`next song"          "`:/tbar/song/2" "`x\0",
       "tbSLst");
-   connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::SongPrv);
-   connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::SongNxt);
+   connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::Load);
+   connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
+   connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
 
   CtlTBar tb3 (this,                 // transport - play/pause/etc
       "restart"            "`:/tbar/time/0" "`1\0"
@@ -576,10 +575,12 @@ TRC("  emit quit");
       emit sgCmd (CC("quit"));
    }
    if (_dMov != nullptr) {
-TRC("  Win,dlg save");
+TRC("  win,dlg save");
       Gui.WinSave (ui->spl);
       _dFL->Quit ();    _dCfg->Quit ();   _dTDr->Quit ();
-      _dCtl->Quit ();   _dCue->Quit ();   _dMov->Quit ();
+      _dCue->Quit ();   _dChd->Quit ();   _dCtl->Quit ();
+      _dTpo->Quit ();   _dTSg->Quit ();   _dKSg->Quit ();
+      _dFng->Quit ();   _dMov->Quit ();   _dHlp->Quit ();
       delete _dFL;    delete _dCfg;   delete _dTDr;
       delete _dCue;   delete _dChd;   delete _dCtl;
       delete _dTpo;   delete _dTSg;   delete _dKSg;

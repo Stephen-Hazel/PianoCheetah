@@ -1,21 +1,21 @@
 <RCC>
     <qresource prefix="/">
         <file>app.ico</file>
+        <file>bug.png</file>
+        <file>cue.png</file>
+        <file>dot.png</file>
+        <file>fade.png</file>
+        <file>fng.png</file>
+        <file>lh.png</file>
+        <file>now.png</file>       
         <file>oct.png</file>
         <file>pnbg.png</file>
-        <file>now.png</file>
-        <file>dot.png</file>
-        <file>fng.png</file>
-        <file>cue.png</file>
-        <file>bug.png</file>
-        <file>lh.png</file>
-        <file>fade.png</file>
         <file>tbar/0.png</file>
         <file>tbar/1.png</file>
-        <file>tbar/2.png</file>
-        <file>tbar/3.ico</file>
+        <file>tbar/2.ico</file>
         <file>tbar/song/0.png</file>
         <file>tbar/song/1.png</file>
+        <file>tbar/song/2.png</file>
         <file>tbar/time/0.png</file>
         <file>tbar/time/1.png</file>
         <file>tbar/time/2.png</file>
@@ -37,8 +37,8 @@
         <file>tbar/lrn/0.png</file>
         <file>tbar/lrn/1.png</file>
         <file>tbar/lrn/2.png</file>
-        <file>tbar/flst/0.png</file>
-        <file>tbar/flst/1.svg</file>
+        <file>tbar/flst/0.svg</file>
+        <file>tbar/flst/1.png</file>
         <file>tbar/flst/2.png</file>
         <file>tbar/flst/3.png</file>
         <file>tbar/cue/a0.png</file>

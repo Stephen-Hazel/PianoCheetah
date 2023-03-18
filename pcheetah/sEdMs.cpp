@@ -277,7 +277,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          if (! dr)  StrAp (s, StrFmt (s2, ".`d", _f.trk [tr].chn+1));
          Hey (s);
       }
-DBG(" Up.Pos at=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
+//DBG(" Up.Pos at=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
       if (Up.pos.at == 'x') {
          if (Up.pos.got) {
             e = &      _f.trk [Up.pos.tr].e [Up.pos.p];

@@ -18,7 +18,7 @@ bool Song::TSho (ubyte t)  {return (TLrn (t) || (_f.trk [t].ht == 'S'))
                                                           ? true : false;}
 
 void Song::ReTrk ()
-// give gui what it needs in Up.tr
+// give gui what it needs in Up.trk
 { ubyte r;
   char  c;
   TStr  s, g;

@@ -368,35 +368,41 @@ void DlgFL::Shut ()
 void DlgFL::Init ()
 {  Gui.DlgLoad (this, "DlgFL", ui->spl);   FL.Load ();
   CtlTBar tb (this,
-      "Search\n"   "Search a big midi file dir for matching search strings"
-                   "`:/tbar/flst/0" "`\0"   // edit-find
       "Browse\n"   "Open file browser in PianoCheetah directory\n"
                    "(to delete/rename/etc)"
-                   "`:/tbar/flst/1" "`\0"   // object-columns
+                   "`:/tbar/flst/0" "`\0"   // object-columns
       "Up\n"       "Scoot song up in the list"
-                   "`:/tbar/flst/2" "`\0"   // go-up
+                   "`:/tbar/flst/1" "`\0"   // go-up
       "Down\n"     "Scoot song down in the list"
-                   "`:/tbar/flst/3" "`\0"   // go-down
+                   "`:/tbar/flst/2" "`\0"   // go-down
+      "Search\n"   "Search a big midi file dir for matching search strings\n"
+                   "(don't click me to you fill in the search box below)"
+                   "`:/tbar/flst/3" "`\0"   // edit-find
    );
-   connect (tb.Act (0), & QAction::triggered, this, & DlgFL::Find);
-   connect (tb.Act (1), & QAction::triggered, this, & DlgFL::Brow);
-   connect (tb.Act (2), & QAction::triggered, this, & DlgFL::Up);
-   connect (tb.Act (3), & QAction::triggered, this, & DlgFL::Dn);
+   connect (tb.Act (0), & QAction::triggered, this, & DlgFL::Brow);
+   connect (tb.Act (1), & QAction::triggered, this, & DlgFL::Up);
+   connect (tb.Act (2), & QAction::triggered, this, & DlgFL::Dn);
+   connect (tb.Act (3), & QAction::triggered, this, & DlgFL::Find);
 
    _t.Init (ui->fLst, "Stage\0Song\0");
    connect (ui->fLst, &QTableWidget::itemClicked,       this, & DlgFL::Pik);
    connect (ui->fLst, &QTableWidget::itemDoubleClicked, this, & DlgFL::Shut);
 
   CtlLine s (ui->srch);
+  CtlChek a (ui->all);
   TStr t;
    App.CfgGet (CC("DlgFL_srch"), t);   if (*t) s.Set (t);
+   App.CfgGet (CC("DlgFL_all"),  t);
+   if (*t)  a.Set ((*t=='y')?true:false);   else a.Set (true);
 
    connect (ui->all, &QCheckBox::stateChanged, this, & DlgFL::ReDo);
 }
 
 void DlgFL::Quit ()
 { CtlLine s (ui->srch);
+  CtlChek a (ui->all);
   TStr t;
-   StrCp (t, s.Get ());   App.CfgPut (CC("DlgFL_srch"), t);
+   StrCp (t, s.Get ());               App.CfgPut (CC("DlgFL_srch"), t);
+   StrCp (t, CC(a.Get ()?"y":"n"));   App.CfgPut (CC("DlgFL_all"),  t);
    Gui.DlgSave (this, "DlgFL", ui->spl);
 }

@@ -703,7 +703,7 @@ TRC("DrawPg `d", pp);
 //p, TmSt(z1,_lm[p].tm), MKey2Str(z2,_lm [p].nt),
 //TmSt(z3,t1), MKey2Str(z4,nt));
          if ((nt > co.nMn) && (nt <= co.nMx)) {
-            w = Nt2X (nt, & co);
+            w = Nt2X (nt, & co, 'g') - nx;
             y = Tm2Y (t1, & co);   y2 = Tm2Y (_lm [p].tm, & co);
             if (y2 >= co.h)  y2 = co.h-1;
 //DBG("1  x=`d y=`d w=`d h=`d y2=`d", nx, y, w, y2-y,y2);
@@ -712,7 +712,7 @@ TRC("DrawPg `d", pp);
          t1 = _lm [p].tm;   nt = _lm [p].nt;
       }                                // continue last rect
       if ((t1 < tMx) && (nt > co.nMn) && (nt <= co.nMx)) {
-            w = Nt2X (nt, & co);
+            w = Nt2X (nt, & co, 'g') - nx;
             y = Tm2Y (t1, & co);   y2 = Tm2Y (_lm [p].tm, & co);
             if (y2 >= co.h)  y2 = co.h-1;
 //DBG("2  x=`d y=`d w=`d h=`d y2=`d", nx, y, w, y2-y,y2);
