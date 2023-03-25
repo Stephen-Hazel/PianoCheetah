@@ -1,6 +1,7 @@
 // ll.cpp - list long like unix (but no sortin, only midi)
 
 #include "../../stv/os.h"
+#include "../../stv/midi.h"
 
 TStr Ext, Top;
 bool  Q;
@@ -16,9 +17,7 @@ void DoDir (char *dir)
          if (df == 'f') {
            ulong ln = StrLn (fn);      // only care bout midi files
             if      (! StrCm (Ext, CC("midi"))) {
-               if ( (ln > 4) && ((! StrCm (& fn [ln-4], CC(".mid"))) ||
-                                 (! StrCm (& fn [ln-4], CC(".kar"))) ||
-                                 (! StrCm (& fn [ln-4], CC(".rmi")))) )
+               if (FnMid (fn))
                   {F.Put (& fn [StrLn (Top)+1]);   F.Put (CC("\n"));   N++;}
             }
             else if (! StrCm (Ext, CC("song"))) {

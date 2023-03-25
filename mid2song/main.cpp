@@ -73,7 +73,7 @@ private:
    void  Dump    (bool ev = false);
 };
 
-Song *S;                               // sigh...:(((
+Song *S;
 
 void Ugh (char *s)
 { TStr fn;
@@ -1086,9 +1086,6 @@ TRC("fn=`s", FN);
    S = new Song ();   S->CvtMid ();   delete S;
 
    Fs.Shut ();
-
-   StrCp (to, fn);   StrAp (to, CC("orig.song"), 6);  // a.song => orig.song
-   f.Copy (fn, to);
 TRC("mid2song end");
    return 0;
 }

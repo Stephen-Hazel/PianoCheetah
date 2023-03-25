@@ -555,7 +555,7 @@ TRC("  dlg init");
    connect (_dFng, & DlgFng::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dMov, & QDialog::accepted, this, [this]() {emit sgCmd ("mov");});
 
-// parse cmdline arg:  find on DIR;  else single song file
+// parse cmdline arg:  try to load song in dir or turn fn into song to do
   bool ld = false;
   TStr a;
   FDir d;

@@ -10,26 +10,13 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOUIC_SEARCH_PATHS rc)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
-        pcheetah.cpp
         pcheetah.h
-        pcheetah.ui
-        dlgfl.ui
-        dlgcfg.ui
-        dlgtdr.ui
-        dlgctl.ui
-        dlgchd.ui
-        dlgcue.ui
-        dlgfng.ui
-        dlgmov.ui
-        dlgtpo.ui
-        dlgtsg.ui
-        dlgksg.ui
-        dlghlp.ui
         pcheetah.cpp
         ctlNt.cpp
         dlgFL.cpp
@@ -64,6 +51,19 @@ set(PROJECT_SOURCES
         ../../stv/timer.h
         ../../stv/midi.cpp
         ../../stv/midiChd.cpp
+        rc/dlgcfg.ui
+        rc/dlgchd.ui
+        rc/dlgctl.ui
+        rc/dlgcue.ui
+        rc/dlgfl.ui
+        rc/dlgfng.ui
+        rc/dlghlp.ui
+        rc/dlgksg.ui
+        rc/dlgmov.ui
+        rc/dlgtdr.ui
+        rc/dlgtpo.ui
+        rc/dlgtsg.ui
+        rc/pcheetah.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

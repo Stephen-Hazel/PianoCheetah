@@ -184,7 +184,7 @@ struct FLstDef {
    ubyt4           pos;
    void Load (), Save ();
    bool DoFN  (char *fn);
-   bool DoDir (char *dir, char *srch = nullptr);
+   bool DoDir (char *dir);
 };
 extern FLstDef FL;
 

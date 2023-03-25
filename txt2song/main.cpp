@@ -1,4 +1,4 @@
-// txt2song.cpp - convert a _song.txt file to .song file
+// txt2song.cpp - convert my "text song" formatte a.txt to a.song
 
 #include "../../stv/os.h"              // sigh - midi needs threads needs qt
 #include "../../stv/midi.h"
@@ -6,6 +6,7 @@
 #define VEL(v)    ((v)*126/9+1)        // turn v of 0-9 into midi velo of 1-127
 
 TStr  FN, SFN,                         // fn of .txt, .song
+      FNRats,                          // errors go herez
       SPath, Path,                     // path of pc, .txt dir
       ErrFN;                           // FN of curr .txt file loading
 ubyt4 ErrLine;                         // line# of it
@@ -45,7 +46,10 @@ char  Scale [12], Artc,           // defaults
 
 
 void Die (char *msg)
-{  DBG ("`s  (file `s line `d)", msg, ErrFN, ErrLine+1);
+{ TStr s;
+  File f;
+   StrFmt (s, "`s  (file `s line `d)\n", msg, ErrFN, ErrLine+1);
+   f.Save (FNRats, s, StrLn (s));
    exit (99);
 }
 
@@ -111,7 +115,7 @@ char *DoNote (char *b, ubyte l)
             step = MKey (MDrum [step].key);
             nt = got = true;   b += 4;   l -= 4;
             StrCp (TNm [NTrk], CC("DrumTrack"));      // might as well
-            StrCp (TSn [NTrk], CC("Drum/Drum"));
+            StrCp (TSn [NTrk], CC("drum/drum"));
             break;
          }
    // regular octNoteNote...
@@ -205,7 +209,6 @@ char *DoCC (char *b)
 // try to find Ctrl=Valu...  n pop inna control change event (or special ones)
 { ubyte c, i;
   ubyt2 v, n, d;
-  bool  got;
   char *p, *p2, *p3;
    if (! (p = StrCh (b, '=')))  Die (CC("DoCC  no ="));
    *p++ = '\0';
@@ -213,9 +216,9 @@ char *DoCC (char *b)
 // special-ish ones...
    if (! StrCm (b, CC("sound" ))) {
       StrCp (TSn [NTrk], p);
-      if (! StrCm (p, CC("Drum"), 4))
+      if (! StrCm (p, CC("drum"), 4))
          {StrCp (TNm [NTrk], CC("DrumTrack"));
-          StrCp (TSn [NTrk], CC("Drum/Drum"));}
+          StrCp (TSn [NTrk], CC("drum/drum"));}
       return nullptr;
    }
    if (! StrCm (b, CC("mode"  ))) {
@@ -224,9 +227,12 @@ char *DoCC (char *b)
    }
    if (! StrCm (b, CC("name"  ))) {
       StrCp (TNm [NTrk], p);
-      if (! MemCm (p, CC("Drum"), 4))
+      if (! MemCm (p, CC("drum"), 4))
          {StrCp (TNm [NTrk], CC("DrumTrack"));
-          StrCp (TSn [NTrk], CC("Drum/Drum"));}
+          StrCp (TSn [NTrk], CC("drum/drum"));}
+      else if ( (! StrCm (p, CC("LH"))) ||
+                (! StrCm (p, CC("RH"))) )
+         {StrCp (& TMd [NTrk][1], p);   TMd [NTrk][0] = '?';}
       return nullptr;
    }
    if (! StrCm (b, CC("section"))) {
@@ -276,7 +282,6 @@ NMrk, Mrk[NMrk].s, Mrk[NMrk].t, TmS (db,Mrk[NMrk].t));
       }
       else if (v == 0x0204)      // default 4/4 to 4/4/4
          v = 0x3204;
-      got = true;
    }
    else if (! StrCm (b, CC("KSig"))) {
      char *map = CC("b2#b#b2#b#b2");
@@ -488,7 +493,7 @@ TRC("NSct=`d", NSct);
                }
                else                          // note
                   f.Put (StrFmt (SB, "`s`c`d",
-                     (! StrCm (TSn [t], CC("Drum/Drum"))) ? MDrm2Str (s, c)
+                     (! StrCm (TSn [t], CC("drum/drum"))) ? MDrm2Str (s, c)
                                                           : MKey2Str (s, c),
                      (e->valu & 0x0080) ? ((e->val2 & 0x80) ? '~' : '_')
                                         : '^',  e->valu & 0x007F));
@@ -549,7 +554,7 @@ TRC("NSct=`d", NSct);
             }
             else                          // note
                f.Put (StrFmt (SB, "`s`c`d",
-                  (! StrCm (TSn [t], CC("Drum/Drum"))) ? MDrm2Str (s, c)
+                  (! StrCm (TSn [t], CC("drum/drum"))) ? MDrm2Str (s, c)
                                                        : MKey2Str (s, c),
                   (e->valu & 0x0080) ? ((e->val2 & 0x80) ? '~' : '_')
                                      : '^',  e->valu & 0x007F));
@@ -559,9 +564,6 @@ TRC("NSct=`d", NSct);
       }
    }
    f.Shut ();
-
-   StrCp (to, SFN);   StrAp (to, CC("orig.song"), 6); // a.song => orig.song
-   f.Copy (SFN, to);
 }
 
 
@@ -618,7 +620,7 @@ char *DoLine (char *b, ubyt2 l, ubyt4 line, void *ptr)
    if (Chrd)  return DoChord (b, (ubyte)l);
 
 // EndTrack?
-   if (StrCm (b, CC("EndTrack")) == 0)  {EndTrack ();  return nullptr;}
+   if (StrCm (b, CC("NextTrack")) == 0)  {EndTrack ();  return nullptr;}
 
 // include?
    if (*b == '#') {
@@ -679,6 +681,8 @@ TRC("txt2song `s", argv [1]);
    Octv = 4;   Velo = VEL(7);   Artc = '>';
    MemCp (Scale, CC("c_d_ef_g_a_b"), 12);
    StrCp (Path,  FN);   Fn2Path (Path);     // Path of current dir
+   StrFmt (FNRats, "`s/RATS.txt", Path);   f.Kill (FNRats);
+
    StrCp (ErrFN, FN);   ErrLine = 0;        // FN we're loadin n line#
    App.Path (SPath, 'd');                   // path to pianocheetah dir
 

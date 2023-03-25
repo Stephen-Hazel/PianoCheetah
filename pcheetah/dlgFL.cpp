@@ -103,7 +103,7 @@ void FLstDef::Save ()
 
 
 static char *FLFind (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
-// find cached mid/kar/rmi files matchin search Col[NCol] - count,make found.txt
+// find cached mid files matchin search Col[NCol] - count,make found.txt
 {  (void)pos;   (void)len;   (void)ptr;
    for (ubyte i = 0;  i < NCol;  i++)  if (! StrSt (fn, Col [i]))
                                            return nullptr;
@@ -132,96 +132,36 @@ static char *FLCopy (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 }
 
 
-bool FLstDef::DoDir (char *dir, char *srch)
-{ TStr pc, ts, fnx, fnf;
-  File f;
-  ubyt4 i, ln;
+bool FLstDef::DoDir (char *dir)
 // if pc dir (win expl play song dir), just scoot to it in list
+{ ubyt4 i, ln;
+  TStr  pc, fn, c;
+  File  f;
 TRC("FL.DoDir `s", dir);
+   FL.pos = 0;
    App.Path (pc, 'd');
-   if (! MemCm (dir, pc, StrLn (pc))) {
-      for (ln = StrLn (dir), i = 0;  i < FL.lst.Ln;  i++)
-         if (! MemCm (dir, FL.lst [i], ln)) {
-            FL.pos = i;
-            StrAp (dir, CC("/a.song"));     // if just one song, load it upp
-            return f.Size (dir) ? true : false;
-         }
-   }
-
-// else do a real find...
-DBG("checkin _midicache.txt");
-   StrFmt (fnx, "`s/_midicache.txt", dir);
-   if (! f.Size (fnx)) {               // no cache yet so start makin one
-      StrCp (pc, CC("ll midi "));   StrAp (pc, dir);   StrAp (pc, CC(" &"));
-      App.Run (pc);
-      Gui.Hey ("Making cache.  When it's done, find again please.");
+   if (MemCm (dir,  pc,  StrLn (pc))) {
+      Gui.Hey ("Put new midi files in .../pianocheetah/midi_import");
       return false;
    }
-
-// turn srch into Col[],NCol
-   StrCp (ts, srch ? srch : CC(""));
-  ColSep ss (ts, 8);
-   for (NCol = 0;  ss.Col [NCol][0];  NCol++)  Col [NCol] = ss.Col [NCol];
-
-// wipe n recreate 4_queue/found
-  FDir d;
-   StrAp (pc, CC("/4_queue/found"));   d.Kill (pc);   d.Make (pc);
-
-   NFnd = 0;   StrFmt (fnf, "`s.txt", pc);
-   if (! FFnd.Open (fnf, "w"))  return false;
-   f.DoText (fnx, nullptr, FLFind);   FFnd.Shut ();
-DBG("found `d", NFnd);
-   if (NFnd == 0)   {Gui.Hey ("none found");   return false;}
-   if (NFnd >= 256) {Gui.Hey ("too many files - see 4_queue/found.txt");
-                                               return false;}
-   StrCp (DirF, dir);   StrCp (DirT, pc);   f.DoText (fnf, nullptr, FLCopy);
-                                            f.Kill   (fnf);
-   FL.Load ();                         // relist and move sPos to queue/found
-   FL.pos = 0;
-   for (ln = StrLn (pc), i = 0;  i < FL.lst.Ln;  i++)
-      if (! MemCm (pc, FL.lst [i], ln))  {FL.pos = i;   break;}
-   return ((FL.pos > 0) ? true : false);
+   if (! f.Size (StrFmt (fn, "`s/a.song", dir))) {
+      StrFmt (fn, "`s/a.txt", dir);
+      if (f.Size (fn))
+           {StrCp (c, CC("txt2song "));   StrAp (c, fn);}
+      else {StrCp (c, CC("mid2song "));   StrAp (c, fn);}
+      App.Run (c);
+      FL.Load ();
+   }
+   for (ln = StrLn (dir), i = 0;  i < FL.lst.Ln;  i++)
+      if (! MemCm (dir, FL.lst [i], ln))
+         {FL.pos = i;   return true;}  // got it?  hop to it n go
+   return false;
 }
 
 
 bool FLstDef::DoFN (char *fn)          // add single file to fLst
-{ TStr pc, ts, fr, to, fnx;
-  File f;
-  FDir d;
-  ubyt4 ln, i;
-TRC("FL.DoFN `s", fn);
-   ln = StrLn (fn);   *to = '\0';
-   App.Path (pc, 'd');
-   if ( ((ln > 4) && (! StrCm (& fn [ln-4], CC(".mid")))) ||
-        ((ln > 4) && (! StrCm (& fn [ln-4], CC(".kar")))) ||
-        ((ln > 4) && (! StrCm (& fn [ln-4], CC(".rmi")))) ) {
-      if (MemCm (fn, pc, StrLn (pc))) {
-      // .mid not in pc dir?  copy it (mini find)
-         StrAp (pc, CC("/4_queue/found"));   d.Kill (pc);
-         StrCp (fr, fn);
-         StrCp (to, pc);   StrAp (to, CC("/"));   StrAp (to, FnName (ts, fn));
-         FnName (fnx, to);   StrAp (to, CC("/"), 4);   StrAp (to, fnx);
-         f.Copy (fr, to);
-      }
-      else
-         StrCp (to, fn);               // inside pc, just plain Mid2Song of it
-      StrCp (ts, CC("mid2song "));   StrAp (ts, to);   App.Run (ts);
-      FL.Load ();
-      Fn2Path (to);
-   }
-   else if ((ln > 8) && (! StrCm (& fn [ln-8], CC("song.txt")))) {
-      StrCp (ts, CC("txt2song "));   StrAp (ts, fn);   App.Run (ts);
-      FL.Load ();
-      StrCp (to, fn);   Fn2Path (to);
-   }
-   else if ((ln > 5) && (! StrCm (& fn [ln-5], CC(".song"))))
-      {StrCp (to, fn);   Fn2Path (to);}
-   if (*to) {                          // set FPos
-      for (i = 0;  i < FL.lst.Ln;  i++)  if (! StrCm (to, FL.lst [i]))
-                                            {FL.pos = i;   break;}
-      return true;
-   }
-   return false;                       // wtf is THAT?
+{ TStr dir;
+   StrCp (dir, fn);   Fn2Path (dir);   return DoDir (dir);
 }
 
 
@@ -318,11 +258,8 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
          case '3':  StrCp (s1, CC("done"));    StrCp (s2, & ts [ 7]);   break;
          case '4':  StrCp (s1, CC("queue"));   StrCp (s2, & ts [ 8]);   break;
       }
+      if (FnMid (s2))  StrAp (s2, CC(""), 4);
       d = StrLn (s2);
-      if ( (d >= 4) && ((! StrCm (& s2 [d-4], CC(".mid"))) ||
-                        (! StrCm (& s2 [d-4], CC(".kar"))) ||
-                        (! StrCm (& s2 [d-4], CC(".rmi")))) )
-         StrAp (s2, CC(""), 4);
       if ( (d >= 9) && (! StrCm (& s2 [d-9], CC("_song.txt"))) )
          StrAp (s2, CC(""), 4);
       ro [0] = s1;   ro [1] = s2;   ro [2] = nullptr;
@@ -332,16 +269,56 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
    Pik ();
 }
 
+
 void DlgFL::Find ()
 { TStr srch, dir;
+  TStr pc, ts, fnx, fnf;
+  File f;
+  ubyt4 i, ln;
    App.CfgGet (CC("DlgFL_dir"), dir);
    if (*dir == '\0')  StrCp (dir, getenv ("HOME"));
    if (! Gui.AskDir (dir, "pick top dir to search for songs in (NOT / please)"))
       return;
+
    App.CfgPut (CC("DlgFL_dir"), dir);
   CtlLine l (ui->srch);
-   StrCp (srch, l.Get ());   FL.DoDir (dir, srch);   ReDo ();
+   StrCp (srch, l.Get ());
+
+// ok here we go...
+DBG("checkin _midicache.txt");
+   StrFmt (fnx, "`s/_midicache.txt", dir);
+   if (! f.Size (fnx)) {               // no cache yet so start makin one
+      StrCp (pc, CC("ll midi "));   StrAp (pc, dir);   StrAp (pc, CC(" &"));
+      App.Run (pc);
+      Gui.Hey ("Making cache.  When it's done, find again please.");
+      return;
+   }
+
+// turn srch into Col[],NCol
+  ColSep ss (srch, 8);
+   for (NCol = 0;  ss.Col [NCol][0];  NCol++)  Col [NCol] = ss.Col [NCol];
+
+// wipe n recreate 4_queue/found
+  FDir d;
+   StrAp (pc, CC("/4_queue/found"));   d.Kill (pc);   d.Make (pc);
+
+   NFnd = 0;   StrFmt (fnf, "`s.txt", pc);
+   if (! FFnd.Open (fnf, "w"))  return;
+
+   f.DoText (fnx, nullptr, FLFind);   FFnd.Shut ();
+DBG("found `d", NFnd);
+   if (NFnd == 0)   {Gui.Hey ("none found");   return;}
+   if (NFnd >= 256) {Gui.Hey ("too many files - see 4_queue/found.txt");
+                                               return;}
+   StrCp (DirF, dir);   StrCp (DirT, pc);   f.DoText (fnf, nullptr, FLCopy);
+                                            f.Kill   (fnf);
+   ReDo ();
+   FL.Load ();                         // relist and move pos to queue/found
+   FL.pos = 0;
+   for (ln = StrLn (pc), i = 0;  i < FL.lst.Ln;  i++)
+      if (! MemCm (pc, FL.lst [i], ln))  {FL.pos = i;   break;}
 }
+
 
 void DlgFL::Brow ()
 { TStr d, c;   if (system (StrFmt (c, "dolphin `s", App.Path (d, 'd'))))  {}  }

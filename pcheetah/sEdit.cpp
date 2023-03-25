@@ -66,14 +66,14 @@ DBG("TDr r=`d c=`d s=`d", r, c, a);
   ubyte nm;
    nm = GetSct (m);
 
-// make song.txt file with section patterns
+// make a.txt song file with section patterns
   bool  co;
   ubyt2 b1 = 1, br, bb, be;            // bars start at 1 not 0 !
   TStr  fn, pt [3];
   FDir  d;
   File  f;
    App.Path (fn, 'd');   StrAp (fn, CC("/4_queue/drumpat"));   d.Make (fn);
-   StrAp (fn, CC("/drumpat.txt"));
+   StrAp (fn, CC("/a.txt"));
    if (! f.Open (fn, "w"))  Die (StrFmt (s, "can't write song file `s", fn));
    f.Put (CC("-- drumpat.txt\n"
              "!name=drum\n"));
