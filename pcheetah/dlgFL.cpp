@@ -19,13 +19,6 @@ static bool SongOK (void *ptr, char dfx, char *fn)
    return false;
 }
 
-static char *SongOK2 (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
-{ StrArr *a = (StrArr *) ptr;
-  TStr    s;
-   (void)pos;   (void)len;
-   a->Add (StrFmt (s, "`s/`s", a->x, fn));   return nullptr;
-}
-
 void FLstDef::Load ()
 // load last FLst[];  add new files we got;  del gone files
 { ubyt4  i, j, r, ins1, ins2;
@@ -83,6 +76,7 @@ TRC("FL.Load");
       FL.lst.Ins (r);    StrCp (FL.lst [r], t.str [i]);
       FL.lst [r][FL.X] = StrSt (FL.lst [r], CC("4_queue")) ? 'n' : 'y';
    }
+   Save ();
 //for (i=0;i<FL.lst.Ln;i++) DBG("`d `c `s", i, FL.lst [i][FL.X], FL.lst [i]);
 }
 
@@ -148,7 +142,7 @@ TRC("FL.DoDir `s", dir);
       if      (f.Size (StrFmt (fn, "`s/a.txt", dir)))
          App.Run (StrFmt (c, "txt2song '`s'", fn));
       else if (f.Size (StrFmt (fn, "`s/a.mid", dir)))
-         App.Run (StrFmt (c, "mid2song 's'", fn));
+         App.Run (StrFmt (c, "mid2song '`s'", fn));
       FL.Load ();
    }
    for (ln = StrLn (dir), i = 0;  i < FL.lst.Ln;  i++)

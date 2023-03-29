@@ -117,7 +117,7 @@ DBG("TDr r=`d c=`d s=`d", r, c, a);
       for (br = bb;  br < be;  br++)
          f.Put (pt ["abababac" [(br - bb) % 8] - 'a']);
    }
-   f.Put (CC("EndTrack\n"));
+   f.Put (CC("NextTrack\n"));
    f.Shut ();
 
 // Txt2Song it, load it, and replace drumtrack
