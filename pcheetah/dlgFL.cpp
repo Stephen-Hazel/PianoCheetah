@@ -145,11 +145,10 @@ TRC("FL.DoDir `s", dir);
       return false;
    }
    if (! f.Size (StrFmt (fn, "`s/a.song", dir))) {
-      StrFmt (fn, "`s/a.txt", dir);
-      if (f.Size (fn))
-           {StrCp (c, CC("txt2song "));   StrAp (c, fn);}
-      else {StrCp (c, CC("mid2song "));   StrAp (c, fn);}
-      App.Run (c);
+      if      (f.Size (StrFmt (fn, "`s/a.txt", dir)))
+         App.Run (StrFmt (c, "txt2song '`s'", fn));
+      else if (f.Size (StrFmt (fn, "`s/a.mid", dir)))
+         App.Run (StrFmt (c, "mid2song 's'", fn));
       FL.Load ();
    }
    for (ln = StrLn (dir), i = 0;  i < FL.lst.Ln;  i++)

@@ -34,7 +34,7 @@ char *Move (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
    StrFmt (fr, "`s/`s",       DirF, fn);
    StrFmt (to, "`s/`s/a.mid", DirT, fnx);
 // move n mid2song
-   f.ReNm (fr, to);   App.Run (StrFmt (c, "mid2song `s", to));
+   f.ReNm (fr, to);   App.Run (StrFmt (c, "mid2song '`s'", to));
    return nullptr;
 }
 

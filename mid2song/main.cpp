@@ -76,13 +76,13 @@ private:
 Song *S;
 
 void Ugh (char *s)
-{ TStr fn;
+{ TStr fn, t;
+  File f;
    if (Fs.IsOpen ())  Fs.Shut ();
    if (S)   delete S;
    StrCp (fn, FN);   Fn2Path (fn);   StrAp (fn, CC("/a.song"));   Fs.Kill (fn);
-   StrAp (fn, CC("error.txt"), 6);
-   if (Fs.Open (fn, "w"))
-      {Fs.Put (CC("error="));   Fs.Put (s);   Fs.Put (CC("\n"));   Fs.Shut ();}
+   StrAp (fn, CC("RATS.txt"), 6);
+   f.Save (fn, StrFmt (t, "`s\nfn=`s\n", s, FN), StrLn (t));
 DBG("mid2song error=`s", s);
    exit (99);
 }
@@ -1066,11 +1066,9 @@ int main (int argc, char *argv [])
 { TStr fn, to;
   File f;
    App.Init (CC("pcheetah"), CC("mid2song"), CC("mid2song"));
-   if (argc < 2)  Ugh (CC("usage is Mid2Song fn.mid"));
-TRC("mid2song `s", argv [1]);
-
    StrCp (FN, argv [1]);
-TRC("fn=`s", FN);
+   if (argc < 2)  {DBG ("usage is Mid2Song fn.mid");   return 99;}
+TRC("mid2song `s", FN);
 
 // load the midi file into memory
    if ((MidLn = f.Load (FN, Mid, sizeof (Mid))) == 0)
