@@ -180,7 +180,7 @@ void MidiCfg::Save ()
 // for (d = 0;  d < n;  d++)  DLDevTyp (dt [d]);
 // turn off devs if they hit cancel on devtyp d/l
 
-// App.Run (StrFmt (ts, "cat `s", fn));
+// App.Run (StrFmt (ts, "cat `p", fn));
    emit Reload ();
 }
 

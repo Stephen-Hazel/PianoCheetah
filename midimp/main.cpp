@@ -34,7 +34,7 @@ char *Move (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
    StrFmt (fr, "`s/`s",       DirF, fn);
    StrFmt (to, "`s/`s/a.mid", DirT, fnx);
 // move n mid2song
-   f.ReNm (fr, to);   App.Run (StrFmt (c, "mid2song '`s'", to));
+   f.ReNm (fr, to);   App.Run (StrFmt (c, "mid2song `p", to));
    return nullptr;
 }
 
@@ -66,12 +66,12 @@ DBG("midimp bgn");
    StrAp (DirT, CC("/4_queue"));
 
 // list midi files in midi_import n move+mid2song em
-   StrCp (c, CC("ll midi "));   StrAp (c, DirF);   App.Run (c);
+   App.Run (StrFmt (c, "ll midi `p", DirF));
    StrCp (s, DirF);   StrAp (s, CC("/_midicache.txt"));
    f.DoText (s, nullptr, Move);
 
 // list off leftovers n move to midi_junk
-   StrCp (c, CC("ll alll "));   StrAp (c, DirF);   App.Run (c);
+   App.Run (StrFmt (c, "ll alll `p", DirF));
    Fn2Path (DirT);   StrAp (DirT, CC("/midi_junk"));   d.Make (DirT);
    StrCp (s, DirF);   StrAp (s, CC("/_cache.txt"));
    f.DoText (s, nullptr, Wipe);

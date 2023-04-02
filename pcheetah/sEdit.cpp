@@ -121,8 +121,7 @@ DBG("TDr r=`d c=`d s=`d", r, c, a);
    f.Shut ();
 
 // Txt2Song it, load it, and replace drumtrack
-   StrCp (s, CC("txt2song "));   StrAp (s, fn);
-   App.Run (s);
+   App.Run (StrFmt (s, "txt2song `p", fn));
    Fn2Path (fn);   StrAp (fn, CC("/a.song"));
 TRC("a");
   STable st [TB_MAX];
