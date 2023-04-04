@@ -243,22 +243,17 @@ DBG("FLFind fn=`s", fn);
 }
 
 
-static char *FLCopy (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
+static char *FLCopy (char *fr, ubyt2 len, ubyt4 pos, void *ptr)
 // copy and Mid2Song found mids (limit to 100)
 { ubyte i;                     (void)len;            (void)ptr;
-  TStr  fr, to, fnx, ext, cmd;
+  BStr  to, frP, toP, cmd;
   File  f;
-   if (pos >= 100)  return CC("too many");
-   StrCp (fnx, fn);   for (i = 0;  i < StrLn (fnx);  i++)
-                         if (fnx [i] == '/')  fnx [i] = '_';
-   StrCp (ext, & fnx [StrLn (fnx)-4]);   StrAp (fnx, CC(""), 4);;
-   if ((StrLn (cmd) + StrLn (DirT) + StrLn (fnx) + 10) >= sizeof (TStr))
-      {DBG("found file too long `s", fnx);   return nullptr;}
-   StrFmt (fr, "`s/`s",          DirF, fn);
-   StrFmt (to, "`s/`s/path.txt", DirT, fnx);
-   f.Save (to, fr, StrLn (fr));
-   StrFmt (to, "`s/`s/a.mid",    DirT, fnx, ext);   f.Copy (fr, to);
-   App.Run (StrFmt (cmd, "mid2song `p", to));
+   if (pos >= 100)  return CC("enough, pal!");
+   StrCp (to, fr);   StrAp (to, CC(""), 4);   FnFix (to);
+   StrFmt (frP, "`s/`s",          DirF, fr);
+   StrFmt (toP, "`s/`s/path.txt", DirT, to);   f.Save (toP, frP, StrLn (frP));
+   StrFmt (toP, "`s/`s/a.mid",    DirT, to);   f.Copy (frP, toP);
+   App.Run (StrFmt (cmd, "mid2song `p", toP));
    return nullptr;
 }
 
@@ -267,7 +262,7 @@ void DlgFL::Find ()
 { ubyt4 i, ln;
   TStr  srch, dMid, dFnd, fnC, fnF, c;
   File  f;
-  FDir  d;
+  Path  d;
 // turn srch into Col[],NCol.  get search dir n save.
   CtlLine l (ui->srch);
    StrCp (srch, l.Get ());

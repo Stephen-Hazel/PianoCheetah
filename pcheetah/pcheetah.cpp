@@ -75,7 +75,7 @@ void PCheetah::SongRand ()
 void PCheetah::SongKill ()
 { ubyt4 p = FL.pos;
   TStr  dr, t, s;
-  FDir  d;
+  Path  d;
   File  f;
    if (p >= FL.lst.Ln)  return;
 

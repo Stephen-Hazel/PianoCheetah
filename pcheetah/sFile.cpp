@@ -692,7 +692,7 @@ TRC("actually savin'");
       StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));   StrCp (fm, CC("wb"));
    }
    else {                              // recorded\songTitle\yyyymmddEtc
-     FDir d;
+     Path d;
 //    TmpoPik ('r');                                         // /a.song into fns
       FnName (fnt, _f.fn);   Fn2Name (fnt);   // kill path
       StrFmt (fns, "`s/recorded/`s/`s",  App.Path (s2, 'd'), fnt, Now (s));

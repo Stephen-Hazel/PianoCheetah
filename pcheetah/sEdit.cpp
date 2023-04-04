@@ -70,7 +70,7 @@ DBG("TDr r=`d c=`d s=`d", r, c, a);
   bool  co;
   ubyt2 b1 = 1, br, bb, be;            // bars start at 1 not 0 !
   TStr  fn, pt [3];
-  FDir  d;
+  Path  d;
   File  f;
    App.Path (fn, 'd');   StrAp (fn, CC("/4_queue/drumpat"));   d.Make (fn);
    StrAp (fn, CC("/a.txt"));
