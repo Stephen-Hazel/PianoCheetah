@@ -408,7 +408,8 @@ void Song::DrawSym (SymDef *s, ColDef *co)
       else         {x = Nt2X (n, co, 'g');   w = W_NT;}
    }
    if (dr && (h >= 8))  h = 6;         // drums have skinny head n butt
-
+TStr sx;
+DBG("dr=`b nt=`s x=`d", dr, MKey2Str (sx, s->nt), x);
    if (s->top)  {Up.cnv.RectF (x+2, y,     w-4, 1, clr);
                  Up.cnv.RectF (x+1, y+1,   w-2, 1, clr);   y += 2;   h -= 2;}
    if (s->bot)  {Up.cnv.RectF (x+1, y+h-2, w-2, 1, clr);
