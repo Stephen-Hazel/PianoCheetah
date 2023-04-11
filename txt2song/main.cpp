@@ -552,12 +552,15 @@ TRC("NSct=`d", NSct);
                   if (e->val2)  f.Put (StrFmt (SB, " `d", e->val2));
                }
             }
-            else                          // note
+            else {                        // note
                f.Put (StrFmt (SB, "`s`c`d",
                   (! StrCm (TSn [t], CC("drum/drum"))) ? MDrm2Str (s, c)
                                                        : MKey2Str (s, c),
                   (e->valu & 0x0080) ? ((e->val2 & 0x80) ? '~' : '_')
                                      : '^',  e->valu & 0x007F));
+               if ((c = (e->val2 & 0x1F)))
+                  f.Put (StrFmt (SB, "@`s", MFing [c-1]));
+            }
             f.Put (CC("\n"));
          }
          f.Put (StrFmt (SB, "EndTrack `d #ev=`d\n", t+1, TrkNE [t]));

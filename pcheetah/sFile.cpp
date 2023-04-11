@@ -712,7 +712,7 @@ TRC("save fn=`s", fns);
          if      (TEz (t))        StrFmt (s4, "EZ`c", _f.trk [t].ht);
          else if (_f.trk [t].ht)  StrFmt (s4, "`cH",  _f.trk [t].ht);
          f.Put (StrFmt (s, "`s  `s  `c`s`s  `s\n",
-            DevName (t), *s2 ? s2 : "Piano\\AcousticGrand",
+            DevName (t), *s2 ? s2 : "Piano/AcousticGrand",
             _f.trk [t].grp ? '+' : '.', s3, s4, _f.trk [t].name));
       }
 

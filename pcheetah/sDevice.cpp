@@ -36,7 +36,7 @@ char *MInDef::MpRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
 { MInDef *m = (MInDef *)ptr;   (void)len;
 // outa room?
    if (pos >= 128) {
-      DBG("MInDef::MpRec device\\`s\\ccmap.txt is > 128 lines", m->mi->Type());
+      DBG("MInDef::MpRec device/`s/ccmap.txt is > 128 lines", m->mi->Type());
       return CC("x");
    }
    if (*buf == '#')  return nullptr;

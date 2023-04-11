@@ -360,6 +360,32 @@ minr ? "Minor" : "Major", (int)num, flat ? "Flats" : "Sharps");
                Ev [ep].trak = tr;
                Ev [ep].chan = chan;
                break;
+            case 0x7F:
+            // got some old school fingering?
+               if (! MemCm ((char *)(& Mid [MidP+p]), CC("ditty_fing="), 11)) {
+                  MemCp (s, & Mid [MidP+p+11], hmmlen-11);
+                  s [hmmlen-11] = '\0';
+                 char *cp;
+                 ulong te;
+                 ubyte f;
+                  cp = NULL;   if ((cp = StrCh (s, ',')))  *cp++ = '\0';
+                  for (f = 0; f < BITS (MFing); f++)
+                     if (StrCm (MFing [f], s) == 0)  break;
+                  if (f >= BITS (MFing))  break;
+                  for (te = Ev.Ln;  te;) {
+                     --te;
+                     if (Ev [te].time != time)  break;
+TRC("te=`d ctrl=`02x valu=`02x val2=`02x cp=`s cpint=`02x",
+te, Ev[te].ctrl, Ev[te].valu, Ev[te].val2, cp, MKey (cp));
+                     if ( (! (Ev [te].ctrl & 0xFF80)) &&
+                             (Ev [te].valu & 0x80)    &&
+                          (! (Ev [te].val2 & 0x80))   &&
+                          ((! cp) || ((Ev [te].ctrl & 0x7F) == MKey (cp))) )
+                        {Ev [te].val2 = f+1;   break;}
+                  }
+                  break;
+               }
+               break;
             default:
 TRC("`02d `s: $FF`02x=(Len `d) ", tr+1, TmS (TMS, time), (int)c, hmmlen);
                for (i = 0;  (i < hmmlen) && (i < 16);  i++)
@@ -1024,6 +1050,8 @@ TRC("SB=`s", SB);
                                            : MKey2Str (ts, (ubyte)c),
                (Ev [e].valu & 0x0080) ? ((Ev [e].val2 & 0x80) ? '~' : '_')
                                       : '^',  Ev [e].valu & 0x007F));
+            if ((c = (Ev [e].val2 & 0x1F)))
+               Fs.Put (StrFmt (SB, "@`s", MFing [c-1]));
          }
          Fs.Put (CC("\n"));
       }

@@ -287,10 +287,10 @@ TRC("focus");
       else    {_lrn.lpBgn = 0;           _lrn.lpEnd = _tEnd;}
    }
    if (dir != '.')  TmHop (_lrn.lpBgn);
-   if (x >= nlB)
-      Hey (StrFmt (ts, "in bugless loop #`d", x+1));
+   if (x >= nlB)  ;
+//    Hey (StrFmt (ts, "in bugless loop #`d", x+1));
    else {
-      Hey (StrFmt (ts, "in bug loop #`d of `d  (bugs=`d)", x+1, nlB, lp [x].t));
+//    Hey (StrFmt (ts, "in bug loop #`d of `d  (bugs=`d)", x+1, nlB, lp [x].t));
       if (PRAC) {
          if (lp [x].mx == 0)
 DBG("BUG!  _dn not set for SetLp() in sUtil.cpp");    // in case /0 :/

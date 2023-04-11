@@ -893,7 +893,7 @@ TRC("DrawPg `d", pp);
    if (Cfg.ntCo == 1) {                // draw velocity scale?
       w = Up.w / 128;   if (Up.w % 128)  w++;
       for (ubyt4 c = 0;  c < 128;  c++)
-         Up.cnv.RectF ((ubyt2)(c * Up.w / 128), Up.h-4, w, 4, CRng [c]);
+         Up.cnv.RectF ((ubyt2)(c * Up.w / 128), Up.h-6, w, 4, CRng [c]);
    }
    DrawRec (true, pp);
 TRC("DrawPg end");

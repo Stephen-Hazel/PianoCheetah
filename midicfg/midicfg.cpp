@@ -415,7 +415,7 @@ DBG("} ThrDLDevTyp::Go - cancel3");
 DBG("} ThrDLDevTyp::Go - couldn't download devicetype :(", arg);
          return End ();
       }
-      StrFmt (fn, "`s\\Device\\`s.zip",  App.Path (wn, 'd'), arg);
+      StrFmt (fn, "`s/Device/`s.zip",  App.Path (wn, 'd'), arg);
       f.Save (fn, Buf, Len);
       if (_w->die) {
 DBG("} ThrDLDevTyp::Go - died");
@@ -452,7 +452,7 @@ void DLDevTyp (char *nm)
   File  f;
 DBG("{ DLDevTyp `s", nm);
    StrCp (s, nm);   if (p = StrCh (s, ' '))  *p = '\0';
-   App.Path (fn, 'd');   StrAp (fn, "\\device\\");   StrAp (fn, s);
+   App.Path (fn, 'd');   StrAp (fn, "/device/");   StrAp (fn, s);
 
    if ( (! StrCm (s, "OFF")) || f.PathGot (fn) ) {
 DBG("} DLDevTyp  (already got or OFF)");

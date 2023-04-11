@@ -101,7 +101,7 @@ void Song::PutLy ()
    if (*Up.hey)  {StrCp (Up.lyr, Up.hey);   *Up.hey = '\0';
                   emit sgUpd ("lyr");   return;}
 // ain't got none so bail
-   if (! (ne = _f.lyr.Ln))  {emit sgUpd ("lyr");   return;}
+   if (! (ne = _f.lyr.Ln))  return;
 
 // _pLyr is NEXT pos to check so we're actually AT the previous spot
    if ((pos = _pLyr))  {pos--;   got = true;}

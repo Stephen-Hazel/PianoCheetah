@@ -1,39 +1,41 @@
-// synz.cpp - back to basics .WAV based synth for PianoCheetah
+// syn's main.cpp - back to basics .WAV based synth for PianoCheetah
 
 #include "../../stv/os.h"
 #include "../../stv/aud.h"
 #include "../../stv/syn.h"
 
-void Go ()
-{
+
+int main (int argc, char *argv [])
+{  App.Init (CC("pcheetah"), CC("syn"), CC("syn"));
 TRC("syn bgn");
-  DWORD *m, w;
+  sbyt4 *m, w;
   ShMem  shm;
   AudO   auo;
   bool   quit = false;
   MSG    msg;
   ubyte  ch, v, v2;
-  uword  c;
-  ulong  tp = 120;
-   InitCom ();
+  ubyt2  c;
+  ubyt4  tp = 120;
 
 // special-ish App.UpdTrc()
    { TStr s;
-      App.CfgGet ("syntrace", s);   App.trc = (*s == 'y') ? true : false;
+      App.CfgGet (CC("syntrace"), s);   App.trc = (*s == 'y') ? true : false;
    }
 // am i already here?  if so, sneak out
-   if (shm.Open ("syn.exe", sizeof (DWORD)))
-      {shm.Shut ();   QuitCom ();   return 0;}
+   if (shm.Open ("syn.exe", sizeof (sbyt4)))
+      {shm.Shut ();   return 99;}
 
 // i ain't, so open up shop
-   if (! (m = (DWORD *) shm.Init ("syn.exe", sizeof (DWORD))))
-      Die ("shm.Init died");
+   if (! (m = (sbyt4 *) shm.Init ("syn.exe", sizeof (sbyt4)))) {
+DBG("shm.Init died");
+      return 99;
+   }
    *m = ::GetCurrentThreadId ();
 TRC("shm ok");
 
 // init audioOut and synth
    auo.Open ();                        // shouuuld keep tmpo up to date...:/
-  Syn syn (& tp, (uword)auo._len, auo._bits, auo._float, auo._frq);
+  Syn syn (& tp, (ubyt2)auo._len, auo._bits, auo._float, auo._frq);
           syn.PutAuO (auo.GetBuf ());   auo.PutBuf ();
 
 TRC("init done - startin loop");
@@ -72,10 +74,6 @@ TRC(" syn exit");
 TRC("syn shuttin down");
    auo.Shut ();   shm.Shut ();
 TRC("syn end");
-}
 
-
-int main (int argc, char *argv [])
-{  App.Init (CC("pcheetah"), CC("syn"), CC("syn"));
-   Go ();   return 0;
+   return 0;
 }
