@@ -301,7 +301,7 @@ TStr s1,s2;
 TRC(" eoLoop a `s lpBgn=`s lpEnd=`s", LrnS (), TmSt(s1,_lrn.lpBgn),
                                                TmSt(s2,_lrn.lpEnd));
       // TRICKY :/ TimeHop () resets lrn to pLrn
-        bool rv = _lrn.pLrn ? false : true;      // kick review?
+        bool rv = _lrn.lpRvw && (! _lrn.pLrn);   // kick review?
          Cmd (CC("timeBar1"));                   // or turn prac back on
          SetLp ('.');
          if (rv) {

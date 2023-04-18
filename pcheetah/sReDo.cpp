@@ -191,37 +191,36 @@ TRC("SetDn end");
 
 
 //______________________________________________________________________________
-static int LpCmp (void *p1, void *p2)  // by .t desc, .b desc, .tm
+static int LpCmp (void *p1, void *p2)
 { sbyt4 *i1 = (sbyt4 *)p1, *i2 = (sbyt4 *)p2, d;
-   if ((d = i2 [2] - i1 [2]))  return d;
-   if ((d = i2 [3] - i1 [3]))  return d;
-   return   i1 [0] - i2 [0];
+   if ((d = i2 [2] - i1 [2]))  return d;    // by .t desc
+   return   i1 [0] - i2 [0];                //    .tm asc
 }
 
 void Song::SetLp (char dir)
 // i=init to worst loop;  .=refresh(but no TmHop)  <,>=hop  f=focus
 // [cues, _dn, _bug=> calcd loops then set curr lpBgn,lpEnd n adj tempo %
 // make sure _dn is SET !
-{ ubyt4 p, x, xt, l, nl, nlB, tMn, tMx, in;
+{ ubyt4 nl, p, x, xt, l, nlB, tMn, tMx, in;
   bool  usex = true;                   // set _lrn.lp* to lp[x] ?
   TStr  ts, t2;
-  struct {ubyt4 tm, te, t, b, mx;} lp [4096];
-// tm-te is time range;  t is #distinct times for bugs, b is total bugs
-// mx is total possible distinct times from dn
+  struct {ubyt4 tm, te, d, nd;} lp [4096];
+// tm-te is time range;  d = #distinct bug times;  nd = total times (from _dn)
 
 TRC("SetLp dir=`c _now=`s   loops:", dir, TmSt (ts, _now));
 // gather cue [s to remake lp[];  pick start time of loop we're in based on _now
+   _lrn.lpRvw = false;                 // only if you're in a loop n good enough
    nl = xt = 0;
    for (p = 0;  p < _f.cue.Ln;  p++)
-      if (_f.cue [p].tend && (_f.cue [p].s [0]=='[')) {
-      // set lp[nl].tm - .te;  .mx = #_dn[]s;  .t,.b set later
+      if (_f.cue [p].tend && (_f.cue [p].s [0] == '[')) {
+      // set lp[nl].tm - .te;  .nd = #_dn[]s;  .d set later
          lp [nl].tm = _f.cue [p].time;   lp [nl].te = _f.cue [p].tend;
-                                         lp [nl].t = lp [nl].b = lp [nl].mx = 0;
+                                         lp [nl].d = lp [nl].nd = 0;
          for (x = 0;  x < _dn.Ln;  x++)  if ((_dn [x].time >= lp [nl].tm) &&
                                              (_dn [x].time <  lp [nl].te))
-            lp [nl].mx++;
+            lp [nl].nd++;
 //DBG("   `d `s-`s mx=`d",
-//nl, TmSt(ts, lp [nl].tm), TmSt(t2, lp [nl].te), lp [nl].mx);
+//nl, TmSt(ts, lp [nl].tm), TmSt(t2, lp [nl].te), lp [nl].nd);
       // usually want 2nd loop of an overlap cuz we're usually sittin at lpBgn
       // so 2nd time thru will set xt again
          if ((_now >= lp [nl].tm) && (_now <= lp [nl].te))  xt = lp [nl].tm;
@@ -242,18 +241,18 @@ TRC(" _now's lp.tm=`s nLp=`d   bugs:", xt?TmSt(ts, xt):"outside", nl);
 //DBG("   `d tm=`s n=`s", p, TmSt (ts, _f.bug [p].time), _f.bug [p].s);
       for (l = 0;  l < nl;  l++)  if ((_f.bug [p].time >= lp [l].tm) &&
                                       (_f.bug [p].time <= lp [l].te)) {
-      // lp[].t = #distinct times of bugs, .b = total bugs
-         lp [l].t++;   lp [l].b += (Str2Int (_f.bug [p].s) - 1);
-//DBG("   lp=`d now #times=`d #bugs=`d", l, lp [l].t, lp [l].b);
+      // lp[].d = #distinct times of bugs
+         lp [l].d++;
+//DBG("   lp=`d now #times=`d #bugs=`d", l, lp [l].d);
       }
    }
    Sort (lp, nl, sizeof (lp[0]), LpCmp);    // by #times desc,#bugs desc,time
 
 // nlB = nLp with any bugs
-   nlB = nl;   while (nlB && lp [nlB-1].t == 0)  nlB--;
+   nlB = nl;   while (nlB && lp [nlB-1].d == 0)  nlB--;
 TRC(" lp[] final  (nlB=`d)", nlB);
-for (l = 0;  l < nl;  l++)  TRC("   `d tb=`s te=`s #times=`d/`d #bugs=`d",
-l, TmSt(ts,lp [l].tm), TmSt(t2,lp [l].te), lp [l].t, lp [l].mx, lp [l].b);
+for (l = 0;  l < nl;  l++)  TRC("   `d tb=`s te=`s #times=`d/`d",
+l, TmSt(ts,lp [l].tm), TmSt(t2,lp [l].te), lp [l].d, lp [l].nd);
 
    if (dir == 'i')  x = 0;             // init loop to worst (top o list)
    else {                              // refind loop havin xt for lpBgn
@@ -282,24 +281,23 @@ TRC("focus");
          }                                            // else restore
       }
    }
-   if (usex) {                         // gotta set em?  or did focus do it alrd
-      if (nl) {_lrn.lpBgn = lp [x].tm;   _lrn.lpEnd = lp [x].te;}
-      else    {_lrn.lpBgn = 0;           _lrn.lpEnd = _tEnd;}
+   if (usex) {                         // set em unless we already did
+      if (nl)  {_lrn.lpBgn = lp [x].tm;   _lrn.lpEnd = lp [x].te;}
+      else     {_lrn.lpBgn = 0;           _lrn.lpEnd = _tEnd;}
    }
    if (dir != '.')  TmHop (_lrn.lpBgn);
-   if (x >= nlB)  ;
-//    Hey (StrFmt (ts, "in bugless loop #`d", x+1));
-   else {
-//    Hey (StrFmt (ts, "in bug loop #`d of `d  (bugs=`d)", x+1, nlB, lp [x].t));
+   if (x < nlB) {                      // in a loop w bugs?
+//    Hey (StrFmt (ts, "in loop #`d of `d  (bugs=`d)", x+1, nlB, lp [x].d));
       if (PRAC) {
-         if (lp [x].mx == 0)
-DBG("BUG!  _dn not set for SetLp() in sUtil.cpp");    // in case /0 :/
-         in = (lp [x].t * 100) / lp [x].mx;
-         if      (in < 25)  _f.tmpo = FIX1;
-         else if (in < 50)  _f.tmpo = FIX1 * 80 / 100;
-         else               _f.tmpo = FIX1 * 60 / 100;
+         if (lp [x].nd == 0)
+DBG("SetLp() BUG!  _dn not set so div by 0 :(");
+         x = (lp [x].d * 100) / lp [x].nd;
+         if (x < 25) p = 100;   else if (x < 50) p = 80;   else p = 60;
+         _f.tmpo = FIX1 * p / 100;
          p = TmpoAt (_timer->Get ());
-TRC(" in%=`d so _f.tmpo=`d TmpoAct=`d",  in, _f.tmpo, p);
+TRC(" ok%=`d so _f.tmpo=`d TmpoAct=`d", 100-x, _f.tmpo, p);
+         _lrn.lpRvw = (x < 50);
+         ShoCtl (CC("tmpo"), _lrn.lpRvw);
          DscSave ();   PutTp ((ubyt2)p);   ReTrk ();
       }
    }
@@ -595,7 +593,7 @@ void Song::SetSym ()
   bool  drm, mt;
   TrkNt   *n;
   DownRow *dr;
-TStr ts1, ts2;
+//TStr ts1, ts2;
    W = Up.w;   H = Up.h;
 TRC("SetSym w=`d h=`d", W, H);
    nw = W_NT;   ww = 24;   th = Up.txH;     // dem consts
@@ -608,7 +606,7 @@ TRC("SetSym end - w,h too small");
       }
       np = _pag.Ins ();                // init pag[np]
       _pag [np].col = & _col [pc1 = _col.Ln];
-DBG("b=`d/`d np=`d pc1=`d W=`d H=`d", b, _bEnd, np, pc1, W, H);
+//DBG("b=`d/`d np=`d pc1=`d W=`d H=`d", b, _bEnd, np, pc1, W, H);
       _pag [np].nCol = 0;
       _pag [np].w = _pag [np].h = 0;
       do {
@@ -619,7 +617,7 @@ TRC("_col full prob cuz w,h");
          nc = _col.Ins ();             // init col[nc]
          _col [nc].blk = & _blk [cb1 = _blk.Ln];   _col [nc].nBlk = 0;
          _col [nc].sym = & _sym [cs1 = _sym.Ln];   _col [nc].nSym = 0;
-DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
+//DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
          _col [nc].x   = _pag [np].w;  // remem 1st blk,sym of col
          ch = H_KB;
 
@@ -630,8 +628,8 @@ DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
                                _blk [nb].tMx = Bar2Tm (b+1);
          _blk [nb].y   = ch;   _blk [nb].h   = h;   ch += h;
          _blk [nb].sb  = sb;
-DBG("  nb(1)=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
-nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
+//DBG("  nb(1)=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
+//nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          while (b+1 <= _bEnd) {        // there has to BE another bar
             BarH (& h, & sb, b+1);
             if ((ch + h) > H)  break;  // won't fit, col complete, outa herez
@@ -641,8 +639,8 @@ nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
                                    _blk [nb].tMx = Bar2Tm (b+1);
             _blk [nb].y   = ch;    _blk [nb].h   = h;   ch += h;
             _blk [nb].sb  = sb;
-DBG("  nb=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
-nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
+//DBG("  nb=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
+//nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          }
          b++;                          // on to the next bar
 
@@ -691,8 +689,8 @@ nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          MemCp (_col [nc].dMap, dmap, 128);
          _col [nc].w    = 8 + (_lrn.chd?th:0) + W_Q + dx + nd*nw + cw;
          _col [nc].h    = ch;          // borders,chd,cue,meloNt,drumNt,ctrl
-DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d",
-nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,_col[nc].w,_col[nc].h);
+//DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d",
+//nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,_col[nc].w,_col[nc].h);
 
       // build sym[]s for col calcin w=b,w,clip n nt,trk overlaps
       // sym.x is an offset from col's nx
@@ -750,9 +748,9 @@ nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,_col[nc].w,_col[nc].h);
                      x = xo + (nt - nMn) * nw;   w = ww;
                      x -= (WXOfs [nt % 12] * nw / 12);
                      _sym [ns].x = x;   _sym [ns].w = w;
-DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
-ns,_sym[ns].tr, MKey2Str(ts1,nt),
-_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
+//DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
+//ns,_sym[ns].tr, MKey2Str(ts1,nt),
+//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
                      _col [nc].nSym++;
                   }
                }
@@ -826,9 +824,9 @@ _sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
                         if (n [p].ov && (_sym [ns].w >= 9))
                            {_sym [ns].x += 3;   _sym [ns].w -= 3;}
                      }
-DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
-ns,_sym[ns].tr, MKey2Str(ts1,n [_sym[ns].nt].nt),
-_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
+//DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
+//ns,_sym[ns].tr, MKey2Str(ts1,n [_sym[ns].nt].nt),
+//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
                      _col [nc].nSym++;
                   }
          }
@@ -838,7 +836,7 @@ _sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
          _pag [np].w += _col [nc].w;   _pag [np].nCol++;   nc++;
 
       } while ((b <= _bEnd) && (_pag [np].w < W));
-DBG(" lpEnd b=`d nc=`d", b, nc);
+//DBG(" lpEnd b=`d nc=`d", b, nc);
 
    // last col will usually go over, but always keep one of em
       if ((_pag [np].nCol > 1) && (_pag [np].w > W)) {     // reset to lop off
@@ -852,7 +850,7 @@ DBG(" lpEnd b=`d nc=`d", b, nc);
          _blk.Ln -= _col [nc].nBlk;
          _sym.Ln -= _col [nc].nSym;
          _col.Ln--;
-DBG("b=`d/`d bLn=`d sLn=`d cLn=`d", b, _bEnd, _blk.Ln, _sym.Ln, _col.Ln);
+//DBG("b=`d/`d bLn=`d sLn=`d cLn=`d", b, _bEnd, _blk.Ln, _sym.Ln, _col.Ln);
       }
    }
 TRC("SetSym end");

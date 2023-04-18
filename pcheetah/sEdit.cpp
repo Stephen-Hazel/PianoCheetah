@@ -225,6 +225,12 @@ void Song::Ctl ()
 }
 
 
+void Song::ShoCtl (char *ctl, bool sho)
+{  for (ubyte i = 0;  i < _f.ctl.Ln;  i++)
+      if (! StrCm (_f.ctl [i].s, ctl))  _f.ctl [i].sho = sho;
+}
+
+
 void Song::SetCtl (char *arg)
 { char *s, *c;
   ubyte tr, cc, mc;
@@ -397,6 +403,7 @@ TRC("dst trk=`d", tc);
          EvIns (t, p);   MemCp (& e [p], & dn, sizeof (dn));
       }
       _f.trk [t].e [p].val2 &= 0xC0;
+DBG("fng=`d", f);
       _f.trk [t].e [p].val2 |= f;
    }
    ReDo ();

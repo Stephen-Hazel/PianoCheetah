@@ -335,18 +335,19 @@ void Song::DrawFng (ubyt2 x, ubyt2 y, ubyte f, char tc)
            /* 0-13=14 14-29=16 30-45=16 46-61=16 62-76=15
               77-91=15 92-106=15 107-126=20 127-146=20 147-172=26 173-183=11 */
         o, w, o2, w2, h = Up.fng->height ();
-  ubyte i, e;
+  ubyte i, e, e2;
   Canvas *c;
    c = (tc == 't') ? (& Up.tcnv) : (& Up.cnv);
    y -= (h+1);
    if      (f <=  5)  e = f - 1;
    else if (f >= 26)  e = f - 26 + 5;
    else {
-      e  = (f-5) / 5;
-      w  = wc [e];   for (o = 0,  i = 0;  i < e;  i++)  o  += wc [i];
-      e  = (f-5) % 5;
-      w2 = wc [e];   for (o2 = 0, i = 0;  i < e;  i++)  o2 += wc [i];
+      e  = (f-6) / 4;
+      w  = wc [e];    for (o  = 0, i = 0;  i < e;   i++)  o  += wc [i];
+      e2 = (f-6) % 4;   if (e2 >= e)  e2++;
+      w2 = wc [e2];   for (o2 = 0, i = 0;  i < e2;  i++)  o2 += wc [i];
       x -= ((w+w2)/2);
+//DBG("f=`d e=`d e2=`d", f, e, e2);
       c->Blt (*Up.fng, x,   y,  o,  0, w,  h);
       c->Blt (*Up.fng, x+w, y,  o2, 0, w2, h);
       return;
@@ -408,8 +409,8 @@ void Song::DrawSym (SymDef *s, ColDef *co)
       else         {x = Nt2X (n, co, 'g');   w = W_NT;}
    }
    if (dr && (h >= 8))  h = 6;         // drums have skinny head n butt
-TStr sx;
-DBG("dr=`b nt=`s x=`d", dr, MKey2Str (sx, s->nt), x);
+//TStr sx;
+//DBG("dr=`b nt=`s x=`d", dr, MKey2Str (sx, s->nt), x);
    if (s->top)  {Up.cnv.RectF (x+2, y,     w-4, 1, clr);
                  Up.cnv.RectF (x+1, y+1,   w-2, 1, clr);   y += 2;   h -= 2;}
    if (s->bot)  {Up.cnv.RectF (x+1, y+h-2, w-2, 1, clr);

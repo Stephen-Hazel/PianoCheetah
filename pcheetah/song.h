@@ -74,7 +74,7 @@ struct LrnDef {
    char  pLrn, hand;                   // prev lrn mode;  hand: \0=none/L/R/B
    bool  hLrn;                         // hear ?ez instead of rec?  set in HopTo
    ubyt4 lpBgn, lpEnd;                 // current loop's bgn,end times
-   bool  POZ,                          // paused?
+   bool  POZ,   lpRvw,                 // paused?  review loop?
          chd;                          // w of cue area
    ubyte veloSng, veloRec, velo [7];   // velo scale for ? vs rec; n ez tracks
    ubyt2 toRec [2][256];               // buffer vals to rcrd per ctl post poz
@@ -221,6 +221,7 @@ private:
    void  PreCtl  ();
    void  Cue     ();
    void  Ctl     ();
+   void  ShoCtl  (char *ctl, bool sho);
    void  SetCtl  (char *arg);
    void  PreFng  ();
    void  Fng     (char *tnf);
