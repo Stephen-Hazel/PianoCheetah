@@ -17,13 +17,13 @@
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QSplitter" name="hsp">
+     <widget class="QSplitter" name="hSp">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QSplitter" name="vsp">
+      <widget class="QSplitter" name="vSp">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -47,7 +47,40 @@
         </property>
        </widget>
       </widget>
-      <widget class="QTextEdit" name="txtEv"/>
+      <widget class="QWidget" name="layoutWidget">
+       <layout class="QVBoxLayout" name="vLo">
+        <item>
+         <layout class="QHBoxLayout" name="hLo">
+          <item>
+           <widget class="QLabel" name="lbl">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Syn on</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="lstSyn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="txtEv"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

@@ -6,6 +6,8 @@
 
 #include "midicfg.h"
 
+TStr SynCfg;
+
 struct {TStr nm, info;   ubyt4 sz;} DTyp [100];   ubyte NDTyp;
 BStr DevTyp;
 char Buf [1024*1024];   ubyt4 Len;
@@ -96,7 +98,7 @@ void MidiCfg::Load ()
 { ubyte i;
   TStr  nm, ty, ds, dv, chk;
   char *rp [4];
-   Midi.Load ();
+   Midi.Load ();   Snd.Load ();
    *chk = '\0';
    for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)
       if (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
@@ -122,6 +124,10 @@ void MidiCfg::Load ()
    for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)  _ti.Put (rp);
    for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++)  _to.Put (rp);
    _ti.Shut ();   _to.Shut ();
+  CtlList so (ui->lstSyn);
+   so.ClrLs ();
+   for (i = 0;  i < Snd.len;  i++)  so.InsLs (Snd.lst [i].desc);
+   if (*SynCfg)  so.SetS (SynCfg);
    RedoMIn ();
 }
 
@@ -177,6 +183,9 @@ void MidiCfg::Save ()
          if (! StrCm (ts, dt [d]))  {got = true;   break;}
       if (! got)  StrCp (dt [n++], ts);
    }
+  CtlList so (ui->lstSyn);
+   so.GetS (SynCfg);
+   App.CfgPut (CC("syn"), SynCfg);
 // for (d = 0;  d < n;  d++)  DLDevTyp (dt [d]);
 // turn off devs if they hit cancel on devtyp d/l
 
@@ -312,6 +321,7 @@ void MidiCfg::Init ()
 TRC("Init");
    Gui.WinLoad ();
    InitDevTyp ();
+   App.CfgGet (CC("syn"), SynCfg);
   CtlTBar tb (this,
       "Refresh device lists\n"
        "(if you've installed/uninstalled/forgot to power on devices)"
@@ -322,13 +332,12 @@ TRC("Init");
    connect (tb.Act (0), & QAction::triggered, this, & MidiCfg::Load);
    connect (tb.Act (1), & QAction::triggered, this, & MidiCfg::Up);
    connect (tb.Act (2), & QAction::triggered, this, & MidiCfg::Dn);
-
-   _ti.Init (ui->tblI,
+   _ti.Init  (ui->tblI,
       "_input device\0"
       "^type\0"
       "driver description\0",
       TPop);
-   _to.Init (ui->tblO,
+   _to.Init  (ui->tblO,
       "_output device\0"
       "^type\0"
       "driver description\0",

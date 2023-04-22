@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
         ../../stv/os.cpp
         ../../stv/ui.cpp
         ../../stv/midi.cpp
+        ../../stv/snd.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -5,6 +5,7 @@
 
 #include "../../stv/ui.h"
 #include "../../stv/midi.h"
+#include "../../stv/snd.h"
 #include "ui_midicfg.h"
 
 extern BStr DevTyp;
@@ -21,7 +22,7 @@ private:
    ubyte _nMI;
    char   _io;
    CtlTabl _ti, _to;
-   
+
    void Save (), Mv (char du);
 
 protected:
