@@ -399,11 +399,11 @@ TRC("  song init");
    Up.pnbg = new QPixmap (":/pnbg");
    Up.tpm  = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
 
-   _s->moveToThread (& _thr);
-   connect (this,   & PCheetah::sgCmd,   _s,   & Song::Cmd);
-   connect (_s,     & Song::sgUpd,       this, & PCheetah::Upd);
-   connect (& _thr, & QThread::finished, _s,   & QObject::deleteLater);
-   _thr.start ();
+   _s->moveToThread (& _thrSong);
+   connect (this,       & PCheetah::sgCmd,   _s,   & Song::Cmd);
+   connect (_s,         & Song::sgUpd,       this, & PCheetah::Upd);
+   connect (& _thrSong, & QThread::finished, _s,   & QObject::deleteLater);
+   _thrSong.start ();
    emit sgCmd ("init");
 
    setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
@@ -588,7 +588,7 @@ TRC("  win,dlg save");
    }
    if (_s != nullptr) {
 TRC("  thrEnd");
-      _thr.quit ();   _thr.wait ();
+      _thrSong.quit ();   _thrSong.wait ();
    }
 TRC("  kick=`s", Kick);
    if (*Kick)  App.Spinoff (Kick);

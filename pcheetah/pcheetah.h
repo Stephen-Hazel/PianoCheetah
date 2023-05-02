@@ -373,7 +373,7 @@ private:
    DlgKSg      *_dKSg;
    DlgMov      *_dMov;
    DlgHlp      *_dHlp;
-   QThread      _thr;
+   QThread      _thrSong;
 
    void SongRand (), SongKill (), SongRate ();
 

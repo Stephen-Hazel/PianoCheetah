@@ -5,6 +5,7 @@
 
 #include "glo.h"
 #include "../../stv/timer.h"
+#include "../../stv/syn.h"
 
 #define HOVAL(v)  (((v) & 0x40) ? 1 : 0)
 
@@ -277,6 +278,8 @@ private:
 
    Timer               *_timer;
    Arr<MInDef,MAX_DEVI> _mi;
+   Syn                 *_syn;          // convert midi to sound
+// Lzr                  _lzr;          // lazer writin
    SongFile             _f;
 
    bool   _onBt, _rcrd, _prac;         // tL8r is still on beat?  recording?
@@ -304,7 +307,6 @@ private:
    Arr<BlkDef,9999  >  _blk;
    Arr<SymDef,131584>  _sym;
    Arr<LHMxRow, 16*1024> _lm;          // for LH shading
-// DWORD _syn, _lzr;                   // other .EXEs (IPC)
 
 public slots:
    void Cmd (QString s);               // gui listenin
@@ -320,6 +322,7 @@ public slots:
 signals:
    void sgCmd (QString cmd);
    void sgUpd (QString upd);           // gui talkin
+   void sgSyn (char   *mid);           // render some midi to sound pleez
 };
 
 

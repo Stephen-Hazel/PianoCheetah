@@ -51,6 +51,8 @@ set(PROJECT_SOURCES
         ../../stv/timer.h
         ../../stv/midi.cpp
         ../../stv/midiChd.cpp
+        ../../stv/snd.cpp
+        ../../stv/syn.cpp
         rc/dlgcfg.ui
         rc/dlgchd.ui
         rc/dlgctl.ui
