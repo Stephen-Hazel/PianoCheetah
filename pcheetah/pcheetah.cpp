@@ -380,7 +380,8 @@ TRC("got device.txt");
   TStr  nm, ty, ds, dv;
    while (Midi.GetPos ('o', i++, nm, ty, ds, dv))
       if (StrCm (ty, CC("OFF")) && (*dv == '?'))
-         {Gui.Hey ("a midi device is off, pal...");   break;}
+         {Gui.Hey (StrFmt (dv, "Hey! `s: `s (`s)  is off, pal...",
+                               nm, ty, ds));   break;}
 TRC("  song init");
    _s = new Song;                      // git song worker thread goin
 

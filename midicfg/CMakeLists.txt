@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOUIC_SEARCH_PATHS rc)
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
@@ -17,11 +18,12 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 set(PROJECT_SOURCES
         midicfg.cpp
         midicfg.h
-        midicfg.ui
+        rc/midicfg.ui
         ../../stv/os.cpp
         ../../stv/ui.cpp
         ../../stv/midi.cpp
         ../../stv/snd.cpp
+        ../../stv/syn.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

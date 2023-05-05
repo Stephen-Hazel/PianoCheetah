@@ -322,7 +322,8 @@ public slots:
 signals:
    void sgCmd (QString cmd);
    void sgUpd (QString upd);           // gui talkin
-   void sgSyn (char   *mid);           // render some midi to sound pleez
+   void sgSyn (char *cmd,              // render some midi to sound pleez
+               ubyte ch = 0, ubyt2 c = 0, ubyte v = 0, ubyte v2 = 0);
 };
 
 

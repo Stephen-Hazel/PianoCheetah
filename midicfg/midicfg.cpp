@@ -101,9 +101,20 @@ void MidiCfg::Load ()
    Midi.Load ();   Snd.Load ();
    *chk = '\0';
    for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)
-      if (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
-   for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++)
-      if (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
+      if  (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
+  bool syn = false;                    // add syn if missin
+   for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++) {
+      if (! StrCm (ty, "syn"))  syn = true;
+      if ((*dv == '?') && (StrCm (ty, "syn"))
+                        {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
+   }
+   if ((! syn) && (_len < MAX_DEV)) {
+             Midi._lst [_len].io = 'o';
+      StrCp (Midi._lst [_len].name, "syn");
+      StrCp (Midi._lst [_len].type, "syn");
+      StrCp (Midi._lst [_len].desc, "PianoCheetah Sofware Synthesizer");
+      StrCp (Midi._lst [_len].dev,  "!");
+   }
    if (*chk) {
       Gui.Hey (StrFmt (nm,
          "Is device `s off?\n"

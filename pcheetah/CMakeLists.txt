@@ -16,6 +16,8 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
 set(PROJECT_SOURCES
+        glo.h
+        song.h
         pcheetah.h
         pcheetah.cpp
         ctlNt.cpp
@@ -49,9 +51,14 @@ set(PROJECT_SOURCES
         ../../stv/ui.cpp
         ../../stv/uiKey.cpp
         ../../stv/timer.h
+        ../../stv/midi.h
         ../../stv/midi.cpp
         ../../stv/midiChd.cpp
+        ../../stv/snd.h
         ../../stv/snd.cpp
+        ../../stv/syn.h
+        ../../stv/synSnd.h
+        ../../stv/synFx.h
         ../../stv/syn.cpp
         rc/dlgcfg.ui
         rc/dlgchd.ui
