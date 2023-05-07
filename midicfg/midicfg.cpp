@@ -104,16 +104,17 @@ void MidiCfg::Load ()
       if  (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
   bool syn = false;                    // add syn if missin
    for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++) {
-      if (! StrCm (ty, "syn"))  syn = true;
-      if ((*dv == '?') && (StrCm (ty, "syn"))
+      if (! StrCm (ty, CC("syn")))  syn = true;
+      if ((*dv == '?') && (StrCm (ty, CC("syn"))))
                         {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
    }
-   if ((! syn) && (_len < MAX_DEV)) {
-             Midi._lst [_len].io = 'o';
-      StrCp (Midi._lst [_len].name, "syn");
-      StrCp (Midi._lst [_len].type, "syn");
-      StrCp (Midi._lst [_len].desc, "PianoCheetah Sofware Synthesizer");
-      StrCp (Midi._lst [_len].dev,  "!");
+   if ((! syn) && (Midi._len < MAX_DEV)) {
+             Midi._lst [Midi._len].io = 'o';
+      StrCp (Midi._lst [Midi._len].name, CC("syn"));
+      StrCp (Midi._lst [Midi._len].type, CC("syn"));
+      StrCp (Midi._lst [Midi._len].desc, CC("PianoCheetah Synthesizer"));
+      StrCp (Midi._lst [Midi._len].dev,  CC("!"));
+      Midi._len++;
    }
    if (*chk) {
       Gui.Hey (StrFmt (nm,

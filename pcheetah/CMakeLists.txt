@@ -57,8 +57,6 @@ set(PROJECT_SOURCES
         ../../stv/snd.h
         ../../stv/snd.cpp
         ../../stv/syn.h
-        ../../stv/synSnd.h
-        ../../stv/synFx.h
         ../../stv/syn.cpp
         rc/dlgcfg.ui
         rc/dlgchd.ui

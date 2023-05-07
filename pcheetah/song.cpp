@@ -15,11 +15,6 @@ TRC("Song::Init");                     // init that there stuff we need...
    OpenMIn ();                         // boot MidiI's
    for (ubyte d = 0;  d < _mi.Ln;  d++)
       QObject::connect (_mi [d].mi, & MidiI::MidiIEv, this, & Song::MIn);
-
-   _syn = new Syn (& _timer->_tempo);
-   connect (this, & Song::sgSyn, _syn, & Syn::Put);
-   emit sgSyn (CC("init"));
-
    Wipe ();                            // init ta empty
    Put ();
 }
