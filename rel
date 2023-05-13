@@ -6,7 +6,8 @@
    $app = "pcheetah";
    $exe = [
       $app, 'midicfg', 'initme',                           // gui
-      'delsame', 'll', 'mid2song', 'midimp', 'txt2song'    // background
+      'delsame', 'll', 'mid2song', 'midimp', 'txt2song',   // background
+      'unsfz'
    ];
    $siz = "2" . "000000";    // just gimme decimal megabytes
 
