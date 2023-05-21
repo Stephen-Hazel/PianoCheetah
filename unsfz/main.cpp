@@ -4,8 +4,12 @@
 #include "../../stv/midi.h"
 #include "../../stv/wav.h"
 
-TStr  Top, To, Snd, FlacExe;           // top dir, dest dir
-                                       // soundDir under To, flac.exe pathed
+extern void SynSnd ();
+
+
+TStr  Top, To, Snd, Kit, FlacExe;      // top dir, dest dir,
+                                       // soundDir under To, drumkit,
+                                       // flac.exe pathed
 File  LF;                              // log file
 ubyt2 NFn;
 TStr   Fn [1024];                      // SFZ fn list
@@ -67,7 +71,7 @@ sbyt4 Vel2Int (char *s)
 
 //______________________________________________________________________________
 void DoWav (char *dp, char *sm, char got [3][NSFZP],
-                               sbyt4 sfz [3][NSFZP], bool dm)
+                               sbyt4 sfz [3][NSFZP])
 { sbyt4 i, sp, ia [15];
   ubyte j, k;
   TStr  fn, ts, s [15], ffn, wfn, sfn, pre, suf;      // sfn is new syn fn
@@ -128,7 +132,7 @@ DBG(" non .wav fn=`s", fn);
 
    StrCp (ts, wfn);   Fn2Path (ts);
    StrCp (sfn, & wfn [StrLn (ts)+1]);  // just the .wav fn (no path)
-   StrAp (sfn, CC(""), 4);                 // toss .WAV too
+   StrAp (sfn, CC(""), 4);             // toss .WAV too
 
    StrCp (fn, & fn [StrLn (Top)+1]);   // easier to read
 
@@ -172,8 +176,8 @@ DBG(" can't read wfn=`s", wfn);
    StrCp (ts, & ts [18]);
 LF.Put (StrFmt (ps, "   `s\n", ts));
 
-/* PROCESSIN DOZE SFZ PARAMS !! */
-   if (dm) {                           // drum - kl,kh from ky else kl else kh
+// PROCESSIN DOZE SFZ PARAMS !!
+   if (*Kit) {                         // drum - kl,kh from ky else kl else kh
       if (sfz [0][KL] != sfz [0][KH]) {
          if      (got [0][KY] != 'n')  sfz [0][KL] = sfz [0][KH] = sfz [0][KY];
          else if (sfz [0][KL] > 0)     sfz [0][KH] = sfz [0][KL];
@@ -182,9 +186,8 @@ LF.Put (StrFmt (ps,
 "        ERROR drum keyLo != keyHi.  pickin `s=`s\n",
 MKey2Str (s[0], (ubyte)sfz [0][KL]), MDrm2Str (s[1], (ubyte)sfz [0][KL]) ));
       }
-      MDrm2StG (s[0], (ubyte)sfz[0][KL]);
-      StrCp (pre, &s[0][5]);           // toss Drum\ bit
-      StrAp (pre, CC("/"));
+      MDrm2StG (pre, (ubyte)sfz[0][KL]);
+      StrAp (pre, CC("_"));   StrAp (pre, Kit);   StrAp (pre, CC("/"));
    }
    else {                              // melo - prefix of _kX_ = kh else ky
       if (got [0][KH] == 'n')  sfz [0][KH] = sfz [0][KY];
@@ -192,7 +195,7 @@ MKey2Str (s[0], (ubyte)sfz [0][KL]), MDrm2Str (s[1], (ubyte)sfz [0][KL]) ));
    }
 // sometimes _vX_ based on VL,VH
    if ((sfz[0][VL] != 1) || (sfz[0][VH] != 127))
-      StrAp (pre, StrFmt (s[0], "`sv`03d_", dm ? "_" : "", sfz[0][VH]));
+      StrAp (pre, StrFmt (s[0], "`sv`03d_", *Kit ? "_" : "", sfz[0][VH]));
 
 // suffix _L or _R based on wv bein mono n pan ya got
    *suf = '\0';
@@ -242,7 +245,7 @@ MKey2Str (s[0], (ubyte)sfz [0][KL]), MDrm2Str (s[1], (ubyte)sfz [0][KL]) ));
 
 char *LIn [3] = {CC("region"), CC("group"), CC("global")};
 
-void DoSfz (char *fn, bool dm)
+void DoSfz (char *fn)                  // Kit has been set, too
 // parse a dang .sfz file and write out each .wav with a fn fer it's sfz params
 { StrArr a, b, c;
   BStr   r, r2;
@@ -260,41 +263,42 @@ void DoSfz (char *fn, bool dm)
   TStr   ls [800];
   BStr   ps;
   ubyte  pTrk;
-LF.Put (StrFmt (ps, "`s`s\n", & fn [StrLn (Top)+1], dm ? " <== DRUM" : ""));
-// pa is absolute path to preset (somewhere within Top)
+LF.Put (StrFmt (ps, "`s`s\n", & fn [StrLn (Top)+1], *Kit ? " <== DRUM" : ""));
+// pa is ABSolute path to preset (somewhere within Top)
    StrCp (pa, fn);   Fn2Path (pa);
 
 // look for 999 format gm progch # on pathless fn prefix
    StrCp (ts, fn);   Fn2Path (ts);
-   inp = (ubyte)Str2Int (& fn [StrLn (ts)+1], & p);
+   p   = & fn [StrLn (ts)+1];
+   inp = (ubyte)Str2Int (p, & p);
+DBG("   inp=`d pa=`s p=`s fn=`s Kit=`s", inp, pa, p, fn, Kit);
 
-// drum Snd: Drum/sfzFn/    oops no / at eol
-   if (dm) {
-      StrCp (Snd, CC("Drum/"));
-      StrCp (ts, & fn [StrLn (Top)+1]);     // back to sfz dir\fn off Top
-   }
-// melo GM Snd: gmdir\gmsnd_sfzFnSuffix
+// drum GM Snd: drum/Grp_Snd_Kit  Grp_Snd set in DoWav
+   if (*Kit)
+      *Snd = '\0';
+// melo GM Snd: Dir_Snd
    else if ((inp >= 1) && (inp <= 128) && (p == & fn [StrLn (ts)+4])) {
-      StrFmt (Snd, "`s_", MProg [inp-1]);   // ^^^ len of 3?
-      StrCp (ts, & fn [StrLn (ts)+5]);      // chop off 999 prefix
+      StrCp (Snd, MProg [inp-1]);                // ^^^ len of 3? hopefullyyy
+      while ((p = StrCh (Snd, '/')))  *p = '_';  // n good enough
    }
-// melo unGM Snd: etc\sfzFn
+// melo unGM Snd: x_sfzFn
    else {
-      StrFmt (Snd, "etc/");
-      StrCp (ts, & fn [StrLn (Top)+1]);     // back to sfz dir\fn off Top
+      StrFmt (Snd, "x_");
+      StrCp (ts, & fn [StrLn (Top)+1]);     // back to sfz dir/fn off Top
+      StrAp (ts, CC(""), 4);                // no sfz
+      while ((p = StrCh (ts, '/')))  *p = '_';
+      while ((p = StrCh (ts, ' ')))  *p = '_';
+      if (! MemCm (ts, CC("programs_"), 9))  StrCp (ts, & ts [9]);
+      StrAp (Snd, ts);
    }
-// generally clean up sfz path under top and fn into a decent sound name
-   StrAp (ts, CC(""), 4);                   // chop off .sfz
-   while ((p = StrCh (ts, '/')))  *p = '_'; //     \ => _
-   while ((p = StrCh (ts, ' ')))  *p = '_'; // space => _
-   if (! MemCm (ts, CC("programs_"), 9))  StrCp (ts, & ts [9]);
-   StrAp (Snd, ts);   StrAp (Snd, CC("/")); // Snd FINALLY DONE
+   StrAp (Snd, CC("/"));
+DBG("   Snd='`s' Kit='`s'", Snd, Kit);      // Snd FINALLY DONE
 
-   MemSet (KGot, '_', sizeof (KGot));  // try to see if it's drums (olden)
+   MemSet (KGot, '_', sizeof (KGot));  // try to see if it's drums
    pTrk = 0;
 
 // do #includes - a holds output, b loads this sfz, c loads each #inc
-   a.Init (CC("all"), 16*1024);            // hopefully no 2+ layer #incs :(
+   a.Init (CC("all"), 16*1024);        // hopefully no 2+ layer #incs :(
    b.Init (CC("sfz"), 16*1024);
    b.Load (fn);
    for (i = 0;  i < b.NRow ();  i++) {
@@ -312,13 +316,13 @@ LF.Put (StrFmt (ps, "`s`s\n", & fn [StrLn (Top)+1], dm ? " <== DRUM" : ""));
    }
    b.Init (CC("def"), 1024);               // b gets reused for #define's :/
 
-DBG("RESET all");
+//DBG("   clear got,sfz");
    MemSet (got, 'n', sizeof (got));
    MemSet (sfz,   0, sizeof (sfz));
 
 // default default_path n sample
    StrCp (dp, pa);   StrAp (dp, CC("/"));   StrCp (dp, & dp [StrLn (Top)+1]);
-//DBG("default dp='`s'", dp);
+//DBG("   default dp='`s'", dp);
    *sm = '\0';
    inC = false;   in = 2;              // 2=global, 1=group, 0=region
    ncc = 0;
@@ -327,20 +331,20 @@ DBG("RESET all");
    for (i = 0;  i < a.NRow ();  i++) {
    // pull the rec into r and mess with r comment n #define-wise
       StrCp (r, a.str [i]);
-//DBG("i=`d r=`s", i, r);
+//DBG("   i=`d r=`s", i, r);
       if ((p = StrSt (r, CC("//"))))  *p = '\0';      // kill // comments (ez)
-      if (inC) {                            // lookin for end of mult ln cmt
+      if (inC) {                       // lookin for end of mult ln cmt
          if ((p = StrSt (r, CC("*/"))))  {inC = false;   StrCp (r, p+2);}
          else                             continue;
       }
-      while ((p = StrSt (r, CC("/*")))) {   // for /* gotta check multiline
+      while ((p = StrSt (r,   CC("/*")))) {      // for /* gotta check multiline
          if ((q = StrSt (p+2, CC("*/"))))  StrCp (p, q+2);
          else                             {inC = true;   *p = '\0';}
       }
       if (! MemCm (r, CC("#define "), 8)) {
         ColSep s (r, 4);
          b.Add (StrFmt (r2, "`s `s", s.Col [1], s.Col [2]));
-//DBG("def `s", r2);
+//DBG("   def `s", r2);
          continue;
       }
    // resolve #define'd $symbols
@@ -359,6 +363,7 @@ DBG("RESET all");
             }
          }
       }
+//DBG("   did #defines");
 
    // from here on we use rp
       rp = r;
@@ -373,16 +378,17 @@ DBG("RESET all");
             if ((p = StrCh (rp, '>'))) rp = ++p;
          }
       // done w a region?  write stuff
-         if (inp == 0)  DoWav (dp, sm, got, sfz, dm);
+         if (inp == 0)  DoWav (dp, sm, got, sfz);
          if (in  != 2)  {MemSet (got [in], 'n', sizeof (got [0]));
-DBG("in=`s", LIn [in]);
+//DBG("   in=`s", LIn [in]);
          }
       }                                // unless global, reset all got
 
    // parse dem params in da rec:  first the strings w spaces at eol n chop
+//DBG("   parsin params");
       if ((p = StrSt (rp, CC("default_path=")))) {
+//DBG("   default_path");
          StrCp (r2, & p [13]);   *p = '\0';
-         while ((p = StrCh (r2, '/')))  *p = '/';
          if (*r2 == '$') {             // got a #define prob only in *bank.xml:(
             q = StrCh (r2, '/');       // part to append later after $etc/
             nl = dr.DLst (Top, ls, BITS (ls));
@@ -400,9 +406,9 @@ DBG ("CAN'T FIND SAMPLE DIR :(");   return;}
 LF.Put (StrFmt (ps, "default_path=`s\n", dp));
       }
       if ((p = StrSt (rp, CC("sample=")))) {
+//DBG("   sample");
          if ((q = StrCh (& p [7], ' ')) == NULL) {    // no spaces - noice :)
             StrCp (sm, & p [7]);   *p = '\0';
-            while ((x = StrCh (sm, '/')))  *x = '/';
             if ((q = StrCh (sm, '$'))) {
                *q = '\0';
                if (sm [StrLn (sm)-1] == '.')  StrAp (sm, CC(""), 1);
@@ -423,16 +429,15 @@ LF.Put (StrFmt (ps, "default_path=`s\n", dp));
             // r2 buf holds everything after sample=
             // q points to .ext in r2 buf
                StrCp (r2, & p [7]);
-               while ((x = StrCh (r2, '/')))  *x = '/';
                if      ((q = StrSt (r2, CC(".wav")))) {
                   StrCp (p, (q [4] == ' ') ? (& q [4]) : CC(""));
                   q [4] = '\0';   StrCp (sm, r2);
-//DBG(".wav: sm=`s", sm);
+DBG("   .wav: sm=`s", sm);
                }
                else if ((q = StrSt (r2, CC(".flac")))) {
                   StrCp (p, (q [5] == ' ') ? (& q [5]) : CC(""));
                   q [5] = '\0';   StrCp (sm, r2);
-//DBG(".flac: sm=`s", sm);
+DBG("   .flac: sm=`s", sm);
                }
                else if ((q = StrCh (r2, '$'))) {
                   if ((x = StrCh (q, ' ')))  StrCp (p, x);
@@ -442,7 +447,7 @@ LF.Put (StrFmt (ps, "default_path=`s\n", dp));
                   StrCp (sm, r2);
                   StrAp (sm, CC(".wav"));
                   StrFmt (ts, "`s/`s`s", Top, dp, sm);
-//DBG("pa=`s dp=`s sm=`s ts='`s' size=`d", Top, dp, sm, ts, f.Size (ts));
+//DBG("   pa=`s dp=`s sm=`s ts='`s' size=`d", Top, dp, sm, ts, f.Size (ts));
                   if (! f.Size (ts))  StrAp (sm, CC(".flac"), 4);
                   if (! f.Size (ts)) {
 DBG("CAN'T GET SAMPLE :( `s", ts);   return;}
@@ -451,16 +456,16 @@ DBG("CAN'T GET SAMPLE :( `s", ts);   return;}
 DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
             }
          }
-         while ((p = StrCh (sm, '/')))  *p = '/';
       }
    // now the space sep'd params
      ColSep s (rp, 30);
+//DBG("   rp='`s'", rp);
       for (j = 0;  j < 30;  j++)  if (s.Col [j][0]) {
          no1 = ((got [0][NO] == 'y') || (got [1][NO] == 'y') ||
                                         (got [2][NO] == 'y')) ? true : false;
          StrCp (ts, s.Col [j]);
          while (*ts == ' ')  StrCp (ts, & ts [1]);    // 1st col needs leadin
-//DBG("ts=`s", ts);
+//DBG("   ts=`s", ts);
          if      (! MemCm (ts, CC("set_cc"), e = 6)) {    // spaces killed still
             t = Str2Int (& ts [e]);    // t is our cc#  t2 is it's value
             if ((p = StrCh (ts, '=')))  t2 = Str2Int (p+1);
@@ -564,7 +569,7 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
 //          DBG ("???  `s", ts );
       }
    }
-   if (in == 0)  DoWav (dp, sm, got, sfz, dm);
+   if (in == 0)  DoWav (dp, sm, got, sfz);
    KGot [MNt (CC("8c"))+1] = '\0';
    i = 0;   p = & KGot [MNt (CC("0a"))];
    while ((q = StrSt (p, CC("_*"))))  {i++;   p = q+2;}
@@ -574,14 +579,13 @@ LF.Put (StrFmt (ps, "`s `s\n",
 
 
 //______________________________________________________________________________
-void DoDir (void *ptr, char dfx, char *fn)
+bool DoDir (void *ptr, char dfx, char *fn)
 // put any .sfz into Fn[NFn]
 { ubyt4 ln = StrLn (fn);
-DBG("DoDir dfx=`c fn=`s", dfx, fn);
-   if ( (dfx != 'f') || (ln < 4) || StrCm (& fn [ln-4], CC(".sfz")) ||
-        (NFn >= BITS (Fn)) )  return;
-DBG("   got!");
-   StrCp (Fn [NFn++], fn);
+   if ( (dfx == 'f') && (ln > 4) && (! StrCm (& fn [ln-4], CC(".sfz"))) &&
+        (NFn < BITS (Fn)) )
+      StrCp (Fn [NFn++], fn);
+   return false;
 }
 
 
@@ -591,13 +595,12 @@ int Cmp (void *p1, void *p2)
 
 //______________________________________________________________________________
 int main (int arc, char *argv [])
-{ TStr  fn, ts, pa, ls;
+{ TStr  fn, ts, pa, ls, dr;
   BStr  r;
   char *pc;
   Path  p;
   File  f;
   ubyt4 i, j, k;
-  bool  dr;
   char *rp;
   StrArr a;
 
@@ -607,7 +610,8 @@ DBG("unsfz bgn");
 DBG("Top=`s", Top);
 // Top minus path (no ext) => To - our sampleset in syn dir
    FnName (fn, Top);
-   while ((pc = StrCh (fn, ' ')))  *pc = '_';    // spaces => _
+   while ((pc = StrCh (fn, ' ')))  StrCp (pc, pc+1);
+   while ((pc = StrCh (fn, '_')))  StrCp (pc, pc+1);
    StrFmt (To, "`s/device/syn/`s", App.Path (ts, 'd'), fn);
 DBG("To=`s", To);
 
@@ -635,9 +639,9 @@ DBG("loadin `s", Fn [i]);
             if ((pc = StrCh (rp, '"')))
                {rp = pc+1;   if ((pc = StrCh (rp, '"')))  *pc = '\0';}
             StrFmt (fn, "`s/`s", pa, rp);
-DBG("#include `s", fn);
+//DBG("#include `s", fn);
             for (k = 0;  k < NFn;  k++)  if (! StrCm (Fn [k], fn)) {
-DBG(" got it");
+//DBG(" got it");
                RecDel (Fn, NFn--, sizeof (Fn [0]), k);
                if (k < i)  i--;
                break;
@@ -654,17 +658,18 @@ DBG("loadin drum.txt");
 
 // ok, plow em
    for (i = 0;  i < NFn;  i++) {
-      StrFmt (ls, "Converting preset `d of `d `s",
-              i+1, NFn, & Fn [i][StrLn (Top)+1]);
-DBG(ls);
-      dr = false;
       FnName (ts, Fn [i]);   StrAp (ts, CC(""), 4);
-      for (j = 0;  j < a.NRow ();  j++)  if (! StrCm (ts, a.str [j]))
-         {dr = true;   break;}
-      DoSfz (Fn [i], dr);
+      *Kit = '\0';
+      for (j = 0;  j < a.NRow ();  j++) {
+         StrCp (dr, a.str [j]);        // cuz dr is wreckable
+        ColSep s (dr, 1);
+         if (StrSt (ts, s.Col [1]))  {StrCp (Kit, s.Col [0]);   break;}
+      }
+      StrFmt (ls,"Converting preset `d of `d fn='`s' Kit='`s'",
+              i+1, NFn, & Fn [i][StrLn (Top)+1], Kit);
+LF.Put(ls);   DBG(ls);
+      DoSfz (Fn [i]);
    }
-
-// cleanup
    LF.Shut ();
 DBG("unsfz end");
    return 0;

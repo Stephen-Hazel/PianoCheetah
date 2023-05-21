@@ -7,7 +7,7 @@
    $exe = [
       $app, 'midicfg', 'initme',                           // gui
       'delsame', 'll', 'mid2song', 'midimp', 'txt2song',   // background
-      'unsfz'
+      'unsfz', 'synsnd'
    ];
    $siz = "2" . "000000";    // just gimme decimal megabytes
 

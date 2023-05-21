@@ -222,7 +222,7 @@ TStr d1;
       ct[2][0], ct[2][1], ct[2][2], ct[2][3], ct[2][4], ct[2][5],
       ct[2][6], ct[2][7], ct[2][8], ct[2][9], ct[2][10], ct[2][11]);
    DBG("} DUMP");
-*/
+
    if (e2) {
       for (t = 0; t < _f.trk.Ln; t++) {
          DBG("t=`d ne=`d nb=`d nn=`d",
@@ -232,6 +232,7 @@ TStr d1;
       }
 
    }
+*/
 // PosTM (_syn, MSG_CLOSE+3, 0, 0);
 DBG("DUMP end");
 }

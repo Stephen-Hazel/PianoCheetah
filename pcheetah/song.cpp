@@ -29,7 +29,7 @@ void Song::Quit ()                     // clean up
 }
 
 
-void Song::Wipe ()  // wipe all data and "empty" display
+void Song::Wipe ()                     // wipe all data and "empty" display
 {  TRC("Song::Wipe");
    _f.got = false;   _pg = _tr = 0;
 TRC("a");
@@ -180,7 +180,7 @@ if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
       PutTp (e->valu + (e->val2 << 8));
    else if (! StrCm (_f.ctl [c].s, CC("TSig")))
       PutTs (e->valu, 1 << (e->val2 & 0x0F), e->val2 >> 4);
-   else if (! StrCm (_f.ctl [c].s, CC("KSig")))  ;  // just ignore fer now
+   else if (! StrCm (_f.ctl [c].s, CC("KSig")))  ;    // just ignore fer now
    else if (! StrCm (_f.ctl [c].s, CC("Prog")))  SetChn (t);
    else
       if ((craw = Up.dvt [Up.dev [dv].dvt].CCMap [c])) {
@@ -217,7 +217,7 @@ TRC("   ezbg valu=128+`d", valu & 0x7F);
                if ((v % d) < (d/2)) v /= d;   else {v /= d;  v++;}
                v = (valu & 0x7F) - v;
             }
-            else v = valu & 0x7F;            // do nothin if exactly =
+            else v = valu & 0x7F;      // do nothin if exactly =
 TRC("   bg valu=`d vRec=`d vSng=`d v=`d",
 valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
             if (v < 1) v = 1;   if (v > 127) v = 127;
@@ -336,9 +336,9 @@ TRC(" trk loop: lrn,rec");
             else {                     // note-lrn: put/mark for hear/prac
                if (_lrn.ez && (! drm)) {
                   if (ENTDN (& e [p])) {    // skip ntdns or pause (for EvRcrd)
-//TStr d3;
-//DBG("ez ntdn t=`d p=`d tm=`s late=`s soon=`s",
-//t, p, TmSt(d3,e[p].time), TmSt(d1,_tLate), TmSt(d2,_tSoon));
+TStr d3;
+DBG("ez ntdn t=`d p=`d tm=`s late=`s soon=`s",
+t, p, TmSt(d3,e[p].time), TmSt(d1,_tLate), TmSt(d2,_tSoon));
                      if (_now >= _tLate)  continue;
                      else {
                         z = true;   if (_tLate < tL8r)  tL8r = _tLate;

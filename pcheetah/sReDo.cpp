@@ -870,17 +870,17 @@ TRC(" clear stuph");
    MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
 TRC(" redo vwNt/ez/rHop");
    _lrn.vwNt = _lrn.ez = _lrn.rHop = false;
-   for (t = 0; t < Up.rTrk; t++)  {if (TSho (t))  _lrn.vwNt = true;
-                                   if (TEz  (t))  _lrn.ez   = true;}
+   for (t = 0;  t < Up.rTrk;  t++)  {if (TSho (t))  _lrn.vwNt = true;
+                                     if (TEz  (t))  _lrn.ez   = true;}
    if ( (PLAY || PRAC || _lrn.pLrn) && ((! _lrn.ez) || _f.ezHop) )
-                                                _lrn.rHop = true;
+                                                    _lrn.rHop = true;
 // where are our hands - always ht(\0) unless got BOTH r,l
    _lrn.hand = '\0';
-   for (ch = '\0', t = 0; (ch != 'b') && (t < Up.rTrk); t++) {
+   for (ch = '\0', t = 0;  (ch != 'b') && (t < Up.rTrk);  t++) {
       if (_f.trk [t].ht == 'L')  ch = (ch == 'r') ? 'b' : 'l';
       if (_f.trk [t].ht == 'R')  ch = (ch == 'l') ? 'b' : 'r';
    }                                   // set Cfg.hand based on what's ?d
-   if (ch == 'b')  for (t = 0; (_lrn.hand != 'B') && (t < Up.rTrk); t++)
+   if (ch == 'b')  for (t = 0;  (_lrn.hand != 'B') && (t < Up.rTrk);  t++)
       if (TLrn (t)) {
          if (_f.trk [t].ht == 'L')  _lrn.hand = (_lrn.hand == 'R') ? 'B' : 'L';
          if (_f.trk [t].ht == 'R')  _lrn.hand = (_lrn.hand == 'L') ? 'B' : 'R';
