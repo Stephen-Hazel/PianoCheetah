@@ -54,6 +54,12 @@ set(PROJECT_SOURCES
         ../../stv/midi.h
         ../../stv/midi.cpp
         ../../stv/midiChd.cpp
+        ../../stv/syn.h
+        ../../stv/syn.cpp
+        ../../stv/snd.h
+        ../../stv/snd.cpp
+        ../../stv/wav.h
+        ../../stv/wav.cpp
         rc/dlgcfg.ui
         rc/dlgchd.ui
         rc/dlgctl.ui
