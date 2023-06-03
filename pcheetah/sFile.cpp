@@ -314,8 +314,8 @@ TRC("  t=`d nTr=`d dev=`d dvt=`d",
 t, Up.rTrk, _f.trk [t].dev, Up.dev [_f.trk [t].dev].dvt);
          if (_f.trk [t].snd == SND_NONE) {
             _f.trk [t].snd =
-               Up.dvt [Up.dev [_f.trk [t].dev].dvt].SndID (CC("Drum/Drum"));
-TRC("  set trk `d snd to drum/drum=`d", t, _f.trk [t].snd);
+               Up.dvt [Up.dev [_f.trk [t].dev].dvt].SndID (CC("Drum/*"));
+TRC("  set trk `d snd to Drum/*=`d", t, _f.trk [t].snd);
          }
 //Dump ();
          t += nD;
@@ -705,7 +705,7 @@ TRC("save fn=`s", fns);
 
       f.Put (CC("Track:\n"));
       for (t = 0;  t < Up.rTrk;  t++) {
-         StrCp (s2, TDrm (t) ? CC("Drum/Drum") : SndName (t));
+         StrCp (s2, TDrm (t) ? CC("Drum/*") : SndName (t));
          s3 [1] = *s4 = '\0';
          *s3 = _f.trk [t].shh ? '#' : '\0';
          if ((*s3 == '\0') && TLrn (t))  *s3 = pracOnly ? '?' : '#';

@@ -492,7 +492,7 @@ void Song::NewGrp (char *gr)           // slam to a new sound picked by gui
 { TStr t;
 TRC("NewGrp `s r=`d", gr, Up.eTrk);
    ChkETrk ();
-   StrCp (t, gr);   StrAp (t, CC("/"));
+   StrCp (t, gr);   StrAp (t, CC("_"));
    if (! MemCm (gr, CC("Drum/"), 5))  for (ubyte i = 0; i < NMDrum; i++)
       if (! StrCm (& gr [5], MDGrp [MDrum [i].grp].sym))
          {StrAp (t, MDrum [i].sym);   break;}
@@ -506,8 +506,8 @@ void Song::NewSnd (char *sn)           // slam to a new sound picked by gui
 TRC("NewSnd `s r=`d", sn, Up.eTrk);
    ChkETrk ();
    StrCp (g, SndName (Up.eTrk));
-   if (MemCm (g, CC("Drum/"), 5))  sl = StrCh (  g,     '/');
-   else                            sl = StrCh (& g [5], '/');
+   if (MemCm (g, CC("Drum/"), 5))  sl = StrCh (  g,     '_');
+   else                            sl = StrCh (& g [5], '_');
    if (sl)  sl [1] = '\0';
    StrAp (g, sn);
    TrkSnd (Up.dvt [Up.dev [_f.trk [Up.eTrk].dev].dvt].SndID (g));
@@ -537,7 +537,7 @@ void Song::NewDev (char *dNm)          // slam trk to new dev picked by gui
    ChkETrk ();   tr = Up.eTrk;
 TRC("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
    d = oDv = _f.trk [tr].dev;   oCh = _f.trk [tr].chn;
-//DBG(" old dv=`d ch=`d", oDv, oCh+1);
+DBG(" old dv=`d ch=`d", oDv, oCh+1);
    if ( (   _f.trk [tr].grp  && (! StrCm (dNm, CC("+")))) ||    // no change?
         ((! _f.trk [tr].grp) && (! StrCm (dNm, DevName (tr)))) )  return;
    if      (! StrCm (dNm, CC("+"))) {  // to grouped?
@@ -549,33 +549,27 @@ TRC("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
       d = _f.trk [tr-1].dev;   nCh = _f.trk [tr-1].chn;
    }
    else if (TDrm (tr))         nCh = 9;
-   else {                              // all melo chans of new dev in use?
-      StrCp (cmap, CC("         x      "));
-      for (t = 0;  t < Up.rTrk;  t++)
-         if (! StrCm (DevName (t), dNm))  cmap [_f.trk [t].chn] = 'x';
-      for (nCh = 0;  nCh < 16;  nCh++)  if (cmap [nCh] != 'x')  break;
-      if (nCh == 16)
-         {Hey (CC("device's channels are all in use"));      return;}
-   }
-//DBG(" new ch=`d", nCh+1);
+   else if ((nCh = PickChn (dNm)) == 255)   // all melo chans of new dev in use?
+      {Hey (CC("device's channels are all in use"));         return;}
+DBG(" new ch=`d", nCh+1);
 
 // get prev snd name as str
    if (nCh != 9) {
       if (_f.trk [tr].snd != SND_NONE)
             StrCp (sNm, Up.dvt [Up.dev [d].dvt].Snd (_f.trk [tr].snd)->name);
-      else  StrCp (sNm, CC("Piano/AcousticGrand"));
-//DBG(" sNm=`s", sNm);
+      else  StrCp (sNm, CC("Piano_AcousticGrand"));
+DBG(" sNm=`s", sNm);
    }
 
 // t1-t2 covers my group range...
    t1 = t2 = tr;
    while (                     _f.trk [t1  ].grp)   t1--;
    while ((t2+1 < Up.rTrk) && (_f.trk [t2+1].grp))  t2++;
-//DBG(" tr rng=`d - `d", t1, t2);
+DBG(" tr rng=`d - `d", t1, t2);
 
 // goin to ungrouped?  gotta scoot below old grp
    if (_f.trk [tr].grp && StrCm (dNm, CC("+"))) {
-//DBG(" goin to ungrouped");
+DBG(" goin to ungrouped");
       if (tr != t2) {                       // scoot if not already at bot
          MemCp (& ro,          & _f.trk [tr], sizeof (ro));
          MemCp (& _f.trk [tr], & _f.trk [t2], sizeof (ro));
@@ -592,13 +586,13 @@ TRC("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
    for (got = false, t = 0;  t < Up.rTrk;  t++)  if ((t < t1) || (t > t2))
       if (oDv == _f.trk [t1].dev)  got = true;
    if (! got) {
-//DBG(" shut old dev");
+DBG(" shut old dev");
       ShutDev (_f.trk [t1].dev);
    }
 
    if (StrCm (dNm, CC("+"))) {
       d = OpenDev (dNm);      // unless +, get new one
-//DBG(" open new dev=`d", d);
+DBG(" open new dev=`d", d);
    }
 
 // redo cch[]
@@ -608,17 +602,17 @@ TRC("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
    _f.trk [tr].dev = d;
    _f.trk [tr].chn = nCh;
    _f.trk [tr].grp = (StrCm (dNm, CC("+")) ? false : true);
-//DBG(" new dv=`d ch=`d grp=`b", d, nCh+1, _f.trk [tr].grp);
+DBG(" new dv=`d ch=`d grp=`b", d, nCh+1, _f.trk [tr].grp);
 
 // new sndid since new dev :/
    got = false;                        // drum syn check
    if (nCh != 9)  _f.trk [t1].snd = Up.dvt [Up.dev [d].dvt].SndID (sNm);
    else           got = true;          // hello syn
-//DBG(" tr=`d sndid=`d", t1, _f.trk [t1].snd);
+DBG(" tr=`d sndid=`d", t1, _f.trk [t1].snd);
 
 // setup all trks of grp
    for (t = t1+1;  t <= t2;  t++) {
-//DBG(" tr=`d too", t);
+DBG(" tr=`d too", t);
       _f.trk [t].dev = _f.trk [t1].dev;
       _f.trk [t].chn = _f.trk [t1].chn;
       if (! got)  _f.trk [t].snd = _f.trk [t1].snd;

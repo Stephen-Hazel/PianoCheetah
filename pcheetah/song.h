@@ -126,7 +126,7 @@ private:
    ubyt2 TmpoAt  (ubyt4 tm, char act = '\0');    // return stored unless 'a'
 
 // sDevice.cpp  (n sDevTyp.cpp)
-   void OpenMIn (), ShutMIn ();
+   void  OpenMIn (), ShutMIn ();
 
    char *DevName (ubyte t)
    {  if (!  Up.dev [_f.trk [t].dev].mo)  return CC("");
@@ -140,6 +140,7 @@ private:
    void  PickDev (ubyte tr, char *sndName, char *devName = NULL);
    ubyte OpenDev (char *nm);
    void  ShutDev (ubyte d);
+   ubyte PickChn (char *dv);
    void  SetBnk ();
    void  SetChn (), SetChn (ubyte t);
 
@@ -278,9 +279,9 @@ private:
 
    Timer               *_timer;
    Arr<MInDef,MAX_DEVI> _mi;
-   Syn                 *_syn;          // convert midi to sound
-// Lzr                  _lzr;          // lazer writin
    SongFile             _f;
+   Arr<ubyt4,128>       _sySn;         // syn's sound bank: just melodic no drum
+// Lzr                  _lzr;          // lazer writin
 
    bool   _onBt, _rcrd, _prac;         // tL8r is still on beat?  recording?
    ubyt4  _tEnd;                       // last time       DID some practice evs?
@@ -322,8 +323,6 @@ public slots:
 signals:
    void sgCmd (QString cmd);
    void sgUpd (QString upd);           // gui talkin
-   void sgSyn (char *cmd,              // render some midi to sound pleez
-               ubyte ch = 0, ubyt2 c = 0, ubyte v = 0, ubyte v2 = 0);
 };
 
 

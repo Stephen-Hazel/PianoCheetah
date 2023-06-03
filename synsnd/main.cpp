@@ -19,9 +19,9 @@ static char        *MGrp [] = {        // group order for melodic(non drum) snds
 
 bool DoDir (void *ptr, char dfx, char *fn)
 // list all dirs under .../device/syn/
-// other than bank/, drum/, every dir is a Snd
-// bank/drum/grp_snd_kit => drum/grp_snd_kit_bank
-// bank/grp_snd          =>      grp_snd_bank
+// other than bank/, Drum/, every dir is a Snd
+// Bank/Drum/Grp_Snd_Kit => Drum/Grp_Snd_Kit_Bank
+// Bank/Grp_Snd          =>      Grp_Snd_Bank
 { ubyte nsl = 0, ln = StrLn (fn);
   char *p;
   TStr  s, t, bnk, kit;
@@ -56,8 +56,8 @@ int SndCmp (void *p1, void *p2)
    StrCp (b1, (char *)p1);   s1 = & b1 [0];
    StrCp (b2, (char *)p2);   s2 = & b2 [0];
 //DBG("s1=`s s2=`s", s1, s2);
-   d1 = MemCm (s1, CC("drum/"), 5) ? 1 : 0;      // 0=drum vs 1=melo
-   d2 = MemCm (s2, CC("drum/"), 5) ? 1 : 0;
+   d1 = MemCm (s1, CC("Drum/"), 5) ? 1 : 0;      // 0=drum vs 1=melo
+   d2 = MemCm (s2, CC("Drum/"), 5) ? 1 : 0;
    if (d1 - d2)  return d1-d2;
 
 //DBG("drum same");
@@ -72,11 +72,11 @@ int SndCmp (void *p1, void *p2)
       return StrCm (s1, s2);                     // then strcm snd,bnk
 //DBG("melo cmp");
    }
-                                       // left w drum/*
-   g1 = MemCm (s1, CC("drum/x_"), 6) ? 0 : 1;    // 1=x_999_b_k, 0=grp_snd_b_k
-   g2 = MemCm (s2, CC("drum/x_"), 6) ? 0 : 1;
+                                       // left w Drum/*
+   g1 = MemCm (s1, CC("Drum/x_"), 6) ? 0 : 1;    // 1=x_999_b_k, 0=grp_snd_b_k
+   g2 = MemCm (s2, CC("Drum/x_"), 6) ? 0 : 1;
    if (g1 - g2)  return g1-g2;
-//DBG("drum/x_ same");
+//DBG("Drum/x_ same");
 
    if (g1 == 1)  return StrCm (s1, s2);          // ez
 
@@ -86,7 +86,7 @@ int SndCmp (void *p1, void *p2)
       if (! MemCm (& s1 [10], MDrum [n1].sym, 4))  break;
    for (n2 = 0;  n2 < NMDrum;  n2++)
       if (! MemCm (& s2 [10], MDrum [n2].sym, 4))  break;
-   if (n1 - n2)  return n1-n2;         // diff drum/dgrp_dsnd
+   if (n1 - n2)  return n1-n2;         // diff Drum/DGrp_DSnd
 
 //DBG("drm order same so cmp");
    return StrCm (s1, s2);              // else by kit,bnk

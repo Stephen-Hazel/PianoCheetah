@@ -127,9 +127,77 @@ TRC("   Local Control=ON for `s", nm);
 
 //______________________________________________________________________________
 // MidiOut stuph
+ubyte Song::OpenDev (char *nm)
+// return Up.dev pos if got;  else KICK it up n return new pos (n maybe devtype)
+{ ubyte d, t;
+TRC("OpenDev `s", nm);
+   for (d = 0;  d < Up.dev.Ln;  d++)   // already open?
+      if (Up.dev [d].mo && (! StrCm (nm, Up.dev [d].mo->Name ())))  break;
+   if (d < Up.dev.Ln)  {TRC("  already got");   return d;}
+
+// gotta getta new one
+   for (d = 0;  d < Up.dev.Ln;  d++)  if (Up.dev [d].mo == nullptr)  break;
+   if (d >= Up.dev.Ln) {
+      if (Up.dev.Full ())  DBG("OpenDev  tooo many devices");
+      Up.dev.Ln++;
+   }
+   Up.dev [d].mo = new MidiO (nm);
+   if (Up.dev [d].mo->Dead ()) {
+      delete Up.dev [d].mo;   Up.dev [d].mo = nullptr;
+      return MAX_DEV;
+   }
+
+// got it's DevTyp yet?
+   for (t = 0;  t < Up.dvt.Ln;  t++)
+      if (! StrCm (Up.dvt [t].Name (), Up.dev [d].mo->Type ()))  break;
+   if (t >= Up.dvt.Ln) {               // need newguy
+      for (t = 0;  t < Up.dvt.Ln;  t++)  if (! Up.dvt [t].Name () [0])  break;
+      if (t >= Up.dvt.Ln) {
+         if (Up.dvt.Full ())  DBG("OpenDev  outa DevTyp slots");
+         Up.dvt.Ln++;                  // ^ain't gonna happen as device slots
+      }                                // will run out first
+      Up.dvt [t].Open (Up.dev [d].mo->Type ());
+   }
+   Up.dev [d].dvt = t;
+   return d;
+}
+
+
+void Song::ShutDev (ubyte d)
+{  if (! Up.dev [d].mo)  return;
+  ubyte t = Up.dev [d].dvt;
+TRC("ShutDev d=`d=`s dvt=`d", d, Up.dev [d].mo->Name (), t);
+   delete Up.dev [d].mo;   Up.dev [d].mo = nullptr;   Up.dev [d].dvt = MAX_DEV;
+   while (Up.dev.Ln && (Up.dev [Up.dev.Ln-1].mo == nullptr))
+      Up.dev.Del (Up.dev.Ln-1);
+
+// can I shut down DevTyp?
+   for (d = 0;  d < Up.dev.Ln;  d++)
+      if (Up.dev [d].mo && (Up.dev [d].dvt == t))  break;
+   if (d >= Up.dev.Ln) {
+      Up.dvt [t].Shut ();
+      while (Up.dvt.Ln && (! Up.dvt [Up.dvt.Ln-1].Name ()[0]))  Up.dvt.Ln--;
+   }
+}
+
+
 void Song::NotesOff ()                 // playing notes n hold cc go off
 {  for (ubyte d = 0;  d < Up.dev.Ln;  d++)  if (Up.dev [d].mo)
                                                 Up.dev [d].mo->NotesOff ();
+}
+
+
+ubyte Song::PickChn (char *dv)
+{ ubyte nc, t;
+  TStr  cmap;
+   nc = StrCm (dv, CC("syn")) ? 16 : 128;
+   MemSet (cmap, '.', nc);  cmap [9] = 'X';   cmap [nc] = '\0';
+   for (t = 0;  t < _f.trk.Ln;  t++)
+      if (! StrCm (Up.dev [_f.trk [t].dev].mo->Name (), dv))
+         cmap [_f.trk [t].chn] = 'x';
+   for (t = 0;  t < nc;  t++)  if (t != 'x')  break;
+   if (t == nc)  t = 255;
+   return t;
 }
 
 
@@ -141,7 +209,7 @@ void Song::PickDev (ubyte tr, char *sndName, char *devName)
   DevTyp dt;
 TRC("PickDev tr=`d snd=`s dev=`s", tr, sndName, devName?devName:"");
    if ( _f.trk [tr].grp  &&  tr  &&    // sanity check grp w GOT prv & drum-ness
-        ( (MemCm (sndName, CC("drum"), 4) ? 0 : 1) ==
+        ( (MemCm (sndName, CC("Drum"), 4) ? 0 : 1) ==
           (TDrm (tr-1) ? 1 : 0)) )
         {d = _f.trk [tr-1].dev;   c = _f.trk [tr-1].chn;}
    else {
@@ -205,60 +273,6 @@ _f.trk [tr].snd, (c==9)?"-":sndName);
 }
 
 
-ubyte Song::OpenDev (char *nm)
-// return Up.dev pos if got;  else KICK it up n return new pos (n maybe devtype)
-{ ubyte d, t;
-TRC("OpenDev `s", nm);
-   for (d = 0;  d < Up.dev.Ln;  d++)   // already open?
-      if (Up.dev [d].mo && (! StrCm (nm, Up.dev [d].mo->Name ())))  break;
-   if (d < Up.dev.Ln)  {TRC("  already got");   return d;}
-
-// gotta getta new one
-   for (d = 0;  d < Up.dev.Ln;  d++)  if (Up.dev [d].mo == nullptr)  break;
-   if (d >= Up.dev.Ln) {
-      if (Up.dev.Full ())  DBG("OpenDev  tooo many devices");
-      Up.dev.Ln++;
-   }
-   Up.dev [d].mo = new MidiO (nm);
-   if (Up.dev [d].mo->Dead ()) {
-      delete Up.dev [d].mo;   Up.dev [d].mo = nullptr;
-      return MAX_DEV;
-   }
-
-// got it's DevTyp yet?
-   for (t = 0;  t < Up.dvt.Ln;  t++)
-      if (! StrCm (Up.dvt [t].Name (), Up.dev [d].mo->Type ()))  break;
-   if (t >= Up.dvt.Ln) {               // need newguy
-      for (t = 0;  t < Up.dvt.Ln;  t++)  if (! Up.dvt [t].Name () [0])  break;
-      if (t >= Up.dvt.Ln) {
-         if (Up.dvt.Full ())  DBG("OpenDev  outa DevTyp slots");
-         Up.dvt.Ln++;                  // ^ain't gonna happen as device slots
-      }                                // will run out first
-      Up.dvt [t].Open (Up.dev [d].mo->Type ());
-   }
-   Up.dev [d].dvt = t;
-   return d;
-}
-
-
-void Song::ShutDev (ubyte d)
-{  if (! Up.dev [d].mo)  return;
-  ubyte t = Up.dev [d].dvt;
-TRC("ShutDev d=`d=`s dvt=`d", d, Up.dev [d].mo->Name (), t);
-   delete Up.dev [d].mo;   Up.dev [d].mo = nullptr;   Up.dev [d].dvt = MAX_DEV;
-   while (Up.dev.Ln && (Up.dev [Up.dev.Ln-1].mo == nullptr))
-      Up.dev.Del (Up.dev.Ln-1);
-
-// can I shut down DevTyp?
-   for (d = 0;  d < Up.dev.Ln;  d++)
-      if (Up.dev [d].mo && (Up.dev [d].dvt == t))  break;
-   if (d >= Up.dev.Ln) {
-      Up.dvt [t].Shut ();
-      while (Up.dvt.Ln && (! Up.dvt [Up.dvt.Ln-1].Name ()[0]))  Up.dvt.Ln--;
-   }
-}
-
-
 //______________________________________________________________________________
 void Song::SetChn ()                   // do progch's for ALL song melo chans
 {  for (ubyte t = 0;  t < Up.rTrk;  t++)  if (! _f.trk [t].grp)  SetChn (t);
@@ -269,12 +283,17 @@ void Song::SetChn ()                   // do progch's for ALL song melo chans
 void Song::SetChn (ubyte t)
 // send BankLo/BankHi/ProgCh for trk's dev/chn
 { ubyte d = _f.trk [t].dev, c = _f.trk [t].chn;
-  ubyt4 s = _f.trk [t].snd;
+  ubyt4 s = _f.trk [t].snd, p;
 TRC("SetChn tr=`d dv=`d ch=`d", t, d, c+1);
-   if (s == SND_NONE)  {TRC("SND_NONE");   return;}
-
+   if (s == SND_NONE)  return;
+   if (Up.dev [d].mo->Syn ()) {
+      if (c == 9)  return;             // SetBnk already did drum sounds
+      for (p = 0;  p < _sySn.Ln;  p++)  if (_sySn [p] == s)  break;
+TRC(" syn prog p=`d", p);
+      Up.dev [d].mo->Put (c, MC_PROG, p);
+   }
   SnRow *sn = Up.dvt [Up.dev [d].dvt].Snd (s);
-TRC(" GM prog=`d=`s bnkH=`d bnkL=`d",
+TRC(" GM prog=`d=`s bank=`d bnkL=`d",
 sn->prog,MProg[sn->prog],sn->bank,sn->bnkL);
    if (sn->bnkL != PRG_NONE) Up.dev [d].mo->Put (c, MC_CC|M_BNKL, sn->bnkL);
    if (sn->bank != PRG_NONE) Up.dev [d].mo->Put (c, MC_CC|M_BANK, sn->bank);
@@ -282,4 +301,35 @@ sn->prog,MProg[sn->prog],sn->bank,sn->bnkL);
 }
 
 
-void Song::SetBnk ()  {TRC("SetBnk");   SetChn ();}
+void Song::SetBnk ()
+// tell syn it's (new) sounds
+{ ubyte t, syn, mc = 0;                // trk#, syn device, max chans fer syn
+  ubyt4 s, ts;
+  TStr  st, snd [256];
+TRC("SetBnk");
+   for (syn = 0;  syn < Up.dev.Ln;  syn++)
+      if (! Up.dev [syn].mo->Syn ())  break;
+   if (syn >= Up.dev.Ln)  {SetChn ();   return;}      // got no syn so byeee
+   for (s = 0;  s < 256;  s++) snd [s][0] = '\0';
+   _sySn.Ln = 0;
+   for (t = 0;  t < Up.rTrk;  t++) {
+      if (! Up.dev [_f.trk [t].dev].mo->Syn ())  continue;
+      if (_f.trk [t].chn != 9) {
+         if (_f.trk [t].chn > mc)  mc = _f.trk [t].chn;
+         if ((ts = _f.trk [t].snd) == SND_NONE) continue;
+         for (s = 0;  s < _sySn.Ln;  s++)  if (_sySn [s] == ts)  break;
+         if (s >= _sySn.Ln) {
+            if (_sySn.Full ()) {
+               Hey (CC("SetBnk  too many sounds fer Syn"));
+               SetChn ();   return;
+            }
+            StrCp (snd [_sySn.Ln], SndName (t));
+            _sySn [_sySn.Ln++] = ts;
+         }
+      }
+      else
+         StrCp (snd [128+_f.trk [t].drm], SndName (t));
+   }
+   Up.dev [syn].mo->SynBnk (snd, mc);
+   SetChn ();                          // redo chan progch biz
+}

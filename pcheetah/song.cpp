@@ -22,7 +22,6 @@ TRC("Song::Init");                     // init that there stuff we need...
 
 void Song::Quit ()                     // clean up
 {  TRC("Song::Quit");
-   if (_syn != nullptr)  emit sgSyn (CC("quit"));
    Wipe ();   ShutMIn ();   delete _timer;   if (_f.ev)  delete [] _f.ev;
    emit sgUpd ("bye");
    TRC("Song::Quit end");

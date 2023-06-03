@@ -979,7 +979,7 @@ DBG("dump#4"); Dump(false);
       if (s && (St [s].chan == St [s-1].chan))  *ts = '+';
       ts [40] = '\0';                  // trim to 40 chars MAX
       while (StrLn (ts) && (ts [StrLn (ts)-1] == ' '))  StrAp (ts, CC(""), 1);
-      if ((St [s].chan & 0x0F) == 9)  StrCp (snnm, CC("Drum/Drum"));
+      if ((St [s].chan & 0x0F) == 9)  StrCp (snnm, CC("Drum/*"));
       else                            StrCp (snnm, MProg [St [s].prog >> 16]);
       if (St [s].prog & 0x00FFFF)
          StrFmt (& snnm [StrLn (snnm)], ".`03d`03d",
@@ -1005,7 +1005,7 @@ TRC("SB=`s", SB);
    }
    Fs.Put (CC("Event:\n"));            // main event data
    for (s = 0;  s < St.Ln;  s++) {
-      if ((St [s].chan & 0x0F) == 9)  StrCp (snnm, CC("Drum/Drum"));
+      if ((St [s].chan & 0x0F) == 9)  StrCp (snnm, CC("Drum/*"));
       else                            StrCp (snnm, MProg [St [s].prog >> 16]);
       for (e = St [s].bgn;  e <= St [s].end;  e++) {
          Fs.Put (StrFmt (SB, "`s ", TmSt (TMS, Ev [e].time)));

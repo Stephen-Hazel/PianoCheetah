@@ -66,6 +66,7 @@ void DevTyp::Open (char *devTyp)
 // cache devTyp's sound.txt and ccout.txt files into mem
 { TStr fn;
   File f;
+TRC("DevTyp::Open `s", devTyp);
    StrCp (_name, devTyp);   _nDr = _sn.Ln = _cc.Ln = 0;
 
    App.Path (fn, 'd');   StrAp (fn, CC("/device/"));   StrAp (fn, devTyp);
@@ -78,7 +79,7 @@ void DevTyp::Open (char *devTyp)
    App.Path (fn, 'd');   StrAp (fn, CC("/device/"));   StrAp (fn, devTyp);
    StrAp (fn, CC("/ccout.txt"));
    f.DoText (fn, this, CcRec);
-TRC("DevTyp::Open `s sn.Ln=`d nDr=`d cc.Ln=`d", devTyp, _sn.Ln, _nDr, _cc.Ln);
+Dump ();
 }
 
 
@@ -96,7 +97,7 @@ ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
   char *p, *p2;
   TStr  nm;
    StrCp (nm, s);
-//DBG("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
+TRC("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
 // gotta drum?
    if (! MemCm (nm, CC("Drum"), 4)) {
       for (i = 0; i < _nDr; i++)
@@ -118,13 +119,13 @@ ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
                return i;
             }
          }
-         if ((p = StrCh (nm, '/'))) {
-            while ((p2 = StrCh (p+1, '/')))  p = p2;  // get last one into p
+         if ((p = StrCh (nm, '_'))) {
+            while ((p2 = StrCh (p+1, '_')))  p = p2;  // get last one into p
             *p = '\0';
          }
          else break;
       }
-   // give up - use whatever drums ya got  (usually Drum\Kick\Kick / drum\drum)
+   // give up - use whatever drums ya got  (usually Drum/Kick_Kick / Drum/*)
       return 0;
    }
 
@@ -161,8 +162,8 @@ ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
             return i;
          }
       }
-      if ((p = StrCh (nm, '/'))) {
-         while ((p2 = StrCh (p+1, '/')))  p = p2;     // get last one into p
+      if ((p = StrCh (nm, '_'))) {
+         while ((p2 = StrCh (p+1, '_')))  p = p2;     // get last one into p
          *p = '\0';
       }
       else break;
@@ -174,117 +175,64 @@ ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
 
 
 bool DevTyp::SndNew (ubyt4 *newp, ubyt4 pos, char ofs)
-// lookup new Snd info at an offset from the given pos
-// return false if ya can't do ofs
-{ ubyt4 b, e, p;
-  TStr  path1, path2, patht;
-
-// are we in the drum list or melodic sound list?
-   b = 0;  e = _sn.Ln;
-   if (pos < _nDr)  e = _nDr;  else b = _nDr;
+// bump sound pos by 1;  return false if ya can't
+{ ubyt4 b, e;
+   b = 0;   e = _sn.Ln;                // are we in drum list or melo?
+   if (pos < _nDr)  e = _nDr;   else b = _nDr;
    if (pos >= e)  pos = b;
-
-// path1 = dir of snd, patht = top level dir of snd for len p
-   StrCp (path1, _sn [pos].name);   StrCp (patht, path1);
-   Fn2Path (path1);
-   p = 0;
-   if      (! MemCm (patht, CC("Drum/"), 5))      p += 5;
-   if      (! MemCm (& patht [p], CC("+/"), 2))   p += 2;
-   else if (! MemCm (& patht [p], CC("_/"), 2))   p += 2;
-   while   (patht [p] && (patht [p] != '/'))  p++;
-   switch (ofs) {
-   case 0:  if (pos-- == b)  return false;
-            break;
-   case 1:  if (++pos == e)  return false;
-            break;
-   case 2:  if (pos == b  )  return false;
-            if (pos >= b+5) pos -= 5;  else pos = b;
-            break;
-   case 3:  if (pos == e-1)  return false;
-            if (pos+5 <  e) pos += 5;  else pos = e-1;
-            break;
-   case 4:  if (pos == b  )  return false;
-            if (! *path1) {if (pos >= b+5) pos -= 5;  else pos = b  ;}
-            else
-               do {
-                  --pos;  StrCp (path2, _sn [pos].name);  Fn2Path (path2);
-               } while ((pos > b  ) && (! StrCm (path1, path2)));
-            break;
-   case 5:  if (pos == e-1)  return false;
-            if (! *path1) {if (pos+5 < e ) pos += 5;  else pos = e-1;}
-            else
-               do {
-                  ++pos;  StrCp (path2, _sn [pos].name);  Fn2Path (path2);
-               } while ((pos < e-1) && (! StrCm (path1, path2)));
-            break;
-   case 6:  if (pos == b)    return false;
-            if (! patht [p])
-               {if (pos >= b+5) pos -= 5;  else pos = b;}
-            else
-               do --pos;
-               while ((pos > b  ) &&
-                      (! MemCm (patht, _sn [pos].name, p)));
-            break;
-   case 7:  if (pos == e-1)  return false;
-            if (! patht [p])
-               {if (pos+5 <  e) pos += 5;  else pos = e-1;}
-            else
-               do ++pos;
-               while ((pos < e-1) &&
-                      (! MemCm (patht, _sn [pos].name, p)));
-            break;
-   }
-   *newp = pos;
-   return true;
+   if (ofs)  {if (++pos == e)  return false;}
+   else      {if (pos-- == b)  return false;}
+   *newp = pos;                return true;
 }
 
 
 void DevTyp::SGrp (char *t)            // to get snd grp (dirs)
 { ubyt4 i;
   TStr  s, ps;
-  char *p;
+  char *p, *t1;
+   t1 = t;
    *t = '\0';
-TRC("DevTyp::SGrp");
    for (i = 0;  i < _sn.Ln;  i++) {
       StrCp (s, _sn [i].name);
       if (! MemCm (s, CC("Drum/"), 5))  continue;
-      p = StrCh (s, '/');   if (p) *p = '\0';
+      if ((p = StrCh (s, '_')))  *p = '\0';
       if (StrCm (ps, s))  {StrCp (t, s);   t += (StrLn (s)+1);   StrCp (ps, s);}
    }
    *t = '\0';
-TRC("DevTyp::SGrp end");
+//DBG("DevTyp::SGrp t:"); DbgX(t1,'z');
 }
 
 void DevTyp::SNam (char *t, char *grp) // pop snd list for grp
 { ubyt4 i;
   TStr  s;
-  char *p;
-TRC("DevTyp::SNam grp=`s", grp);
+  char *p, *t1;
+   t1 = t;
+//DBG("DevTyp::SNam grp=`s", grp);
    for (i = 0;  i < _sn.Ln;  i++) {
       StrCp (s, _sn [i].name);
       if (! MemCm (s, CC("Drum/"), 5))  continue;
-      if (! MemCm (s, grp, StrLn (grp)))  
+      if (! MemCm (s, grp, StrLn (grp)))
          {p = & s [StrLn (grp)+1];   StrCp (t, p);   t += (StrLn (p)+1);}
    }
    *t = '\0';
-TRC("DevTyp::SNam end");
+//DBG("DevTyp::SNam t:"); DbgX(t1,'z');
 }
 
 
 void DevTyp::Dump ()
-{  DBG(" name=`s nCc=`d nSn=`d nDr=`d", _name, _cc.Ln, _sn.Ln, _nDr);
+{  DBG("   nCc=`d nSn=`d nDr=`d", _cc.Ln, _sn.Ln, _nDr);
 /*
   TStr  s;
   ubyt4 i;
    DBG("  cc map      raw");
-   for (i = 0; i < _cc.Ln; i++)
+   for (i = 0;  i < _cc.Ln;  i++)
       DBG(" `>3d `<8s `s", i, _cc [i].map, MCtl2Str (s, _cc [i].raw));
    DBG("      snd prog bank bnkL name,desc");
-   for (i = 0; i < _sn.Ln; i++)
+   for (i = 0;  i < _sn.Ln;  i++)
       DBG(" `>8d `>4d `>4d `>4d `s",
           i, _sn [i].prog, _sn [i].bank, _sn [i].bnkL, _sn [i].name);
    DBG("  CCMap");
-   for (i = 0; i < 128; i++)  if (CCMap [i])
+   for (i = 0;  i < 128;  i++)  if (CCMap [i])
       DBG("  `>3d `s", i, MCtl2Str (s, CCMap [i]));
 */
 }

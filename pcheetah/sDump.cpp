@@ -83,17 +83,13 @@ DBG("DUMP");
       _lrn.hLrn, _lrn.vwNt, _lrn.POZ, Up.uPoz
    );
 
-// DBG("dsc: `s", _dsc);
-   DBG("dev name     type     desc");
-   for (t = 0; t < Up.dev.Ln; t++)
-      DBG("`>3d `<8s `<8s `s",
-         t,
-         Up.dev [t].mo ? Up.dev [t].mo->Name () : "(empty)",
-         Up.dev [t].mo ? Up.dev [t].mo->Type () : "",
-         Up.dev [t].mo ? Up.dev [t].mo->Desc () : ""
-      );
-   DBG("mi name");
-   for (t = 0; t < _mi.Ln; t++) DBG("`02d `s", t, _mi [t].mi->Name ());
+   DBG("mi name.type");
+   for (t = 0;  t < _mi.Ln;     t++)  DBG("`>3d `s.`s",
+      t,  _mi [t].mi->Name (),  _mi [t].mi->Type ());
+   DBG("dev name.type");
+   for (t = 0;  t < Up.dev.Ln;  t++)  DBG("`>3d `s.`s",
+      t,  Up.dev [t].mo ? Up.dev [t].mo->Name () : "(empty)",
+          Up.dev [t].mo ? Up.dev [t].mo->Type () : "");
    DBG("trk name             "
        "dev chn      snd        e       ne       nn       nb"
        "        p shh lrn ht drm");

@@ -38,8 +38,8 @@ void Song::ReTrk ()
       *g = '\0';
       if (*s) {
          StrCp (g, s);
-         if (MemCm (g, CC("Drum/"), 5))  sl = StrCh (g,       '/');
-         else                            sl = StrCh (& g [5], '/');
+         if (MemCm (g, CC("Drum/"), 5))  sl = StrCh (g,       '_');
+         else                            sl = StrCh (& g [5], '_');
          if (sl)  {*sl = '\0';   StrCp (s, & s [StrLn (g)+1]);}
          else                          *s = '\0';
       }

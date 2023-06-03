@@ -115,7 +115,7 @@ char *DoNote (char *b, ubyte l)
             step = MKey (MDrum [step].key);
             nt = got = true;   b += 4;   l -= 4;
             StrCp (TNm [NTrk], CC("DrumTrack"));      // might as well
-            StrCp (TSn [NTrk], CC("drum/drum"));
+            StrCp (TSn [NTrk], CC("Drum/*"));
             break;
          }
    // regular octNoteNote...
@@ -218,7 +218,7 @@ char *DoCC (char *b)
       StrCp (TSn [NTrk], p);
       if (! StrCm (p, CC("drum"), 4))
          {StrCp (TNm [NTrk], CC("DrumTrack"));
-          StrCp (TSn [NTrk], CC("drum/drum"));}
+          StrCp (TSn [NTrk], CC("Drum/*"));}
       return nullptr;
    }
    if (! StrCm (b, CC("mode"  ))) {
@@ -229,7 +229,7 @@ char *DoCC (char *b)
       StrCp (TNm [NTrk], p);
       if (! MemCm (p, CC("drum"), 4))
          {StrCp (TNm [NTrk], CC("DrumTrack"));
-          StrCp (TSn [NTrk], CC("drum/drum"));}
+          StrCp (TSn [NTrk], CC("Drum/*"));}
       else if ( (! StrCm (p, CC("LH"))) ||
                 (! StrCm (p, CC("RH"))) )
          {StrCp (& TMd [NTrk][1], p);   TMd [NTrk][0] = '?';}
@@ -493,8 +493,8 @@ TRC("NSct=`d", NSct);
                }
                else                          // note
                   f.Put (StrFmt (SB, "`s`c`d",
-                     (! StrCm (TSn [t], CC("drum/drum"))) ? MDrm2Str (s, c)
-                                                          : MKey2Str (s, c),
+                     (! StrCm (TSn [t], CC("Drum/*"))) ? MDrm2Str (s, c)
+                                                       : MKey2Str (s, c),
                      (e->valu & 0x0080) ? ((e->val2 & 0x80) ? '~' : '_')
                                         : '^',  e->valu & 0x007F));
                f.Put (CC("\n"));
@@ -554,8 +554,8 @@ TRC("NSct=`d", NSct);
             }
             else {                        // note
                f.Put (StrFmt (SB, "`s`c`d",
-                  (! StrCm (TSn [t], CC("drum/drum"))) ? MDrm2Str (s, c)
-                                                       : MKey2Str (s, c),
+                  (! StrCm (TSn [t], CC("Drum/*"))) ? MDrm2Str (s, c)
+                                                    : MKey2Str (s, c),
                   (e->valu & 0x0080) ? ((e->val2 & 0x80) ? '~' : '_')
                                      : '^',  e->valu & 0x007F));
                if ((c = (e->val2 & 0x1F)))

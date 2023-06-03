@@ -4,10 +4,7 @@
 #include "../../stv/midi.h"
 #include "../../stv/wav.h"
 
-extern void SynSnd ();
-
-
-TStr  Top, To, Snd, Kit, FlacExe;      // top dir, dest dir,
+TStr  Top, To, SndN, Kit, FlacExe;     // top dir, dest dir,
                                        // soundDir under To, drumkit,
                                        // flac.exe pathed
 File  LF;                              // log file
@@ -234,7 +231,7 @@ MKey2Str (s[0], (ubyte)sfz [0][KL]), MDrm2Str (s[1], (ubyte)sfz [0][KL]) ));
        if (i && (wv._lBgn >= wv._end-1))  wv._lBgn = wv._bgn;}
 
 // write dat babyyy OUT
-   StrFmt (fn, "`s/`s`s`s`s.WAV", To, Snd, pre, sfn, suf);
+   StrFmt (fn, "`s/`s`s`s`s.WAV", To, SndN, pre, sfn, suf);
    StrCp (ts, fn);   Fn2Path (ts);
    p.Make (ts);
    wv.Save (fn);
@@ -273,26 +270,26 @@ LF.Put (StrFmt (ps, "`s`s\n", & fn [StrLn (Top)+1], *Kit ? " <== DRUM" : ""));
    inp = (ubyte)Str2Int (p, & p);
 DBG("   inp=`d pa=`s p=`s fn=`s Kit=`s", inp, pa, p, fn, Kit);
 
-// drum GM Snd: drum/Grp_Snd_Kit  Grp_Snd set in DoWav
+// drum GM Snd: Drum/Grp_Snd_Kit  Grp_Snd set in DoWav
    if (*Kit)
-      *Snd = '\0';
+      *SndN = '\0';
 // melo GM Snd: Dir_Snd
    else if ((inp >= 1) && (inp <= 128) && (p == & fn [StrLn (ts)+4])) {
-      StrCp (Snd, MProg [inp-1]);                // ^^^ len of 3? hopefullyyy
-      while ((p = StrCh (Snd, '/')))  *p = '_';  // n good enough
+      StrCp (SndN, MProg [inp-1]);               // ^^^ len of 3? hopefullyyy
+      while ((p = StrCh (SndN, '/')))  *p = '_';      // n good enough
    }
-// melo unGM Snd: x_sfzFn
+// melo unGM Snd: x_PSet
    else {
-      StrFmt (Snd, "x_");
+      StrFmt (SndN, "x_");
       StrCp (ts, & fn [StrLn (Top)+1]);     // back to sfz dir/fn off Top
       StrAp (ts, CC(""), 4);                // no sfz
       while ((p = StrCh (ts, '/')))  *p = '_';
       while ((p = StrCh (ts, ' ')))  *p = '_';
       if (! MemCm (ts, CC("programs_"), 9))  StrCp (ts, & ts [9]);
-      StrAp (Snd, ts);
+      StrAp (SndN, ts);
    }
-   StrAp (Snd, CC("/"));
-DBG("   Snd='`s' Kit='`s'", Snd, Kit);      // Snd FINALLY DONE
+   StrAp (SndN, CC("/"));
+DBG("   Snd='`s' Kit='`s'", SndN, Kit);     // Snd FINALLY DONE
 
    MemSet (KGot, '_', sizeof (KGot));  // try to see if it's drums
    pTrk = 0;
