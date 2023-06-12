@@ -19,10 +19,10 @@ public:
    }
 
   ~CtlNt ()  {if (Up.pm)  delete Up.pm;}
-   
-   void Init (ubyt2 w, ubyt2 h)  
+
+   void Init (ubyt2 w, ubyt2 h)
    {  Up.w = w;   Up.h = h;   RePM ();   emit sgReSz ();  }
-   
+
    void Cur ();
 
 signals:

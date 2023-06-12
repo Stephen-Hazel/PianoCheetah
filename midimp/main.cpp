@@ -56,7 +56,7 @@ char *Wipe (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 int main (int argc, char *argv [])
 { TStr c, s;
   File f;
-  FDir d;
+  Path d;
    (void)argc;   (void)argv;
    App.Init (CC("pcheetah"), CC("midimp"), CC("midimp"));
    App.Path (DirF, 'd');   StrCp (DirT, DirF);

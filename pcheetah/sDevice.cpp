@@ -233,7 +233,7 @@ Die(CC("There are no MIDI output devices.\n"
    // look at each devtype for an exact sound match;  then again for mapped snd
       for (cOk = false, x = 0;  (! cOk) && (x <  2);  x++)
                    for (i = 0;  (! cOk) && (i < nD);  i++) {
-TRC("  i=`d/`d x=`d/2 dName=`s dType=`s", i, nD, x, dLst [i][0], dLst [i][1]);
+TRC("  i=`d/`d x=`d/2 `s.`s", i, nD, x, dLst [i][0], dLst [i][1]);
          dt.Open (dLst [i][1]);
          if (! MemCm (sndName, CC("Drum/"), 5))
               {if (dt._nDr)  {cOk = true;   d = i;   c = 9;}}
@@ -255,7 +255,7 @@ TRC("  i=`d/`d x=`d/2 dName=`s dType=`s", i, nD, x, dLst [i][0], dLst [i][1]);
       if (! cOk) {                     // NO drum devs?  just use 1st dev
          if (! MemCm (sndName, CC("Drum/"), 5))  {d = 0;   c = 9;}
          else {                        // no dice - gotta blow...:(
-DBG("PickDev track `d sound `s - out of midi device/channels :(",
+DBG("  PickDev track `d sound `s - out of midi device/channels :(",
 tr+1, sndName);
             return;
          }
@@ -267,7 +267,7 @@ tr+1, sndName);
    _f.trk [tr].chn = c;   _f.trk [tr].snd = SND_NONE;
    if (c != 9)  _f.trk [tr].snd =
                           Up.dvt [Up.dev [_f.trk [tr].dev].dvt].SndID (sndName);
-TRC("PickDev end:  dev=`s(`s).`d snd=`d=`s",
+TRC("  PickDev end: dev=`s.`s.`d snd=`d=`s",
 Up.dev [d].mo->Name (), Up.dev [d].mo->Type (), c+1,
 _f.trk [tr].snd, (c==9)?"-":sndName);
 }
@@ -303,13 +303,14 @@ sn->prog,MProg[sn->prog],sn->bank,sn->bnkL);
 
 void Song::SetBnk ()
 // tell syn it's (new) sounds
-{ ubyte t, syn, mc = 0;                // trk#, syn device, max chans fer syn
+{ ubyte t, sy, mc = 0;                 // trk#, syn device, max chans fer syn
   ubyt4 s, ts;
   TStr  st, snd [256];
-TRC("SetBnk");
-   for (syn = 0;  syn < Up.dev.Ln;  syn++)
-      if (! Up.dev [syn].mo->Syn ())  break;
-   if (syn >= Up.dev.Ln)  {SetChn ();   return;}      // got no syn so byeee
+DBG("SetBnk");
+   for (sy = 0;  sy < Up.dev.Ln;  sy++)
+      if (Up.dev [sy].mo && Up.dev [sy].mo->Syn ())  break;
+TRC("got syn dev=`d", sy);
+   if (sy >= Up.dev.Ln)  {SetChn ();   return;}      // got no syn so byeee
    for (s = 0;  s < 256;  s++) snd [s][0] = '\0';
    _sySn.Ln = 0;
    for (t = 0;  t < Up.rTrk;  t++) {
@@ -317,19 +318,19 @@ TRC("SetBnk");
       if (_f.trk [t].chn != 9) {
          if (_f.trk [t].chn > mc)  mc = _f.trk [t].chn;
          if ((ts = _f.trk [t].snd) == SND_NONE) continue;
+
          for (s = 0;  s < _sySn.Ln;  s++)  if (_sySn [s] == ts)  break;
          if (s >= _sySn.Ln) {
-            if (_sySn.Full ()) {
-               Hey (CC("SetBnk  too many sounds fer Syn"));
-               SetChn ();   return;
-            }
+            if (_sySn.Full ())  {Hey (CC("SetBnk  too many sounds fer Syn"));
+                                 SetChn ();   return;}
+TRC("    new snd  ts=`d s=`d Ln=`d str=`s", ts, s, _sySn.Ln, SndName (t));
             StrCp (snd [_sySn.Ln], SndName (t));
-            _sySn [_sySn.Ln++] = ts;
+            _sySn      [_sySn.Ln++] = ts;
          }
       }
       else
          StrCp (snd [128+_f.trk [t].drm], SndName (t));
    }
-   Up.dev [syn].mo->SynBnk (snd, mc);
-   SetChn ();                          // redo chan progch biz
+DBG("nSnd=`d  maxch=`d", _sySn.Ln, mc);
+   Up.dev [sy].mo->SynBnk (snd, mc);   SetChn ();    // redo chan progch biz
 }

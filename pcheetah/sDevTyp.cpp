@@ -220,8 +220,9 @@ void DevTyp::SNam (char *t, char *grp) // pop snd list for grp
 
 
 void DevTyp::Dump ()
-{  DBG("   nCc=`d nSn=`d nDr=`d", _cc.Ln, _sn.Ln, _nDr);
+{
 /*
+   DBG("   nCc=`d nSn=`d nDr=`d", _cc.Ln, _sn.Ln, _nDr);
   TStr  s;
   ubyt4 i;
    DBG("  cc map      raw");

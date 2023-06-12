@@ -5,7 +5,12 @@
 
 #include "../../stv/ui.h"
 #include "../../stv/uiKey.h"
+#include "../../stv/timer.h"
+#include "../../stv/snd.h"
+#include "../../stv/wav.h"
+#include "../../stv/syn.h"
 #include "../../stv/midi.h"
+
 
 const ubyt4 LRN_BT = M_WHOLE/64;       // quicker wakeup when _lrn.vwNt
 const ubyt4 NONE   = 0x7FFFFFFF;       // time of this means "no time"
@@ -88,6 +93,9 @@ public:
    void  Open (char *devTyp);
    void  Shut ();
    char *Name ()  {return _name;}
+   ubyt4 NCC  ()  {return _cc.Ln;}
+   ubyt4 NSn  ()  {return _sn.Ln;}
+   ubyt4 NDr  ()  {return _nDr;}
 
    ubyt2 CCID (char *name)             // str to dvt's raw out ubyt2
    {  for (ubyte c = 0; c < _cc.Ln; c++)  if (! StrCm (name, _cc [c].map))

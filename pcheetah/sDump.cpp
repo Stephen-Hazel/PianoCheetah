@@ -86,10 +86,15 @@ DBG("DUMP");
    DBG("mi name.type");
    for (t = 0;  t < _mi.Ln;     t++)  DBG("`>3d `s.`s",
       t,  _mi [t].mi->Name (),  _mi [t].mi->Type ());
-   DBG("dev name.type");
-   for (t = 0;  t < Up.dev.Ln;  t++)  DBG("`>3d `s.`s",
+   DBG("dev name.type dvt#");
+   for (t = 0;  t < Up.dev.Ln;  t++)  DBG("`>3d `s.`s `d",
       t,  Up.dev [t].mo ? Up.dev [t].mo->Name () : "(empty)",
-          Up.dev [t].mo ? Up.dev [t].mo->Type () : "");
+          Up.dev [t].mo ? Up.dev [t].mo->Type () : "",
+          Up.dev [t].dvt);
+   DBG("dvt name nCC nSn nDr");
+   for (t = 0;  t < Up.dvt.Ln;  t++)  DBG("`>3d `s `d `d `d",
+      t,  Up.dvt [t].Name (), Up.dvt [t].NCC (),
+          Up.dvt [t].NSn  (), Up.dvt [t].NDr ());
    DBG("trk name             "
        "dev chn      snd        e       ne       nn       nb"
        "        p shh lrn ht drm");

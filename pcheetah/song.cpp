@@ -11,6 +11,8 @@ TRC("Song::Init");                     // init that there stuff we need...
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
    connect (_timer, & Timer::TimerMsEv, this,
             [this]()  {if (_lrn.POZ)  Shush (true);});
+   Sn = new SndO;
+   Sy = new Syn;
    Midi.Load ();
    OpenMIn ();                         // boot MidiI's
    for (ubyte d = 0;  d < _mi.Ln;  d++)
@@ -22,7 +24,8 @@ TRC("Song::Init");                     // init that there stuff we need...
 
 void Song::Quit ()                     // clean up
 {  TRC("Song::Quit");
-   Wipe ();   ShutMIn ();   delete _timer;   if (_f.ev)  delete [] _f.ev;
+   Wipe ();   ShutMIn ();   delete Sy;   delete Sn;   delete _timer;
+   if (_f.ev)  delete [] _f.ev;
    emit sgUpd ("bye");
    TRC("Song::Quit end");
 }

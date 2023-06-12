@@ -4,8 +4,6 @@
 #define SONG_H
 
 #include "glo.h"
-#include "../../stv/timer.h"
-#include "../../stv/syn.h"
 
 #define HOVAL(v)  (((v) & 0x40) ? 1 : 0)
 

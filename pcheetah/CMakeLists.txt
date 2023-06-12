@@ -15,10 +15,13 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS rc)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 
+add_compile_definitions(USE_SYN)
+
 set(PROJECT_SOURCES
         glo.h
         song.h
         pcheetah.h
+        ctlNt.h
         pcheetah.cpp
         ctlNt.cpp
         dlgFL.cpp
