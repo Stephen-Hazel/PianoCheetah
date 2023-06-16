@@ -291,6 +291,7 @@ TRC("SetChn tr=`d dv=`d ch=`d", t, d, c+1);
       for (p = 0;  p < _sySn.Ln;  p++)  if (_sySn [p] == s)  break;
 TRC(" syn prog p=`d", p);
       Up.dev [d].mo->Put (c, MC_PROG, p);
+      return;
    }
   SnRow *sn = Up.dvt [Up.dev [d].dvt].Snd (s);
 TRC(" GM prog=`d=`s bank=`d bnkL=`d",
@@ -309,7 +310,7 @@ void Song::SetBnk ()
 DBG("SetBnk");
    for (sy = 0;  sy < Up.dev.Ln;  sy++)
       if (Up.dev [sy].mo && Up.dev [sy].mo->Syn ())  break;
-TRC("got syn dev=`d", sy);
+TRC("  got syn dev=`d", sy);
    if (sy >= Up.dev.Ln)  {SetChn ();   return;}      // got no syn so byeee
    for (s = 0;  s < 256;  s++) snd [s][0] = '\0';
    _sySn.Ln = 0;
@@ -323,7 +324,7 @@ TRC("got syn dev=`d", sy);
          if (s >= _sySn.Ln) {
             if (_sySn.Full ())  {Hey (CC("SetBnk  too many sounds fer Syn"));
                                  SetChn ();   return;}
-TRC("    new snd  ts=`d s=`d Ln=`d str=`s", ts, s, _sySn.Ln, SndName (t));
+TRC("  new snd  tr=`d id=`d pos=`d `s", t,ts,s,SndName(t));
             StrCp (snd [_sySn.Ln], SndName (t));
             _sySn      [_sySn.Ln++] = ts;
          }
@@ -331,6 +332,6 @@ TRC("    new snd  ts=`d s=`d Ln=`d str=`s", ts, s, _sySn.Ln, SndName (t));
       else
          StrCp (snd [128+_f.trk [t].drm], SndName (t));
    }
-DBG("nSnd=`d  maxch=`d", _sySn.Ln, mc);
+DBG("  nSnd=`d  maxch=`d", _sySn.Ln, mc);
    Up.dev [sy].mo->SynBnk (snd, mc);   SetChn ();    // redo chan progch biz
 }

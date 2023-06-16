@@ -480,11 +480,19 @@ ubyt4 Song::NtHit (ubyte t, ubyt4 tmn, ubyt4 tmx, ubyte nmn, ubyte nmx)
 
 //______________________________________________________________________________
 void Song::TrkSnd (ubyt4 snew)
-{  ChkETrk ();
-   if (TDrm (Up.eTrk))                 // change drum sound?
-      {Hey (CC("Can't edit GM DrumMap :("));   return;}
-// must be melodic sound
-   _f.trk [Up.eTrk].snd = snew;   SetChn (Up.eTrk);   ReTrk ();
+{ ubyte d;
+   ChkETrk ();
+   d = _f.trk [Up.eTrk].dev;
+   if (TDrm (Up.eTrk)) {               // change drum sound?
+      if (! Up.dev [d].mo->Syn ())
+         {Hey (CC("Can't edit GM DrumMap :("));   return;}
+      _f.trk [Up.eTrk].snd = snew;
+   }
+   else {                              // must be melodic sound
+      _f.trk [Up.eTrk].snd = snew;
+      if (! Up.dev [d].mo->Syn ())  {SetChn (Up.eTrk);   ReTrk ();   return;}
+   }
+   SetBnk ();   ReTrk ();
 }
 
 
