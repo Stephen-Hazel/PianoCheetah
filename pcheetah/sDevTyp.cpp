@@ -103,19 +103,19 @@ TRC("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
       for (i = 0; i < _nDr; i++)
          if ( (! StrCm (nm, _sn [i].name)) ||
               (newgrp && (! MemCm (nm, _sn [i].name, StrLn (nm)))) ) {
-//DBG("a=> `d `s", i, _sn [i].name);
+DBG("a=> `d `s", i, _sn [i].name);
             return i;
          }
-//DBG("b=> NONE");
+DBG("b=> NONE");
       if (xmatch)  return SND_NONE;    // no resolving
 
    // chop off at trailing _ then trailing / while we got em and try that
       if ((p = StrCh (nm, '_')))  *p = '\0';
       for (;;) {
-//DBG("find `s", nm);
+DBG("find `s", nm);
          for (i = 0; i < _nDr; i++) {
             if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
-//DBG("b=> `d `s", i, _sn [i].name);
+DBG("b=> `d `s", i, _sn [i].name);
                return i;
             }
          }
@@ -133,7 +133,7 @@ TRC("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
    for (i = _nDr; i < _sn.Ln; i++)
       if ( (! StrCm (nm, _sn [i].name)) ||
            (newgrp && (! MemCm (nm, _sn [i].name, StrLn (nm)))) ) {
-//DBG("d=> `d `s", i, _sn [i].name);
+DBG("d=> `d `s", i, _sn [i].name);
          return i;
       }
 
@@ -146,7 +146,7 @@ TRC("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
       for (i = _nDr; i < _sn.Ln; i++)
          if ( (! MemCm (nm, _sn [i].name, StrLn (nm))) &&
               (_sn [i].bank == msb) && (_sn [i].bnkL == lsb) ) {
-//DBG("e=> `d `s", i, _sn [i].name);
+DBG("e=> `d `s", i, _sn [i].name);
          return i;
       }
    }
@@ -155,10 +155,10 @@ TRC("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
 // chop off at trailing _ then trailing / while we got em and try that
    if ((p = StrCh (nm, '_')))  *p = '\0';
    for (;;) {
-//DBG("find `s", nm);
+DBG("find `s", nm);
       for (i = _nDr; i < _sn.Ln; i++) {
          if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
-//DBG("f=> `d `s", i, _sn [i].name);
+DBG("f=> `d `s", i, _sn [i].name);
             return i;
          }
       }

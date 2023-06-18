@@ -307,6 +307,7 @@ void Song::SetBnk ()
 { ubyte t, sy, mc = 0;                 // trk#, syn device, max chans fer syn
   ubyt4 s, ts;
   TStr  st, snd [256];
+Dump ();
 DBG("SetBnk");
    for (sy = 0;  sy < Up.dev.Ln;  sy++)
       if (Up.dev [sy].mo && Up.dev [sy].mo->Syn ())  break;
@@ -318,20 +319,29 @@ TRC("  got syn dev=`d", sy);
       if (! Up.dev [_f.trk [t].dev].mo->Syn ())  continue;
       if (_f.trk [t].chn != 9) {
          if (_f.trk [t].chn > mc)  mc = _f.trk [t].chn;
-         if ((ts = _f.trk [t].snd) == SND_NONE) continue;
+         if ((ts = _f.trk [t].snd) == SND_NONE)  continue;
 
          for (s = 0;  s < _sySn.Ln;  s++)  if (_sySn [s] == ts)  break;
          if (s >= _sySn.Ln) {
             if (_sySn.Full ())  {Hey (CC("SetBnk  too many sounds fer Syn"));
                                  SetChn ();   return;}
-TRC("  new snd  tr=`d id=`d pos=`d `s", t,ts,s,SndName(t));
+TRC("  new snd  tr=`d sndid=`d pos=`d `s",
+t, ts, s, SndName (t));
             StrCp (snd [_sySn.Ln], SndName (t));
             _sySn      [_sySn.Ln++] = ts;
          }
       }
-      else
-         StrCp (snd [128+_f.trk [t].drm], SndName (t));
+      else {
+         if ((ts = _f.trk [t].snd) == SND_NONE)  continue;
+
+         s = _f.trk [t].drm;
+         StrCp (snd [128+s], SndName (t));
+TRC("  new drm  tr=`d sndid=`d `s `s",
+t, ts, MDrm2Str (st, s), SndName (t));
+      }
    }
 DBG("  nSnd=`d  maxch=`d", _sySn.Ln, mc);
-   Up.dev [sy].mo->SynBnk (snd, mc);   SetChn ();    // redo chan progch biz
+   Sy->LoadSnd (snd, mc);
+   Up.dev [_f.trk [t].dev].mo->GMInit (mc+1);
+   SetChn ();                          // redo chan progch biz
 }

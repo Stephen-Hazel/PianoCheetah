@@ -428,7 +428,7 @@ static int IniTSigCmp (void *p1, void *p2)  // by .bar
 void Song::Load (char *fn)
 // ok, go thru the BRUTAL HELL to load in a song, etc...
 { TStr  fnt, buf;
-  ubyte nt, t, dt, i;
+  ubyte nt, t, dt, i, syn;
   ubyt4 ln, e, ne, pe, te, tm, mint;
   char *m, *p, ud;
   File  f;
@@ -630,9 +630,13 @@ TRC("lyr");
    _hLyr = (e >= _f.lyr.Ln) ? 1 : 2;
 
 TRC("soundbank init");
-   for (dt = MAX_TRK, t = 0;  t < Up.rTrk;  t++)  if (TDrm (t))
-      {dt = t;   break;}               // got drum trk ?
-//DBG("dtrk=`d", dt);   st [TB_DRM].Dump ();
+   for (dt = MAX_TRK, syn = MAX_DEV, t = 0;  t < Up.rTrk;  t++)  if (TDrm (t)) {
+      dt = t;                          // syn is it's devtype if found
+      if (     Up.dev [_f.trk [t].dev].mo->Syn ())
+         syn = Up.dev [_f.trk [t].dev].dvt;
+      break;                           // ok got drum trk
+   }
+DBG("dtrk=`d", dt);   st [TB_DRM].Dump ();   DBG("syn devtype=`d", syn);
    _f.mapD.Ln = st [TB_DRM].NRow ();   // load _mapD so DrumExp can sep drm trks
    for (e = 0;  e < _f.mapD.Ln;  e++) {
    // defaults
@@ -650,16 +654,26 @@ TRC("soundbank init");
       if (*buf != '.')  if (MDrm (buf) < 128)
                              _f.mapD [e].inp = MDrm (buf);
       StrCp (buf, st [TB_DRM].Get (e, 1));  // sound
-      if ((e == 0) && StrCm (buf, CC(".")))
-      // can have drum progch in 1st .snd
+      if (syn < MAX_DEV) {
+DBG("dmap `d snd=`s", e, buf);
+         if (*buf == '.')  MDrm2StG (buf, _f.mapD [e].ctl);
+         _f.mapD [e].snd = Up.dvt [syn].SndID (buf);
+         _f.mapD [e].vol = (ubyte)Str2Int (st [TB_DRM].Get (e, 2));
+         _f.mapD [e].pan = (ubyte)Str2Int (st [TB_DRM].Get (e, 3));
+      }
+      else if ((e == 0) && StrCm (buf, CC(".")))
+      // nonsyn can have drum progch in 1st .snd
          _f.mapD [0].snd = Up.dvt [Up.dev [_f.trk [dt].dev].dvt].SndID (buf);
    }
-TStr t1, t2;  TRC("mapD shh lrn ht inp ctl vol pan snd");
+TStr t1, t2;
+TRC("syn=`b", (syn<MAX_DEV)?true:false);
+TRC("mapD shh lrn ht inp ctl vol pan snd");
 for (t = 0; t < _f.mapD.Ln; t++)  TRC("`d/`d `b `c `c `s `s `>3d `>3d `d",
 t, _f.mapD.Ln, _f.mapD [t].shh, _f.mapD [t].lrn ? _f.mapD [t].lrn : ' ',
                                 _f.mapD [t].ht  ? _f.mapD [t].ht  : ' ',
 MDrm2Str(t2,_f.mapD [t].inp), MDrm2Str(t1,_f.mapD [t].ctl),
 _f.mapD [t].vol, _f.mapD [t].pan, _f.mapD [t].snd);
+
    DrumExp ();                         // SetBnk happens in DrumExp
    _f.got = true;                      // SetChn happens in TmHop
    ReDo ();
