@@ -233,9 +233,11 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
    else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
 if (App.trc)
 {TStr d1,d2;
-              StrFmt (d1, "PutNt `s.`d tmr=`s bg=`b",
-                 Up.dev [dv].mo->Name (), ch+1, TmSt (d2, _timer->Get ()), bg);
-              DumpEv (e, t, _f.trk [t].p, d1);}
+StrFmt (d1, "PutNt `s.`d", Up.dev [dv].mo->Name (), ch+1);
+DumpEv (e, t, _f.trk [t].p, d1);
+DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));
+}
+
    Up.dev [dv].mo->Put (ch, ctrl, valu, e->val2);
 // if (_lzr)  PosTM (_lzr, MSG_CLOSE+1, (ch<<8)|ctrl, valu);
 }

@@ -483,28 +483,21 @@ void Song::TrkSnd (ubyt4 snew)
 { ubyte d;
    ChkETrk ();
    d = _f.trk [Up.eTrk].dev;
-   if (TDrm (Up.eTrk)) {               // change drum sound?
+   if (TDrm (Up.eTrk))                 // change drum sound?
       if (! Up.dev [d].mo->Syn ())
-         {Hey (CC("Can't edit GM DrumMap :("));   return;}
-      _f.trk [Up.eTrk].snd = snew;
-   }
-   else {                              // must be melodic sound
-      _f.trk [Up.eTrk].snd = snew;
-      if (! Up.dev [d].mo->Syn ())  {SetChn (Up.eTrk);   ReTrk ();   return;}
-   }
+         {Hey (CC("Can't edit GM DrumMap"));   return;}
+   _f.trk [Up.eTrk].snd = snew;
    SetBnk ();   ReTrk ();
 }
 
 
 void Song::NewGrp (char *gr)           // slam to a new sound picked by gui
 { TStr t;
+  bool dr;
 TRC("NewGrp `s r=`d", gr, Up.eTrk);
    ChkETrk ();
    StrCp (t, gr);   StrAp (t, CC("_"));
-   if (! MemCm (gr, CC("Drum/"), 5))  for (ubyte i = 0; i < NMDrum; i++)
-      if (! StrCm (& gr [5], MDGrp [MDrum [i].grp].sym))
-         {StrAp (t, MDrum [i].sym);   break;}
-   TrkSnd (Up.dvt [Up.dev [_f.trk [Up.eTrk].dev].dvt].SndID (t, true));
+   TrkSnd (Up.dvt [Up.dev [_f.trk [Up.eTrk].dev].dvt].SndID (t));
 }
 
 
@@ -514,9 +507,7 @@ void Song::NewSnd (char *sn)           // slam to a new sound picked by gui
 TRC("NewSnd `s r=`d", sn, Up.eTrk);
    ChkETrk ();
    StrCp (g, SndName (Up.eTrk));
-   if (MemCm (g, CC("Drum/"), 5))  sl = StrCh (  g,     '_');
-   else                            sl = StrCh (& g [5], '_');
-   if (sl)  sl [1] = '\0';
+   sl = StrCh (g, '_');   if (sl)  sl [1] = '\0';
    StrAp (g, sn);
    TrkSnd (Up.dvt [Up.dev [_f.trk [Up.eTrk].dev].dvt].SndID (g));
 }
@@ -627,7 +618,7 @@ DBG(" tr=`d too", t);
    }
 // redo drum sounds fer syn (toss the useless _f.mapD n DrumExp recalcs
    if (got)  {DrumCon ();   _f.mapD.Ln = 0;   DrumExp ();}
-   else      {SetBnk ();   SetChn ();}      // just in case :/
+   else       SetBnk ();
    ReDo ();
 TRC("NewDev end");
 }

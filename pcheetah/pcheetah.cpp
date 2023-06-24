@@ -167,11 +167,11 @@ TRC("TrPop r=`d c=`d", r, c);
       return;
    }
    if ((c != 3) && (c != 4))  return;
-
-   if (Up.trk [r].drm)  {Gui.Hey (CC("can't edit drum sounds"));   return;}
-  ubyte dvt = Up.trk [r].dvt;
-   if (c == 3)  Up.dvt [dvt].SGrp (ls);
-   if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp);
+   ubyte dvt = Up.trk [r].dvt;
+   if (Up.trk [r].drm && StrCm (Up.dvt [Up.trk [r].dvt].Name (), CC("syn")))
+      return;                          // no sound editin on nonsyn drums
+   if (c == 3)  Up.dvt [dvt].SGrp (ls,                 Up.trk [r].drm);
+   if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp, Up.trk [r].drm);
 }
 
 void PCheetah::TrClk ()
@@ -184,15 +184,14 @@ TRC("TrClk(L) r=`d c=`d", r, c);
    Up.eTrk = (ubyte)r;
    if      (c == 0)  emit sgCmd ("prac");
    else if (c == 1)  emit sgCmd ("htype x");
-   else if (c == 2) {                  // track name - pop drum mappin dlg
-/*    if (tr [r].chn == 9) {
+/* else if (c == 2) {                  // track name - pop drum mappin dlg
+      if (tr [r].chn == 9) {
         DlgDrm dlg (_song, (ubyte)r, s);
          dlg.Ok (Wndo ());
          SongCmd ("drmap", s);
       }
-*/
    }
-/* else if (c == 6) {
+   else if (c == 6) {
      DlgMix dlg (_song, arg);
       dlg.Ok (Wndo ());
       StrFmt (cmd, "`d `d", arg [0], arg [1]);   SongCmd ("mix", cmd);

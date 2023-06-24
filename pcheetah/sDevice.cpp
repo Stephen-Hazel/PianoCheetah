@@ -247,7 +247,7 @@ TRC("  i=`d/`d x=`d/2 `s.`s", i, nD, x, dLst [i][0], dLst [i][1]);
                   if (_f.trk [m].chn < 16)  cmap [_f.trk [m].chn] = 'x';
             for (c = 0;  c < 16;  c++)  if (cmap [c] == '.')  break;
             if ( (c < 16) &&
-                 (SND_NONE != dt.SndID (sndName, false, x ? false : true)) )
+                 (SND_NONE != dt.SndID (sndName, x ? false : true)) )
                {cOk = true;   d = i;}
          }
          dt.Shut ();

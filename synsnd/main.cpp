@@ -7,12 +7,12 @@
 static TStr DirSyn, Snd [63*1024];
 static ubyt4       NSnd;
 static char        *MGrp [] = {        // group order for melodic(non drum) snds
-   CC("Piano"), CC("Organ"), CC("SynLead"),
+   CC("Piano"),     CC("Organ"), CC("SynLead"),
    CC("Bass"),
-   CC("Guitar"), CC("SoloStr"), CC("Ensemble"),
-   CC("Brass"), CC("Reed"), CC("Pipe"), CC("Ethnic"),
+   CC("Guitar"),    CC("SoloStr"), CC("Ensemble"),
+   CC("Brass"),     CC("Reed"),    CC("Pipe"),  CC("Ethnic"),
    CC("ChromPerc"), CC("Perc"),
-   CC("SynPad"), CC("SynFX"), CC("SndFX"),
+   CC("SynPad"),    CC("SynFX"),   CC("SndFX"),
    CC("x")
 };
 
@@ -32,7 +32,7 @@ bool DoDir (void *ptr, char dfx, char *fn)
 //DBG("nsl=`d", nsl);
       if ( nsl &&                                // not raw bank
            (ln > 5) &&                           // long enough fer anything
-           StrCm (& fn [ln-5], CC("/drum")) &&   // not raw drum dir
+           StrCm (& fn [ln-5], CC("/Drum")) &&   // not raw drum dir
            (NSnd < BITS (Snd)) ) {               // got room
          StrCp (s, & fn [StrLn (DirSyn)+1]);
          StrCp (t, s);

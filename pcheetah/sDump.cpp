@@ -74,18 +74,21 @@ DBG("DUMP");
       "dn.Ln=`d nEv=`d maxEv=`d\n"
       "Cfg_cmdKey=`d ntCo=`d barCl=`b\n"
       "SnF_tmpo=`d tran=`d `s ez=`b hand=`c\n"
-      "hLrn=`b vwNt=`b POZ=`b uPoz=`b",
+      "hLrn=`b vwNt=`b POZ=`b uPoz=`b\n"
+      "lrn: lpBgn=`s lpEnd=`s pg=`d veloSng=`d veloRec=`d",
       _rcrd, _bEnd, TmSt(t1,_tEnd), Up.rTrk, Up.eTrk, _eOn, _pLyr,
       _onBt, TmSt(t2,_now), _pDn, TmSt(t3,_dn[_pDn].time),
       _dn.Ln, _f.nEv, _f.maxEv,
       Cfg.cmdKey, Cfg.ntCo, Cfg.barCl,
       _f.tmpo, _f.tran, LrnS (), _lrn.ez, _lrn.hand?_lrn.hand:' ',
-      _lrn.hLrn, _lrn.vwNt, _lrn.POZ, Up.uPoz
+      _lrn.hLrn, _lrn.vwNt, _lrn.POZ, Up.uPoz,
+      TmSt(t1,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd), _pg, _lrn.veloSng, _lrn.veloRec
    );
 
-   DBG("mi name.type");
+/* DBG("mi name.type");
    for (t = 0;  t < _mi.Ln;     t++)  DBG("`>3d `s.`s",
       t,  _mi [t].mi->Name (),  _mi [t].mi->Type ());
+*/
    DBG("dev name.type dvt#");
    for (t = 0;  t < Up.dev.Ln;  t++)  DBG("`>3d `s.`s `d",
       t,  Up.dev [t].mo ? Up.dev [t].mo->Name () : "(empty)",
@@ -120,7 +123,7 @@ DBG("DUMP");
    for (t = 0; t < Up.dev.Ln; t++)
       if (Up.dev [t].mo)  Up.dev [t].mo->DumpOns ();
 
-   DBG("ctl name sho");
+/* DBG("ctl name sho");
    for (t = 0; t < _f.ctl.Ln; t++)
       DBG("`>3d `s `b", t,_f.ctl [t].s, _f.ctl [t].sho);
    DBG("cch dev chn ctl      trk valu val2     time");
@@ -154,11 +157,6 @@ DBG("DUMP");
          _f.kSg [s].min,
          _f.kSg [s].flt
       );
-   DBG("lrn: lpBgn=`s lpEnd=`s pg=`d veloSng=`d veloRec=`d",
-      TmSt(t1,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd),
-      _pg, _lrn.veloSng, _lrn.veloRec
-   );
-/*
    DBG("mapD shh ht inp ctl vol pan snd");
    for (t = 0; t < _mapD.Ln; t++)
       DBG("`>3d `b `c `s `s `>3d `>3d `d",
@@ -169,7 +167,6 @@ DBG("DUMP");
    DBG("lyr     time  str");
    for (s = 0; s < _f.lyr.Ln; s++)
       DBG("`>3d `s `s", s, TmSt (t1, _f.lyr [s].time), _f.lyr [s].s);
-*/
    DBG("chd     time  str");
    for (s = 0; s < _f.chd.Ln; s++)
       DBG("`>3d `s `s", s, TmSt (t1, _f.chd [s].time), _f.chd [s].s);
@@ -180,8 +177,6 @@ DBG("DUMP");
    DBG("bug time hits");
    for (s = 0; s < _f.bug.Ln; s++)
       DBG("`d `s `s", s, TmSt(t1,_f.bug [s].time), _f.bug [s].s);
-
-/*
 TStr d1;
    DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p");
    for (p = 0;  p < _dn.Ln;  p++) {
@@ -200,7 +195,6 @@ TStr d1;
       DBG("`d `s `d `d",  p, TmSt (d1,_f.tpo [p].time), _f.tpo [p].val,
                                                TmpoAct (_f.tpo [p].val));
    DBG("_f.tpo end");
-
 
   ubyt4 ct [2][12];
   ubyte r;
@@ -234,6 +228,6 @@ TStr d1;
 
    }
 */
-// PosTM (_syn, MSG_CLOSE+3, 0, 0);
+if (Sy != nullptr)  Sy->Dump ();
 DBG("DUMP end");
 }

@@ -104,11 +104,11 @@ public:
    }
    ubyt2 CCMap [128];                  // map song ctl id => raw ubyt2
 
-   ubyt4  SndID  (char *name, bool newgrp = false, bool xmatch = false);
+   ubyt4  SndID  (char *name, bool xmatch = false);
    SnRow *Snd    (ubyt4 id)  {if (id >= _sn.Ln) id = 0;   return & _sn [id];}
    bool   SndNew (ubyt4 *pnew, ubyt4 pos, char ofs);
-   void   SGrp   (char *t);            // ...gui hooks
-   void   SNam   (char *t, char *grp);
+   void   SGrp   (char *t, bool dr);   // ...gui hooks
+   void   SNam   (char *t, char *grp, bool dr);
    void   Dump   ();
 
    TStr               _name;

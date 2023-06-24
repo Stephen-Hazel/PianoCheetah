@@ -24,18 +24,7 @@ set(PROJECT_SOURCES
         ctlNt.h
         pcheetah.cpp
         ctlNt.cpp
-        dlgFL.cpp
-        dlgCfg.cpp
-        dlgTDr.cpp
-        dlgCtl.cpp
-        dlgChd.cpp
-        dlgCue.cpp
-        dlgFng.cpp
-        dlgMov.cpp
-        dlgTpo.cpp
-        dlgTSg.cpp
-        dlgKSg.cpp
-        dlgHlp.cpp
+        dlg.cpp
         song.cpp
         sTime.cpp
         sDevTyp.cpp

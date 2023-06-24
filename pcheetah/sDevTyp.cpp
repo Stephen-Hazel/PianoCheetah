@@ -90,50 +90,50 @@ TRC("DevTyp::Shut `s", _name);
 }
 
 
-ubyt4 DevTyp::SndID (char *s, bool newgrp, bool xmatch)
+ubyt4 DevTyp::SndID (char *s, bool xmatch)
 // map name to _sn index;   else return SND_NONE
-// newgrp means find 1st snd in the group;  xmatch means no resolving;
+// xmatch means no resolving;
 { ubyt4 i, ln;
   char *p, *p2;
-  TStr  nm;
+  TStr  nm, ts;
    StrCp (nm, s);
 TRC("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
 // gotta drum?
    if (! MemCm (nm, CC("Drum"), 4)) {
-      for (i = 0; i < _nDr; i++)
+      for (i = 0;  i < _nDr;  i++)
          if ( (! StrCm (nm, _sn [i].name)) ||
-              (newgrp && (! MemCm (nm, _sn [i].name, StrLn (nm)))) ) {
+              (! MemCm (nm, _sn [i].name, StrLn (nm))) ) {
 DBG("a=> `d `s", i, _sn [i].name);
             return i;
          }
 DBG("b=> NONE");
       if (xmatch)  return SND_NONE;    // no resolving
 
-   // chop off at trailing _ then trailing / while we got em and try that
-      if ((p = StrCh (nm, '_')))  *p = '\0';
-      for (;;) {
+   // find Drum/Grp_Snd  (1st drm snd matchin full nm)
 DBG("find `s", nm);
-         for (i = 0; i < _nDr; i++) {
-            if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
+      for (i = 0;  i < _nDr;  i++)
+         if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
 DBG("b=> `d `s", i, _sn [i].name);
-               return i;
-            }
+            return i;
          }
-         if ((p = StrCh (nm, '_'))) {
-            while ((p2 = StrCh (p+1, '_')))  p = p2;  // get last one into p
-            *p = '\0';
+      StrCp (ts, nm);
+     ColSep c (ts, 3, '_');
+      StrCp (nm, c.Col [0]);           // ok try just Drum/Grp
+DBG("find `s", nm);
+      for (i = 0;  i < _nDr;  i++)
+         if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
+DBG("c=> `d `s", i, _sn [i].name);
+            return i;
          }
-         else break;
-      }
    // give up - use whatever drums ya got  (usually Drum/Kick_Kick / Drum/*)
       return 0;
    }
 
 // got melodic sound.
-   for (i = _nDr; i < _sn.Ln; i++)
+   for (i = _nDr;  i < _sn.Ln;  i++)
       if ( (! StrCm (nm, _sn [i].name)) ||
-           (newgrp && (! MemCm (nm, _sn [i].name, StrLn (nm)))) ) {
-DBG("d=> `d `s", i, _sn [i].name);
+           (! MemCm (nm, _sn [i].name, StrLn (nm))) ) {
+//DBG("d=> `d `s", i, _sn [i].name);
          return i;
       }
 
@@ -143,10 +143,10 @@ DBG("d=> `d `s", i, _sn [i].name);
      ubyte msb, lsb;
       msb = (ubyte) Str2Int (& nm [ln-7]);
       lsb = (ubyte) Str2Int (& nm [ln-3]);
-      for (i = _nDr; i < _sn.Ln; i++)
+      for (i = _nDr;  i < _sn.Ln;  i++)
          if ( (! MemCm (nm, _sn [i].name, StrLn (nm))) &&
               (_sn [i].bank == msb) && (_sn [i].bnkL == lsb) ) {
-DBG("e=> `d `s", i, _sn [i].name);
+//DBG("e=> `d `s", i, _sn [i].name);
          return i;
       }
    }
@@ -155,10 +155,10 @@ DBG("e=> `d `s", i, _sn [i].name);
 // chop off at trailing _ then trailing / while we got em and try that
    if ((p = StrCh (nm, '_')))  *p = '\0';
    for (;;) {
-DBG("find `s", nm);
-      for (i = _nDr; i < _sn.Ln; i++) {
+//DBG("find `s", nm);
+      for (i = _nDr;  i < _sn.Ln;  i++) {
          if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
-DBG("f=> `d `s", i, _sn [i].name);
+//DBG("f=> `d `s", i, _sn [i].name);
             return i;
          }
       }
@@ -186,36 +186,35 @@ bool DevTyp::SndNew (ubyt4 *newp, ubyt4 pos, char ofs)
 }
 
 
-void DevTyp::SGrp (char *t)            // to get snd grp (dirs)
-{ ubyt4 i;
+void DevTyp::SGrp (char *t, bool dr)             // to get snd grp (dirs)
+{ ubyt4 i, b, e;
   TStr  s, ps;
-  char *p, *t1;
-   t1 = t;
+  char *p;
    *t = '\0';
-   for (i = 0;  i < _sn.Ln;  i++) {
+   b = 0;   e = _sn.Ln;   if (dr)  e = _nDr;   else b = _nDr;
+   for (i = b;  i < e;  i++) {         // ^ are we in drum list or melo?
       StrCp (s, _sn [i].name);
-      if (! MemCm (s, CC("Drum/"), 5))  continue;
       if ((p = StrCh (s, '_')))  *p = '\0';
       if (StrCm (ps, s))  {StrCp (t, s);   t += (StrLn (s)+1);   StrCp (ps, s);}
    }
    *t = '\0';
-//DBG("DevTyp::SGrp t:"); DbgX(t1,'z');
 }
 
-void DevTyp::SNam (char *t, char *grp) // pop snd list for grp
-{ ubyt4 i;
-  TStr  s;
-  char *p, *t1;
-   t1 = t;
-//DBG("DevTyp::SNam grp=`s", grp);
-   for (i = 0;  i < _sn.Ln;  i++) {
+void DevTyp::SNam (char *t, char *grp, bool dr)  // pop snd list for grp
+{ ubyt4 i, b, e;
+  TStr  gr, s;
+  char *p;
+DBG("SNam grp='`s' dr=`b", grp, dr);
+   *t = '\0';
+   StrFmt (gr, "`s_", grp);
+   b = 0;   e = _sn.Ln;   if (dr)  e = _nDr;   else b = _nDr;
+   for (i = b;  i < e;  i++) {
       StrCp (s, _sn [i].name);
-      if (! MemCm (s, CC("Drum/"), 5))  continue;
-      if (! MemCm (s, grp, StrLn (grp)))
-         {p = & s [StrLn (grp)+1];   StrCp (t, p);   t += (StrLn (p)+1);}
+      if (! MemCm (s, gr, StrLn (gr)))
+         {p = & s [StrLn (gr)];   StrCp (t, p);   t += (StrLn (p)+1);}
    }
    *t = '\0';
-//DBG("DevTyp::SNam t:"); DbgX(t1,'z');
+DbgX(t,'z');
 }
 
 
