@@ -27,14 +27,17 @@ void FixFn (char *s)
 char *Move (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 // move and Mid2Song each mid.  renamin non .mid to .mid
 { TStr fr, to, fnx, c;
+  bool mod = false;
   File f;
    (void)len;   (void)pos;   (void)ptr;
 // take off .ext, FixFn does merge check
+   if (! StrCm (& fn [StrLn (fn)-4], CC(".mod")))  mod = true;
    StrCp (fnx, fn);   StrAp (fnx, CC(""), 4);   FixFn (fnx);
    StrFmt (fr, "`s/`s",       DirF, fn);
    StrFmt (to, "`s/`s/a.mid", DirT, fnx);
+   if (mod)  StrAp (to, CC("mod"), 3);
 // move n mid2song
-   f.ReNm (fr, to);   App.Run (StrFmt (c, "mid2song `p", to));
+   f.ReNm (fr, to);   App.Run (StrFmt (c, "`s2song `p", mod?"mod":"mid", to));
    return nullptr;
 }
 
@@ -60,7 +63,7 @@ int main (int argc, char *argv [])
    (void)argc;   (void)argv;
    App.Init (CC("pcheetah"), CC("midimp"), CC("midimp"));
    App.Path (DirF, 'd');   StrCp (DirT, DirF);
-DBG("midimp bgn");
+TRC("midimp bgn");
 // from ..pianocheetah/midi_import to ..pianocheetah/4_queue
    StrAp (DirF, CC("/midi_import"));
    StrAp (DirT, CC("/4_queue"));
@@ -69,6 +72,7 @@ DBG("midimp bgn");
    App.Run (StrFmt (c, "ll midi `p", DirF));
    StrCp (s, DirF);   StrAp (s, CC("/_midicache.txt"));
    f.DoText (s, nullptr, Move);
+   App.Run (CC("synsnd"));             // in caase o .mod s
 
 // list off leftovers n move to midi_junk
    App.Run (StrFmt (c, "ll alll `p", DirF));
@@ -77,6 +81,6 @@ DBG("midimp bgn");
    f.DoText (s, nullptr, Wipe);
    if (! Did)  d.Kill (DirT);          // kill it if didn't put nothin in
    d.Kill (DirF);   d.Make (DirF);     // kill n remake DirF so left empty
-DBG("midimp end");
+TRC("midimp end");
    return 0;
 }

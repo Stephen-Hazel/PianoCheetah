@@ -1,4 +1,5 @@
-// unsfz.cpp - rip .wav files outa .sfz with key,velo ranges in fn
+// sfz2syn.cpp - rip .wav files outa .sfz with key,velo ranges in .wav fn
+//               and give it ta syn
 
 #include "../../stv/os.h"
 #include "../../stv/midi.h"
@@ -271,21 +272,20 @@ LF.Put (StrFmt (ps, "`s`s\n", & fn [StrLn (Top)+1], *Kit ? " <== DRUM" : ""));
 DBG("   inp=`d pa=`s p=`s fn=`s Kit=`s", inp, pa, p, fn, Kit);
 
 // drum GM Snd: Drum/Grp_Snd_Kit  Grp_Snd set in DoWav
-   if (*Kit)
+   if      (*Kit)
       *SndN = '\0';
+
 // melo GM Snd: Dir_Snd
-   else if ((inp >= 1) && (inp <= 128) && (p == & fn [StrLn (ts)+4])) {
+   else if ((inp >= 1) && (inp <= 128) && (p == & fn [StrLn (ts)+4]))
       StrCp (SndN, MProg [inp-1]);               // ^^^ len of 3? hopefullyyy
-      while ((p = StrCh (SndN, '/')))  *p = '_';      // n good enough
-   }
+
 // melo unGM Snd: x_PSet
    else {
       StrFmt (SndN, "x_");
       StrCp (ts, & fn [StrLn (Top)+1]);     // back to sfz dir/fn off Top
-      StrAp (ts, CC(""), 4);                // no sfz
-      while ((p = StrCh (ts, '/')))  *p = '_';
-      while ((p = StrCh (ts, ' ')))  *p = '_';
-      if (! MemCm (ts, CC("programs_"), 9))  StrCp (ts, & ts [9]);
+      StrAp (ts, CC(""), 4);                // chop off .sfz
+      FnFix (ts, '-');                      // weird chars => -
+      if (! MemCm (ts, CC("programs-"), 9))  StrCp (ts, & ts [9]);
       StrAp (SndN, ts);
    }
    StrAp (SndN, CC("/"));
@@ -601,8 +601,8 @@ int main (int arc, char *argv [])
   char *rp;
   StrArr a;
 
-DBG("unsfz bgn");
-   App.Init (CC("pcheetah"), CC("unsfz"), CC("UnSFZ"));
+DBG("sfz2syn bgn");
+   App.Init (CC("pcheetah"), CC("sfz2syn"), CC("Sfz2Syn"));
    StrCp (Top, argv [1]);
 DBG("Top=`s", Top);
 // Top minus path (no ext) => To - our sampleset in syn dir
@@ -668,6 +668,7 @@ LF.Put(ls);   DBG(ls);
       DoSfz (Fn [i]);
    }
    LF.Shut ();
-DBG("unsfz end");
+   App.Run (CC("synsnd"));
+DBG("sfz2syn end");
    return 0;
 }

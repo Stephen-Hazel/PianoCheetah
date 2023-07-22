@@ -1096,7 +1096,7 @@ int main (int argc, char *argv [])
    App.Init (CC("pcheetah"), CC("mid2song"), CC("mid2song"));
    StrCp (FN, argv [1]);
    if (argc < 2)  {DBG ("usage is Mid2Song fn.mid");   return 99;}
-TRC("mid2song `s", FN);
+TRC("`s `s", App.app, FN);
 
 // load the midi file into memory
    if ((MidLn = f.Load (FN, Mid, sizeof (Mid))) == 0)
@@ -1112,6 +1112,6 @@ TRC("mid2song `s", FN);
    S = new Song ();   S->CvtMid ();   delete S;
 
    Fs.Shut ();
-TRC("mid2song end");
+TRC("`s end", App.app);
    return 0;
 }

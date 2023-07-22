@@ -228,6 +228,6 @@ TStr d1;
 
    }
 */
-if (Sy != nullptr)  Sy->Dump ();
+//if (Sy != nullptr)  Sy->Dump ();
 DBG("DUMP end");
 }

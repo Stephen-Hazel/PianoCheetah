@@ -392,7 +392,7 @@ public slots:
 
    void Trak ();
 
-// tblTr stuph - also TrPop() global func
+// CtlTabl _tr stuph - also TrPop() global func
    void TrClk  ();
    void TrClkR (const QPoint &pos);
    void TrUpd  ();

@@ -534,22 +534,23 @@ void Song::NewDev (char *dNm)          // slam trk to new dev picked by gui
   bool  got;
   TrkRow ro;
    ChkETrk ();   tr = Up.eTrk;
-TRC("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
+DBG("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
    d = oDv = _f.trk [tr].dev;   oCh = _f.trk [tr].chn;
 DBG(" old dv=`d ch=`d", oDv, oCh+1);
    if ( (   _f.trk [tr].grp  && (! StrCm (dNm, CC("+")))) ||    // no change?
-        ((! _f.trk [tr].grp) && (! StrCm (dNm, DevName (tr)))) )  return;
+        ((! _f.trk [tr].grp) && (! StrCm (dNm, DevName (tr)))) )
+                                                            {ReDo ();   return;}
    if      (! StrCm (dNm, CC("+"))) {  // to grouped?
       if      (tr == 0)
-         {Hey (CC("can't + the 1st track"));                 return;}
+         {Hey (CC("can't + the 1st track"));                 ReDo ();   return;}
       else if ( (   TDrm (tr)  && (! TDrm (tr-1))) ||
                 ((! TDrm (tr)) &&    TDrm (tr-1) ) )
-         {Hey (CC("can't share channel with prev track"));   return;}
+         {Hey (CC("can't share channel with prev track"));   ReDo ();   return;}
       d = _f.trk [tr-1].dev;   nCh = _f.trk [tr-1].chn;
    }
    else if (TDrm (tr))         nCh = 9;
    else if ((nCh = PickChn (dNm)) == 255)   // all melo chans of new dev in use?
-      {Hey (CC("device's channels are all in use"));         return;}
+      {Hey (CC("device's channels are all in use"));         ReDo ();   return;}
 DBG(" new ch=`d", nCh+1);
 
 // get prev snd name as str
@@ -620,7 +621,7 @@ DBG(" tr=`d too", t);
    if (got)  {DrumCon ();   _f.mapD.Ln = 0;   DrumExp ();}
    else       SetBnk ();
    ReDo ();
-TRC("NewDev end");
+DBG("NewDev end");
 }
 
 

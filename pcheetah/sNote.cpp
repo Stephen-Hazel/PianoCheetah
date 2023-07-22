@@ -143,7 +143,7 @@ TRC("DrawRec all=`b pp=`d", all, pp);
    // draw rec notes - cache noteon stuff, draw upon noteoff or end of loop
       for (t = Up.rTrk;  t < _f.trk.Ln;  t++) {
          e = _f.trk [t].e;   ne = _f.trk [t].ne;
-         drm = (_f.trk [t].chn == 9) ? true : false;
+         drm = TDrm (t);
          for (nt = 0;  nt < 128;  nt++)   on [nt]    = NONE;
          for (tt = 0;  tt < ncc;  tt++)  {cc [tt].tm = NONE;
                                           cc [tt].vl = cc [tt].df;}
@@ -733,8 +733,7 @@ TRC("DrawPg `d", pp);
    //__________________________________
    // draw shown controls of (shown tracks  or  track"less"=dr#1)
       x = cx;                          // td to 1st drum trk else 255
-      for (td = 255, t = 0;  t < nTrk;  t++)  if (trk [t].chn == 9)
-                                                 {td = t;   break;}
+      for (td = 255, t = 0;  t < nTrk;  t++)  if (TDrm (t))  {td = t;   break;}
       for (cc = 0;  cc < _f.ctl.Ln;  cc++)  if (_f.ctl [cc].sho) {
       // init ctl w str,typ,default value from cc.txt
          StrCp (cs, _f.ctl [cc].s);

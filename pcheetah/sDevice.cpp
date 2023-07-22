@@ -191,10 +191,10 @@ ubyte Song::PickChn (char *dv)
 { ubyte nc, t;
   TStr  cmap;
    nc = StrCm (dv, CC("syn")) ? 16 : 128;
-   MemSet (cmap, '.', nc);  cmap [9] = 'X';   cmap [nc] = '\0';
-   for (t = 0;  t < _f.trk.Ln;  t++)
+   MemSet (cmap, '.', nc);   cmap [9] = 'x';   cmap [nc] = '\0';
+   for (t = 0;  t < Up.rTrk;  t++)
       if (! StrCm (Up.dev [_f.trk [t].dev].mo->Name (), dv))
-         cmap [_f.trk [t].chn] = 'x';
+                     cmap [_f.trk [t].chn] = 'x';
    for (t = 0;  t < nc;  t++)  if (t != 'x')  break;
    if (t == nc)  t = 255;
    return t;
@@ -203,7 +203,7 @@ ubyte Song::PickChn (char *dv)
 
 void Song::PickDev (ubyte tr, char *sndName, char *devName)
 // map a dev,chn for track tr given it's devName,sndName and other trks' chans
-{ ubyte i, d, c = 0, nD = 0, m, x;
+{ ubyte i, d, c = 0, nD = 0, m, x, nc;
   TStr  dLst [MAX_TRK][2], buf, ty, xs, dv, cmap;
   bool  cOk;
   DevTyp dt;
@@ -219,8 +219,7 @@ TRC("PickDev tr=`d snd=`s dev=`s", tr, sndName, devName?devName:"");
          if (StrCm (ty, CC("OFF")) && (*dv != '?'))
             {StrCp (dLst [nD][0], buf);   StrCp (dLst [nD++][1], ty);}
       if (nD == 0)
-Die(CC("There are no MIDI output devices.\n"
-       "Please connect one and run MidiCfg."));
+Die(CC("Ain't no MIDI output devices?\nConnect one and run MidiCfg."));
    // if got arg dev, hop it to list's top
       if (devName)
          for (i = 0;  i < nD;  i++)  if (! StrCm (dLst [i][0], devName)) {
@@ -238,15 +237,16 @@ TRC("  i=`d/`d x=`d/2 `s.`s", i, nD, x, dLst [i][0], dLst [i][1]);
          if (! MemCm (sndName, CC("Drum/"), 5))
               {if (dt._nDr)  {cOk = true;   d = i;   c = 9;}}
          else {                        // melodic need a new chan + snd match x
-            StrCp (cmap, CC(".........d......"));
+            nc = StrCm (dv, CC("syn")) ? 16 : 128;
+            MemSet (cmap, '.', nc);   cmap [9] = 'x';   cmap [nc] = '\0';
             for (m = 0;  m < Up.rTrk;  m++)
                if ( (m != tr) && (_f.trk [m].dev < Up.dev.Ln) &&
                     Up.dev [_f.trk [m].dev].mo &&
                     (! StrCm (Up.dev [_f.trk [m].dev].mo->Name (),
                               dLst [i][0])) )
-                  if (_f.trk [m].chn < 16)  cmap [_f.trk [m].chn] = 'x';
-            for (c = 0;  c < 16;  c++)  if (cmap [c] == '.')  break;
-            if ( (c < 16) &&
+                  if (_f.trk [m].chn < nc)  cmap [_f.trk [m].chn] = 'x';
+            for (c = 0;  c < nc;  c++)  if (cmap [c] == '.')  break;
+            if ( (c < nc) &&
                  (SND_NONE != dt.SndID (sndName, x ? false : true)) )
                {cOk = true;   d = i;}
          }
@@ -274,12 +274,6 @@ _f.trk [tr].snd, (c==9)?"-":sndName);
 
 
 //______________________________________________________________________________
-void Song::SetChn ()                   // do progch's for ALL song melo chans
-{  for (ubyte t = 0;  t < Up.rTrk;  t++)  if (! _f.trk [t].grp)  SetChn (t);
-//TODO now scan to curr time sending prog evs
-}
-
-
 void Song::SetChn (ubyte t)
 // send BankLo/BankHi/ProgCh for trk's dev/chn
 { ubyte d = _f.trk [t].dev, c = _f.trk [t].chn;
@@ -302,13 +296,18 @@ sn->prog,MProg[sn->prog],sn->bank,sn->bnkL);
 }
 
 
+void Song::SetChn ()                   // do progch's for ALL song melo chans
+{  for (ubyte t = 0;  t < Up.rTrk;  t++)  if (! _f.trk [t].grp)  SetChn (t);
+//TODO now scan to curr time sending prog evs
+}
+
+
 void Song::SetBnk ()
 // tell syn it's (new) sounds
 { ubyte t, sy, mc = 0;                 // trk#, syn device, max chans fer syn
   ubyt4 s, ts;
   TStr  st, snd [256];
-Dump ();
-DBG("SetBnk");
+TRC("SetBnk");
    for (sy = 0;  sy < Up.dev.Ln;  sy++)
       if (Up.dev [sy].mo && Up.dev [sy].mo->Syn ())  break;
 TRC("  got syn dev=`d", sy);
@@ -340,7 +339,7 @@ TRC("  new drm  tr=`d sndid=`d `s `s",
 t, ts, MDrm2Str (st, s), SndName (t));
       }
    }
-DBG("  nSnd=`d  maxch=`d", _sySn.Ln, mc);
+TRC("  nSnd=`d  maxch=`d", _sySn.Ln, mc);
    Sy->LoadSnd (snd, mc);
    Up.dev [_f.trk [t].dev].mo->GMInit (mc+1);
    SetChn ();                          // redo chan progch biz

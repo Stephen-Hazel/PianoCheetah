@@ -40,7 +40,7 @@ bool DoDir (void *ptr, char dfx, char *fn)
          StrCp (bnk, c.Col [0]);
          StrCp (s,   c.Col [1]);
          StrFmt (Snd [NSnd], "`s_`s", s, bnk);
-DBG("   snd=`s n=`d", Snd[NSnd], NSnd);
+TRC("   snd=`s n=`d", Snd[NSnd], NSnd);
          NSnd++;
       }
    }
@@ -101,7 +101,7 @@ DBG("synsnd bgn");
    App.Init (CC("pcheetah"), CC("synsnd"), CC("SynSnd"));
 
    StrFmt (DirSyn, "`s/device/syn", App.Path (ts, 'd'));
-DBG("DirSyn=`s", DirSyn);
+TRC("DirSyn=`s", DirSyn);
 
    NSnd = 0;  f.DoDir (DirSyn, NULL, (FDoDirFunc)(& DoDir));
    Sort (Snd, NSnd, sizeof (Snd[0]), SndCmp);
@@ -112,5 +112,6 @@ DBG("DirSyn=`s", DirSyn);
          f.Put (StrFmt (ts, "`<40s . . .\n", Snd [i]));
       f.Shut ();
    }
+DBG("synsnd end");
    return 0;
 }

@@ -177,7 +177,6 @@ if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
               Up.dev [dv].mo->Name (), ch, TmSt (d2, _timer->Get ()));
               DumpEv (e, t, _f.trk [t].p, d1);}
   sbyt4 x;   MemCp (& x, _f.ctl [c].s, 4);
-// if (_lzr)  PosTM (_lzr, MSG_CLOSE+1, 0x8000|(ch<<8)|e->valu, x);
    if      (! StrCm (_f.ctl [c].s, CC("Tmpo")))
       PutTp (e->valu + (e->val2 << 8));
    else if (! StrCm (_f.ctl [c].s, CC("TSig")))

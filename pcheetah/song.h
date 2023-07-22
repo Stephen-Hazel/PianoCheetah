@@ -243,17 +243,17 @@ private:
          HType  (char *s),  Mix    (char *s);
 
 // sReDo.cpp
-   bool  TSho    (ubyte t);
-   bool  TLrn    (ubyte t);
-   bool  TEz     (ubyte t);
-   bool  TDrm    (ubyte t);
-   void  ReTrk   ();                   // give gui _trk info ta draw
-   void  BarH    (ubyt2 *h, ubyte *sb, ubyt2 b);
-   void  SetDn   (char q = '\0'),      // default to no quantize
-         SetLp   (char dir),
-         SetNt   (),
-         SetSym  ();
-   void  ReDo    ();
+   bool  TSho   (ubyte t);
+   bool  TLrn   (ubyte t);
+   bool  TEz    (ubyte t);
+   bool  TDrm   (ubyte t);
+   void  ReTrk  ();                   // give gui _trk info ta draw
+   void  BarH   (ubyt2 *h, ubyte *sb, ubyt2 b);
+   void  SetDn  (char q = '\0'),      // default to no quantize
+         SetLp  (char dir),
+         SetNt  (),
+         SetSym ();
+   void  ReDo   ();
 
 // sNote.cpp
    ubyte DrawRec (bool all, ubyt4 pp);
@@ -264,11 +264,11 @@ private:
    void  Draw    (char all = '\0');    // da top o notation drawin
 
 // song.cpp
-   void  PutTp   (ubyt2 tp);
-   void  PutTs   (ubyte n, ubyte d, ubyte sb);
-   void  PutLy   ();
-   void  PutCC   (ubyte t, TrkEv *e);
-   void  PutNt   (ubyte t, TrkEv *e, bool bg = false);
+   void  PutTp (ubyt2 tp);
+   void  PutTs (ubyte n, ubyte d, ubyte sb);
+   void  PutLy ();
+   void  PutCC (ubyte t, TrkEv *e);
+   void  PutNt (ubyte t, TrkEv *e, bool bg = false);
 
    void  Init (), Quit ();
    void  Wipe ();
@@ -279,7 +279,6 @@ private:
    Arr<MInDef,MAX_DEVI> _mi;
    SongFile             _f;
    Arr<ubyt4,128>       _sySn;         // syn's sound bank: just melodic no drum
-// Lzr                  _lzr;          // lazer writin
 
    bool   _onBt, _rcrd, _prac;         // tL8r is still on beat?  recording?
    ubyt4  _tEnd;                       // last time       DID some practice evs?
