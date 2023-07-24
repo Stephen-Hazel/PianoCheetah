@@ -308,8 +308,8 @@ i+1, Hdr->sample [i].length, Hdr->sample [i].volume,
       StrFmt (TSn [t], "x_`02d`s`s",
               t+1, Hdr->sample [t].name,
                   (Hdr->sample [t].replen > 4) ? "" : "~hold");
-//DBG("sample for trk `d => `d=$`08x  (len=`d)  `s",
-//t, ModPos, ModPos, ModLen, TSn [t]);
+DBG("sample for trk `d => `d=$`08x  (len=`d)  `s",
+t, ModPos, ModPos, ModLen, TSn [t]);
       if (Hdr->sample [t].length)
          PutWav (t, Hdr->sample [t].length,  Hdr->sample [t].repeat,
                     Hdr->sample [t].repeat + Hdr->sample [t].replen);
