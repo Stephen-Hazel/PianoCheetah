@@ -86,8 +86,6 @@ DBG("Cmd='`s'", c);
    else if (! StrCm (c, CC("dump")))        Dump (true);
    else if (! MemCm (c, CC("tran "),   5))
       {NotesOff ();   _f.tran  = (sbyte) Str2Int (& c [5]);       DscSave ();}
-   else if (! MemCm (c, CC("ezHop "),  6))
-      {NotesOff ();   _f.ezHop = (c [6] == 'y') ? true : false;   DscSave ();}
    else if (! MemCm (c, CC("quan x"),  6))  {SetDn ('q');   ReDo ();}
    else if (! StrCm (c, CC("showAll"))) {
      bool  dr, all = true;             // drums or melo, all shown now?

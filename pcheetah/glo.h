@@ -6,13 +6,11 @@
 #include "../../stv/ui.h"
 #include "../../stv/uiKey.h"
 #include "../../stv/timer.h"
-#include "../../stv/snd.h"
-#include "../../stv/wav.h"
 #include "../../stv/syn.h"
 #include "../../stv/midi.h"
 
 
-const ubyt4 LRN_BT = M_WHOLE/64;       // quicker wakeup when _lrn.vwNt
+const ubyt4 LRN_BT = M_WHOLE/64;       // wakeup slice for Put
 const ubyt4 NONE   = 0x7FFFFFFF;       // time of this means "no time"
                                        // .p of this means "no event/note"
 const ubyt2 W_Q  = 24;                 // w of cue area (not incl chord w)
@@ -182,7 +180,6 @@ struct CfgDef {
    bool  barCl;                        // send bar# to clipboard? (for lyr edit)
    void  Init (), Load (), Save ();    // for global settings (not song)
    sbyte tran;
-   bool  ezHop;
 };
 extern CfgDef Cfg;
 

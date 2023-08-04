@@ -150,13 +150,32 @@ DBG("done dr=`s", dr);
 //______________________________________________________________________________
 // _tr (ui->tr) stuph...
 
-void TrPop (char *ls, ubyt2 r, ubyte c)
+char TrPop (char *ls, ubyt2 r, ubyte c)
 // pop HT, sounddir, sound CtlList
 {  *ls = '\0';
 TRC("TrPop r=`d c=`d", r, c);
-   if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm))
+   if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm)) {
       MemCp (ls, CC("-\0L\0R\0ez1\0ez2\0ez3\0ez4\0ez5\0ez6\0ez7\0"),
                      3*2+7*4+1);
+      return 'l';
+   }
+   if (c == 2) {
+      if (! Up.trk [r].drm)  return 'e';    // edit melodic track name
+     StrArr l (CC("drum.txt"), 256, 128*sizeof(TStr));
+DBG("dvt=`d name=`s", Up.trk [r].dvt, Up.dvt [Up.trk [r].dvt].Name ());
+     TStr   s, s2;                     // see if devtype has a drum.txt
+      l.Load (StrFmt (s, "`s/device/`s/drum.txt",
+         App.Path (s2, 'd'), Up.dvt [Up.trk [r].dvt].Name ()));
+      if (l.NRow ())  {l.SetZZ (ls);   return 'l';}
+   }                                   // else fall thru to readonly
+   if ((c == 3) || (c == 4)) {
+     ubyte dvt = Up.trk [r].dvt;
+      if (Up.trk [r].drm && StrCm (Up.dvt [Up.trk [r].dvt].Name (), CC("syn")))
+         return '\0';                  // no sound editin on nonsyn drums
+      if (c == 3)  Up.dvt [dvt].SGrp (ls,                 Up.trk [r].drm);
+      if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp, Up.trk [r].drm);
+      return 'l';
+   }
    if (c == 5) {
      ubyte d = 0;
      TStr  n, t, x;
@@ -164,46 +183,23 @@ TRC("TrPop r=`d c=`d", r, c);
       while (Midi.GetPos ('o', d++, n, t, x, x))  if (StrCm (t, CC("OFF")))
          {StrCp (ls, n);   ls += (StrLn (n)+1);}
       *ls = '\0';
-      return;
+      return 'l';
    }
-   if ((c != 3) && (c != 4))  return;
-   ubyte dvt = Up.trk [r].dvt;
-   if (Up.trk [r].drm && StrCm (Up.dvt [Up.trk [r].dvt].Name (), CC("syn")))
-      return;                          // no sound editin on nonsyn drums
-   if (c == 3)  Up.dvt [dvt].SGrp (ls,                 Up.trk [r].drm);
-   if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp, Up.trk [r].drm);
+   return '\0';
 }
 
 void PCheetah::TrClk ()
 { ubyt2 r = _tr.CurRow ();
   ubyte c = _tr.CurCol ();
 TRC("TrClk(L) r=`d c=`d", r, c);
-//ulong b = _tr;
-//ubyte nt = Up.rTrk, tr;
-//TrkRow *trk =     & _s->_f.trk [0];
    Up.eTrk = (ubyte)r;
    if      (c == 0)  emit sgCmd ("prac");
    else if (c == 1)  emit sgCmd ("htype x");
-/* else if (c == 2) {                  // track name - pop drum mappin dlg
-      if (tr [r].chn == 9) {
-        DlgDrm dlg (_song, (ubyte)r, s);
-         dlg.Ok (Wndo ());
-         SongCmd ("drmap", s);
-      }
-   }
-   else if (c == 6) {
-     DlgMix dlg (_song, arg);
-      dlg.Ok (Wndo ());
-      StrFmt (cmd, "`d `d", arg [0], arg [1]);   SongCmd ("mix", cmd);
-      _song->ReDo ();
-   }
-*/
 }
 
 void PCheetah::TrClkR (const QPoint &pos)
-{ ubyt2 r = _tr.CurRow ();
+{ ubyt2 r = _tr.CurRow ();   (void)pos;
   ubyte c = _tr.CurCol ();
-   (void)pos;
 TRC("TrClkR r=`d c=`d", r, c);
    Up.eTrk = (ubyte)r;
    if      (c == 0)  emit sgCmd ("mute");
@@ -221,8 +217,10 @@ TRC("TrUpd r=`d c=`d", r, c);
    switch (c) {
       case 1:                          // hand type
          emit sgCmd (StrFmt (s, "htype `s", _tr.Get (r, 1)));   break;
-      case 2:                          // track name
-         emit sgCmd (StrFmt (s, "trk `s",   _tr.Get (r, 2)));   break;
+      case 2:                          // track name/drum in
+         if (Up.trk [r].drm)
+              {emit sgCmd (StrFmt (s, "drmap `s", _tr.Get (r, 2)));   break;}
+         else {emit sgCmd (StrFmt (s, "trk `s",   _tr.Get (r, 2)));   break;}
       case 3:                          // sound group
          emit sgCmd (StrFmt (s, "grp `s",   _tr.Get (r, 3)));   break;
       case 4:                          // sound name
@@ -508,13 +506,13 @@ TRC("  lyr,tr,nt init");
   CtlText t (ui->lyr);
    _tr.Init (ui->tr,
       "*Lrn\0"
-     "*^Hand\0"
+     "*_Hand\0"
       "_Track\0"
-      "^SoundDir\0"
-      "^Sound\0"
-      "^Dev.Chan\0"
-      ">Notes\0"
-      ">Ctrls\0", TrPop);
+      "_SoundDir\0"
+      "_Sound\0"
+      "_Dev.Chan\0"
+      "Notes\0"
+      "Ctrls\0", TrPop);
    _tr.SetRowH (Gui.FontH ()+1);
 
    ui->tr->setContextMenuPolicy (Qt::CustomContextMenu);

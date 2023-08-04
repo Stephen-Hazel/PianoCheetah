@@ -9,9 +9,8 @@
 CfgDef Cfg;
 
 void CfgDef::Init ()                   // default the global settings
-{  tran   = 0;                         // tran,ezHop come from .song
-   ezHop  = false;                     // trc from App
-   cmdKey = MKey (CC("8c"));
+{  tran   = 0;                         // tran comes from .song
+   cmdKey = MKey (CC("8c"));           // trc from App
    ntCo   = 0;                         // scale
    barCl  = false;
 }
@@ -55,8 +54,6 @@ void DlgCfg::ReDo ()
       emit sgCmd ("quan x");
    else if ((ctrl == IDC_TRAN) && (evnt == EN_CHANGE))
       emit sgCmd (StrFmt (c, "tran `s", _tran.Get (v)));
-   else if ((ctrl == IDC_EZHOP) && (evnt == EN_CHANGE))
-      emit sgCmd (StrFmt (c, "ezHop `c", _ezHop.Get () ? 'y' : 'n')));
 }
 */
 
@@ -64,12 +61,10 @@ void DlgCfg::Open ()
 { TStr s;
 TRC("DlgCfg::Open");
   CtlSpin tr (ui->tran, -12, 12);
-  CtlChek e  (ui->ezHop);
   CtlLine k  (ui->cmdKey);
   CtlList c  (ui->ntCo, CC("scale\0" "velocity\0" "track\0"));
   CtlChek b  (ui->barCl), t (ui->trc);
    tr.Set (Cfg.tran);
-   e.Set  (Cfg.ezHop);
    k.Set  (MKey2Str (s, Cfg.cmdKey));
    c.Set  (Cfg.ntCo);
    b.Set  (Cfg.barCl);   t.Set (App.trc);
@@ -80,11 +75,10 @@ void DlgCfg::Shut ()                   // set em n save em
 { TStr s;
 TRC("DlgCfg.Shut");
   CtlSpin tr (ui->tran);
-  CtlChek e  (ui->ezHop), b (ui->barCl), t (ui->trc);
+  CtlChek b  (ui->barCl), t (ui->trc);
   CtlLine k  (ui->cmdKey);
   CtlList c  (ui->ntCo);
    Cfg.tran  = tr.Get ();
-   Cfg.ezHop =  e.Get ();
    StrCp (s, k.Get ());   Cfg.cmdKey = MKey (s);
    if (! Cfg.cmdKey)      Cfg.cmdKey = MKey (CC("8c"));
    Cfg.ntCo  = c.Get ();
@@ -965,8 +959,8 @@ void DlgMov::Quit ()  {Gui.DlgSave (this, "DlgMov");}
 
 static BStr ALst, BLst, FLst;
 
-static void TDrPop (char *ls, ubyt2 r, ubyte c)
-{  (void)r;   ZZCp (ls, (c==1) ? ALst : ((c==2) ? BLst : FLst));  }
+static char TDrPop (char *ls, ubyt2 r, ubyte c)
+{  (void)r;   ZZCp (ls, (c==1) ? ALst : ((c==2) ? BLst : FLst));  return 'l';}
 
 
 void DlgTDr::Cmd ()
@@ -993,7 +987,7 @@ void DlgTDr::Init ()
    StrAp  (fn,           CC("fill"), 4);
    sa.GetDir (fn, 'f', 1024, 'x');   sa.SetZZ (b);
    ZZAp (FLst, CC("(off)\0"));               ZZAp (FLst, b);
-   _t.Init (ui->t, "Section\0^PatA\0^PatB\0^Fill\0", TDrPop);
+   _t.Init (ui->t, "Section\0_PatA\0_PatB\0_Fill\0", TDrPop);
    connect (ui->t, & QTableWidget::itemChanged, this, & DlgTDr::Cmd);
 }
 

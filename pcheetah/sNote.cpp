@@ -21,6 +21,12 @@ void CInit ()
    CMid     = QColor (255,  72,  77);  // middle c
    CBBg     = QColor (225, 225, 225);  // black key bg / drum div
    CBt      = QColor (205, 205, 205);  // beat line color
+/*
+for (ubyte i = 0;  i < 12;  i++)
+DBG("`02d `02x`02x`02x", i, CScl[i].red (), CScl[i].green (), CScl[i].blue());
+for (ubyte i = 0;  i < 12;  i++)
+DBG("`02d `02x`02x`02x", i, CSclD[i].red (), CSclD[i].green (),CSclD[i].blue());
+*/
 }
 
 
@@ -943,7 +949,7 @@ TRC("DrawNow _pg=`d", _pg);
 // green fade now ln
    Up.tcnv.Blt (*Up.now,  nx, 0, nw, H_NW, 0, 0,
                                            Up.now->width (), Up.now->height ());
-   if (_lrn.POZ && _lrn.rHop) {
+   if (_lrn.POZ) {
 //TStr d1,d2,d3;
 //DBG("DOTS poz=`b Cfg.lrn=`d pg=`d pNow=`s rNow=`s tmr=`s",
 //_lrn.POZ, Cfg.lrn, p, TmSt (d1,pn), TmSt (d2,n),

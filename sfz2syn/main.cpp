@@ -567,11 +567,11 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
       }
    }
    if (in == 0)  DoWav (dp, sm, got, sfz);
-   KGot [MNt (CC("8c"))+1] = '\0';
-   i = 0;   p = & KGot [MNt (CC("0a"))];
+   KGot [MKey (CC("8c"))+1] = '\0';
+   i = 0;   p = & KGot [MKey (CC("0a"))];
    while ((q = StrSt (p, CC("_*"))))  {i++;   p = q+2;}
 LF.Put (StrFmt (ps, "`s `s\n",
-((i > 2)||pTrk) ? "DRUM ?? " : "MELO ?? ", & KGot [MNt (CC("0a"))]));
+((i > 2)||pTrk) ? "DRUM ?? " : "MELO ?? ", & KGot [MKey (CC("0a"))]));
 }
 
 

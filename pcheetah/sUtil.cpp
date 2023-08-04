@@ -607,7 +607,7 @@ DBG(" new dv=`d ch=`d grp=`b", d, nCh+1, _f.trk [tr].grp);
 // new sndid since new dev :/
    got = false;                        // drum syn check
    if (nCh != 9)  _f.trk [t1].snd = Up.dvt [Up.dev [d].dvt].SndID (sNm);
-   else           got = true;          // hello syn
+   else           got = true;          // hello drum syn
 DBG(" tr=`d sndid=`d", t1, _f.trk [t1].snd);
 
 // setup all trks of grp
@@ -618,8 +618,8 @@ DBG(" tr=`d too", t);
       if (! got)  _f.trk [t].snd = _f.trk [t1].snd;
    }
 // redo drum sounds fer syn (toss the useless _f.mapD n DrumExp recalcs
-   if (got)  {DrumCon ();   _f.mapD.Ln = 0;   DrumExp ();}
-   else       SetBnk ();
+   if (got)  {DrumCon ();   _f.mapD.Ln = 0;   DrumExp ();}      // and SetBnk()s
+   else      SetBnk ();
    ReDo ();
 DBG("NewDev end");
 }
@@ -848,17 +848,18 @@ i,sct[i].s,sct[i].time,TmSt(x,sct[i].time));
 
 void Song::DrMap (char *dr)
 // set .din of a drum
-{ ubyte t = ChkETrk(), d;
-  TStr  s;
-  ubyt4 p, ne;
-  TrkEv    *e;
+{ ubyte t = ChkETrk();
+  TStr  s, s2;
 TRC("DrMap trk=`d drm=`s", t, dr);
-   MemCp (s, & dr [0], 4);   s [4] = '\0';       _f.trk [t].din = MDrm (s);
-// for main drum sound, gotta set all the evs
-   MemCp (s, & dr [5], 4);   s [4] = '\0';   d = _f.trk [t].drm = MDrm (s);
-   e = _f.trk [t].e;   ne = _f.trk [t].ne;
-   for (p = 0;  p < ne;  p++)  if (! (e [p].ctrl & 0x80))  e [p].ctrl = d;
-   DrumCon ();   DrumExp ();   ReDo ();
+   MemCp (s, dr, 4);   s [4] = '\0';
+   _f.trk [t].din = MDrm (dr);
+   if (_f.trk [t].drm != _f.trk [t].din)
+      StrFmt (_f.trk [t].name, "`s => `s",
+         MDrm2Str (s,  _f.trk [t].din),
+         MDrm2Str (s2, _f.trk [t].drm));
+   else  MDrm2Str (_f.trk [t].name,
+                       _f.trk [t].drm);
+   ReDo ();
 }
 
 

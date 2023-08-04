@@ -8,7 +8,6 @@
 // TEz says if ez mode is on, melodic, and ? track
 //    ez can only be on for all melodic or off for everything hard mode
 //       ? drums are always hard mode
-//       rHop says if we're waiting (versus syncd to pc clock)
 // TSho says if track is drawn in notation
 bool Song::TDrm (ubyte t)  {return (_f.trk [t].chn == 9)  ? true : false;}
 bool Song::TLrn (ubyte t)  {return   _f.trk [t].lrn;}
@@ -37,11 +36,13 @@ void Song::ReTrk ()
       StrCp (s, SndName (r));
       *g = '\0';
       if (*s) {
-         StrCp (g, s);
-         if (MemCm (g, CC("Drum/"), 5))  sl = StrCh (g,       '_');
-         else                            sl = StrCh (& g [5], '_');
-         if (sl)  {*sl = '\0';   StrCp (s, & s [StrLn (g)+1]);}
-         else                          *s = '\0';
+         StrCp (g, s);                 // usta be a slash insteada _ :/
+         sl = StrCh (g, '_');
+         if (sl != nullptr) {
+            *sl = '\0';
+            StrCp (s, & s [StrLn (g)+1]);
+         }
+         else  *g = *s = '\0';         // non syn drums
       }
       StrCp (Up.trk [r].grp, g);       // SndGrp
       StrCp (Up.trk [r].snd, s);       // SndName
@@ -868,15 +869,11 @@ TRC("ReDo");
 TRC(" clear stuph");
    MemSet (_lrn.rec,   0, sizeof (_lrn.rec));
    MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
-TRC(" redo vwNt/ez/rHop");
-   _lrn.vwNt = _lrn.ez = _lrn.rHop = false;
-   for (t = 0;  t < Up.rTrk;  t++)  {if (TSho (t))  _lrn.vwNt = true;
-                                     if (TEz  (t))  _lrn.ez   = true;}
-   if ( (PLAY || PRAC || _lrn.pLrn) && ((! _lrn.ez) || _f.ezHop) )
-                                                    _lrn.rHop = true;
+TRC(" redo ez");
+   for (_lrn.ez = false, t = 0;  t < Up.rTrk;  t++)  if (TEz (t))
+                                                        _lrn.ez = true;
 // where are our hands - always ht(\0) unless got BOTH r,l
-   _lrn.hand = '\0';
-   for (ch = '\0', t = 0;  (ch != 'b') && (t < Up.rTrk);  t++) {
+   for (_lrn.hand = ch = '\0', t = 0;  (ch != 'b') && (t < Up.rTrk);  t++) {
       if (_f.trk [t].ht == 'L')  ch = (ch == 'r') ? 'b' : 'l';
       if (_f.trk [t].ht == 'R')  ch = (ch == 'l') ? 'b' : 'r';
    }                                   // set Cfg.hand based on what's ?d
@@ -888,7 +885,7 @@ TRC(" redo vwNt/ez/rHop");
    for (t = 0;  t < _f.ctl.Ln;  t++)   // show tempo ctl if we're in prac
       if (! StrCm (_f.ctl [t].s, CC("Tmpo")))
          _f.ctl [t].sho = (bool)(PRAC);
-TRC(" vwNt=`b ez=`b rHop=`b hand=`c", _lrn.vwNt, _lrn.ez, _lrn.rHop, _lrn.hand);
+TRC(" ez=`b hand=`c", _lrn.ez, _lrn.hand);
 TRC(" set icos");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
 TRC(" ReEv; SetDn; SetNt; SetLp; TmHop");

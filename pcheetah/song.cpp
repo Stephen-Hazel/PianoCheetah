@@ -169,7 +169,7 @@ void Song::PutLy ()
 
 
 void Song::PutCC (ubyte t, TrkEv *e)
-{ ubyte c = e->ctrl & 0x7F, dv, ch, dL, cL = 16;
+{ ubyte c = e->ctrl & 0x7F, dv, ch, dL, cL = 128;
   ubyt2 craw;
    dv = _f.trk[t].dev;   ch = _f.trk[t].chn;
    if (t >= Up.rTrk)  RecDvCh (t, e, & dv, & ch, & dL, & cL);
@@ -185,8 +185,8 @@ if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
    else if (! StrCm (_f.ctl [c].s, CC("Prog")))  SetChn (t);
    else
       if ((craw = Up.dvt [Up.dev [dv].dvt].CCMap [c])) {
-         if (ch != 16)  Up.dev [dv].mo->Put (ch, craw, e->valu, e->val2);
-         if (cL != 16)  Up.dev [dL].mo->Put (cL, craw, e->valu, e->val2);
+         if (ch != 128)  Up.dev [dv].mo->Put (ch, craw, e->valu, e->val2);
+         if (cL != 128)  Up.dev [dL].mo->Put (cL, craw, e->valu, e->val2);
       }
 }
 
@@ -202,7 +202,7 @@ void Song::PutNt (ubyte t, TrkEv *e, bool bg)
             {v += _lrn.velo [i];   d++;}
          if (d)  valu = e->valu = 0x80 |
                                        (v / d + (((v % d) >= (d / 2)) ? 1 : 0));
-TRC("   ezbg valu=128+`d", valu & 0x7F);
+DBG("   ezbg valu=128+`d", valu & 0x7F);
       }
       else {
          if (_lrn.veloRec && _lrn.veloSng) {
@@ -213,13 +213,13 @@ TRC("   ezbg valu=128+`d", valu & 0x7F);
                v = (valu & 0x7F) + v;
             }
             else if (_lrn.veloRec < _lrn.veloSng) {
-               v = (_lrn.veloSng - _lrn.veloRec) * (valu & 0x7F);
-               d = _lrn.veloSng;
+               v = (_lrn.veloSng - _lrn.veloRec) *        (valu & 0x7F);
+               d =       _lrn.veloSng;
                if ((v % d) < (d/2)) v /= d;   else {v /= d;  v++;}
                v = (valu & 0x7F) - v;
             }
             else v = valu & 0x7F;      // do nothin if exactly =
-TRC("   bg valu=`d vRec=`d vSng=`d v=`d",
+DBG("   bg valu=`d vRec=`d vSng=`d v=`d",
 valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
             if (v < 1) v = 1;   if (v > 127) v = 127;
             valu = 0x80 | (ubyte)v;
@@ -228,17 +228,16 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
    }
    if (t >= Up.rTrk)
         {RecDvCh (t, e, & dv, & ch, & dL, & cL);
-         if ((cL != 16) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}
+         if ((cL != 128) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}
    else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
-if (App.trc)
+
+//if (App.trc)
 {TStr d1,d2;
 StrFmt (d1, "PutNt `s.`d", Up.dev [dv].mo->Name (), ch+1);
 DumpEv (e, t, _f.trk [t].p, d1);
 DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));
 }
-
    Up.dev [dv].mo->Put (ch, ctrl, valu, e->val2);
-// if (_lzr)  PosTM (_lzr, MSG_CLOSE+1, (ch<<8)|ctrl, valu);
 }
 
 
@@ -292,11 +291,9 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
 
       _onBt = true;
 
-   // got notes to upd?  do fractional beats
-      if (_lrn.vwNt) {
-         tL8r2 = (_now / LRN_BT) * LRN_BT + LRN_BT;
-         if (tL8r2 < tL8r)  {draw = true;   _onBt = false;   tL8r = tL8r2;}
-      }
+   // wakeup on fractional beats
+      tL8r2 = (_now / LRN_BT) * LRN_BT + LRN_BT;
+      if (tL8r2 < tL8r)  {draw = true;   _onBt = false;   tL8r = tL8r2;}
 
    // hoppin from ] back to paired [ if prac or review of prac
       if ((PRAC || (_lrn.pLrn == LPRAC)) && _lrn.lpEnd &&
@@ -320,9 +317,8 @@ TRC("Put end - eoLoop b `s", LrnS ());
       }
 
    // time to bump _pDn?
-      if (_lrn.vwNt && (PRAC || PLAY))  while ((_pDn+1 < _dn.Ln) &&
-                                               (_now >= _dn [_pDn+1].time))
-                                           SetPDn (_pDn+1);
+      if (PRAC || PLAY)  while ((_pDn+1 < _dn.Ln) &&
+                                (_now >= _dn [_pDn+1].time))  SetPDn (_pDn+1);
    // plow thru only rec n lrn trks from .p to _now and dump stuff to midiout
    // no shh,bg tracks till next loop
 TRC(" trk loop: lrn,rec");
@@ -360,8 +356,8 @@ t, p, TmSt(d3,e[p].time), TmSt(d1,_tLate), TmSt(d2,_tSoon));
       }
 
    // chek da poz !
-      if (_lrn.vwNt && (PRAC || PLAY)) {
-         if (_lrn.rHop && (_now == _dn [_pDn].time))  doPoz = (DnOK () != 'y');
+      if (PRAC || PLAY) {
+         if (_now == _dn [_pDn].time)  doPoz = (DnOK () != 'y');
          if (_pag.Ln)  draw = true;    // ^ check if we gots ta poz
 
          if (doPoz && (! _lrn.POZ)) {

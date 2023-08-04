@@ -87,7 +87,7 @@ void Song::Pract ()
 
 
 void Song::DscInit ()                  // init w defaults
-{  _f.tmpo = FIX1;   _f.tran = 0;   Up.lrn = LHEAR;   _f.ezHop = false;  }
+{  _f.tmpo = FIX1;   _f.tran = 0;   Up.lrn = LHEAR;  }
 
 
 void Song::DscLoad ()                  // parse junk outa _dsc plus info={...}
@@ -99,10 +99,8 @@ void Song::DscLoad ()                  // parse junk outa _dsc plus info={...}
       i = Str2Int (s);
       if ((i >= -36) && (i <= 36))    _f.tran = (sbyte)i;
    }
-   if (DscGet (CC("ezhop="), s))      _f.ezHop = StrCm (s, CC("n"))
-                                                                 ? true : false;
    if (DscGet (CC("learn="), s))      Up.lrn   = (ubyte)Str2Int (s);
-   Cfg.tran = _f.tran;   Cfg.ezHop = _f.ezHop;   // ...sigh
+   Cfg.tran = _f.tran;                 // ...sigh
 TRC("DscLoad  tmpo=`d, tran=`d lrn=`d", _f.tmpo, _f.tran, Up.lrn);
 }
 
@@ -113,7 +111,6 @@ void Song::DscSave ()                  // put junk back in _dsc
   BStr  buf;
    StrFmt (buf, "tempo=`d",     _f.tmpo);                DscPut (buf);
    StrFmt (buf, "transpose=`d", _f.tran);                DscPut (buf);
-   StrFmt (buf, "ezhop=`s",     _f.ezHop ? "y" : "n");   DscPut (buf);
    StrFmt (buf, "learn=`d",     Up.lrn);                 DscPut (buf);
 
 // ok, make our summary thingy
@@ -237,7 +234,7 @@ int DTrCmp (void *p1, void *p2)  // ...TrkEv sortin for DrumExp() by DrumNt,
 void Song::DrumExp (bool setBnk)
 // expand any (per dev) DrumTrack tracks to a track per dev/drum
 // use _f.mapD (already set up) to override default drum params
-{ ubyte t, nD, d [128], x, i;
+{ ubyte t, nD, d [128], x, i, syn;
   ubyt4 e, neX, neT;
   TStr  s, s2;
   TrkEv *ev;
@@ -284,6 +281,8 @@ TRC("  t=`d ne=`d", t, neT);
             }
          }
       // so far .e,ne,dur,drm are set;  set rest;  _mapD overrides defaults now
+         syn = Up.dev [_f.trk [t].dev].mo->Syn () ? Up.dev [_f.trk [t].dev].dvt
+                                                  : MAX_DEV;
          for (i = 0;  i < nD;  i++) {
 TRC("  top=`d i=`d => set trk `d", t, i, t+i);
          // defaults
@@ -304,6 +303,11 @@ TRC("  top=`d i=`d => set trk `d", t, i, t+i);
 TRC("   set trk `d snd from mapD[`d]=`d", t+i, x, _f.trk [t+i].snd);
                break;                  // on to the next drum
             }                          // uh oh, if no map syn NEEDS .snd :(
+            if ((x >= _f.mapD.Ln) && (syn < MAX_DEV)) {
+               _f.trk [t+i].snd =
+                            Up.dvt [syn].SndID (MDrm2StG (s, _f.trk [t+i].drm));
+TRC("   set trk `d snd (syn)=`d", t+i, _f.trk [t+i].snd);
+            }
             MDrm2Str (_f.trk [t+i].name, _f.trk [t+i].drm);
             if (_f.trk [t+i].drm != _f.trk [t+i].din)
                StrFmt (_f.trk [t+i].name, "`s => `s",

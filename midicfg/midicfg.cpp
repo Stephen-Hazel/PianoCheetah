@@ -36,8 +36,12 @@ void InitDevTyp ()
    DevTyp [q] = '\0';
 }
 
-void TPop (char *ls, ubyt2 r, ubyte c)
-{  *ls = '\0';   if (c == 1) ZZCp (ls, DevTyp);  }
+char TPop (char *ls, ubyt2 r, ubyte c)
+{  *ls = '\0';
+   if (c == 1) {ZZCp (ls, DevTyp);   return 'l';}
+   if (c == 0)                       return 'e';
+   return '\0';
+}
 
 
 void MidiCfg::ShutMIn ()
@@ -314,7 +318,8 @@ void MidiCfg::TestI (ubyte mi, MidiEv e)
 
 
 void MidiCfg::TestO ()
-{ MidiO m (_to.Get (_to.CurRow (), 0), 'x');    // no gm init
+{  if (! StrCm (_to.Get (_to.CurRow (), 1), CC("syn")))  return;
+  MidiO m (_to.Get (_to.CurRow (), 0), 'x');    // no gm init
    m.Put (9, MDrm(CC("snar")), 0x80|90);   m.Put (0, MKey (CC("4C")), 0x80|90);
    Zzz (300);                          // 3/10 sec
    m.Put (9, MDrm(CC("snar")),      64);   m.Put (0, MKey (CC("4C")),      64);
@@ -346,12 +351,12 @@ TRC("Init");
    connect (tb.Act (2), & QAction::triggered, this, & MidiCfg::Dn);
    _ti.Init  (ui->tblI,
       "_input device\0"
-      "^type\0"
+      "_type\0"
       "driver description\0",
       TPop);
    _to.Init  (ui->tblO,
       "_output device\0"
-      "^type\0"
+      "_type\0"
       "driver description\0",
       TPop);
    connect (ui->tblI, & QTableWidget::itemChanged, this, & MidiCfg::Updt);

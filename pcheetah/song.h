@@ -56,7 +56,6 @@ public:
 // song settings from _dsc section.  DscSave()/DscLoad() preserve/restore these
    ubyt4 tmpo;                         // tempo per-thousand-age
    sbyte tran;                         // transpose halfsteps
-   bool  ezHop;                        // even in ez mode, do hop forward,etc
 
 // special ctls
    Arr<TpoRow,MAX_SIG>  tpo;
@@ -69,9 +68,9 @@ public:
 struct RecDef  {ubyt4 tm, ms;};        // map o all rec evs
 
 struct LrnDef {
-   bool  vwNt, ez, rHop;               // any TSho() tracks;  ez mode;  sync2rec
    char  pLrn, hand;                   // prev lrn mode;  hand: \0=none/L/R/B
-   bool  hLrn;                         // hear ?ez instead of rec?  set in HopTo
+   bool  hLrn,                         // hear ?ez instead of rec?  set in HopTo
+         ez;                           // ez mode
    ubyt4 lpBgn, lpEnd;                 // current loop's bgn,end times
    bool  POZ,   lpRvw,                 // paused?  review loop?
          chd;                          // w of cue area
@@ -170,7 +169,7 @@ private:
    void  SetMSec (ubyt4 p, MidiEv *ev, char dir = 'h');    // here/forward
    void  RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL);
    void  RecDvCh (ubyte ti,
-                  TrkEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL);
+                   TrkEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL);
    void  PozBuf  (MidiEv *ev, char *cSt);
    void  PozIns  ();
    void  Record  (MidiEv *ev);

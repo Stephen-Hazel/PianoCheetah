@@ -1,7 +1,7 @@
 // ctlNt.cpp - note widget - do editing on da pixmap
 
 #include "pcheetah.h"
-//#include "dlgChd.cpp"
+
 
 void CtlNt::RePM ()
 // moved to new screen?  resize pixmap
