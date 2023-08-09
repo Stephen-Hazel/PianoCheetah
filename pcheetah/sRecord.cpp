@@ -373,7 +373,7 @@ ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
             nm = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );
             te.time = _dn [p].time - nm;
             if (te.time < _pNow)  _pNow = te.time;
-DBG("    upd ntDn=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
+//DBG("    upd ntDn=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
             EvInsT (t, & te);
          // argh - gotta restore .nn,.nb cuzu prev EvDel :/
             _f.trk [t].nn--;   _f.trk [t].nb--;
@@ -394,7 +394,7 @@ ne, MKey2Str (d1, e[ne].ctrl), TmSt(d2, e [ne].time), e [ne].valu);
             nm = nm / dn + ( ((nm % dn) > (dn/2)) ? 1 : 0 );
             te.time = _dn [p].time - nm;
             if (te.time < _pNow)  _pNow = te.time;
-DBG("    upd ntUp=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
+//DBG("    upd ntUp=`s tm=`s", MKey2Str (d1,te.ctrl), TmSt (d2,te.time));
             EvInsT (t, & te);
          // argh - gotta restore .nn,.nb cuzu prev EvDel :/
             _f.trk [t].nb++;
@@ -435,10 +435,10 @@ void Song::PozBuf (MidiEv *ev, char *cSt)
       if (ch != 9)  craw += Cfg.tran;
       lh = (ev->val2 & 0x40) ? true : false;
       if (! _lrn.ez) {                 // don't echo these garbage notes :)
-TStr s1,s2;
-DBG("PozNt echo to `s.`d  rTrk=`d  tm=`s tmr=`s",
-Up.dev [lh?dL:dv].mo->Name (), (lh?cL:ch)+1, t,
-TmSt(s1,ev->time), TmSt(s2,_timer->Get ()));
+//TStr s1,s2;
+//DBG("PozNt echo to `s.`d  rTrk=`d  tm=`s tmr=`s",
+//Up.dev [lh?dL:dv].mo->Name (), (lh?cL:ch)+1, t,
+//TmSt(s1,ev->time), TmSt(s2,_timer->Get ()));
          if (lh)  Up.dev [dL].mo->Put (cL, craw, ev->valu, ev->val2);
          else     Up.dev [dv].mo->Put (ch, craw, ev->valu, ev->val2);
       }
@@ -459,14 +459,14 @@ TmSt(s1,ev->time), TmSt(s2,_timer->Get ()));
          for (n = 0;  n < _dn [_pDn].nNt;  n++)
             if ( (nt ==        _dn [_pDn].nt [n].nt) &&
                  (dr == (TDrm (_dn [_pDn].nt [n].t) ? 1 : 0)) ) {
-TStr s1;
-DBG("PozBuf ntUp rec, reflag ntDn t=`d nt=`s", t, MKey2Str (s1,nt));
+//TStr s1;
+//DBG("PozBuf ntUp rec, reflag ntDn t=`d nt=`s", t, MKey2Str (s1,nt));
                EvInsT (t, ev);   _f.trk [t].p++;
                _lrn.toRec [dr][nt] = (ev->val2 << 8) | 0x0080;
             }
    }
    if (ntDn && (DnOK () == 'y')) {     // only ntDn can unpause us
-DBG("PozBuf  UNPOZ !");
+TRC("PozBuf  UNPOZ !");
       PozIns ();   SetMSec (_pDn, ev);      // buf rec trks, adj .time per .msec
       _lrn.POZ = false;   _timer->Set (_now);   Shush (false);   Poz (false);
    }
@@ -582,7 +582,7 @@ TRC(" bump time b p=`d", p);
             if (DnOK ('n') == 'y') {   // HOP ok?
                SetMSec (_pDn+1, ev, 'f');        // BOING !!
                if (! _lrn.POZ) {                 // else PozBuf/Ins unpozs
-DBG("NtGet hard BOING forward");
+TRC("NtGet hard BOING forward");
                   for (ubyte d = 0;  d < _mi.Ln;  d++)
                      _mi [d].mi->BufAdj ((sbyt4)dn->time-(sbyt4)ev->time);
                   ev->time = dn->time;
@@ -609,10 +609,10 @@ DBG("NtGet hard BOING forward");
       for (i = 0;  i < _lm.Ln;  i++)  if (ev->time <= _lm [i].tm)  break;
       if (i >= _lm.Ln)  i--;
       ev->val2 = (nt <= _lm [i].nt) ? 0x40 : 0;
-DBG(" wrong nt LH=`b", (ev->val2 & 0x40) ? true : false);
+TRC(" wrong nt LH=`b", (ev->val2 & 0x40) ? true : false);
    }
    _lrn.recLH [nt] = ev->val2 & 0x40;
-DBG("NtGet hard lrnTrk=`d `s ht=`s",
+TRC("NtGet hard lrnTrk=`d `s ht=`s",
 tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"),
 (ev->val2 & 0x40)?"LH":"RH/HT");
 }
@@ -626,7 +626,7 @@ void Song::Record (MidiEv *ev)
   TStr  s1, s2;
   TrkEv *e;
    t = Up.rTrk;   if (ev->chan != 9)  t++;  // to rec trk (drum or melo)
-DBG("Record t=`d", t);
+TRC("Record t=`d", t);
    if (MNTUP (ev)) {
       for (e = _f.trk [t].e, ne = _f.trk [t].ne,
            p = 0;  p < ne;  p++)  if (e [p].time > ev->time)  break;
@@ -645,7 +645,7 @@ void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte t;
   TStr  cSt, cMod, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
-DBG("EvRcrd `s.`d `s `s\n"
+TRC("EvRcrd `s.`d `s `s\n"
 " ms=`d _pNow=`s _rNow=`s _now=`s tmr=`s\n"
 " _pDn=`d dn.time=`s dn+1.time=`s",
 (dev<_mi.Ln)?_mi [dev].mi->Name ():"kbd", ev->chan+1, TmSt(s1,ev->time),
@@ -685,14 +685,14 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
    if (_lrn.POZ) {
       PozBuf (ev, cSt);                // weee buff/echo rec evs
       DrawNow ();
-DBG("EvRcrd: b");
+TRC("EvRcrd: b");
       return;
    }
    if (! _lrn.POZ)  _rNow = ev->time;
    if (PosInZZ (cSt, CC("PBnR\0Vol\0Pan\0"))) {
       CCInit (t, cSt, ev->valu);       // if special bar#1 ctl, upd/ins@tm=0
       DrawNow ();
-DBG("EvRcrd: c");
+TRC("EvRcrd: c");
       return;
    }
    Record (ev);                        // ins ev into rec trk
@@ -700,5 +700,5 @@ DBG("EvRcrd: c");
 
 // stamp song as practiced?
    if (_rcrd && (! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
-DBG("EvRcrd end");
+TRC("EvRcrd end");
 }

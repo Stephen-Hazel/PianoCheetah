@@ -202,7 +202,7 @@ void Song::PutNt (ubyte t, TrkEv *e, bool bg)
             {v += _lrn.velo [i];   d++;}
          if (d)  valu = e->valu = 0x80 |
                                        (v / d + (((v % d) >= (d / 2)) ? 1 : 0));
-DBG("   ezbg valu=128+`d", valu & 0x7F);
+TRC("   ezbg valu=128+`d", valu & 0x7F);
       }
       else {
          if (_lrn.veloRec && _lrn.veloSng) {
@@ -219,7 +219,7 @@ DBG("   ezbg valu=128+`d", valu & 0x7F);
                v = (valu & 0x7F) - v;
             }
             else v = valu & 0x7F;      // do nothin if exactly =
-DBG("   bg valu=`d vRec=`d vSng=`d v=`d",
+TRC("   bg valu=`d vRec=`d vSng=`d v=`d",
 valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
             if (v < 1) v = 1;   if (v > 127) v = 127;
             valu = 0x80 | (ubyte)v;
@@ -231,8 +231,7 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
          if ((cL != 128) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}
    else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
 
-//if (App.trc)
-{TStr d1,d2;
+if (App.trc) {TStr d1,d2;
 StrFmt (d1, "PutNt `s.`d", Up.dev [dv].mo->Name (), ch+1);
 DumpEv (e, t, _f.trk [t].p, d1);
 DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));

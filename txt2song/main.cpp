@@ -420,7 +420,7 @@ void Put ()
    f.Put (    CC("Track:\n"));
    for (t = 0;  t < NTrk;  t++) {
       f.Put (StrFmt (s, ".  `s  .`s  `s\n",
-         TSn [t][0] ? TSn [t] : "Piano/AcousticGrand",
+         TSn [t][0] ? TSn [t] : "Piano_AcousticGrand",
          TMd [t], TNm [t]));
 TRC("t=`d nEv=`d", t+1, TrkNE [t]);
    }

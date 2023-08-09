@@ -103,26 +103,26 @@ TRC("DevTyp::SndID `s `s nDr=`d nSn=`d", _name, nm, _nDr, _sn.Ln);
       for (i = 0;  i < _nDr;  i++)
          if ( (! StrCm (nm, _sn [i].name)) ||
               (! MemCm (nm, _sn [i].name, StrLn (nm))) ) {
-DBG("a=> `d `s", i, _sn [i].name);
+//DBG("a=> `d `s", i, _sn [i].name);
             return i;
          }
-DBG("b=> NONE");
+//DBG("b=> NONE");
       if (xmatch)  return SND_NONE;    // no resolving
 
    // find Drum/Grp_Snd  (1st drm snd matchin full nm)
-DBG("find `s", nm);
+//DBG("find `s", nm);
       for (i = 0;  i < _nDr;  i++)
          if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
-DBG("b=> `d `s", i, _sn [i].name);
+//DBG("b=> `d `s", i, _sn [i].name);
             return i;
          }
       StrCp (ts, nm);
      ColSep c (ts, 3, '_');
       StrCp (nm, c.Col [0]);           // ok try just Drum/Grp
-DBG("find `s", nm);
+//DBG("find `s", nm);
       for (i = 0;  i < _nDr;  i++)
          if (! MemCm (nm, _sn [i].name, StrLn (nm))) {
-DBG("c=> `d `s", i, _sn [i].name);
+//DBG("c=> `d `s", i, _sn [i].name);
             return i;
          }
    // give up - use whatever drums ya got  (usually Drum/Kick_Kick / Drum/*)
@@ -204,7 +204,7 @@ void DevTyp::SNam (char *t, char *grp, bool dr)  // pop snd list for grp
 { ubyt4 i, b, e;
   TStr  gr, s;
   char *p;
-DBG("SNam grp='`s' dr=`b", grp, dr);
+TRC("SNam grp='`s' dr=`b", grp, dr);
    *t = '\0';
    StrFmt (gr, "`s_", grp);
    b = 0;   e = _sn.Ln;   if (dr)  e = _nDr;   else b = _nDr;
@@ -214,7 +214,7 @@ DBG("SNam grp='`s' dr=`b", grp, dr);
          {p = & s [StrLn (gr)];   StrCp (t, p);   t += (StrLn (p)+1);}
    }
    *t = '\0';
-DbgX(t,'z');
+if (App.trc) DbgX(t,'z');
 }
 
 
