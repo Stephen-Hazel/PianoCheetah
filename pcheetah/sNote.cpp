@@ -531,7 +531,8 @@ TRC("DrawPg `d", pp);
          StrFmt (str, "`d", oc-1);
          if (nt ==  0) {Up.cnv.Text (x+2,      13, str);
                         if ((oc == 5) && (x != nx))
-                           Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);}
+                           Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
+                       }
          if (nd == 11)  Up.cnv.Text (x+w-tw-3, 13, str);
 
       // draw curr keysig;  if in scale, put step color
@@ -728,10 +729,10 @@ TRC("DrawPg `d", pp);
       }
 
    // bar #s on top
-      for (p = 0;  p < co.nBlk;  p++)
-         {StrFmt (str, "`d", co.blk [p].bar);
-          Up.cnv.TextC (nx+1, co.blk [p].y+3, str, CDBLU);}
-
+      for (p = 0;  p < co.nBlk;  p++) {
+         StrFmt (str, "`d", co.blk [p].bar);
+         Up.cnv.TextC (nx+1, co.blk [p].y+3, str, CDBLU);
+      }
    //__________________________________
    // ok, dump the note symbols
       for (p = 0;  p < co.nSym;  p++)  DrawSym (& co.sym [p], & co);

@@ -120,7 +120,10 @@ public:
    void closeEvent (QCloseEvent *e)  {(void)e;   Shut ();}
 
 public slots:
-   void Set (const char *s, char stay = '\0');
+   void Set (const char *s);
+
+signals:
+   void sgCmd (char *s);
 
 private:
    Ui::DlgCue *ui;

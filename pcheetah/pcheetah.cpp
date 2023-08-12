@@ -541,16 +541,16 @@ TRC("  dlg init");
    _dFng = new DlgFng (this);   _dFng->Init ();
    _dMov = new DlgMov (this);   _dMov->Init ();
    _dHlp = new DlgHlp (this);   _dHlp->Init ();
-   connect (_dFL,  & QDialog::accepted, this, & PCheetah::LoadGo);
-   connect (_dFL,  & QDialog::rejected, this, & PCheetah::Quit);
    connect (_dTDr, & DlgTDr::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
-   connect (_dCue, & QDialog::accepted, this, [this]() {emit sgCmd ("cue");});
+   connect (_dCue, & DlgCue::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dChd, & DlgChd::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
-   connect (_dCtl, & QDialog::accepted, this, [this]() {emit sgCmd ("ctl");});
    connect (_dTpo, & DlgTpo::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dTSg, & DlgTSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dKSg, & DlgKSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dFng, & DlgFng::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dFL,  & QDialog::accepted, this, & PCheetah::LoadGo);
+   connect (_dFL,  & QDialog::rejected, this, & PCheetah::Quit);
+   connect (_dCtl, & QDialog::accepted, this, [this]() {emit sgCmd ("ctl");});
    connect (_dMov, & QDialog::accepted, this, [this]() {emit sgCmd ("mov");});
 
 // parse cmdline arg:  try to load song in dir or turn fn into song to do

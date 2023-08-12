@@ -218,7 +218,7 @@ private:
    void  PreTDr  (bool kick = true);
    void  TDr     (char *arg);
    void  PreCtl  ();
-   void  Cue     ();
+   void  Cue     (char *s);
    void  Ctl     ();
    void  ShoCtl  (char *ctl, bool sho);
    void  SetCtl  (char *arg);

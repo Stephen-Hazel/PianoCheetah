@@ -297,18 +297,20 @@ void DlgCtl::Quit ()  {Gui.DlgSave (this, "DlgCtl");}
 //______________________________________________________________________________
 // dlgCue - pick a new drum track per section (patA,patB,fill)
 
-void DlgCue::Set (const char *s, char stay)
-{ CtlLine c (ui->str);
-  TStr st;
-   StrCp (Up.pos.str, CC(s));
-   if (! stay)  Shut ();
-
-   StrCp (st, c.Get ());
-   if (*st != '(')  {StrCp (& st [1], st);   *st = '(';   c.Set (st);}
+void DlgCue::Set (const char *s)
+{ TStr s1, s2;
+   if (StrCm (CC(s), CC("```")))  StrCp (s1, CC(s));
+   else {
+     CtlLine l (ui->str);
+      StrCp (s1, l.Get ());
+   }
+   emit sgCmd (StrFmt (s2, "cue `s", s1));   Shut ();
 }
 
 void DlgCue::Open ()
-{  show ();   raise ();   activateWindow ();
+{ CtlLine l (ui->str);
+   l.Set (Up.pos.str);
+   show ();   raise ();   activateWindow ();
    Gui.DlgMv (this, Up.gp, "tL");
 }
 
@@ -320,12 +322,11 @@ void DlgCue::Init ()
       "redo loops and erase all bug history"
                          "`:/tbar/cue/a0"  "`\0"
       "delete this cue"  "`:/tbar/cue/a1"  "`\0"
-      "verse"            "`:/tbar/cue/b0"  "`\0"
-      "chorus"           "`:/tbar/cue/b1"  "`\0"
-      "break"            "`:/tbar/cue/b2"  "`\0"
-      "section\nother section (intro, coda, bridge, etc)\n"
-      "name in textbox below  with leading ("
-                         "`:/tbar/cue/b3"  "`\0"
+      "text / non repeating section"
+                         "`:/tbar/cue/b0"  "`\0"
+      "verse section"    "`:/tbar/cue/b1"  "`\0"
+      "chorus section"   "`:/tbar/cue/b2"  "`\0"
+      "break section"    "`:/tbar/cue/b3"  "`\0"
       "crescendo"        "`:/tbar/cue/b4"  "`\0"
       "decrescendo"      "`:/tbar/cue/b5"  "`\0"
       "fermata"          "`:/tbar/cue/c0"  "`\0"
@@ -347,14 +348,13 @@ void DlgCue::Init ()
    connect (tb.Act (0),  & QAction::triggered, this, [this]()
                                                            {Set ("loopInit");});
    connect (tb.Act (1),  & QAction::triggered, this, [this]()  {Set ("");});
-   connect (tb.Act (2),  & QAction::triggered, this, [this]()
-                                                           {Set ("(verse");});
+   connect (tb.Act (2),  & QAction::triggered, this, [this]()  {Set ("```");});
    connect (tb.Act (3),  & QAction::triggered, this, [this]()
-                                                           {Set ("(chorus");});
+                                                           {Set ("(verse");});
    connect (tb.Act (4),  & QAction::triggered, this, [this]()
-                                                           {Set ("(break");});
+                                                           {Set ("(chorus");});
    connect (tb.Act (5),  & QAction::triggered, this, [this]()
-                                                           {Set ("(", 'y');});
+                                                           {Set ("(break");});
    connect (tb.Act (6),  & QAction::triggered, this, [this]()  {Set ("<");});
    connect (tb.Act (7),  & QAction::triggered, this, [this]()  {Set (">");});
    connect (tb.Act (8),  & QAction::triggered, this, [this]()  {Set ("`fer");});

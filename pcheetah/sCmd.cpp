@@ -115,7 +115,7 @@ DBG("Cmd='`s'", c);
    else if (! MemCm (c, CC("preTDr"), 6))  PreTDr ();
    else if (! MemCm (c, CC("tDr "),   4))     TDr (& c [4]);
    else if (! MemCm (c, CC("ctl"),    3))  Ctl    ();
-   else if (! StrCm (c, CC("cue")))        Cue    ();
+   else if (! MemCm (c, CC("cue "),   4))  Cue    (& c [4]);
    else if (! MemCm (c, CC("chd "),   4))  Chd    (& c [4]);
    else if (! MemCm (c, CC("fng "),   4))  Fng    (& c [4]);
    else if (! MemCm (c, CC("setCtl "),7))  SetCtl (& c [7]);

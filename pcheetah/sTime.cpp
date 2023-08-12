@@ -151,14 +151,13 @@ ubyt2 Song::TmpoAt (ubyt4 tm, char act)
 }
 
 
-void Song::SetPDn (ubyt4 p)
-{ ubyt4 t1, t2;
-   _pDn = p;
+void Song::SetPDn (ubyt4 p)            // _pDn, _tLate, _tSoon
+{ ubyt4 t1, t2, dx;
+   _pDn = p;   dx = M_WHOLE*3/64;
    t1 = _dn [p  ].time;                // too late for now
    t2 = _dn [p+1].time;                // too soon for next
-   _tLate = ((t1 + M_WHOLE*3/64) >= t2) ? (t2-1) : (t1 + M_WHOLE*3/64);
-   _tSoon = ((t2 < M_WHOLE*3/64) || ((t2 - M_WHOLE*3/64) <= t1))
-                                        ? (t1+1) : (t2 - M_WHOLE*3/64);
+   _tLate = ((t1 + dx) >= t2)                ? (t2-1) : (t1 + dx);
+   _tSoon = ((t2 < dx) || ((t2 - dx) <= t1)) ? (t1+1) : (t2 - dx);
 //TStr s1, s2;
 //DBG("SetPDn _pDn=`d Late=`s Soon=`s",_pDn,TmSt(s1,_tLate),TmSt(s2,_tSoon));
 }
