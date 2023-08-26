@@ -65,8 +65,9 @@ TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
 //______________________________________________________________________________
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
-{ ubyte t, c, d, nn, x, pf, ppf, pnt, nt, nmin, nmax, navg, pmin, pmax, pavg;
-  ubyt4 p, q, tpos [128], tm, ptm, dp;
+{ ubyte t, c, d, nn, x, pf, ppf, pnt, nt, nmin, nmax, navg, pmin, pmax, pavg,
+                                       f, bf;
+  ubyt4 p, q, tpos [128], tm, ptm, dp, w, bw, popt;
   bool  got, qd [MAX_TRK], didq, fst;
   char  ht;
   TrkEv *e;
@@ -167,29 +168,6 @@ DBG("tr=`d  ...min avg max", t);
                nn++;   if (c == 128)  c = x;
             }
          if (nn)  {
-navg = (nmin+nmax)/2;
-TStr o1, o2, s1, s2, s3, s4;
-char n,x,a;
-if (nn == 1)
-    StrFmt(o1, "`<8s           `<3s",
-TmSt (s4, _dn [dp].time),
-MKey2Str (s1, nmin));
-else
-   StrFmt(o1, "`<8s `d `<3s `<3s `<3s",
-TmSt (s4, _dn [dp].time), nn,
-MKey2Str (s1, nmin), MKey2Str (s3, navg), MKey2Str (s2, nmax));
-if (fst) *o2 = '\0';
-else {
-   n = (pmin < nmin) ? '>' : ((pmin > nmin) ?'<':'=');
-   a = (pavg < navg) ? '>' : ((pavg > navg) ?'<':'=');
-   x = (pmax < nmax) ? '>' : ((pmax > nmax) ?'<':'=');
-   if (n == x)  n = ' ';
-   if (a == x)  a = ' ';
-   StrFmt (o2, "`c `c `c", n, a, x);
-}
-DBG("`s `s", o1, o2);
-pmin = nmin;  pmax = nmax;  pavg = navg;
-
             xx [dp].dir = '=';
             if      (((ht == 'L') ? nmin : nmax) > pnt)  xx [dp].dir = '>';
             else if (((ht == 'L') ? nmin : nmax) < pnt)  xx [dp].dir = '<';
@@ -209,7 +187,7 @@ pmin = nmin;  pmax = nmax;  pavg = navg;
          }
          else xx [dp].pos = 99;
       }
-      pf = 2;
+      pf = 0;   popt = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {
 
       // check for rolled chord/trill (fast stuff - time diff of < 15 ticks)
@@ -231,8 +209,27 @@ pmin = nmin;  pmax = nmax;  pavg = navg;
             else  break;
          }
          if (c) {
+         // ok we gotta trill but optimize wraps in prev segment first
+TStr s1;
+DBG("popt=`d `s", popt, TmSt (s1, _dn [popt].time));
+            for (ubyte ofs = 0;  ofs < 5;  ofs++) {
+               f = ofs;   w = 0;
+               for (p = popt;  p < dp;  p++)  if (xx [p].pos != 99) {
+                  if      (xx [p].dir == '<') {if (f-- == 0)  {w++;   f = 4;}}
+                  else if (xx [p].dir == '>') {if (f++ == 4)  {w++;   f = 0;}}
+               }
+               if (ofs == 0)     {bf = 0;   bw = w;}  // init best wrap
+               else if (w < bw)  {bf = f;   bw = w;}  // replace best?
+DBG("   ofs=`d w=`d", ofs, w);
+            }
+         // swap to best
+            if (bf)  for (p = popt;  p < dp;  p++)  if (xx [p].pos != 99) {
+               if      (xx [p].dir == '<') {if (f-- == 0)  {w++;   f = 4;}}
+               else if (xx [p].dir == '>') {if (f++ == 4)  {w++;   f = 0;}}
+               k [1] = 'c' + f;
+               _dn [p].nt [xx [p].pos].nt = MKey (k);
+            }
            char pdir;
-            ppf = pf;                  // ta restore
             pf = (ht == 'L') ? 0 : 4;
             k [1] = 'c' + pf;
             _dn [pmax].nt [xx [pmax].pos].nt = MKey (k);
@@ -254,8 +251,7 @@ pmin = nmin;  pmax = nmax;  pavg = navg;
                k [1] = 'c' + pf;
                _dn [p].nt [xx [p].pos].nt = MKey (k);
             }
-            dp = pend;
-            pf = ppf;                  // we return to our regular program
+            dp = pend;   pf = 0;   popt = dp+1;
          }
          else {
             if      (xx [dp].dir == '<')  {if (pf-- == 0)  pf = 4;}
@@ -263,6 +259,26 @@ pmin = nmin;  pmax = nmax;  pavg = navg;
             k [1] = 'c' + pf;
             _dn [dp].nt [xx [dp].pos].nt = MKey (k);
          }
+      }
+   // one last finger opt
+TStr s1;
+DBG("popt=`d `s", popt, TmSt (s1, _dn [popt].time));
+      for (ubyte ofs = 0;  ofs < 5;  ofs++)  if (xx [p].pos != 99) {
+         f = ofs;   w = 0;
+         for (p = popt;  p < dp;  p++) {
+            if      (xx [p].dir == '<') {if (f-- == 0)  {w++;   f = 4;}}
+            else if (xx [p].dir == '>') {if (f++ == 4)  {w++;   f = 0;}}
+         }
+         if (ofs == 0)     {bf = 0;   bw = w;}   // init best wrap
+         else if (w < bw)  {bf = f;   bw = w;}   // replace best?
+DBG("   ofs=`d w=`d", ofs, w);
+      }
+   // swap to best
+      if (bf)  for (p = popt;  p < dp;  p++)  if (xx [p].pos != 99) {
+         if      (xx [p].dir == '<') {if (f-- == 0)  {w++;   f = 4;}}
+         else if (xx [p].dir == '>') {if (f++ == 4)  {w++;   f = 0;}}
+         k [1] = 'c' + f;
+         _dn [p].nt [xx [p].pos].nt = MKey (k);
       }
    }
 //if (didq)  for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))
