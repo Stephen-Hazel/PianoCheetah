@@ -255,10 +255,10 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
         bool        dr = TDrm (tr);
 //DBG("pg=`d co=`d sy=`d", Up.pos.pg, Up.pos.co, Up.pos.sy);
         ubyt4  tm, te;
-        TrkEv *ev = NULL;
-         if (TEz (tr)) {
-            tm = te =   co.sym [Up.pos.sy].tm;
-            nt = (ubyte)co.sym [Up.pos.sy].nt;
+        TrkEv *ev = nullptr;
+         if (TEz (tr)) {               // cuz ez has no actual note
+            tm = te =   co.sym [Up.pos.sy].tm;   // SetSym set me
+            nt = (ubyte)co.sym [Up.pos.sy].nt;   // not p !
             te += (M_WHOLE/8*3/4);
 //DBG("ez      tr=`d nt=`d tm=`d te=`d", tr, nt, tm, te);
          }

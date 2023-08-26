@@ -65,17 +65,20 @@ TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
 //______________________________________________________________________________
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
-{ ubyte t, c, d, nn, x;
-  ubyt4 p, q, tpos [128], tm, ptm;
-  bool  got, qd [MAX_TRK], didq;
+{ ubyte t, c, d, nn, x, pf, ppf, pnt, nt, nmin, nmax, navg, pmin, pmax, pavg;
+  ubyt4 p, q, tpos [128], tm, ptm, dp;
+  bool  got, qd [MAX_TRK], didq, fst;
+  char  ht;
   TrkEv *e;
   ubyt4 ne;
-  struct {ubyte t;   ubyt4 p;}  on [2][128], pon [2][128];
+  TStr  k;
+  struct {ubyte pos;   char dir;} xx [64*1024];  // extra _dn info
+  struct {ubyte t;   ubyt4 p;} on [2][128];
    _pDn = _dn.Ln = 0;
 TRC("SetDn qu=`c", qu);
    _dn.Ln = 0;   MemSet (tpos, 0, sizeof (tpos));
-                                  MemSet (qd,   0, sizeof (qd));
-   MemSet (on, 0, sizeof (on));   MemSet (pon,  0, sizeof (pon));
+                 MemSet (qd,   0, sizeof (qd));
+   MemSet (on, 0, sizeof (on));
    for (didq = false, got = true;  got; ) {
       got = false;
    // get tm - min time of a NtDn across all ? trks
@@ -128,51 +131,138 @@ t, p, ne, TmSt(s1,e [p].time), TmSt(s2,tm));
             tpos [t] = p;
          }
 
-      // stamp a Dn if room with all on melo,drum ntDns (drum ctrl => trk's din)
+      // stamp a Dn w all on melo,drum ntDns (drum ctrl => trk's din)
          if (_dn.Full ())  DBG("SetDn  outa room in Dn");
-         _dn [_dn.Ln].time = tm;
-         _dn [_dn.Ln].msec = 0;
-         _dn [_dn.Ln].tmpo = 0;
-         _dn [_dn.Ln].clip = '\0';
-         nn = 0;
-         if (_lrn.ez) {                // ez - max o one per trk
-            d = 0;
-            for (c = 0;  c < 128;  c++)
-               if (on [d][c].t && (nn < BITS (_dn [0].nt))) {
-                  for (x = 0;  x < nn;  x++)  if (on [d][c].t-1 ==
-                                                  _dn [_dn.Ln].nt [x].t)  break;
-                  if (x >= nn) {
-                     x = on [d][c].t - 1;
-                    TStr k;
-                     StrCp (k, CC("4x"));
-                     k [1] = "cdefgab" [_f.trk [x].ht-'1'];
-                     _dn [_dn.Ln].nt [nn].nt = MKey (k);
-                     _dn [_dn.Ln].nt [nn].t  = x;
-                     _dn [_dn.Ln].nt [nn].p  = 0;
-                     nn++;
-                  }
-                  MemCp (& pon [d][c], & on [d][c], sizeof (on [0][0]));
+         dp = _dn.Ln;
+         _dn [dp].time = tm;   _dn [dp].msec = 0;   _dn [dp].tmpo = 0;
+                                                    _dn [dp].clip = '\0';
+         for (nn = d = 0;  d < 2;  d++)  for (c = 0;  c < 128;  c++)
+            if (on [d][c].t && (nn < BITS (_dn [0].nt))) {
+               _dn [dp].nt [nn].nt = c;
+               _dn [dp].nt [nn].t  = on [d][c].t - 1;
+               _dn [dp].nt [nn].p  = on [d][c].p;
+               nn++;
+            }
+         _dn [dp].nNt = nn;   _dn.Ln++;
+      }
+   }
+
+// ez - max o one per trk per dn
+   if (_lrn.ez)  for (t = 0;  t < Up.rTrk;  t++)  if (TEz (t)) {
+      ht = (CHUP (_f.trk [t].name [0]) == 'L') ? 'L' : 'R';
+      k [0] = _f.trk [t].ht;   k [2] = '\0';
+DBG("tr=`d  ...min avg max", t);
+   // first we calc all the directions usin' maxnt in dn n prev dn maxnt
+      fst = true;   pnt = 128;
+      for (dp = 0;  dp < _dn.Ln;  dp++) {
+         c = 128;   nn = 0;   nmin = nmax = 0;
+         for (x = 0;  x < _dn [dp].nNt;  x++)
+            if (_dn [dp].nt [x].t == t) {
+               nt = _dn [dp].nt [x].nt;
+               if (nn == 0)  nmin = nmax = nt;
+               else {
+                  if (nt < nmin)  nmin = nt;
+                  if (nt > nmax)  nmax = nt;
                }
-            d = 1;                     // drums hard never ez
-            for (c = 0;  c < 128;  c++)
-               if (on [d][c].t && (nn < BITS (_dn [0].nt))) {
-                  _dn [_dn.Ln].nt [nn].nt = c;
-                  _dn [_dn.Ln].nt [nn].t  = on [d][c].t - 1;
-                  _dn [_dn.Ln].nt [nn].p  = on [d][c].p;
-                  nn++;
-                  MemCp (& pon [d][c], & on [d][c], sizeof (on [0][0]));
-               }
+               nn++;   if (c == 128)  c = x;
+            }
+         if (nn)  {
+navg = (nmin+nmax)/2;
+TStr o1, o2, s1, s2, s3, s4;
+char n,x,a;
+if (nn == 1)
+    StrFmt(o1, "`<8s           `<3s",
+TmSt (s4, _dn [dp].time),
+MKey2Str (s1, nmin));
+else
+   StrFmt(o1, "`<8s `d `<3s `<3s `<3s",
+TmSt (s4, _dn [dp].time), nn,
+MKey2Str (s1, nmin), MKey2Str (s3, navg), MKey2Str (s2, nmax));
+if (fst) *o2 = '\0';
+else {
+   n = (pmin < nmin) ? '>' : ((pmin > nmin) ?'<':'=');
+   a = (pavg < navg) ? '>' : ((pavg > navg) ?'<':'=');
+   x = (pmax < nmax) ? '>' : ((pmax > nmax) ?'<':'=');
+   if (n == x)  n = ' ';
+   if (a == x)  a = ' ';
+   StrFmt (o2, "`c `c `c", n, a, x);
+}
+DBG("`s `s", o1, o2);
+pmin = nmin;  pmax = nmax;  pavg = navg;
+
+            xx [dp].dir = '=';
+            if      (((ht == 'L') ? nmin : nmax) > pnt)  xx [dp].dir = '>';
+            else if (((ht == 'L') ? nmin : nmax) < pnt)  xx [dp].dir = '<';
+            xx  [dp].pos = c;
+            _dn [dp].nt [c].nt = pnt = ((ht == 'L') ? nmin : nmax);
+            _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
+            fst = false;
+
+         // toss any notes of my trk beyond c
+            for (x = c+1;  x < _dn [dp].nNt;) {
+               if (_dn [dp].nt [x].t == t)
+                    {MemCp (& _dn [dp].nt [x], & _dn [dp].nt [x+1],
+                            sizeof (_dn [0].nt [0]) * (_dn [dp].nNt - x - 1));
+                     _dn [dp].nNt--;}
+               else  x++;
+            }
          }
-         else                          // all real notes
-            for (d = 0;  d < 2;  d++)  for (c = 0;  c < 128;  c++)
-               if (on [d][c].t && (nn < BITS (_dn [0].nt))) {
-                  _dn [_dn.Ln].nt [nn].nt = c;
-                  _dn [_dn.Ln].nt [nn].t  = on [d][c].t - 1;
-                  _dn [_dn.Ln].nt [nn].p  = on [d][c].p;
-                  nn++;
-                  MemCp (& pon [d][c], & on [d][c], sizeof (on [0][0]));
-               }
-         _dn [_dn.Ln++].nNt = nn;
+         else xx [dp].pos = 99;
+      }
+      pf = 2;
+      for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {
+
+      // check for rolled chord/trill (fast stuff - time diff of < 15 ticks)
+      // find max nt within trill notes and align to pinky=4 for rh/=0 for lh
+      // then follow <>= back to start of trill, then forward to end of it
+        ulong pmax, pend;              // max dn pos, end of trill pos
+         tm = _dn [dp].time;           // max is actually min for LH
+         pmax = dp;   nmax = _dn [dp].nt [xx [dp].pos].nt;
+         c = 0;                        // count #downs in trill
+         for (p = dp+1;  p < _dn.Ln;  p++)  if (xx [p].pos != 99) {
+            if (_dn [p].time < tm+15) {
+               c++;   pend = p;   tm = _dn [p].time;
+               if (ht == 'L')
+                    {if (       _dn [p].nt [xx [p].pos].nt < nmax)
+                        {nmax = _dn [p].nt [xx [p].pos].nt;   pmax = p;}}
+               else {if (       _dn [p].nt [xx [p].pos].nt > nmax)
+                        {nmax = _dn [p].nt [xx [p].pos].nt;   pmax = p;}}
+            }
+            else  break;
+         }
+         if (c) {
+           char pdir;
+            ppf = pf;                  // ta restore
+            pf = (ht == 'L') ? 0 : 4;
+            k [1] = 'c' + pf;
+            _dn [pmax].nt [xx [pmax].pos].nt = MKey (k);
+            pdir =         xx [pmax].dir;
+            for (p = pmax-1;  c && (p >= dp);    p--)  if (xx [p].pos != 99) {
+               c--;                    // usin prev dir n goin in reverse
+               if      (pdir == '>')  {if (pf-- == 0)  pf = 4;}
+               else if (pdir == '<')  {if (pf++ == 4)  pf = 0;}
+               k [1] = 'c' + pf;
+               _dn [p].nt [xx [p].pos].nt = MKey (k);
+               pdir =      xx [p].dir;
+            }
+
+            pf = (ht == 'L') ? 0 : 4;
+            for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos != 99) {
+               c--;
+               if      (xx [p].dir == '<')  {if (pf-- == 0)  pf = 4;}
+               else if (xx [p].dir == '>')  {if (pf++ == 4)  pf = 0;}
+               k [1] = 'c' + pf;
+               _dn [p].nt [xx [p].pos].nt = MKey (k);
+            }
+            dp = pend;
+            pf = ppf;                  // we return to our regular program
+         }
+         else {
+            if      (xx [dp].dir == '<')  {if (pf-- == 0)  pf = 4;}
+            else if (xx [dp].dir == '>')  {if (pf++ == 4)  pf = 0;}
+            k [1] = 'c' + pf;
+            _dn [dp].nt [xx [dp].pos].nt = MKey (k);
+         }
       }
    }
 //if (didq)  for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))
@@ -594,7 +684,7 @@ void Song::SetSym ()
   bool  drm, mt;
   TrkNt   *n;
   DownRow *dr;
-//TStr ts1, ts2;
+TStr ts1, ts2;
    W = Up.w;   H = Up.h;
 TRC("SetSym w=`d h=`d", W, H);
    nw = W_NT;   ww = 24;   th = Up.txH;     // dem consts
@@ -713,7 +803,8 @@ TRC("_col full prob cuz w,h");
                      if ((nte < tb) || (ntb >= te))  continue;
                      nt = dr->nt [i].nt;
                      ns = _sym.Ins ();
-                     _sym [ns].tr = t;   _sym [ns].nt = nt;
+                     _sym [ns].tr = t;   _sym [ns].nt = nt;     // not p !
+                     _sym [ns].tm = ntb;
                      _sym [ns].top = _sym [ns].bot = true;
                      if      (ntb < ((tb < M_WHOLE/32) ? 0 : (tb-M_WHOLE/32)))
                         {_sym [ns].top = false;   _sym [ns].y = H_KB;}
@@ -745,13 +836,15 @@ TRC("_col full prob cuz w,h");
                                               _sym [ns].y + 1);
                      }
                      if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
+
                   // always white
                      x = xo + (nt - nMn) * nw;   w = ww;
                      x -= (WXOfs [nt % 12] * nw / 12);
                      _sym [ns].x = x;   _sym [ns].w = w;
-//DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
-//ns,_sym[ns].tr, MKey2Str(ts1,nt),
-//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
+DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
+ns,_sym[ns].tr, MKey2Str(ts1,nt),
+_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
+ntb,TmSt(ts2,ntb));
                      _col [nc].nSym++;
                   }
                }

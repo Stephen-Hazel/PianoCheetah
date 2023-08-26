@@ -86,7 +86,7 @@ struct LrnDef {
 // notation stuph
 struct BlkDef  {ubyt2 bar, y, h;   ubyt4 tMn, tMx;   ubyte sb;};
                                                  // bar's tm block, y scale
-struct SymDef  {ubyte tr;   ubyt4 nt, tm;
+struct SymDef  {ubyte tr;   ubyt4 nt, tm;   // tm only for ez
                 bool top, bot, bar;   ubyt2 x, y, w, h;};  // note's symbols
 struct ColDef  {BlkDef *blk;   SymDef *sym;   ubyt4 nBlk,  nSym;
                 ubyte nMn, nMx, nDrm, dMap [128];   ubyt2 x, w, h;};

@@ -671,11 +671,6 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
    if ( (! StrCm (cSt, CC("."))) || CCEd (cSt, cMod, dev, ev) )
       {TRC("EvRcrd: filt'd|edit ctl");   return;}     // no rec?
 
-// hack ez rec notes' octave(1-7) into white note(C-B) of octave 4
-   if (_lrn.ez && StrCm (cSt, CC(".")) && (ev->chan != 9)) {
-      t = ev->ctrl / 12;   if (t >= 2)  t -= 2;  else t = 0;
-      StrCp (s1, CC("4x"));   s1 [1] = "cdefgab" [t];   ev->ctrl = MKey (s1);
-   }
    NtGet (ev);                         // set _lrn.rec, check ev in Dn[]
    t = Up.rTrk;   if (ev->chan != 9)  t++;  // to rec trk (drum or melo)
 
