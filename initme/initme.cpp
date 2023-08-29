@@ -26,8 +26,10 @@ DBG("picked=`s", dir);
          f.Save (fn, Buf, Len);
 DBG("Len=`d size=`d", Len, f.Size (fn));
          Zip (dir, 'x');
-         App.CfgPut (CC("d"), dir);
+DBG("unzip complete");
       }
+      App.CfgPut (CC("d"), dir);
+DBG("dir=`s", dir);
    }
 DBG("Init end");
    Gui.Quit ();

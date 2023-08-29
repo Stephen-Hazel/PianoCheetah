@@ -305,14 +305,22 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
 
 
 //______________________________________________________________________________
-void Song::HType (char *s)             // HT,RH,LH,ez1-ez7
+void Song::HType (char *s)             // HT,RH,LH,ez1-ez7,flip S
 { ubyte t, e = ChkETrk ();
   char  c;
-DBG("HType `s r=`d", s, e);
+  TStr  st;
+DBG("HType `s t=`d", s, e);
    c = *s;
    if (c == 'e')  c = s [2];
    if (c == 'x')  c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
    _f.trk [e].ht = c;
+   if ((c == 'L') || (c == 'R')) {
+      StrCp (st, _f.trk [t].name);
+      if ((StrLn (st) < 3) || (st [1] != 'H') || (st [2] != ' '))
+         {StrCp (& st [3], st);   MemCp (& st [1], CC("H "), 2);}
+      *st = c;
+      StrCp (_f.trk [t].name, st);
+   }
    if (TEz (e)) {                      // set one track ez, they all go
       for (e = 0;  e < Up.rTrk;  e++)
                                   if (TLrn (e) && (! TDrm (e)) && (! TEz (e))) {
@@ -325,8 +333,12 @@ DBG("HType `s r=`d", s, e);
       }
    }
    else if (TLrn (e))                  // set one nonEZ, all other ez go HT
-      for (e = 0;  e < Up.rTrk;  e++)  if (TLrn (e) && (! TDrm (e)) && TEz (e))
-                                          _f.trk [e].ht = '\0';
+      for (e = 0;  e < Up.rTrk;  e++)
+         if (TLrn (e) && (! TDrm (e)) && TEz (e)) {
+            _f.trk [e].ht = '\0';
+            if (! MemCm (& _f.trk [e].name [1], CC("T "), 2))
+               _f.trk [e].ht = _f.trk [e].name [0];
+         }
    ReDo ();
 Dump ();
 }

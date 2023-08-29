@@ -104,9 +104,9 @@ TRC("SetDn qu=`c", qu);
 //   didq = true;
 //   for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
 //}
-TStr s1, s2;
-DBG(" SetDn quant trk=`d p=`d/`d tmFr=`s tmTo=`s",
-t, p, ne, TmSt(s1,e [p].time), TmSt(s2,tm));
+//TStr s1, s2;
+//DBG(" SetDn quant trk=`d p=`d/`d tmFr=`s tmTo=`s",
+//t, p, ne, TmSt(s1,e [p].time), TmSt(s2,tm));
                         qd [t] = true;   ptm = e [p].time;
                      }
                      e [p].time = tm;   d = TDrm (t) ? 1 : 0;
@@ -152,7 +152,7 @@ t, p, ne, TmSt(s1,e [p].time), TmSt(s2,tm));
    if (_lrn.ez)  for (t = 0;  t < Up.rTrk;  t++)  if (TEz (t)) {
       ht = (CHUP (_f.trk [t].name [0]) == 'L') ? 'L' : 'R';
       k [0] = _f.trk [t].ht;   k [2] = '\0';
-DBG("tr=`d  ...min avg max", t);
+//DBG("tr=`d  ...min avg max", t);
    // first we calc all the directions usin' maxnt in dn n prev dn maxnt
       fst = true;   pnt = 128;
       for (dp = 0;  dp < _dn.Ln;  dp++) {
@@ -212,8 +212,8 @@ DBG("tr=`d  ...min avg max", t);
          }
          if (c) {
          // ok we gotta trill but optimize wraps in prev segment first
-TStr s1;
-DBG("popt=`d dp=`d `s", popt, dp, TmSt (s1, _dn [popt].time));
+//TStr s1;
+//DBG("popt=`d dp=`d `s", popt, dp, TmSt (s1, _dn [popt].time));
             for (ubyte ofs = 0;  ofs < 5;  ofs++) {
                f = ofs;   w = 0;
                for (p = popt;  p < dp;  p++)  if (xx [p].pos != 99) {
@@ -223,7 +223,7 @@ DBG("popt=`d dp=`d `s", popt, dp, TmSt (s1, _dn [popt].time));
             // init   else replace a best if it iz
                if (ofs == 0)    {bf = 0;     bw = w;}
                else if (w < bw) {bf = ofs;   bw = w;}
-DBG("   ofs=`d w=`d", ofs, w);
+//DBG("   ofs=`d w=`d", ofs, w);
             }                          // set da best
             for (f = bf, p = popt;  p <= dp;  p++)  if (xx [p].pos != 99) {
                if      (xx [p].dir == '<')  {if (f-- == 0)  f = 4;}
@@ -263,8 +263,8 @@ DBG("   ofs=`d w=`d", ofs, w);
          }
       }
    // one last finger opt  (docs above cuz dup'in code :/ )
-TStr s1;
-DBG("popt=`d ln=`d `s", popt, _dn.Ln, TmSt (s1, _dn [popt].time));
+//TStr s1;
+//DBG("popt=`d ln=`d `s", popt, _dn.Ln, TmSt (s1, _dn [popt].time));
       for (ubyte ofs = 0;  ofs < 5;  ofs++)  if (xx [p].pos != 99) {
          f = ofs;   w = 0;
          for (p = popt;  p < _dn.Ln;  p++) {
@@ -273,7 +273,7 @@ DBG("popt=`d ln=`d `s", popt, _dn.Ln, TmSt (s1, _dn [popt].time));
          }
          if (ofs == 0)     {bf = 0;     bw = w;}
          else if (w < bw)  {bf = ofs;   bw = w;}
-DBG("   ofs=`d w=`d", ofs, w);
+//DBG("   ofs=`d w=`d", ofs, w);
       }
       for (f = bf, p = popt;  p < _dn.Ln;  p++)  if (xx [p].pos != 99) {
          if      (xx [p].dir == '<')  {if (f-- == 0)  f = 4;}
@@ -858,10 +858,10 @@ TRC("_col full prob cuz w,h");
                      x = xo + (nt - nMn) * nw;   w = ww;
                      x -= (WXOfs [nt % 12] * nw / 12);
                      _sym [ns].x = x;   _sym [ns].w = w;
-DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
-ns,_sym[ns].tr, MKey2Str(ts1,nt),
-_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
-ntb,TmSt(ts2,ntb));
+//DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
+//ns,_sym[ns].tr, MKey2Str(ts1,nt),
+//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
+//ntb,TmSt(ts2,ntb));
                      _col [nc].nSym++;
                   }
                }
