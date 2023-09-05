@@ -664,7 +664,7 @@ DBG("loadin drum.txt");
       }
       StrFmt (ls,"Converting preset `d of `d fn='`s' Kit='`s'",
               i+1, NFn, & Fn [i][StrLn (Top)+1], Kit);
-LF.Put(ls);   DBG(ls);
+LF.Put(ls);   LF.Put (CC("\n"));   DBG(ls);
       DoSfz (Fn [i]);
    }
    LF.Shut ();

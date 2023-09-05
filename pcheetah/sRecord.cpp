@@ -514,12 +514,11 @@ TRC("NtGet NtUp val2=$`02x", ev->val2);
    kind = 'w';                         // default to wrong
 
 // check ez first;  else is fer hard
-//TODO why the weird tLate condition?
    if (_lrn.ez && (! dr)) {
      ubyt4 t, p, ne;
      TrkEv *e, te;
 TStr d1,d2,d3;   // debug this when testin ez mode
-DBG("   tLate=`s tSoon=`s ev->time=`s",
+TRC("   tLate=`s tSoon=`s ev->time=`s",
 TmSt(d1,_tLate), TmSt(d2,_tSoon), TmSt(d3,ev->time));
       if ((ev->time >= _tLate) && (ev->time <= _tSoon))  return;
       if       (ev->time < _tLate) {
@@ -645,7 +644,7 @@ void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte t;
   TStr  cSt, cMod, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
-TRC("EvRcrd `s.`d `s `s\n"
+DBG("EvRcrd `s.`d `s `s\n"
 " ms=`d _pNow=`s _rNow=`s _now=`s tmr=`s\n"
 " _pDn=`d dn.time=`s dn+1.time=`s",
 (dev<_mi.Ln)?_mi [dev].mi->Name ():"kbd", ev->chan+1, TmSt(s1,ev->time),
@@ -680,14 +679,14 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
    if (_lrn.POZ) {
       PozBuf (ev, cSt);                // weee buff/echo rec evs
       DrawNow ();
-TRC("EvRcrd: b");
+DBG("EvRcrd: b");
       return;
    }
    if (! _lrn.POZ)  _rNow = ev->time;
    if (PosInZZ (cSt, CC("PBnR\0Vol\0Pan\0"))) {
       CCInit (t, cSt, ev->valu);       // if special bar#1 ctl, upd/ins@tm=0
       DrawNow ();
-TRC("EvRcrd: c");
+DBG("EvRcrd: c");
       return;
    }
    Record (ev);                        // ins ev into rec trk
@@ -695,5 +694,5 @@ TRC("EvRcrd: c");
 
 // stamp song as practiced?
    if (_rcrd && (! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
-TRC("EvRcrd end");
+DBG("EvRcrd end");
 }

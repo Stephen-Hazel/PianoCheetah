@@ -305,22 +305,30 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
 
 
 //______________________________________________________________________________
-void Song::HType (char *s)             // HT,RH,LH,ez1-ez7,flip S
+void Song::HType (char *s)             // \0=HT,RH,LH,ez1-ez7,x=flip S
 { ubyte t, e = ChkETrk ();
   char  c;
   TStr  st;
 DBG("HType `s t=`d", s, e);
    c = *s;
-   if (c == 'e')  c = s [2];
+   if ((c == 'L') || (c == 'R')) {
+      StrCp (st, _f.trk [e].name);
+      if      (*st == '\0')       StrCp (st, CC("LH"));
+      else if (! ((st [1] == 'H') && ((st [2] == '\0') ||
+                                      (st [2] == ' '))))
+         {StrCp (& st [3], st);   MemCp (st, CC("LH "), 2);}
+      *st = c;
+      StrCp (_f.trk [e].name, st);
+   }
+   if (c == '\0') {
+      StrCp (st, _f.trk [e].name);
+      if      (! StrCm (& st [1], CC("H" )))  *st = '\0';
+      else if (! StrCm (& st [1], CC("H ")))  StrCp (st, & st [3]);
+      StrCp (_f.trk [e].name, st);
+   }
+   if (c == 'e')  c = s [2];           // ez1..7
    if (c == 'x')  c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
    _f.trk [e].ht = c;
-   if ((c == 'L') || (c == 'R')) {
-      StrCp (st, _f.trk [t].name);
-      if ((StrLn (st) < 3) || (st [1] != 'H') || (st [2] != ' '))
-         {StrCp (& st [3], st);   MemCp (& st [1], CC("H "), 2);}
-      *st = c;
-      StrCp (_f.trk [t].name, st);
-   }
    if (TEz (e)) {                      // set one track ez, they all go
       for (e = 0;  e < Up.rTrk;  e++)
                                   if (TLrn (e) && (! TDrm (e)) && (! TEz (e))) {
@@ -336,7 +344,9 @@ DBG("HType `s t=`d", s, e);
       for (e = 0;  e < Up.rTrk;  e++)
          if (TLrn (e) && (! TDrm (e)) && TEz (e)) {
             _f.trk [e].ht = '\0';
-            if (! MemCm (& _f.trk [e].name [1], CC("T "), 2))
+            StrCp (st, _f.trk [e].name);
+            if ((st [1] == 'T') && ((st [2] == ' ') ||
+                                    (st [2] == '\0')))
                _f.trk [e].ht = _f.trk [e].name [0];
          }
    ReDo ();

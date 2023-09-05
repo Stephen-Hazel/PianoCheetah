@@ -390,10 +390,8 @@ void Song::DrawSym (SymDef *s, ColDef *co)
       if (Cfg.ntCo == 1)  clr = CRng [(nt->dn == NONE) ? 64 :
                                       (trk->e [nt->dn].valu & 0x7F)];
    }
-   else if (ez) {                      // track always
-            for (tc = t = 0;  t < tr;  t++)  if (TSho (t))  tc++;
-            clr = CMap (tc);
-   }
+   else if (ez)                        // unkeysig'd
+            clr = CScl [n % 12];
    else
       switch (Cfg.ntCo) {
          case 2:                       // track
