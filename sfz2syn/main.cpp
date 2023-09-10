@@ -50,8 +50,8 @@ sbyt4 Key2Int (char *s)
   sbyt4 o;
   sbyte f = 0;
    for (n = 0;  n < 12;  n++)  if (CHDN (s [0]) == MKeyStr [n][0])  break;
-   if (n >= 12)  o = Str2Int (s);
-   else {
+   if (n >= 12)  o = Str2Int (s);              // c,c#,d,etc
+   else {                                      // so c>0, d>2, e>4, f>5, etc
       s++;
       if (CHDN (*s) == 'b')  {f = -1;   s++;}
       if (      *s  == '#')  {f =  1;   s++;}
@@ -117,7 +117,7 @@ DBG(" sample not THERE: `s", fn);
       if (*FlacExe == '\0') {
          App.CfgGet (CC("flac"), FlacExe);
          if (*FlacExe == '\0') {
- DBG("can't convert .flac without flac app :(");
+DBG("can't convert .flac without flac app :(");
             return;
          }
       }
@@ -462,7 +462,7 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
                                         (got [2][NO] == 'y')) ? true : false;
          StrCp (ts, s.Col [j]);
          while (*ts == ' ')  StrCp (ts, & ts [1]);    // 1st col needs leadin
-//DBG("   ts=`s", ts);
+DBG("   ts=`s", ts);
          if      (! MemCm (ts, CC("set_cc"), e = 6)) {    // spaces killed still
             t = Str2Int (& ts [e]);    // t is our cc#  t2 is it's value
             if ((p = StrCh (ts, '=')))  t2 = Str2Int (p+1);
@@ -474,6 +474,7 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
 
          else if (! MemCm (ts, CC("pitch_keycenter="), e = 16))
             {got [in][KY] = 'y';   sfz [in][KY] = Key2Int (& ts [e]);}
+
          else if (! MemCm (ts, CC("transpose="),       e = 10))
             {got [in][TR] = 'y';   sfz [in][TR] = Str2Int (& ts [e]);}
          else if (! MemCm (ts, CC("tune="),            e = 5))
@@ -514,6 +515,7 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
 
          else if (! MemCm (ts, CC("pan="),    e = 4))
             {got [in][PA] = 'y';   sfz [in][PA] = Str2Int (& ts [e]);}
+
          else if (! MemCm (ts, CC("pitch_keytrack="), e = 15))
             {got [in][PT] = 'y';   sfz [in][PT] = Str2Int (& ts [e]);
              pTrk = 1;}
@@ -521,7 +523,7 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
       // look for dumb layer stuff to ignore w NO
          else if ((! MemCm (ts, CC("locc"), 4)) ||
                   (! MemCm (ts, CC("hicc"), 4))) {
-            t = Str2Int (& ts [4]);    // cc # we gots
+            t = Str2Int (& ts [4]);         // cc # we gots
             for (e = 0;  e < (ubyt4)ncc;  e++)  if (cc [e] == t)  break;
             t3 = (e < (ubyt4)ncc) ? ccv [e] : dfcc [t];
             if ((p = StrCh (ts, '='))) {
@@ -536,22 +538,22 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
          }
          else if ((! MemCm (ts, CC("xfin_"), 5)) ||
                   (! MemCm (ts, CC("xfout_"), 6))) {
-            got [in][NO] = 'y';        // toss if xfade
+            got [in][NO] = 'y';             // toss if xfade
             if (! no1) DBG("   NOPE on xfin_/xfout_: `s in=`s", ts, LIn [in]);
          }
          else if ((! MemCm (ts, CC("on_locc"), 7)) ||
                   (! MemCm (ts, CC("on_hicc"), 7))){
-            got [in][NO] = 'y';        // toss if CC trigger
+            got [in][NO] = 'y';             // toss if CC trigger
             if (! no1) DBG("   NOPE on on_locc/on_hicc: `s in=`s", ts, LIn[in]);
          }
          else if (! MemCm (ts, CC("trigger="), e = 8)) {
             if (StrCm (& ts [e], CC("attack")))
-               got[in][NO] = 'y';      // toss if weird trigger=
+               got[in][NO] = 'y';           // toss if weird trigger=
             if ((! no1) && (got [in][NO] == 'y'))
                DBG("   NOPE on trigger=(non attack): `s in=`s", ts, LIn [in]);
          }
          else if (! MemCm (ts, CC("lorand="), e = 7)) {
-            for (t = e;  ts [t];  t++) // ignore unless lorand=0.0
+            for (t = e;  ts [t];  t++)      // ignore unless lorand=0.0
                if ((ts [t] != '0') && (ts [t] != '.'))  break;
             if (ts [t])  got [in][NO] = 'y';
             if ((! no1) && (got [in][NO] == 'y'))
@@ -562,7 +564,7 @@ DBG("CAN'T GET SAMPLE :( `s", r2);   return;}
             if ((! no1) && (got [in][NO] == 'y'))
                DBG("   NOPE on seq_position=(non1): `s in=`s", ts, LIn [in]);
          }
-//       else                          // ignore unless seq_position=1
+//       else                               // ignore unless seq_position=1
 //          DBG ("???  `s", ts );
       }
    }
