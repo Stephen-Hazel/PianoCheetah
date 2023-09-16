@@ -590,7 +590,7 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
   TrkNt  *n;
    tb = Bar2Tm (bar);   te = Bar2Tm (bar+1);
    ts = TSig (tb);
-//DBG("BarH `d  `d/`d.`d", bar, ts->num, ts->den, ts->sub);
+DBG("BarH `d  `d/`d.`d", bar, ts->num, ts->den, ts->sub);
    btdur = (M_WHOLE * ts->num / ts->den) / ts->num;
    sbdur = btdur / ts->sub;
 // if tsig HAS subbt, try to reduce from .4=>.2=>.1 etc  (else can't even try)
@@ -598,8 +598,8 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
       MemSet (got, 0, sizeof (got));   // default to no notes on subbts
    // subbt time - st - time within BEAT dur of subbt boundaries (halfway thru)
       for (t = 0;  t < ts->sub;  t++)  st [t] = (t * sbdur) + sbdur/2;
-//DBG("   btdur=`d sbdur=`d got[]=F, st:", btdur, sbdur);
-//for(t=0;t<ts->sub;t++)DBG("      `d `d", t, st[t]);
+DBG("   btdur=`d sbdur=`d got[]=F, st:", btdur, sbdur);
+for(t=0;t<ts->sub;t++)DBG("      `d `d", t, st[t]);
    }
 
 // empty (or notes only on bar line)?
@@ -613,9 +613,9 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
 
             if ( (n [p].te <= te) && ((n [p].te - n [p].tm + 1) < md) ) {
                md = n [p].te - n [p].tm + 1;
-//TStr d1,d2;
-//DBG("      now mindur=`d cuz tr=`d `s `s",
-//md, t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
+TStr d1,d2;
+DBG("      now mindur=`d cuz tr=`d `s `s",
+md, t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
             }
 
          // mark subbt if tsig has - offset from beat in ticks
@@ -624,20 +624,20 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
                for (s = 0;  s < ts->sub;  s++)  if (t1 < st [s])  break;
             // don't care bout "on beat" subbeats
                if (s && (s < ts->sub) && (! got [s])) {
-//TStr d1,d2;
-//DBG("      now got[`d] TRUE cuz tr=`d `s `s",
-//s,  t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
+TStr d1,d2;
+DBG("      now got[`d] TRUE cuz tr=`d `s `s",
+s,  t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
                   got [s] = true;
                }
             }
          }
-//DBG("   empty=`b mindur=`d, got:", mt, md);
-//if (ts->sub > 1) for(t=0;t<ts->sub;t++)DBG("      `d `d", t, got[t]);
+DBG("   empty=`b mindur=`d, got:", mt, md);
+if (ts->sub > 1) for(t=0;t<ts->sub;t++)DBG("      `d `d", t, got[t]);
 
    sub = 1;
    if (ts->sub > 1) {                  // see if subbt can be lessened
       for (s = 1;  s < ts->sub;  s++)  if (got [s])  {sub = ts->sub;   break;}
-//DBG("   init sub=`d", sub);
+DBG("   init sub=`d", sub);
       switch (sub) {                   // see bout a lower div if got empty stuf
          case 4:                       // 1 . x .  makes sb=2 work
             if ((! got [1]) && (! got [3]))  sub = 2;
@@ -663,32 +663,32 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
       }
    }
    if (mt)  sub = 0;                   // only need bar line
-//DBG("   sub=`d", sub);
+DBG("   sub=`d", sub);
    *sb = sub;                          // store subbeat (1=beat,2+ subbt)
 
 // default to MAX barh  (768 => 240)
    *h = (ubyt2)((te - tb) * 5 / 16);
-//DBG("   default h(max)=`d", *h);
+DBG("   default h(max)=`d", *h);
 
 // usually, noteh = ntDur * barh / barDur
 // calc less barh if md's h >14  (make sure short notes can be seen)
-   if ((md*5/16) > 14) {               // shrink so h of mindur is 14
-      *h = (ubyt2)((te - tb) * 14 / md);
-//DBG("   shrink so h of mindur is 14=`d", *h);
+   if ((md*5/16) > 20) {               // shrink so h of mindur is 14
+      *h = (ubyt2)((te - tb) * 20 / md);
+DBG("   shrink so h of mindur is 14=`d", *h);
    }
 
 // got subbt>1 - expand h if needed
    if ((sub > 1) && (*h < (ubyt2)((te - tb) * 14 / (btdur / sub)))) {
       *h =                (ubyt2)((te - tb) * 14 / (btdur / sub));
-//DBG("   expand h cuz subbt>1=`d", *h);
+DBG("   expand h cuz subbt>1=`d", *h);
    }
 // absolute min bar h  (768 => 40)
    if (mt) {
       *h = (ubyt2)((te - tb) * 5 / 96);
-//DBG("   mt so min h=`d", *h);
+DBG("   mt so min h=`d", *h);
    }
 
-//DBG("BarH end - h=`d sub=`d", *h, *sb);
+DBG("BarH end - h=`d sub=`d", *h, *sb);
 }
 
 

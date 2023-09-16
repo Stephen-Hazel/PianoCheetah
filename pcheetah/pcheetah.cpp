@@ -604,6 +604,7 @@ int main (int argc, char *argv [])
 TRC("midiimp");
    App.Run  (CC("midimp &"));
    Gui.Init (& app, & win);   win.Init ();   RandInit ();
+DBGTH ("PcG");
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
    qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton" );

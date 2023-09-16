@@ -518,7 +518,7 @@ TRC("NtGet NtUp val2=$`02x", ev->val2);
      ubyt4 t, p, ne;
      TrkEv *e, te;
 TStr d1,d2,d3;   // debug this when testin ez mode
-TRC("   tLate=`s tSoon=`s ev->time=`s",
+DBG("   tLate=`s tSoon=`s ev->time=`s",
 TmSt(d1,_tLate), TmSt(d2,_tSoon), TmSt(d3,ev->time));
       if ((ev->time >= _tLate) && (ev->time <= _tSoon))  return;
       if       (ev->time < _tLate) {
@@ -540,13 +540,13 @@ TmSt(d1,_tLate), TmSt(d2,_tSoon), TmSt(d3,ev->time));
                break;
             }
       }
-TRC("NtGet ez lrnTrk=`d `s",
+DBG("NtGet ez lrnTrk=`d `s",
 tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"));
 
    // PutNt/CC till now on trk if < tLate;  till pDn+1 time if > tSoon
       if (tr < (ubyte)0x80) {
          _lrn.velo [_f.trk [tr].ht - '1'] = ev->valu & 0x7F;
-TRC(" bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
+DBG(" bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
          for (e = _f.trk [tr].e,  ne = _f.trk [tr].ne,  p = _f.trk [tr].p;
               (p < ne) && (e [p].time <= t);  p++) {
             if (ECTRL (& e [p]))  PutCC (tr, & e [p]);
@@ -556,7 +556,7 @@ TRC(" bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
                PutNt (tr, & te);
             }
          }
-TRC(" bump time b p=`d", p);
+DBG(" bump time b p=`d", p);
          _f.trk [tr].p = p;
       }
       return;

@@ -7,6 +7,7 @@ UpdLst Up;                             // what gui needs from meee
 void Song::Init ()
 {
 TRC("Song::Init");                     // init that there stuff we need...
+DBGTH("PcS");
    _timer = new Timer ();              // boot timer
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
    connect (_timer, & Timer::TimerMsEv, this,
@@ -417,7 +418,7 @@ TRC("Put end - tL8r=_now=`s", TmSt(d1,_now));
 //______________________________________________________________________________
 void Song::MIn ()
 { MidiEv e;
-   for (ubyte d = 0;  d < _mi.Ln;  d++)  while (_mi [d].mi->Get (& e))
-                                                                EvRcrd (d, & e);
+   for (ubyte d = 0;  d < _mi.Ln;  d++)
+      while (_mi [d].mi->Get (& e))  EvRcrd (d, & e);
    Put ();
 }
