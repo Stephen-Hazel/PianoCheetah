@@ -3,8 +3,6 @@
 #include "../../stv/os.h"
 #include "../../stv/midi.h"
 
-//#define DBG_ON
-
 // need a "broader" TrkEv in here;  .prog not stamped till PutSong
 struct EvRow {ubyt4 time;  ubyt2 ctrl;  ubyte valu, val2;       // .x fer tmpo
               ubyt2 chan, trak;  ubyt4 prog;};
@@ -1093,10 +1091,11 @@ TRC("CvtMid end");
 int main (int argc, char *argv [])
 { TStr fn, to;
   File f;
+DBGTH("Mid2Song");
    App.Init (CC("pcheetah"), CC("mid2song"), CC("mid2song"));
    StrCp (FN, argv [1]);
    if (argc < 2)  {DBG ("usage is Mid2Song fn.mid");   return 99;}
-TRC("`s `s", App.app, FN);
+TRC("FN=`s", FN);
 
 // load the midi file into memory
    if ((MidLn = f.Load (FN, Mid, sizeof (Mid))) == 0)
@@ -1112,6 +1111,6 @@ TRC("`s `s", App.app, FN);
    S = new Song ();   S->CvtMid ();   delete S;
 
    Fs.Shut ();
-TRC("`s end", App.app);
+TRC("end");
    return 0;
 }

@@ -143,6 +143,7 @@ void MidiCfg::Load ()
   CtlList so (ui->lstSyn);
    so.ClrLs ();
    for (i = 0;  i < Snd.len;  i++)  so.InsLs (Snd.lst [i].desc);
+   so.InsLs (CC("OFF"));
    if (*SynCfg)  so.SetS (SynCfg);
    RedoMIn ();
 }
@@ -378,12 +379,15 @@ void MidiCfg::Quit ()  {Save ();   ShutMIn ();   Gui.WinSave ();}
 int main (int argc, char *argv [])
 { QApplication app (argc, argv);
   MidiCfg      win;
+DBGTH("MidiCfg");
+TRC("bgn");
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
    App.Init (CC("pcheetah"), CC("midicfg"), CC("MidiCfg"));
    Gui.Init (& app, & win);   win.Init ();
   int rc = Gui.Loop ();       win.Quit ();
    App.Spinoff (CC("pcheetah"));
+TRC("end");
    return rc;
 }
 

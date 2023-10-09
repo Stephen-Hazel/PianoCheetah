@@ -1,12 +1,12 @@
 #!/usr/bin/env php
-<?php 
+<?php
 ## rel (release kubuntu/rpi - cp to /opt/app/$app n create a .deb, etccc)
 
    $arc = isset ($argv [1]) ? 'armhf' : 'amd64';      // any arg=rpi else kub
    $app = "pcheetah";
    $exe = [
-      $app, 'midicfg', 'initme',                           // gui
-      'delsame', 'll', 'mid2song', 'midimp', 'txt2song',   // background
+      $app, 'midicfg', 'initme',                 // gui
+      'll', 'mid2song', 'midimp', 'txt2song',    // background
       'synsnd', 'sfz2syn', 'mod2song'
    ];
    $siz = "2" . "000000";    // just gimme decimal megabytes
@@ -20,13 +20,13 @@
 
    $deb = $app . "_current_$arc";      // our main .deb prefix / dir / etc
    $now = date ('Ymd', time ());
-   $ctl = 
+   $ctl =
 "Package: $app\n" .
 "Version: $now\n" .
 "Architecture: $arc\n" .
-"Maintainer: " . 
+"Maintainer: " .
    "Stephen Hazel<stephen.hazel@gmail.com> https://pianocheetah.app\n" .
-"Description: " . 
+"Description: " .
    "PianoCheetah - Steve's weird midi sequencer for piano practice\n" .
 "Priority: optional\n" .
 "Essential: no\n" .
@@ -50,7 +50,7 @@
    file_put_contents ("debian/control", $ctl);
    $out = `dpkg-shlibdeps -v -O $lst`;
    $d = "";   $f = "shlibs:Depends=";
-   foreach (explode ("\n", $out) as $o) 
+   foreach (explode ("\n", $out) as $o)
       if (substr ($o, 0, strlen ($f)) == $f)  $d = substr ($o, strlen ($f));
 echo "Depends: $d\n";
    system ("rm -fr debian");

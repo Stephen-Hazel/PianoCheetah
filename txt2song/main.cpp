@@ -669,9 +669,10 @@ int main (int argc, char *argv [])
 // load .txt file n save in .song format
 { char *msg;
   File  f;
+DBGTH("Txt2Song");
    App.Init (CC("pcheetah"), CC("txt2song"), CC("txt2song"));
+TRC("arg=`s", argv [1]);
    if (argc < 2)  return 99;
-TRC("txt2song `s", argv [1]);
 
    StrCp (FN, argv [1]);
    if (f.Size (FN) == 0)  {DBG(".txt file is empty? `s", FN);   exit (99);}
@@ -693,6 +694,6 @@ TRC("txt2song `s", argv [1]);
    if ((msg = f.DoText (FN, nullptr, DoLine)))  Die (msg);
 
    Put ();                             // write it alll out into a.song
-TRC("txt2song end");
+TRC("end");
    return 0;
 }

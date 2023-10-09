@@ -602,8 +602,8 @@ int main (int arc, char *argv [])
   ubyt4 i, j, k;
   char *rp;
   StrArr a;
-
-DBG("sfz2syn bgn");
+DBGTH("sfz2syn");
+DBG("bgn");
    App.Init (CC("pcheetah"), CC("sfz2syn"), CC("Sfz2Syn"));
    StrCp (Top, argv [1]);
 DBG("Top=`s", Top);
@@ -617,7 +617,7 @@ DBG("To=`s", To);
 // ok, make To dir n open log.txt there
    p.Kill (To);   p.Make (To);
    if (! LF.Open (StrFmt (fn, "`s/log.txt", To), "w")) {
-DBG ("couldn't write file=`s", fn);
+DBG("couldn't write file=`s", fn);
       return 99;
    }
 
@@ -671,6 +671,6 @@ LF.Put(ls);   LF.Put (CC("\n"));   DBG(ls);
    }
    LF.Shut ();
    App.Run (CC("synsnd"));
-DBG("sfz2syn end");
+DBG("end");
    return 0;
 }

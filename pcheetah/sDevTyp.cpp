@@ -66,7 +66,7 @@ void DevTyp::Open (char *devTyp)
 // cache devTyp's sound.txt and ccout.txt files into mem
 { TStr fn;
   File f;
-TRC("DevTyp::Open `s", devTyp);
+//DBG("DevTyp::Open `s", devTyp);
    StrCp (_name, devTyp);   _nDr = _sn.Ln = _cc.Ln = 0;
 
    App.Path (fn, 'd');   StrAp (fn, CC("/device/"));   StrAp (fn, devTyp);
@@ -79,13 +79,13 @@ TRC("DevTyp::Open `s", devTyp);
    App.Path (fn, 'd');   StrAp (fn, CC("/device/"));   StrAp (fn, devTyp);
    StrAp (fn, CC("/ccout.txt"));
    f.DoText (fn, this, CcRec);
-Dump ();
+//Dump ();
 }
 
 
 void DevTyp::Shut ()
 {
-TRC("DevTyp::Shut `s", _name);
+//DBG("DevTyp::Shut `s", _name);
    _name [0] = '\0';   _nDr = _sn.Ln = _cc.Ln = 0;
 }
 

@@ -40,6 +40,7 @@ void InitMe::Quit ()  {}
 int main (int argc, char *argv [])
 { QApplication app (argc, argv);
   InitMe       win;
+DBGTH("InitMe");
    App.Init (CC("pcheetah"), CC("initme"), CC("InitMe"));
    Gui.Init (& app, & win);   win.Init ();
   int rc = Gui.Loop ();

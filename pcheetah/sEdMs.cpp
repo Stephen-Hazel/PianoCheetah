@@ -135,7 +135,7 @@ Up.pos.ct, Up.pos.cp, Up.pos.got, Up.pos.tr, Up.pos.p, TmSt(x1,Up.pos.tm));
 
 void Song::DbgPos ()
 { TStr s, s2, s3;
-DBG("Song::Up.pos {\n"
+DBG("Up.pos {\n"
     "   at=`c got=`c drg=`c pg=`d co=`d\n"
     "   tm=`s sy=`d p=`d\n"
     "   tmBr=`s tmBt=`s hBt=`d\n"
@@ -160,7 +160,7 @@ void Song::MsDn (Qt::MouseButton b, sbyt2 x, sbyt2 y)
   TStr    s;
   ubyt2   nx;
    MsPos (x, y);
-//DBG("Song::MsDn x=`d y=`d b=`d", x, y, b);   DbgPos ();
+//DBG("MsDn x=`d y=`d b=`d", x, y, b);   DbgPos ();
    if (! Up.pos.at)  return;
 
    if (   b == Qt::RightButton) {           // just for ctl killin
@@ -233,7 +233,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
   TStr    s, s2, s3, cs;
   char    c, ct;
   TrkEv  *e;
-//DBG("Song::MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
+//DBG("MsMv x=`d y=`d b=`d", x, y, b);   DbgPos ();
    if (! b) {
       MsPos (x, y);   //DbgPos ();
       switch (Up.pos.at) {
@@ -358,7 +358,7 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
   char  ct;
   PagDef *pg;
   ColDef  co;
-//DBG("Song::MsUp x=`d y=`d b=`d", x, y, b);   DbgPos ();
+//DBG("MsUp x=`d y=`d b=`d", x, y, b);   DbgPos ();
    if (! (b == Qt::LeftButton))  return;
 
    if (Up.pos.drg)  Up.drag.setWidth (0);        // clear it out

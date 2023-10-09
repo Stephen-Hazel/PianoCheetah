@@ -40,7 +40,7 @@ bool DoDir (void *ptr, char dfx, char *fn)
          StrCp (bnk, c.Col [0]);
          StrCp (s,   c.Col [1]);
          StrFmt (Snd [NSnd], "`s_`s", s, bnk);
-TRC("   snd=`s n=`d", Snd[NSnd], NSnd);
+//TRC("   snd=`s n=`d", Snd[NSnd], NSnd);
          NSnd++;
       }
    }
@@ -97,7 +97,8 @@ int main (int arc, char *argv [])
 // load;  remap samplesets,drumsets;  sort all sound dirs
 { TStr ts;
   File f;
-DBG("synsnd bgn");
+DBGTH("SynSnd");
+TRC("bgn");
    App.Init (CC("pcheetah"), CC("synsnd"), CC("SynSnd"));
 
    StrFmt (DirSyn, "`s/device/syn", App.Path (ts, 'd'));
@@ -112,6 +113,6 @@ TRC("DirSyn=`s", DirSyn);
          f.Put (StrFmt (ts, "`<40s . . .\n", Snd [i]));
       f.Shut ();
    }
-DBG("synsnd end");
+TRC("end");
    return 0;
 }

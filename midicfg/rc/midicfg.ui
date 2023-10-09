@@ -60,7 +60,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Syn on</string>
+             <string>Syn device</string>
             </property>
            </widget>
           </item>

@@ -137,6 +137,7 @@ TRC("SetDn qu=`c", qu);
          dp = _dn.Ln;
          _dn [dp].time = tm;   _dn [dp].msec = 0;   _dn [dp].tmpo = 0;
                                                     _dn [dp].clip = '\0';
+         MemSet (_dn [dp].velo, 0, sizeof (_dn[0].velo));
          for (nn = d = 0;  d < 2;  d++)  for (c = 0;  c < 128;  c++)
             if (on [d][c].t && (nn < BITS (_dn [0].nt))) {
                _dn [dp].nt [nn].nt = c;
@@ -317,7 +318,6 @@ void Song::SetLp (char dir)
 
 TRC("SetLp dir=`c _now=`s   loops:", dir, TmSt (ts, _now));
 // gather cue [s to remake lp[];  pick start time of loop we're in based on _now
-   _lrn.lpRvw = false;                 // only if you're in a loop n good enough
    nl = xt = 0;
    for (p = 0;  p < _f.cue.Ln;  p++)
       if (_f.cue [p].tend && (_f.cue [p].s [0] == '[')) {
@@ -404,8 +404,8 @@ DBG("SetLp() BUG!  _dn not set so div by 0 :(");
          _f.tmpo = FIX1 * p / 100;
          p = TmpoAt (_timer->Get ());
 TRC(" ok%=`d so _f.tmpo=`d TmpoAct=`d", 100-x, _f.tmpo, p);
-         _lrn.lpRvw = (x < 50);
-         ShoCtl (CC("tmpo"), _lrn.lpRvw);
+//       _lrn.lpRvw = (x < 50);
+         ShoCtl (CC("tmpo"), true);
          DscSave ();   PutTp ((ubyt2)p);   ReTrk ();
       }
    }
@@ -590,7 +590,7 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
   TrkNt  *n;
    tb = Bar2Tm (bar);   te = Bar2Tm (bar+1);
    ts = TSig (tb);
-DBG("BarH `d  `d/`d.`d", bar, ts->num, ts->den, ts->sub);
+//DBG("BarH `d  `d/`d.`d", bar, ts->num, ts->den, ts->sub);
    btdur = (M_WHOLE * ts->num / ts->den) / ts->num;
    sbdur = btdur / ts->sub;
 // if tsig HAS subbt, try to reduce from .4=>.2=>.1 etc  (else can't even try)
@@ -598,8 +598,8 @@ DBG("BarH `d  `d/`d.`d", bar, ts->num, ts->den, ts->sub);
       MemSet (got, 0, sizeof (got));   // default to no notes on subbts
    // subbt time - st - time within BEAT dur of subbt boundaries (halfway thru)
       for (t = 0;  t < ts->sub;  t++)  st [t] = (t * sbdur) + sbdur/2;
-DBG("   btdur=`d sbdur=`d got[]=F, st:", btdur, sbdur);
-for(t=0;t<ts->sub;t++)DBG("      `d `d", t, st[t]);
+//DBG("   btdur=`d sbdur=`d got[]=F, st:", btdur, sbdur);
+//for(t=0;t<ts->sub;t++)DBG("      `d `d", t, st[t]);
    }
 
 // empty (or notes only on bar line)?
@@ -613,9 +613,9 @@ for(t=0;t<ts->sub;t++)DBG("      `d `d", t, st[t]);
 
             if ( (n [p].te <= te) && ((n [p].te - n [p].tm + 1) < md) ) {
                md = n [p].te - n [p].tm + 1;
-TStr d1,d2;
-DBG("      now mindur=`d cuz tr=`d `s `s",
-md, t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
+//TStr d1,d2;
+//DBG("      now mindur=`d cuz tr=`d `s `s",
+//md, t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
             }
 
          // mark subbt if tsig has - offset from beat in ticks
@@ -624,20 +624,20 @@ md, t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
                for (s = 0;  s < ts->sub;  s++)  if (t1 < st [s])  break;
             // don't care bout "on beat" subbeats
                if (s && (s < ts->sub) && (! got [s])) {
-TStr d1,d2;
-DBG("      now got[`d] TRUE cuz tr=`d `s `s",
-s,  t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
+//TStr d1,d2;
+//DBG("      now got[`d] TRUE cuz tr=`d `s `s",
+//s,  t, TmSt(d2, n [p].tm),  MKey2Str(d1,n [p].nt));
                   got [s] = true;
                }
             }
          }
-DBG("   empty=`b mindur=`d, got:", mt, md);
-if (ts->sub > 1) for(t=0;t<ts->sub;t++)DBG("      `d `d", t, got[t]);
+//DBG("   empty=`b mindur=`d, got:", mt, md);
+//if (ts->sub > 1) for(t=0;t<ts->sub;t++)DBG("      `d `d", t, got[t]);
 
    sub = 1;
    if (ts->sub > 1) {                  // see if subbt can be lessened
       for (s = 1;  s < ts->sub;  s++)  if (got [s])  {sub = ts->sub;   break;}
-DBG("   init sub=`d", sub);
+//DBG("   init sub=`d", sub);
       switch (sub) {                   // see bout a lower div if got empty stuf
          case 4:                       // 1 . x .  makes sb=2 work
             if ((! got [1]) && (! got [3]))  sub = 2;
@@ -663,32 +663,32 @@ DBG("   init sub=`d", sub);
       }
    }
    if (mt)  sub = 0;                   // only need bar line
-DBG("   sub=`d", sub);
+//DBG("   sub=`d", sub);
    *sb = sub;                          // store subbeat (1=beat,2+ subbt)
 
 // default to MAX barh  (768 => 240)
    *h = (ubyt2)((te - tb) * 5 / 16);
-DBG("   default h(max)=`d", *h);
+//DBG("   default h(max)=`d", *h);
 
 // usually, noteh = ntDur * barh / barDur
 // calc less barh if md's h >14  (make sure short notes can be seen)
    if ((md*5/16) > 20) {               // shrink so h of mindur is 14
       *h = (ubyt2)((te - tb) * 20 / md);
-DBG("   shrink so h of mindur is 14=`d", *h);
+//DBG("   shrink so h of mindur is 14=`d", *h);
    }
 
 // got subbt>1 - expand h if needed
    if ((sub > 1) && (*h < (ubyt2)((te - tb) * 14 / (btdur / sub)))) {
       *h =                (ubyt2)((te - tb) * 14 / (btdur / sub));
-DBG("   expand h cuz subbt>1=`d", *h);
+//DBG("   expand h cuz subbt>1=`d", *h);
    }
 // absolute min bar h  (768 => 40)
    if (mt) {
       *h = (ubyt2)((te - tb) * 5 / 96);
-DBG("   mt so min h=`d", *h);
+//DBG("   mt so min h=`d", *h);
    }
 
-DBG("BarH end - h=`d sub=`d", *h, *sb);
+//DBG("BarH end - h=`d sub=`d", *h, *sb);
 }
 
 
@@ -697,7 +697,7 @@ void Song::SetSym ()
 // Draw calls us, not ReDo;  depends on SetDn(_dn[]) n SetNt(trk[].n) tho
 { ubyte nw, ww, nMn, nMx, nd, dmap [128], dpos, td, t, st, bl, sb, i, nt;
   ubyt2 W, H, x, xo, w, th, ch, b, dx, cw, y1, y2, h;
-  ubyt4 np, nc, nb, ns, p, q, nn, pc1, cb1, cs1, tb, te, ntb, nte, sn, d;
+  ubyt4 np, nc, nb, ns, p, q, nn, pc1, cb1, cs1, tb, te, ntb, nte, sn, d, e;
   bool  drm, mt;
   TrkNt   *n;
   DownRow *dr;
@@ -815,7 +815,17 @@ TRC("_col full prob cuz w,h");
             }
             if (_lrn.ez && (! TDrm (t))) {
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
-                  ntb = nte = dr->time;   nte += (M_WHOLE/8*3/4);
+                  ntb = nte = dr->time;   nte += (M_WHOLE/16);
+               // look for a better nte (to next dn in my trk)
+                  for (mt = true, e = d+1;  e < _dn.Ln;  e++) {
+                     for (i = 0;  i < _dn [e].nNt;  i++)
+                        if (_dn [e].nt [i].t == t) {
+                           if (    (_dn [e].time - 4) > nte)
+                              nte = _dn [e].time - M_WHOLE/64;
+                           mt = false;   break;
+                        }
+                     if (! mt)  break;
+                  }
                   for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t) {
                      if ((nte < tb) || (ntb >= te))  continue;
                      nt = dr->nt [i].nt;

@@ -150,8 +150,9 @@ TRC("CCInit: got=`b p=`d tr=`d tm=`d", got, p, t, tr->e [p].time);
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 char Song::DnOK (char nxt)             // \0=current(default) or n[ext]
+// ONLy ok if ALL hit n ms range<=100
 { ubyte c, d, n;
   ubyt4 pt, ms, mn, mx;
   char  ok, in;
@@ -159,7 +160,6 @@ char Song::DnOK (char nxt)             // \0=current(default) or n[ext]
    dn = & _dn [_pDn];   pt = _pDn ? _dn [_pDn-1].time : 0;
    if (nxt)  {if (_pDn+1 >= _dn.Ln)  return 'n';
               dn = & _dn [_pDn+1];   pt = _dn [_pDn].time;}
-// ONLy ok if ALL hit n ms range<=100
    for (in = 'n', ok = 'y', c = 0;  c < dn->nNt;  c++) {
       d = TDrm (dn->nt [c].t) ? 1 : 0;   n = dn->nt [c].nt;
 //TStr d1,d2,d3;  DBG("c=`d/`d dr=`d nt=`s tm=`s pt=`s",
@@ -236,7 +236,7 @@ void Song::RecDvCh (ubyte ti,
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void Song::PozIns ()
 // insert buffered toRec note/ctrl events into respective trks
 { ubyte c, d, t;
@@ -306,7 +306,6 @@ void Song::SetMSec (ubyt4 p, MidiEv *ev, char dir)
 TRC("SetMSec  p=`d _pDn=`d ms=`d", p, _pDn, ms);
    if (_dn [p].msec)  return;          // already got 1st note
 
-TRC(" set msec");
    _dn [p].msec = ms;   _dn [p].tmpo = 0;   if (p)  _dn [p-1].tmpo = 0;
    if ( (p == 0) || (_dn [p-1].msec == 0) || (ms <= _dn [p-1].msec) )
       return;                          // ^ somethin not right msR wise
@@ -473,7 +472,7 @@ TRC("PozBuf  UNPOZ !");
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void Song::NtGet (MidiEv *ev)
 // NtUp - clears _lrn.rec n uses prev 0x40 LH for rec nt
 // NtDn - sets   _lrn.rec
@@ -517,12 +516,7 @@ TRC("NtGet NtUp val2=$`02x", ev->val2);
    if (_lrn.ez && (! dr)) {
      ubyt4 t, p, ne;
      TrkEv *e, te;
-TStr d1,d2,d3;   // debug this when testin ez mode
-DBG("   tLate=`s tSoon=`s ev->time=`s",
-TmSt(d1,_tLate), TmSt(d2,_tSoon), TmSt(d3,ev->time));
-      if ((ev->time >= _tLate) && (ev->time <= _tSoon))  return;
-      if       (ev->time < _tLate) {
-         t = ev->time;
+      if (ev->time <= dn->time) {
          for (n = 0;  n < dn->nNt;  n++)
             if ( (! TDrm (dn->nt [n].t)) &&
                  (nt ==   dn->nt [n].nt) ) {     // ding ding ding
@@ -530,35 +524,30 @@ TmSt(d1,_tLate), TmSt(d2,_tSoon), TmSt(d3,ev->time));
                break;
             }
       }
-      else if ((ev->time > _tSoon) && (_pDn+1 < _dn.Ln)) {
+      else if (_pDn+1 < _dn.Ln) {
          dn++;                         // has to BE a next
-         t = dn->time;
          for (n = 0;  n < dn->nNt;  n++)
             if ( (! TDrm (dn->nt [n].t)) &&
                  (nt ==   dn->nt [n].nt) ) {     // ding ding ding
                tr = dn->nt [n].t;   kind = 'n';  // next pDn
+               if (DnOK ('n') == 'y') {     // HOP ok?
+                  SetMSec (_pDn+1, ev, 'f');     // BOING !!
+                  if (! _lrn.POZ) {              // else PozBuf/Ins unpozs
+TRC("NtGet ez hard BOING forward");
+                     ev->time = dn->time;
+                     _timer->SetSig (dn->time);   _timer->Set (dn->time);
+                  }
+               }
                break;
             }
       }
-DBG("NtGet ez lrnTrk=`d `s",
-tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"));
+DBG("NtGet ez lrnTrk=`d `s _pDn=`d velo=`d",
+tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"), _pDn, ev->valu&0x7F);
 
-   // PutNt/CC till now on trk if < tLate;  till pDn+1 time if > tSoon
-      if (tr < (ubyte)0x80) {
-         _lrn.velo [_f.trk [tr].ht - '1'] = ev->valu & 0x7F;
-DBG(" bump time a t=`s p=`d", TmSt(s,t), _f.trk [tr].p);
-         for (e = _f.trk [tr].e,  ne = _f.trk [tr].ne,  p = _f.trk [tr].p;
-              (p < ne) && (e [p].time <= t);  p++) {
-            if (ECTRL (& e [p]))  PutCC (tr, & e [p]);
-            else {
-               MemCp (& te, & e [p], sizeof (TrkEv));
-               if (ENTDN (& te))  te.valu = ev->valu;
-               PutNt (tr, & te);
-            }
-         }
-DBG(" bump time b p=`d", p);
-         _f.trk [tr].p = p;
-      }
+   // store our velo in _dn[].velo[]
+      if (tr < (ubyte)0x80)
+         _dn [_pDn + ((kind=='n')?1:0)].velo [_f.trk [tr].ht - '1'] =
+                                                                ev->valu & 0x7F;
       return;
    }
 
@@ -571,7 +560,7 @@ DBG(" bump time b p=`d", p);
             break;
          }
    }
-// else we're seein bout _pDn+1 (to bump time, unpoz, hop forward)
+// else we're seein bout _pDn+1 (ta unpoz, bump time hoppin forward)
    else if (_pDn+1 < _dn.Ln) {         // has to BE a next
       dn++;
       for (n = 0;  n < dn->nNt;  n++)
@@ -617,7 +606,7 @@ tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"),
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void Song::Record (MidiEv *ev)
 // filter lame ntUps due to EdCmd n looping leftovers
 { ubyte t;
@@ -639,7 +628,7 @@ t, MNt2Str (s1, ev), TmSt (s2, _now), p);
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
 void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte t;
@@ -695,4 +684,13 @@ DBG("EvRcrd: c");
 // stamp song as practiced?
    if (_rcrd && (! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
 DBG("EvRcrd end");
+}
+
+
+//______________________________________________________________________________
+void Song::MIn ()
+{ MidiEv e;
+   for (ubyte d = 0;  d < _mi.Ln;  d++)
+      while (_mi [d].mi->Get (& e))  EvRcrd (d, & e);
+   Put ();
 }

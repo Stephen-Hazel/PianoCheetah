@@ -8,7 +8,7 @@ UCmdDef UCmd [] = {
    {"song<",     "3c",  "z",  "song",       "load prev"},
    {"song>",     "3d",  "x",  "",           "load next"},
    {"songRand",  "3c#", "a",  "",           "load random"},
-   {"songKill",  "",    "!",  "",           "DELETE (be CAREful)"},
+   {"songKill",  "",    "!",  "",           "DELETE SONG (be CAREful)"},
    {"songRate",  "",    "r",  "",           "rating: none=>a=>b=>c=>"},
 // done by thread/song
    {"timePause", "3d#", "spc","time",       "play/pause"},
@@ -27,8 +27,8 @@ UCmdDef UCmd [] = {
    {"learn",     "4e",  "l",  "song modes", "learn: hear=>play=>practice=>"},
    {"hand",      "4f",  "h",  "",           "hand: practice LH=>RH=>HT=>"},
    {"color",     "4f#", "c",  "",           "color: scale=>velocity=>track=>"},
-   {"hearLoop",  "4g",  "/",  "loop",       "Hear loop then back to Prac"},
-   {"focus",     "4g#", "f",  "",          "focus loop around bugs / restore"},
+   {"hearLoop",  "4g",  "/",  "loop",       "Hear loop notes"},
+   {"hearRec",   "4g#", ".",  "",           "Hear loop recording"},
    {"edTrk<",    "4a",  "up", "pick track", "prev"},
    {"edTrk>",    "4a#", "dn", "",           "next"},
    {"mute",      "5c",  "m",  "track mode", "toggle mute on edit track"},
@@ -43,41 +43,42 @@ void Song::Cmd (QString s)
 { TStr  c;
   ubyte i;
    StrCp (c, UnQS (s));
+DBGTH("PcSng");                        // first time Song is hit :/
 DBG("Cmd='`s'", c);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (c, CC(UCmd [i].cmd)))  break;
    if (i < 6)     {emit sgUpd (s);   return;}
    if (i < NUCmd)  switch (i) {
-      case  6:  EdTime (0);  break;       // timePause
-      case  7:  EdTime (1);  break;       // timeBar1
-      case  8:  EdTime (2);  break;       // timeBar<
-      case  9:  EdTime (3);  break;       // timeBar>
-      case 10:  EdTime (4);  break;       // timeHop<
-      case 11:  EdTime (5);  break;       // timeHop>
+      case  6:  EdTime (0);  break;         // timePause
+      case  7:  EdTime (1);  break;         // timeBar1
+      case  8:  EdTime (2);  break;         // timeBar<
+      case  9:  EdTime (3);  break;         // timeBar>
+      case 10:  EdTime (4);  break;         // timeHop<
+      case 11:  EdTime (5);  break;         // timeHop>
 
-      case 12:  EdTmpo (0);  break;       // tempoHop
-      case 13:  EdTmpo (1);  break;       // tempo<
-      case 14:  EdTmpo (2);  break;       // tempo>
+      case 12:  EdTmpo (0);  break;         // tempoHop
+      case 13:  EdTmpo (1);  break;         // tempo<
+      case 14:  EdTmpo (2);  break;         // tempo>
 
-      case 15:  EdTmpo (3);  break;       // tran<
-      case 16:  EdTmpo (4);  break;       // tran>
+      case 15:  EdTmpo (3);  break;         // tran<
+      case 16:  EdTmpo (4);  break;         // tran>
 
-      case 17:  EdRec  (0);  break;       // recSave
-      case 18:  EdRec  (1);  break;       // recWipe
+      case 17:  EdRec  (0);  break;         // recSave
+      case 18:  EdRec  (1);  break;         // recWipe
 
-      case 19:  EdLrn  (0);  break;       // learn
-      case 20:  EdLrn  (1);  break;       // hand
-      case 21:  EdLrn  (2);  break;       // color
-      case 22:  EdLrn  (3);  break;       // hearLoop
-      case 23:  EdLrn  (4);  break;       // focus
+      case 19:  EdLrn  (0);  break;         // learn
+      case 20:  EdLrn  (1);  break;         // hand
+      case 21:  EdLrn  (2);  break;         // color
+      case 22:  EdLrn  (3);  break;         // hearLoop
+      case 23:  EdLrn  (4);  break;         // hearRec
 
-      case 24:  EdTrak (0);  break;       // edTrk<
-      case 25:  EdTrak (1);  break;       // edTrk>
+      case 24:  EdTrak (0);  break;         // edTrk<
+      case 25:  EdTrak (1);  break;         // edTrk>
 
-      case 26:  EdLrn  (5);  break;       // mute
-      case 27:  EdLrn  (6);  break;       // prac
+      case 26:  EdLrn  (5);  break;         // mute
+      case 27:  EdLrn  (6);  break;         // prac
 
-      case 28:  NewSnd ((char)0);  break; // snd<
-      case 29:  NewSnd (1);  break;       // snd>
+      case 28:  NewSnd ((char)0);  break;   // snd<
+      case 29:  NewSnd (1);  break;         // snd>
    }
    else if (! StrCm (c, CC("init")))        Init ();
    else if (! StrCm (c, CC("quit")))        Quit ();
@@ -237,7 +238,7 @@ void Song::EdRec (char ofs)
 
 //______________________________________________________________________________
 void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
-// 0=learn  1=hand  2=color  3=hearLoop  4=focus  5=shh  6=prac
+// 0=learn  1=hand  2=color  3=hearLoop  4=hearRec  5=shh  6=prac
 { ubyte e = ChkETrk (), t;
   char  c;
    if      (ofs == 0) {                // learn - toggle _f.lrn
@@ -292,7 +293,18 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
       return;                          // unpoz cuz we might be after timeBar1
    }
-   else if (ofs == 4)  SetLp ('f');    // focus
+   else if (ofs == 4) {                // hearRec
+//    SetLp ('f');    // focus
+      if (! PRAC) {
+         Hey (CC("you need to be in practice mode to hear a loop"));
+         return;
+      }
+      Cmd ("timeBar1");
+      Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
+      _lrn.pLrn = LPRAC;   _lrn.hLrn = false;    // hear rec, not ? tracks
+      if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
+      return;                          // unpoz cuz we might be after timeBar1
+   }
    else if (ofs == 5) {                // flip shh (reset lrn,ht on shh true)
       if ((_f.trk [e].shh = ! _f.trk [e].shh))  {_f.trk [e].lrn = false;
                                                  _f.trk [e].ht  = '\0';}
@@ -307,50 +319,50 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
 //______________________________________________________________________________
 void Song::HType (char *s)             // \0=HT,RH,LH,ez1-ez7,x=flip S
 { ubyte t, e = ChkETrk ();
-  char  c;
-  TStr  st;
+  char  c, ce;
+  TStr  tn;
 DBG("HType `s t=`d", s, e);
    c = *s;
+   StrCp (tn, _f.trk [e].name);
    if ((c == 'L') || (c == 'R')) {
-      StrCp (st, _f.trk [e].name);
-      if      (*st == '\0')       StrCp (st, CC("LH"));
-      else if (! ((st [1] == 'H') && ((st [2] == '\0') ||
-                                      (st [2] == ' '))))
-         {StrCp (& st [3], st);   MemCp (st, CC("LH "), 2);}
-      *st = c;
-      StrCp (_f.trk [e].name, st);
+      if      (*tn == '\0')       StrCp (tn, CC("LH"));
+      else if (! ((tn [1] == 'H') && ((tn [2] == '\0') ||
+                                      (tn [2] == ' '))))
+         {StrCp (& tn [3], tn);   MemCp (tn, CC("LH "), 3);}
+      *tn = c;
+      StrCp (_f.trk [e].name, tn);
    }
    if (c == '\0') {
-      StrCp (st, _f.trk [e].name);
-      if      (! StrCm (& st [1], CC("H" )))  *st = '\0';
-      else if (! StrCm (& st [1], CC("H ")))  StrCp (st, & st [3]);
-      StrCp (_f.trk [e].name, st);
+      if      (! StrCm (& tn [1], CC("H")))            *tn = '\0';
+      else if (! MemCm (& tn [1], CC("H "), 2))  StrCp (tn, & tn [3]);
+      StrCp (_f.trk [e].name, tn);
    }
    if (c == 'e')  c = s [2];           // ez1..7
    if (c == 'x')  c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
    _f.trk [e].ht = c;
    if (TEz (e)) {                      // set one track ez, they all go
       for (e = 0;  e < Up.rTrk;  e++)
-                                  if (TLrn (e) && (! TDrm (e)) && (! TEz (e))) {
-         for (c = '1';  c <= '7';  c++) {
-            for (t = 0;  t < Up.rTrk;  t++)  if (_f.trk [t].ht == c) break;
-            if (t >= Up.rTrk)  break;
+         if (TLrn (e) && (! TDrm (e)) && (! TEz (e))) {
+            StrCp (tn, _f.trk [e].name);
+            ce = (c = (*tn == 'L') ? '3' : '4') - 1;
+            while (c != ce) {
+               for (t = 0;  t < Up.rTrk;  t++)  if (_f.trk [t].ht == c) break;
+               if (t >= Up.rTrk)  break;
+               if (++c == '8')  c = '1';
+            }
+            if (c == ce)  c = '1';
+            _f.trk [e].ht = c;
          }
-         if (c == '8')  c = '7';
-         _f.trk [e].ht = c;
-      }
    }
    else if (TLrn (e))                  // set one nonEZ, all other ez go HT
       for (e = 0;  e < Up.rTrk;  e++)
-         if (TLrn (e) && (! TDrm (e)) && TEz (e)) {
-            _f.trk [e].ht = '\0';
-            StrCp (st, _f.trk [e].name);
-            if ((st [1] == 'T') && ((st [2] == ' ') ||
-                                    (st [2] == '\0')))
-               _f.trk [e].ht = _f.trk [e].name [0];
+         if (TLrn (e) && (! TDrm (e)) &&    TEz (e) ) {
+            StrCp (tn, _f.trk [e].name);
+            _f.trk [e].ht = ((tn [1] == 'H') && ((tn [2] == ' ') ||
+                                                 (tn [2] == '\0')))
+                            ? *tn : '\0';
          }
    ReDo ();
-Dump ();
 }
 
 

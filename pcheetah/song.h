@@ -72,9 +72,9 @@ struct LrnDef {
    bool  hLrn,                         // hear ?ez instead of rec?  set in HopTo
          ez;                           // ez mode
    ubyt4 lpBgn, lpEnd;                 // current loop's bgn,end times
-   bool  POZ,   lpRvw,                 // paused?  review loop?
+   bool  POZ,                          // paused?
          chd;                          // w of cue area
-   ubyte veloSng, veloRec, velo [7];   // velo scale for ? vs rec; n ez tracks
+   ubyte veloSng, veloRec;             // velo scale for ? vs rec
    ubyt2 toRec [2][256];               // buffer vals to rcrd per ctl post poz
    RecDef  rec [2][128];               // notes cur down from EvRcrd
    ubyte    nt    [128];               // track nondrum non? held notes
@@ -115,7 +115,6 @@ private:
    bool  Poz     (bool tf, ubyt4 msx = 0);
    ubyt4 Bar2Tm  (ubyt2 b, ubyte bt = 1);
    ubyt4 Str2Tm  (char *ts);
-   void  SetPDn  (ubyt4 p);
    void  TmHop   (ubyt4 tm);
    ubyte CCValAt (ubyt4 tm, ubyte trk, char *cc);
    ubyt2 TmpoAct (ubyt2 val);
@@ -285,7 +284,7 @@ private:
 // _now is curr time if poz'd, else next time Put happens (usually in future)
 // _pNow to _rNow is timeframe for DrawNowP to update
 //    Put, EvRcrd update _rNow;  _pNow follows after  (tSoon/Late window pDn tm)
-   ubyt4  _now, _pNow, _rNow, _tSoon, _tLate;
+   ubyt4  _now, _pNow, _rNow;
    LrnDef _lrn;
 
    bool            _eOn;               // piano key editin'
@@ -308,7 +307,7 @@ private:
 public slots:
    void Cmd (QString s);               // gui listenin
    void ReSz ()                        // note widget resize/repixmap
-   {  TRC("Song::ReSz");   _pg = _tr = 0;   SetSym ();   Draw ();  }
+   {  TRC("ReSz");   _pg = _tr = 0;   SetSym ();   Draw ();  }
 
    void Put  ();                       // pcheetah's heartbeat
    void MIn  ();                       // top o da recordin' biz

@@ -59,11 +59,11 @@ char *Wipe (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 int main (int argc, char *argv [])
 { TStr c, s;
   File f;
-  Path d;
-   (void)argc;   (void)argv;
+  Path d;  (void)argc;   (void)argv;
+DBGTH("MidiImp");
+TRC("bgn");
    App.Init (CC("pcheetah"), CC("midimp"), CC("midimp"));
    App.Path (DirF, 'd');   StrCp (DirT, DirF);
-TRC("midimp bgn");
 // from ..pianocheetah/midi_import to ..pianocheetah/4_queue
    StrAp (DirF, CC("/midi_import"));
    StrAp (DirT, CC("/4_queue"));
@@ -81,6 +81,6 @@ TRC("midimp bgn");
    f.DoText (s, nullptr, Wipe);
    if (! Did)  d.Kill (DirT);          // kill it if didn't put nothin in
    d.Kill (DirF);   d.Make (DirF);     // kill n remake DirF so left empty
-TRC("midimp end");
+TRC("end");
    return 0;
 }

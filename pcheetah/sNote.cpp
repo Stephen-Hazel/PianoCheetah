@@ -46,7 +46,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
   PagDef *pg = & _pag [pp];
   ColDef  co;
   DownRow *dn;
-TRC("DrawRec all=`b pp=`d", all, pp);
+//TRC("DrawRec all=`b pp=`d", all, pp);
    if (all) {
       for (pMn = pMx = 0, t = Up.rTrk;  t < _f.trk.Ln;  t++) {
          ne = _f.trk [t].ne;
@@ -390,8 +390,8 @@ void Song::DrawSym (SymDef *s, ColDef *co)
       if (Cfg.ntCo == 1)  clr = CRng [(nt->dn == NONE) ? 64 :
                                       (trk->e [nt->dn].valu & 0x7F)];
    }
-   else if (ez)                        // unkeysig'd
-            clr = CScl [n % 12];
+   else if (ez)                        // f to purple so it shows better
+      clr = CScl [(tc = n % 12) == 5 ? 9 : tc];
    else
       switch (Cfg.ntCo) {
          case 2:                       // track
@@ -474,7 +474,7 @@ void Song::DrawPg (ubyt4 pp)
   PagDef *pg = & _pag [0];
   ColDef  co;
   BlkDef *bl;
-TRC("DrawPg `d", pp);
+//TRC("DrawPg `d", pp);
 // load constant-ish stuffs
    trk = & _f.trk [0];   nTrk = Up.rTrk;   tw = 8;   th = Up.txH;
    Up.cnv.RectF (0, 0, Up.w, Up.h, CWHITE);     // cls to white
@@ -535,7 +535,7 @@ TRC("DrawPg `d", pp);
 
       // draw curr keysig;  if in scale, put step color
          w2 = 3;
-         if (Cfg.ntCo == 0)
+         if ((Cfg.ntCo == 0) && (! _lrn.ez))
             for (x2 = x+wb, n2 = oc*12+nt;  n2 <= oc*12+nd;  n2++, x2 += W_NT)
                if (ksig [n2 % 12] != ' ')
                   Up.cnv.RectF (x2 + w2, 5, W_NT-w2*2, W_NT-w2*2-2,
@@ -901,7 +901,7 @@ TRC("DrawPg `d", pp);
          Up.cnv.RectF ((ubyt2)(c * Up.w / 128), Up.h-6, w, 4, CRng [c]);
    }
    DrawRec (true, pp);
-TRC("DrawPg end");
+//TRC("DrawPg end");
 }
 
 
@@ -917,7 +917,7 @@ void Song::DrawNow ()
   ColDef   co;
   NtDef   *np;
   TrkRow  *tk = & _f.trk [0];
-TRC("DrawNow _pg=`d", _pg);
+//TRC("DrawNow _pg=`d", _pg);
    if (! (p = _pg))  return;           // don't know pg at the moment :/
 
    Up.cnv.bgn (Up.pm);   Up.tcnv.bgn (Up.tpm);   // need pm too for DrawRec
@@ -1021,7 +1021,7 @@ TRC("DrawNow _pg=`d", _pg);
    _pNow = n+1;
    Up.tpos.setLeft  (co.x);   Up.tpos.setTop    (yOvr);
    Up.tpos.setWidth (co.w);   Up.tpos.setHeight (H_T);
-TRC("DrawNow end");
+//TRC("DrawNow end");
    Up.cnv.end ();   Up.tcnv.end ();
    emit sgUpd ("nt");
 }
@@ -1037,8 +1037,8 @@ void Song::Draw (char all)
   ColDef  co;
    if (Up.pm == nullptr)  return;
    Up.cnv.bgn (Up.pm);   Up.tcnv.bgn (Up.tpm);
-TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d all=`c",
-TmSt(d1,_rNow), _pag.Ln, _pg, _tr, all);
+//TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d all=`c",
+//TmSt(d1,_rNow), _pag.Ln, _pg, _tr, all);
    if (_pag.Ln == 0) {                 // nothin therez yet - cls
       Up.cnv.RectF  (0, 0, Up.w, Up.h, CWHITE);
       MemSet (& Up.tpos, 0, sizeof (QRect));
@@ -1051,7 +1051,7 @@ TmSt(d1,_rNow), _pag.Ln, _pg, _tr, all);
    if (p >= np)  --p;
    t = ((p+1 < np) && (n >= Bar2Tm (pg [p+1].col [0].blk [0].bar-1))) ? 1:0;
    if (all || (p+1 != _pg) || (t != _tr)) {
-TRC(" new pg,tr: _pg=`d _tr=`d p=`d t=`d", _pg, _tr, p, t);
+//TRC(" new pg,tr: _pg=`d _tr=`d p=`d t=`d", _pg, _tr, p, t);
       if (all || (p+1 != _pg))  {_pg = p+1;   DrawPg (p);}
       if (t) {                         // trans - draw next pg, last bar on top
          MemCp (& co, & pg [p].col [pg [p].nCol-1], sizeof (co));
@@ -1075,5 +1075,5 @@ TRC(" new pg,tr: _pg=`d _tr=`d p=`d t=`d", _pg, _tr, p, t);
    Up.cnv.end ();   Up.tcnv.end ();    // DrawNow sometimes needs em on its own
                                        // and it'll kick nt update
    DrawNow ();
-TRC("Draw end");
+//TRC("Draw end");
 }

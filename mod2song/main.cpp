@@ -386,8 +386,9 @@ int main (int argc, char *argv [])
   Path p;
   FDir d;
   File f;
+DBGTH("Mod2Song");
    App.Init (CC("pcheetah"), CC("mod2song"), CC("MOD2Song"));
-TRC("`s `s", App.app, argv [1]);       // we EXPECT ta be called by midimp
+TRC("arg=`s", argv [1]);               // we EXPECT ta be called by midimp
                                        // so .../4_queue/dir/song/a.mod
 // MODs have loads of weird .exts so can't check
    if (argc < 2)  Die ("need .../song/a.mod");
@@ -398,7 +399,7 @@ TRC("`s `s", App.app, argv [1]);       // we EXPECT ta be called by midimp
    StrCp (SS, CC("MOD-"));                 // MOD- prefix
    FnName (& SS [4], fn);              // toss path leaving just fn
    FnFix (SS, '-');                    // spaces => - etc
-DBG("bank=`s", SS);
+TRC("bank=`s", SS);
 
 // make syn's new bank
    App.Path (To, 'd');   StrAp (To, CC("/device/syn/"));   StrAp (To, SS);
@@ -417,6 +418,6 @@ LF.Put (StrFmt (fn, "`s\n", FN));
    CvtMod ();                          // do eeeet
 
    LF.Shut ();
-TRC("`s end", App.app);
+TRC("end");
    return 0;
 }

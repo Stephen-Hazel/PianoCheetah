@@ -73,7 +73,6 @@ void Song::OpenMIn ()
   ubyt4  n;
   File   f;
   MidiO *mo;
-TRC("OpenMIn");
    _mi.Ln = 0;
    while (Midi.GetPos ('i', i++, iname, t, xs, xs))  if (StrCm (t, CC("OFF"))) {
       if (_mi.Full ())  break;         // got room?
@@ -104,7 +103,6 @@ void Song::ShutMIn ()
   ubyte  e [4];
   TStr   nm, xs;
   MidiO *mo;
-TRC("ShutMIn");
    while (_mi.Ln) {
       n = _mi.Ln - 1;
       StrCp (nm, _mi [n].mi->Name ());
@@ -255,7 +253,7 @@ TRC("  i=`d/`d x=`d/2 `s.`s", i, nD, x, dLst [i][0], dLst [i][1]);
       if (! cOk) {                     // NO drum devs?  just use 1st dev
          if (! MemCm (sndName, CC("Drum/"), 5))  {d = 0;   c = 9;}
          else {                        // no dice - gotta blow...:(
-DBG("  PickDev track `d sound `s - out of midi device/channels :(",
+DBG("PickDev track `d sound `s - out of midi device/channels :(",
 tr+1, sndName);
             return;
          }
@@ -267,7 +265,7 @@ tr+1, sndName);
    _f.trk [tr].chn = c;   _f.trk [tr].snd = SND_NONE;
    if (c != 9)  _f.trk [tr].snd =
                           Up.dvt [Up.dev [_f.trk [tr].dev].dvt].SndID (sndName);
-TRC("  PickDev end: dev=`s.`s.`d snd=`d=`s",
+TRC("PickDev end: dev=`s.`s.`d snd=`d=`s",
 Up.dev [d].mo->Name (), Up.dev [d].mo->Type (), c+1,
 _f.trk [tr].snd, (c==9)?"-":sndName);
 }

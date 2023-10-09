@@ -40,6 +40,7 @@ void DoDir (char *dir)
 int main (int argc, char *argv [])
 { ulong p;
   TStr  fn, to;
+DBGTH("ll");
    if (argc < 3)  return 99;
    App.Init (CC("pcheetah"), CC("ll"), CC("ll"));
    StrCp (Ext, argv [1]);   StrCp (Top, argv [2]);

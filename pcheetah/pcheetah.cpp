@@ -360,7 +360,7 @@ DBG("help vis=`b", _dHlp->isVisible ());
 void PCheetah::Init ()
 { TStr fn;
   File f;
-TRC("PCheetah::Init");
+TRC("Init");
    *Kick = '\0';
    _s    = nullptr;
    _dFL  = nullptr;   _dCfg = nullptr;   _dTDr = nullptr;
@@ -371,7 +371,7 @@ TRC("PCheetah::Init");
    App.Path (fn, 'd');   StrAp (fn, CC("/device/device.txt"));
    if (! f.Size (fn))  return MCfg ();      // ain't no point in goin on
 
-TRC("got device.txt");
+TRC(" got device.txt");
    Midi.Load ();
   ubyte i = 0;
   TStr  nm, ty, ds, dv;
@@ -379,7 +379,7 @@ TRC("got device.txt");
       if (StrCm (ty, CC("OFF")) && (*dv == '?'))
          {Gui.Hey (StrFmt (dv, "Hey! `s: `s (`s)  is off, pal...",
                                nm, ty, ds));   break;}
-TRC("  song init");
+TRC(" song init");
    _s = new Song;                      // git song worker thread goin
 
    CInit ();                           // init all them thar colors
@@ -405,7 +405,7 @@ TRC("  song init");
    emit sgCmd ("init");
 
    setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
-TRC("  tbar init");
+TRC(" tbar init");
   CtlTBar tb (this,                    // top
       "show / hide track editing\n"
          "the grid that picks which tracks to practice, RH/LH, sound, etc"
@@ -502,7 +502,7 @@ TRC("  tbar init");
    connect (tb6.Act (7), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd -");});
 
-TRC("  lyr,tr,nt init");
+TRC(" lyr,tr,nt init");
   CtlText t (ui->lyr);
    _tr.Init (ui->tr,
       "*Lrn\0"
@@ -528,7 +528,7 @@ TRC("  lyr,tr,nt init");
    connect (_nt, & CtlNt::sgMsUp, _s, & Song::MsUp);
    _nt->Init (ui->nt->width (), ui->nt->height ());
 
-TRC("  dlg init");
+TRC(" dlg init");
    _dFL  = new DlgFL  (this);    _dFL->Init ();
    _dCfg = new DlgCfg (this);   _dCfg->Init ();
    _dTDr = new DlgTDr (this);   _dTDr->Init ();
@@ -553,21 +553,25 @@ TRC("  dlg init");
    connect (_dCtl, & QDialog::accepted, this, [this]() {emit sgCmd ("ctl");});
    connect (_dMov, & QDialog::accepted, this, [this]() {emit sgCmd ("mov");});
 
+   if (Sy->Dead () && StrCm (Sn->Desc (), CC("OFF")))
+      Gui.Hey ("Another app owns sound device.\n"
+               "So no Syn till you close that app and restart PianoCheetah :(");
+
 // parse cmdline arg:  try to load song in dir or turn fn into song to do
   bool ld = false;
   TStr a;
   FDir d;
    StrCp (a, Gui.Arg (0));
-TRC("  arg=`s", a);
+TRC(" arg=`s", a);
    if (*a) ld = d.Got (a) ? FL.DoDir (a) : FL.DoFN (a);
    if (ld) LoadGo ();   else Load ();
-TRC("PCheetah::Init end");
+TRC("Init end");
 }
 
 
 void PCheetah::Quit ()
 {
-TRC("PCheetah::Quit");
+TRC("Quit");
    if (_s != nullptr) {
 TRC("  emit quit");
       emit sgCmd (CC("quit"));
@@ -590,21 +594,20 @@ TRC("  thrEnd");
    }
 TRC("  kick=`s", Kick);
    if (*Kick)  App.Spinoff (Kick);
-TRC("PCheetah::Quit end");
+TRC("Quit end");
 }
 
 
 int main (int argc, char *argv [])
-{ QApplication app (argc, argv);
+{  DBGTH ("PcGui");
+  QApplication app (argc, argv);
   PCheetah     win;
 // if (! One.Open ("Ditty_is_HERE", App.parm))
 //    {DBG ("PCheetah already goin");   return 0;}
 // ::SystemParametersInfo (SPI_SETSCREENSAVEACTIVE, 0, 0, 0);   // stop scrsaver
    App.Init (CC("pcheetah"), CC("pcheetah"), CC("PianoCheetah"));
-TRC("midiimp");
    App.Run  (CC("midimp &"));
    Gui.Init (& app, & win);   win.Init ();   RandInit ();
-DBGTH ("PcG");
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
    qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton" );

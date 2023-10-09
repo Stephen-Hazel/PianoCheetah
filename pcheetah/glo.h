@@ -35,12 +35,15 @@ const ubyt4 SND_NONE = 0xFFFFFFFF;     // no sound
 
 
 //______________________________________________________________________________
-// note cache stuph
-struct NtDef   {ubyte t, nt;   ubyt4 p;};   // evTrk, melo/drum nt, evPos
+// track, melo/drum note, ev pos of a notedown
+struct NtDef   {ubyte t, nt;   ubyt4 p;};
 
-struct DownRow {ubyt4 time;  ubyte w, nNt;  NtDef nt [14]; // prac/play defs
-                ubyt4 msec;  ubyt2 tmpo;  char clip;};     // tmpo rec'd at
-                                            // w used by TrkEZ,  any nt missed
+// msec of rec ev down calcs (micro) tmpo btw ev downs and clip sez if way off
+// nt[] has notes to hit (lrn) and velo has ez trk velos
+struct DownRow {ubyt4 time, msec;  ubyt2 tmpo;  char clip;
+                ubyte nNt;  NtDef nt [14];  ubyte velo [7];};
+
+// combined ntDn,ntUp and if there's overlap btw tracks
 struct TrkNt   {ubyt4 dn, up, tm, te;   ubyte nt;   bool ov;};
 
 // drum map cache - use: into drumCon, outa drumExp (Load,Save) n temp in SetBnk

@@ -101,7 +101,7 @@ void Song::DscLoad ()                  // parse junk outa _dsc plus info={...}
    }
    if (DscGet (CC("learn="), s))      Up.lrn   = (ubyte)Str2Int (s);
    Cfg.tran = _f.tran;                 // ...sigh
-TRC("DscLoad  tmpo=`d, tran=`d lrn=`d", _f.tmpo, _f.tran, Up.lrn);
+TRC("DscLoad  tmpo=`d tran=`d lrn=`c", _f.tmpo, _f.tran, Up.lrn);
 }
 
 
@@ -438,7 +438,6 @@ void Song::Load (char *fn)
   File  f;
   TrkEv *e2;
   STable st [TB_MAX];
-TRC("Load fn=`s", fn);
    App.Path (buf, 'd');   StrAp (buf, CC("/4_queue/"));    // git window title
    if (MemCm (fn, buf, StrLn (buf)))  FnName (fnt, fn);
    else                               StrCp  (fnt, & fn [StrLn (buf)]);
@@ -471,7 +470,7 @@ TRC("Load fn=`s", fn);
    DscLoad ();
    _rcrd = HEAR ? false : true;        // just listenin?
 
-TRC("init _f.ev, _f.trk[].e, build _f.ctl[].s");
+TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    _f.maxEv = st [TB_EVT].NRow () + MAX_RCRD;    // couple extra but wtf :)
    _f.ev = new TrkEv [_f.maxEv];   _f.nEv = 0;
    if (! _f.ev)  {TRC("} Load  ev alloc fail");   return;}
@@ -615,11 +614,11 @@ TRC("init _f.ev, _f.trk[].e, build _f.ctl[].s");
       else                   TxtIns (tm,   buf,     & _f.lyr);       // lyr
    }
 
-TRC("map dev/chn/snd");
+TRC(" map dev/chn/snd");
    Up.rTrk = nt;
    for (t = 0; t < nt; t++)  PickDev (t, st [TB_TRK].Get (t, 1),
                                          st [TB_TRK].Get (t, 0));
-TRC("sortin n ins rec trks");
+TRC(" sortin n ins rec trks");
    for (t = 0;  t < nt;  t++)   // sort play events
       Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
    if (TrkIns (nt++, CC("rec drum")) == MAX_TRK)
@@ -629,11 +628,11 @@ TRC("sortin n ins rec trks");
    CCClean ();
    mint = ReEv ();
 
-TRC("lyr");
+TRC(" lyr");
    for (e = 0;  e < _f.lyr.Ln;  e++)  if (StrCh (_f.lyr [e].s, '/'))  break;
    _hLyr = (e >= _f.lyr.Ln) ? 1 : 2;
 
-TRC("soundbank init");
+TRC(" soundbank init");
    for (dt = MAX_TRK, syn = MAX_DEV, t = 0;  t < Up.rTrk;  t++)  if (TDrm (t)) {
       dt = t;                          // syn is it's devtype if found
       if (     Up.dev [_f.trk [t].dev].mo->Syn ())

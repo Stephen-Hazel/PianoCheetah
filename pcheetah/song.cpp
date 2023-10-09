@@ -4,11 +4,8 @@
 
 UpdLst Up;                             // what gui needs from meee
 
-void Song::Init ()
-{
-TRC("Song::Init");                     // init that there stuff we need...
-DBGTH("PcS");
-   _timer = new Timer ();              // boot timer
+void Song::Init ()                     // init that there stuff we needz...
+{  _timer = new Timer ();              // boot timer
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
    connect (_timer, & Timer::TimerMsEv, this,
             [this]()  {if (_lrn.POZ)  Shush (true);});
@@ -18,53 +15,53 @@ DBGTH("PcS");
    OpenMIn ();                         // boot MidiI's
    for (ubyte d = 0;  d < _mi.Ln;  d++)
       QObject::connect (_mi [d].mi, & MidiI::MidiIEv, this, & Song::MIn);
-   Wipe ();                            // init ta empty
-   Put ();
+   Wipe ();
+TRC("Init end");
 }
 
 
 void Song::Quit ()                     // clean up
-{  TRC("Song::Quit");
-   Wipe ();   ShutMIn ();   delete Sy;   delete Sn;   delete _timer;
+{  Wipe ();   ShutMIn ();   delete Sy;   delete Sn;   delete _timer;
    if (_f.ev)  delete [] _f.ev;
    emit sgUpd ("bye");
-   TRC("Song::Quit end");
+TRC("Quit end");
 }
 
 
 void Song::Wipe ()                     // wipe all data and "empty" display
-{  TRC("Song::Wipe");
+{
+TRC("Wipe");
    _f.got = false;   _pg = _tr = 0;
-TRC("a");
+TRC(" a");
    Save (true);
    *_f.fn = '\0';
-TRC("b");
+TRC(" b");
    for (ubyte d = 0;  d < Up.dev.Ln;  d++)  ShutDev (d);
    Up.dev.Ln = 0;                      // should already be 0 after Shuts
    _rcrd = _prac = false;   _onBt = false;
    _pNow = _rNow = _now = 0;
-TRC("c");
+TRC(" c");
    _f.ctl.Ln = _f.trk.Ln = 0;   Up.rTrk = Up.eTrk = 0;
    _f.lyr.Ln = _f.cue.Ln = _f.chd.Ln = _f.bug.Ln = 0;
    _pLyr = _pChd = 0;   _hLyr = 2;
-TRC("d");
+TRC(" d");
    if (_f.ev)  delete [] _f.ev;
    _f.nEv = 0;   _f.ev = new TrkEv [_f.maxEv = MAX_RCRD];
-   if (_nt)  delete [] _nt;   _nt = NULL;
-TRC("e");
-   if (_f.ev == NULL)  Die (CC("couldn't alloc recording events"));
+   if (_nt)  delete [] _nt;   _nt = nullptr;
+TRC(" e");
+   if (_f.ev == nullptr)  Die (CC("couldn't alloc recording events"));
    _cDo.Ln = _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = _f.tpo.Ln = 0;
    *_f.dsc = '\0';
    MemSet (& _lrn, 0, sizeof (_lrn));
    DscInit ();
    _pag.Ln = _col.Ln = _blk.Ln = _sym.Ln = 0;
-TRC("f");
+TRC(" f");
    _timer->SetSig (0);   _timer->Set (0);   Poz (false);   PutTp (120);
    PutTs (4, 4, 0);   _bEnd = 0;   _tEnd = 0;   StrCp (Up.bars, CC("0"));
    Up.song [0] = '\0';
-TRC("g");
+TRC(" g");
    emit sgUpd ("bars");   *Up.hey = '\0';   PutLy ();   ReTrk ();   Draw ();
-   TRC("Song::Wipe end");
+TRC("Wipe end");
 }
 
 
@@ -74,7 +71,11 @@ TRC("hey=`s", msg);
    StrCp (Up.hey, msg);   PutLy ();
 }
 
-void Song::Die (char *msg)  { TStr s;   emit sgUpd (StrFmt (s, "die `s", msg));}
+void Song::Die (char *msg)
+{ TStr s;
+DBG("die=`s", msg);
+   emit sgUpd (StrFmt (s, "die `s", msg));
+}
 
 
 //______________________________________________________________________________
@@ -177,7 +178,6 @@ void Song::PutCC (ubyte t, TrkEv *e)
 if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
               Up.dev [dv].mo->Name (), ch, TmSt (d2, _timer->Get ()));
               DumpEv (e, t, _f.trk [t].p, d1);}
-  sbyt4 x;   MemCp (& x, _f.ctl [c].s, 4);
    if      (! StrCm (_f.ctl [c].s, CC("Tmpo")))
       PutTp (e->valu + (e->val2 << 8));
    else if (! StrCm (_f.ctl [c].s, CC("TSig")))
@@ -199,8 +199,8 @@ void Song::PutNt (ubyte t, TrkEv *e, bool bg)
 // adjust velo if bg trk, learn mode n ntDn
    if (bg && (PRAC || PLAY) && ENTDN (e)) {
       if (_lrn.ez) {
-         for (v = d = i = 0;  i < 7;  i++)  if (_lrn.velo [i])
-            {v += _lrn.velo [i];   d++;}
+         for (v = d = i = 0;  i < 7;  i++)  if (_dn [_pDn].velo [i])
+            {v += _dn [_pDn].velo [i];   d++;}
          if (d)  valu = e->valu = 0x80 |
                                        (v / d + (((v % d) >= (d / 2)) ? 1 : 0));
 TRC("   ezbg valu=128+`d", valu & 0x7F);
@@ -208,18 +208,18 @@ TRC("   ezbg valu=128+`d", valu & 0x7F);
       else {
          if (_lrn.veloRec && _lrn.veloSng) {
             if      (_lrn.veloRec > _lrn.veloSng) {
-               v = (_lrn.veloRec - _lrn.veloSng) * (128 - (valu & 0x7F));
+               v =  (_lrn.veloRec - _lrn.veloSng) * (128 - (valu & 0x7F));
                d = 128 - _lrn.veloSng;
                if ((v % d) < (d/2)) v /= d;   else {v /= d;  v++;}
                v = (valu & 0x7F) + v;
             }
             else if (_lrn.veloRec < _lrn.veloSng) {
-               v = (_lrn.veloSng - _lrn.veloRec) *        (valu & 0x7F);
+               v =  (_lrn.veloSng - _lrn.veloRec) *        (valu & 0x7F);
                d =       _lrn.veloSng;
                if ((v % d) < (d/2)) v /= d;   else {v /= d;  v++;}
                v = (valu & 0x7F) - v;
             }
-            else v = valu & 0x7F;      // do nothin if exactly =
+            else  v = valu & 0x7F;     // do nothin if exactly =
 TRC("   bg valu=`d vRec=`d vSng=`d v=`d",
 valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
             if (v < 1) v = 1;   if (v > 127) v = 127;
@@ -227,13 +227,16 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
          }
       }
    }
+   if ((! bg) && TLrn (t) && (! TDrm (t)) && _lrn.ez && ENTDN (e) &&
+                                                                 (PRAC || PLAY))
+      valu = 0x80 | _dn [_pDn].velo [_f.trk [t].ht - '1'];
    if (t >= Up.rTrk)
         {RecDvCh (t, e, & dv, & ch, & dL, & cL);
          if ((cL != 128) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}
    else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
 
 if (App.trc) {TStr d1,d2;
-StrFmt (d1, "PutNt `s.`d", Up.dev [dv].mo->Name (), ch+1);
+StrFmt (d1, "PutNt `s.`d velo=`d", Up.dev [dv].mo->Name (), ch+1, valu&0x7F);
 DumpEv (e, t, _f.trk [t].p, d1);
 DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));
 }
@@ -264,16 +267,8 @@ TRC(" loopTop tmr=`s now=`s", TmSt(d1,_timer->Get ()), TmSt(d2,_now));
       _rNow = _now;
       if (_f.got && (_now >= tend)) {
 TRC(" end o song");
-         if (! _rcrd)  {Cmd ("song>");   return;}     // kick off next song
-
-         t = (PLAY && (! _lrn.pLrn)) ? true : false;  // do review?
-         Cmd (CC("timeBar1"));         // restart
-         if (t) {
-            _lrn.pLrn = LPLAY;   Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
-            TmpoPik ('r');
-            _lrn.POZ = false;   Poz (false);     // and go!
-            return;
-         }
+         if (_rcrd)  Cmd ("timeBar1");              // restart
+         else       {Cmd ("song>");   return;}      // kick off next song
       }
 
    // get bar.beat str for now n tL8r (default to wakeup on next subbeat)
@@ -301,59 +296,13 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
 TStr s1,s2;
 TRC(" eoLoop a `s lpBgn=`s lpEnd=`s", LrnS (), TmSt(s1,_lrn.lpBgn),
                                                TmSt(s2,_lrn.lpEnd));
-      // TRICKY :/ TimeHop () resets lrn to pLrn
-        bool rv = _lrn.lpRvw && (! _lrn.pLrn);   // kick review?
-         Cmd (CC("timeBar1"));                   // or turn prac back on
-         SetLp ('.');
-         if (rv) {
-            _lrn.pLrn = Up.lrn;   Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
-            TmpoPik ('r');
-            _lrn.POZ = false;   Poz (false);
-         }
-         else
-            RecWipeQ ();               // kill rec evs
+         Cmd (CC("timeBar1"));   SetLp ('.');
 TRC("Put end - eoLoop b `s", LrnS ());
          return;
       }
 
-   // time to bump _pDn?
-      if (PRAC || PLAY)  while ((_pDn+1 < _dn.Ln) &&
-                                (_now >= _dn [_pDn+1].time))  SetPDn (_pDn+1);
-   // plow thru only rec n lrn trks from .p to _now and dump stuff to midiout
-   // no shh,bg tracks till next loop
-TRC(" trk loop: lrn,rec");
-      for (t = 0;  t < _f.trk.Ln;  t++) {
-         lrn = TLrn (t);   if ((! lrn) && (t < Up.rTrk))  continue;
-
-         drm = TDrm (t);   z = false;
-         for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
-              (p < ne) && (e [p].time <= _now);  p++) {
-            if (ECTRL (& e [p]))       // ctrl:  any rec or lrn keep lrn off
-               {if ((! lrn) || _lrn.hLrn)  PutCC (t, & e [p]);}
-            else if (! lrn)            // note-rec: off if ez n melo
-               {if ((! _lrn.ez) || drm)    PutNt (t, & e [p]);}
-            else {                     // note-lrn: put/mark for hear/prac
-               if (_lrn.ez && (! drm)) {
-                  if (ENTDN (& e [p])) {    // skip ntdns or pause (for EvRcrd)
-TStr d3;
-TRC("ez ntdn t=`d p=`d tm=`s late=`s soon=`s",
-t, p, TmSt(d3,e[p].time), TmSt(d1,_tLate), TmSt(d2,_tSoon));
-                     if (_now >= _tLate)  continue;
-                     else {
-                        z = true;   if (_tLate < tL8r)  tL8r = _tLate;
-                        break;
-                     }
-                  }
-                  else                     PutNt (t, & e [p]);
-               }
-               if (_lrn.hLrn)              PutNt (t, & e [p]);
-               else if (! drm)  _lrn.nt [e [p].ctrl] = e [p].valu;
-            }
-         }
-         _f.trk [t].p = p;
-         if ((p < ne) && (! z))
-            {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   _onBt = false;}}
-      }
+   // sync _pDn
+      while ((_pDn+1 < _dn.Ln) && (_now >= _dn [_pDn+1].time))  ++_pDn;
 
    // chek da poz !
       if (PRAC || PLAY) {
@@ -362,7 +311,7 @@ t, p, TmSt(d3,e[p].time), TmSt(d1,_tLate), TmSt(d2,_tSoon));
 
          if (doPoz && (! _lrn.POZ)) {
 TStr t1,t2,t3;
-TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d (in Song::Put)",
+TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d",
 _pDn, TmSt(t1,_dn[_pDn].time), TmSt(t2,_now), TmSt(t3,_timer->Get ()),
 _timer->MS ());
          // for notes, set bit 7 flag for only notetype (dn/up) to rec w/in poz
@@ -378,8 +327,32 @@ TRC("Put end - due to poz");
          }
       }
 
+   // plow thru only rec n lrn trks from .p to _now and dump stuff to midiout
+   // no shh,bg tracks till next loop
+TRC(" trk lrn,rec loop:");
+      for (t = 0;  t < _f.trk.Ln;  t++) {
+         lrn = TLrn (t);   if ((! lrn) && (t < Up.rTrk))  continue;
+                                       // lrn==true for lrn trk, false for rec
+         drm = TDrm (t);   z = false;
+         for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
+              (p < ne) && (e [p].time <= _now);  p++) {
+            if (ECTRL (& e [p]))       // ctrl:  any rec or lrn keep lrn off
+               {if ((! lrn) || _lrn.hLrn)    PutCC (t, & e [p]);}
+            else if (! lrn)            // note-rec: off if ez n melo
+               {if (! (_lrn.ez && (! drm)))  PutNt (t, & e [p]);}
+            else {                     // note-lrn: put/mark for hear/prac
+               if (_lrn.hLrn || (_lrn.ez && (! drm)))
+                                             PutNt (t, & e [p]);
+               else if (! drm)  _lrn.nt [e [p].ctrl] = e [p].valu;
+            }
+         }
+         _f.trk [t].p = p;
+         if ((p < ne) && (! z))
+            {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   _onBt = false;}}
+      }
+
    // plow thru bg tracks from .p to _now and dump stuff to midiout
-TRC(" trk loop: non lrn,rec");
+TRC(" trk non-lrn,rec loop:");
       for (t = 0;  t < Up.rTrk;  t++) {
          if (TLrn (t))  continue;      // already did
 
@@ -412,13 +385,4 @@ TRC(" trk loop: non lrn,rec");
    _timer->SetSig (_now);              // new wakeup
    if (draw)  Draw ();
 TRC("Put end - tL8r=_now=`s", TmSt(d1,_now));
-}
-
-
-//______________________________________________________________________________
-void Song::MIn ()
-{ MidiEv e;
-   for (ubyte d = 0;  d < _mi.Ln;  d++)
-      while (_mi [d].mi->Get (& e))  EvRcrd (d, & e);
-   Put ();
 }
