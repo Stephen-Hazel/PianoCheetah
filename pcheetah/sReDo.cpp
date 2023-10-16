@@ -63,6 +63,108 @@ TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
 
 
 //______________________________________________________________________________
+static int SigCmp (void *p1, void *p2)  // ..._sig sortin (by .time)
+{ ubyt4 t1 = *((ubyt4 *)p1), t2 = *((ubyt4 *)p2);
+   return t1 - t2;
+}
+
+ubyt4 Song::ReEv ()
+// redo _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch given mod'd _f.trk[].e[]
+{ ubyte t, d, c, tc;
+  ubyt4 e, p, mint = 9999*M_WHOLE, maxt = 0, bard, tm;
+  TStr  s;
+  TrkEv *ev;
+TRC("ReEv  rebuild _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch");
+   CtlClean ();
+   _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = _f.tpo.Ln = 0;
+   for (t = 0;  t < Up.rTrk;  t++) {
+      for (d = _f.trk [t].dev, c = _f.trk [t].chn, ev = _f.trk [t].e,
+           e = 0;  e < _f.trk [t].ne;  e++) {
+         if ((tc = ev [e].ctrl) & 0x80) {
+            StrCp (s, _f.ctl [tc & 0x7F].s);
+            if (! StrCm (s, CC("Tmpo")))  if (! _f.tpo.Full ()) {
+               p = _f.tpo.Ins ();
+               _f.tpo [p].time = ev [e].time;
+               _f.tpo [p].val  = ev [e].valu | (ev [e].val2 << 8);
+            }
+            if (! StrCm (s, CC("TSig")))  if (! _f.tSg.Full ()) {
+               p = _f.tSg.Ins ();
+               _f.tSg [p].time = ev [e].time;
+               _f.tSg [p].num  = ev [e].valu;
+               _f.tSg [p].den  = 1 << (ev [e].val2 & 0x0F);
+               _f.tSg [p].sub  = 1 +  (ev [e].val2 >> 4);
+            }
+            if (! StrCm (s, CC("KSig")))  if (! _f.kSg.Full ()) {
+               p = _f.kSg.Ins ();
+               _f.kSg [p].time = ev [e].time;
+               _f.kSg [p].key  = ev [e].valu;
+               _f.kSg [p].flt  = ev [e].val2 & 0x80;
+               _f.kSg [p].min  = ev [e].val2 & 0x01;
+            }
+            for (p = 0;  p < _cch.Ln;  p++)
+               if ((_cch [p].dev == d) && (_cch [p].chn == c) &&
+                                          (_cch [p].ctl == tc))  break;
+            if ((p >= _cch.Ln) && (! _cch.Full ())) {
+               p = _cch.Ins ();
+               _cch [p].dev = d;   _cch [p].chn = c;   _cch [p].ctl = tc;
+            }
+         }
+         else {
+            if (ev [e].time <  mint)   mint = ev [e].time;
+            if (ev [e].time > _tEnd)  _tEnd = ev [e].time + 1;
+         }
+      }                                // mint, _tEnd are time range of NOTEs
+   // calc maxt
+      if (_f.trk [t].ne && (_f.trk [t].e [_f.trk [t].ne-1].time > maxt))
+         maxt =             _f.trk [t].e [_f.trk [t].ne-1].time;
+   }                                   // maxt of ALL evs (last bar to SHOW)
+TRC(" sort tpo,tSig,kSig by time");
+   Sort (_f.tpo.Ptr (), _f.tpo.Ln, _f.tpo.Siz (), SigCmp);
+   Sort (_f.tSg.Ptr (), _f.tSg.Ln, _f.tSg.Siz (), SigCmp);
+   Sort (_f.kSg.Ptr (), _f.kSg.Ln, _f.kSg.Siz (), SigCmp);
+TRC(" tpo.Ln=`d", _f.tpo.Ln);
+   if (! _f.tpo.Ln)                    // every song needs tempo to keep edits
+      for (t = 0;  t < Up.rTrk;  t++)  if (TDrm (t)) {
+TRC("    empty so ins a 120");
+         EvIns (t, 0);
+         _f.trk [t].e [0].time = 0;
+         _f.trk [t].e [0].ctrl = CCUpd (CC("tmpo"), t);
+         _f.trk [t].e [0].valu = 120;
+         _f.trk [t].e [0].val2 = 0;
+         _f.trk [t].e [0].x    = 0;
+         break;
+      }
+// make sure TSig times are on bar boundaries (for safety)
+   tm = 0;   bard = M_WHOLE;
+   for (p = 0;  p < _f.tSg.Ln;  p++) { // trunc to bar dur
+      tm = _f.tSg [p].time = ((_f.tSg [p].time - tm) / bard * bard) + tm;
+      bard = M_WHOLE * _f.tSg [p].num / _f.tSg [p].den;
+   }
+
+// set _f.tSg[].bar,
+   if (_f.tSg.Ln)
+      _f.tSg [0].bar = (ubyt2)(1 + _f.tSg [0].time / M_WHOLE);     // 4/4
+   for (p = 1;  p < _f.tSg.Ln;  p++)  _f.tSg [p].bar =
+      (ubyt2)(_f.tSg [p-1].bar +
+      (_f.tSg [p].time - _f.tSg [p-1].time) /
+                               (M_WHOLE / _f.tSg [p-1].den * _f.tSg [p-1].num));
+// bump maxt w _f.chd,etc;  align maxt up to next bar boundary
+   if (_f.lyr.Ln && ((tm = _f.lyr [_f.lyr.Ln-1].time) > maxt))  maxt = tm;
+   if (_f.chd.Ln && ((tm = _f.chd [_f.chd.Ln-1].time) > maxt))  maxt = tm;
+   if (_f.cue.Ln && ((tm = _f.cue [_f.cue.Ln-1].time) > maxt))  maxt = tm;
+   if (_f.cue.Ln && ((tm = _f.cue [_f.cue.Ln-1].tend) > maxt))  maxt = tm;
+   _bEnd = Tm2Bar (maxt);
+   StrFmt (Up.bars, "`d", _bEnd);   emit sgUpd ("bars");
+
+// now make sure KSig times are on bar boundaries (for safety)
+   for (p = 0;  p < _f.kSg.Ln;  p++)
+      _f.kSg [p].time = Bar2Tm (Tm2Bar (_f.kSg [p].time));
+TRC("ReEv end mint=`d", mint);
+   return mint;
+}
+
+
+//______________________________________________________________________________
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
 { ubyte t, c, d, nn, x, pf, ppf, pnt, nt, nmin, nmax, navg, pmin, pmax, pavg,
@@ -399,14 +501,16 @@ TRC("focus");
       if (PRAC) {
          if (lp [x].nd == 0)
 DBG("SetLp() BUG!  _dn not set so div by 0 :(");
-         x = (lp [x].d * 100) / lp [x].nd;
-         if (x < 25) p = 100;   else if (x < 50) p = 80;   else p = 60;
-         _f.tmpo = FIX1 * p / 100;
-         p = TmpoAt (_timer->Get ());
-TRC(" ok%=`d so _f.tmpo=`d TmpoAct=`d", 100-x, _f.tmpo, p);
+//       x = (lp [x].d * 100) / lp [x].nd;
+//       if (x < 25) p = 100;   else if (x < 50) p = 80;   else p = 60;
+//       _f.tmpo = FIX1 * p / 100;
+//       p = TmpoAt (_timer->Get ());
+//TRC(" ok%=`d so _f.tmpo=`d TmpoAct=`d", 100-x, _f.tmpo, p);
 //       _lrn.lpRvw = (x < 50);
          ShoCtl (CC("tmpo"), true);
-         DscSave ();   PutTp ((ubyt2)p);   ReTrk ();
+//       PutTp ((ubyt2)p);
+         DscSave ();
+         ReTrk ();
       }
    }
 TRC("SetLp end - bgn=`s end=`s", TmSt(ts,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd));
@@ -1008,7 +1112,7 @@ TRC(" redo ez");
 TRC(" ez=`b hand=`c", _lrn.ez, _lrn.hand);
 TRC(" set icos");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
-TRC(" ReEv; SetDn; SetNt; SetLp; TmHop");
+TRC(" ReEv SetDn SetNt SetLp TmHop SetSym Draw ReTrk DscSave :/");
    ReEv ();   SetDn ();   SetNt ();   SetLp ('.');   TmHop (_now);
    _pg = _tr = 0;   SetSym ();   Draw ('a');   ReTrk ();   DscSave ();
 TRC("ReDo end");

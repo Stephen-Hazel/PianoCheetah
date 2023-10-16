@@ -154,8 +154,7 @@ void Song::EdTime (char ofs)           // edit song time
             emit sgUpd ("tbPoz");
             return;
 
-   case 1:  RecWipeQ ();               // might as well :)
-            Poz (false);               // timeBar1  ooUHN MO TAHM!
+   case 1:  Poz (false);               // timeBar1  ooUHN MO TAHM!
             TmHop ((PRAC || (_lrn.pLrn==LPRAC)) ? _lrn.lpBgn : 0);
             if (Up.uPoz)  Poz (true);   else Put ();       // restart schedulin
             return;
@@ -223,16 +222,10 @@ ofs, _f.tmpo, FIX1, tt, tp);
 
 
 //______________________________________________________________________________
-void Song::RecWipeQ ()                 // quicker recWipe eoloop
-{ ubyte t;
-   TmpoPik ('o');                      // original tempo changes;  kill evs
-   for (t = Up.rTrk;  t < _f.trk.Ln;  t++)  EvDel (t, 0, _f.trk [t].ne);
-   ReDo ();
-}
-
 void Song::EdRec (char ofs)
-{  if      (ofs == 0) {Save ();   ReTrk ();}     // recSave
-   else if (ofs == 1) {RecWipeQ ();   ReDo ();}  // recWipe
+{  if (ofs == 0)  {Save ();   ReTrk ();   return;}    // recSave
+   for (ubyte t = Up.rTrk;  t < _f.trk.Ln;  t++)  EvDel (t, 0, _f.trk [t].ne);
+   ReDo ();                                           // recWipe
 }
 
 

@@ -688,7 +688,53 @@ TRC("Load end !");
 }
 
 
-//------------------------------------------------------------------------------
+//______________________________________________________________________________
+void Song::TmpoPik (char o_r)
+// kill off n replace tempo events in 1st drum track
+// should only be used by Save (in the future) to save recording in .song file
+//                                                    NOT the learn .song
+//    on rec,  set to _dn[].tmpo s
+//    on orig, set to tpo[] holding .song file tempos
+{ ubyte t, cc;
+  ubyt4 p;
+  TrkEv *e;
+  MidiEv m;
+// lookup tmpo track
+TRC("TmpoPik `s", (o_r == 'o') ? "orig" : "recd");
+   for (t = 0;  t < _f.trk.Ln;  t++)  if (TDrm (t))  break;
+   if (t >= _f.trk.Ln)  return;        // no tempo track??  nothin ta do
+
+// lookup tmpo cc
+   for (cc = 0;  cc < _f.ctl.Ln;  cc++)
+      if (! StrCm (_f.ctl [cc].s, CC("tmpo")))  {cc |= 0x80;   break;}
+   if (! (cc & 0x80))  return;         // no tempo control??  outa herez
+TRC("   tempo trk=`d cc=x`02x ne=`d", t, cc, _f.trk [t].ne);
+
+// wipe existing
+   for (e = _f.trk [t].e, p = 0;  p < _f.trk [t].ne;)
+      {if (e [p].ctrl == cc)  EvDel (t, p);   else p++;}
+TRC("   new ne=`d", _f.trk [t].ne);
+   m.ctrl = cc;
+   if (o_r == 'o')
+      for (p = 0;  p < _f.tpo.Ln;  p++) {
+         m.time = _f.tpo [p].time;
+         m.valu = (ubyte)(_f.tpo [p].val & 0x00FF);
+         m.val2 = (ubyte)(_f.tpo [p].val >> 8);
+         EvInsT (t, & m);
+      }
+   else
+      for (p = 0;  p < _dn.Ln;  p++)  if (_dn [p].tmpo) {
+TRC("SETTIN tempo .ev from _dn ???");
+         m.time = _dn [p].time;
+         m.valu = (ubyte)(_dn [p].tmpo & 0x00FF);
+         m.val2 = (ubyte)(_dn [p].tmpo >> 8);
+         EvInsT (t, & m);
+      }
+TRC("TmpoPik end");
+}
+
+
+//______________________________________________________________________________
 void Song::Save (bool pracOnly)
 // Wipe sets pracOnly to true for autosave of practice a.song
 // usually false for RecSave() to save in Recording/yyyymmddEtc/a.song

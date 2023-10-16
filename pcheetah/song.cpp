@@ -249,7 +249,7 @@ void Song::Put ()                      // PianoCheetah's heartbeat
 // writes current slice of song (.p .. songtime) to midiouts;  updates screen
 // sets when timer next wakes us up
 { ubyte t, c, dr;
-  bool  lrn, drm, z, doPoz = false, draw = false;
+  bool  lrn, drm, doPoz = false, draw = false;
   ubyt4 tL8r, tL8r2, p, ne, tm, tend;
   TStr  bar, d1, d2;
   TrkEv *e;
@@ -333,21 +333,22 @@ TRC(" trk lrn,rec loop:");
       for (t = 0;  t < _f.trk.Ln;  t++) {
          lrn = TLrn (t);   if ((! lrn) && (t < Up.rTrk))  continue;
                                        // lrn==true for lrn trk, false for rec
-         drm = TDrm (t);   z = false;
+         drm = TDrm (t);
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
-            if (ECTRL (& e [p]))       // ctrl:  any rec or lrn keep lrn off
-               {if ((! lrn) || _lrn.hLrn)    PutCC (t, & e [p]);}
+            if (ECTRL (& e [p]))       // ctrl:  if rec or ez or hLrn
+               {if ((! lrn) || _lrn.ez || _lrn.hLrn)
+                                             PutCC (t, & e [p]);}
             else if (! lrn)            // note-rec: off if ez n melo
                {if (! (_lrn.ez && (! drm)))  PutNt (t, & e [p]);}
-            else {                     // note-lrn: put/mark for hear/prac
+            else {                     // note-lrn: put n mark for hear/prac
                if (_lrn.hLrn || (_lrn.ez && (! drm)))
                                              PutNt (t, & e [p]);
                else if (! drm)  _lrn.nt [e [p].ctrl] = e [p].valu;
             }
          }
          _f.trk [t].p = p;
-         if ((p < ne) && (! z))
+         if (p < ne)
             {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   _onBt = false;}}
       }
 

@@ -148,6 +148,7 @@ private:
    ubyte DrumCon ();                   // outputs _mapD
    void  DrumExp (bool setBnk = true);    // usin _mapD
    void  CCClean ();
+   void  TmpoPik (char o_r);           // stamp cur tmpo w rec'd or orig vals
    void  Load    (char *fn);
    void  Save    (bool prac = false);  // true for prac;  false/omit for rec
 
@@ -192,7 +193,6 @@ private:
    ubyt4 NtDnPrv (ubyt4 tm), NtDnNxt (ubyt4 tm);
    void  ReCtl   ();                   // map all DevTyps w song's _ctl[]s
    void  CtlClean();                   // redo _ctl[] to just used ones sorted
-   ubyt4 ReEv    ();                   // redo _tpo,_tSg,_kSg,_tEnd,etccccc
    ubyte CCUpd   (char *cSt, ubyte t); // get _ctl pos; upd _cch,_ctl,dvt.CCMap
    void  EvDel   (ubyte t, ubyt4 p, ubyt4 ne = 1);
    bool  EvIns   (ubyte t, ubyt4 p, ubyt4 ne = 1);
@@ -211,7 +211,6 @@ private:
    void  DrMap   (char *d);
    void  TrkEd   (char *op);
    ubyte GetSct  (TxtRow *sct);        // pull sections outa _f.cue[] > sct[64]
-   void  TmpoPik (char o_r);           // stamp cur tmpo w orig or rec'd vals
 
 // sEdit.cpp
    void  PreTDr  (bool kick = true);
@@ -234,7 +233,7 @@ private:
 
 // sCmd.cpp
    ubyte ChkETrk ();
-   void  Msg (char *s), LoopInit (), RecWipeQ (),
+   void  Msg (char *s), LoopInit (),
          EdSong (char ofs), EdTrak (char ofs),
          EdTime (char ofs), EdTmpo (char ofs),
          EdRec  (char ofs), EdLrn  (char ofs),
@@ -245,9 +244,10 @@ private:
    bool  TLrn   (ubyte t);
    bool  TEz    (ubyte t);
    bool  TDrm   (ubyte t);
-   void  ReTrk  ();                   // give gui _trk info ta draw
+   void  ReTrk  ();                    // give gui _trk info ta draw
+   ubyt4 ReEv   ();                    // redo _tpo,_tSg,_kSg,_tEnd,etccccc
    void  BarH   (ubyt2 *h, ubyte *sb, ubyt2 b);
-   void  SetDn  (char q = '\0'),      // default to no quantize
+   void  SetDn  (char q = '\0'),       // default to no quantize
          SetLp  (char dir),
          SetNt  (),
          SetSym ();

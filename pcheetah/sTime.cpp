@@ -160,15 +160,13 @@ void Song::TmHop (ubyt4 tm)
   TrkEv *e;
 TRC("TmHop `s",TmSt(str,tm));
    NotesOff ();
-// reset lrn/hLrn
-   if (_lrn.pLrn) {
-      Up.lrn = _lrn.pLrn;   _lrn.pLrn = 0;   emit sgUpd ("tbLrn");
-      TmpoPik ('o');
-   }
+TRC(" a `s hLrn=`b", LrnS (), _lrn.hLrn);
+   if (_lrn.pLrn)                      // reset lrn/hLrn
+      {Up.lrn = _lrn.pLrn;   _lrn.pLrn = 0;   emit sgUpd ("tbLrn");}
    if (! (_lrn.hLrn = (PRAC || PLAY) ? false : true))
       for (t = Up.rTrk;  t < _f.trk.Ln;  t++)  if (_f.trk [t].nn)
                                                   {_lrn.hLrn = false;   break;}
-TRC(" `s hLrn=`b", LrnS (), _lrn.hLrn);
+TRC(" b `s hLrn=`b", LrnS (), _lrn.hLrn);
    for (cc = 0;  cc < _cch.Ln;  cc++) {
       _cch [cc].time = 0;
       _cch [cc].valu = _cch [cc].val2 = _cch [cc].trk = 0;

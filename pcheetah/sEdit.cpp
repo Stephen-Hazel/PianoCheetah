@@ -249,7 +249,7 @@ TRC("setCtl tr=`d p=`d tm=`d ctl=`s val=`s", tr, p, tm, c, s);
    if (tr < 128) {
       EvDel (tr, p);
       if (! StrCm (c, CC("KILL")))
-         {ReEv ();   _prac = true;   Pract ();   ReDo ();   return;}
+         {_prac = true;   Pract ();   ReDo ();   return;}
    }
    else {                              // need SOME track to put it in...
       if ( (! StrCm (c, CC("ksig"))) ||     // these HAVE to go in drum trak
@@ -276,7 +276,7 @@ TRC("set time=`s tr=`d ctrl=`d valu=`d val2=`d",
 TmSt (ts, tm), tr+1, cc, e.valu, e.val2);
    e.time = tm;   e.ctrl = 0x80|cc;
    EvInsT (tr, & e);
-   if (MCC [mc].typ == 'x')  ReEv ();
+   if (MCC [mc].typ == 'x')
    _prac = true;   Pract ();   ReDo ();
 }
 
