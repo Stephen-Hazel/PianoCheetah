@@ -179,7 +179,7 @@ extern QColor CRng [128], CScl [12], CSclD [12], CTnt [4],
 //______________________________________________________________________________
 struct CfgDef {
 // global settings from etc/cfg.txt       (global prefs for all songs)
-   ubyte cmdKey, ntCo;                 // cmdkey, pianonotes color
+   ubyte cmdKey, ntCo, sVol;           // cmdkey, note color, syn vol
    bool  barCl;                        // send bar# to clipboard? (for lyr edit)
    void  Init (), Load (), Save ();    // for global settings (not song)
    sbyte tran;

@@ -13,6 +13,7 @@ void CfgDef::Init ()                   // default the global settings
    cmdKey = MKey (CC("8c"));           // trc from App
    ntCo   = 0;                         // scale
    barCl  = false;
+   sVol   = 7;
 }
 
 void CfgDef::Load ()                   // load global settings
@@ -29,6 +30,7 @@ TRC("CfgDef::Load");
       if (StrSt (s, CC("cmdKey")))  Cfg.cmdKey = (ubyte)Str2Int (v);
       if (StrSt (s, CC("ntCo"  )))  Cfg.ntCo   = (ubyte)Str2Int (v);
       if (StrSt (s, CC("barCl" )))  Cfg.barCl  = (*v == 'y') ? true:false;
+      if (StrSt (s, CC("sVol"  )))  Cfg.sVol   = (ubyte)Str2Int (v);
    }
 }
 
@@ -37,8 +39,8 @@ void CfgDef::Save ()                   // save global settings
   TStr fn;
   File f;
 TRC("CfgDef::Save");
-   StrFmt (buf, "cmdKey=`d\n"  "ntCo=`d\n"  "barCl=`s\n",
-                 cmdKey,        ntCo,        barCl?"y":"n");
+   StrFmt (buf, "cmdKey=`d\n"  "ntCo=`d\n"  "barCl=`s\n"   "sVol=`d\n",
+                 cmdKey,        ntCo,        barCl?"y":"n", sVol);
    App.Path (fn, 'c');   StrAp (fn, CC("/cfg.txt"));
    f.Save (fn, buf, StrLn (buf));
 }
@@ -46,32 +48,33 @@ TRC("CfgDef::Save");
 
 //______________________________________________________________________________
 void DlgCfg::Open ()
-{ TStr s;
+{ TStr ts;
 TRC("DlgCfg::Open");
   CtlSpin tr (ui->tran, -12, 12);
   CtlLine k  (ui->cmdKey);
-  CtlList c  (ui->ntCo, CC("scale\0" "velocity\0" "track\0"));
+  CtlSldr s  (ui->sVol, 0, 100);
   CtlChek b  (ui->barCl), t (ui->trc);
    tr.Set (Cfg.tran);
-   k.Set  (MKey2Str (s, Cfg.cmdKey));
-   c.Set  (Cfg.ntCo);
+   k.Set  (MKey2Str (ts, Cfg.cmdKey));
+   s.Set  (Cfg.sVol);
    b.Set  (Cfg.barCl);   t.Set (App.trc);
    show ();   raise ();   activateWindow ();
 }
 
 void DlgCfg::Shut ()                   // set em n save em
-{ TStr s;
+{ TStr ts;
 TRC("DlgCfg.Shut");
   CtlSpin tr (ui->tran);
-  CtlChek b  (ui->barCl), t (ui->trc);
   CtlLine k  (ui->cmdKey);
-  CtlList c  (ui->ntCo);
+  CtlSldr s  (ui->sVol);
+  CtlChek b  (ui->barCl), t (ui->trc);
    Cfg.tran  = tr.Get ();
-   StrCp (s, k.Get ());   Cfg.cmdKey = MKey (s);
-   if (! Cfg.cmdKey)      Cfg.cmdKey = MKey (CC("8c"));
-   Cfg.ntCo  = c.Get ();
+   StrCp (ts, k.Get ());   Cfg.cmdKey = MKey (ts);
+   if (! Cfg.cmdKey)       Cfg.cmdKey = MKey (CC("8c"));
+   Cfg.sVol  = s.Get ();
    Cfg.barCl = b.Get ();   App.TrcPut (t.Get ());
    Cfg.Save ();                        // in case we die early :/
+   Sy._vol = (real)Cfg.sVol / 100.0;
    done (true);   lower ();   hide ();
 }
 
