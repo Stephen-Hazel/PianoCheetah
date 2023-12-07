@@ -171,7 +171,6 @@ LF.Put (StrFmt (ps, "`s for `s\n", ts, wfn));
 DBG(" can't read wfn=`s", wfn);
       return;                          // can't read .WAV so baaaail
    }
-   StrCp (ts, & ts [18]);
 LF.Put (StrFmt (ps, "   `s\n", ts));
 
 // PROCESSIN DOZE SFZ PARAMS !!

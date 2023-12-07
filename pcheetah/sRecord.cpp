@@ -171,8 +171,9 @@ char Song::DnOK (char nxt)             // \0=current(default) or n[ext]
                        if (ms > mx)  mx = ms;}
    }
 // even if all ok, if some nts not hit together, back to not ok-ish
-   if ((ok == 'y') && (in == 'y') && ((mx-mn) > 100))  ok = 'a';
-TRC("DnOK `c=> `c", nxt?nxt:' ', ok);
+   if ((ok == 'y') && (in == 'y') && ((mx-mn) > 100))
+      ok = _lrn.ez ? 'y' : 'a';        // w ez 2 people could be playin
+TRC("DnOK `c=> `c", nxt?nxt:' ', ok);  // (can't easily sync)
    return ok;                          // y/n/a[gain]
 }
 
@@ -501,6 +502,18 @@ void Song::NtGet (MidiEv *ev)
 TRC("NtGet NtUp val2=$`02x", ev->val2);
       return;
    }
+   if (_lrn.nt1)  {                    // kill rec on 1st ntdn of loop
+      _lrn.nt1 = false;
+      for (ubyte x = Up.rTrk;  x < _f.trk.Ln;  x++)
+         EvDel (x, 0, _f.trk [x].ne);
+      for (ulong x = 0;  x < _dn.Ln;  x++) {
+         _dn [x].msec = 0;
+         _dn [x].tmpo = 0;
+         _dn [x].clip = '\0';
+         MemSet (_dn [x].velo, 0, sizeof (_dn [0].velo));
+      }
+      Draw ('a');
+   }
 
 // NtDn - set _lrn.rec
    _lrn.rec [dr][nt].tm = ev->time + (ev->time ? 0 : 1);
@@ -541,8 +554,8 @@ TRC("NtGet ez hard BOING forward");
                break;
             }
       }
-DBG("NtGet ez lrnTrk=`d `s _pDn=`d velo=`d",
-tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"), _pDn, ev->valu&0x7F);
+//DBG("NtGet ez lrnTrk=`d `s _pDn=`d velo=`d",
+//tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"), _pDn, ev->valu&0x7F);
 
    // store our velo in _dn[].velo[]
       if (tr < (ubyte)0x80)
@@ -633,7 +646,7 @@ void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte t;
   TStr  cSt, cMod, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
-DBG("EvRcrd `s.`d `s `s\n"
+TRC("EvRcrd `s.`d `s `s\n"
 " ms=`d _pNow=`s _rNow=`s _now=`s tmr=`s\n"
 " _pDn=`d dn.time=`s dn+1.time=`s",
 (dev<_mi.Ln)?_mi [dev].mi->Name ():"kbd", ev->chan+1, TmSt(s1,ev->time),
@@ -668,14 +681,14 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
    if (_lrn.POZ) {
       PozBuf (ev, cSt);                // weee buff/echo rec evs
       DrawNow ();
-DBG("EvRcrd: b");
+TRC("EvRcrd: b");
       return;
    }
    if (! _lrn.POZ)  _rNow = ev->time;
    if (PosInZZ (cSt, CC("PBnR\0Vol\0Pan\0"))) {
       CCInit (t, cSt, ev->valu);       // if special bar#1 ctl, upd/ins@tm=0
       DrawNow ();
-DBG("EvRcrd: c");
+TRC("EvRcrd: c");
       return;
    }
    Record (ev);                        // ins ev into rec trk
@@ -683,7 +696,7 @@ DBG("EvRcrd: c");
 
 // stamp song as practiced?
    if (_rcrd && (! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
-DBG("EvRcrd end");
+TRC("EvRcrd end");
 }
 
 

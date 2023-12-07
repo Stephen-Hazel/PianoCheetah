@@ -312,6 +312,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
          y2 = Tm2Y (tUp, & co);
 //DBG("   zPrep y2=`d tUp=`d", y2, tUp);
          for (tt = 0;  tt < ncc;  tt++)  if ((tDn = cc [tt].tm) <= tUp) {
+//TStr d1;
 //DBG("c  z?  tt=`d tm=`s vl=`d", tt, TmSt(d1,tDn), cc [tt].vl);
             if ((cc [tt].ty != 'x') && (cc [tt].vl != cc [tt].df)) {
             // continue ctl val to bot of col/now

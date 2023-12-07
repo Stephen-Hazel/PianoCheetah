@@ -158,15 +158,11 @@ void Song::TmHop (ubyt4 tm)
   char *cs;
   TStr  str;
   TrkEv *e;
-TRC("TmHop `s",TmSt(str,tm));
-   NotesOff ();
-TRC(" a `s hLrn=`b", LrnS (), _lrn.hLrn);
-   if (_lrn.pLrn)                      // reset lrn/hLrn
+TRC("TmHop `s `s",TmSt(str,tm), LrnS ());
+   NotesOff ();   TmpoPik ('l');
+   if (_lrn.pLrn)                      // reset lrn/pLrn
       {Up.lrn = _lrn.pLrn;   _lrn.pLrn = 0;   emit sgUpd ("tbLrn");}
-   if (! (_lrn.hLrn = (PRAC || PLAY) ? false : true))
-      for (t = Up.rTrk;  t < _f.trk.Ln;  t++)  if (_f.trk [t].nn)
-                                                  {_lrn.hLrn = false;   break;}
-TRC(" b `s hLrn=`b", LrnS (), _lrn.hLrn);
+TRC(" b `s", LrnS ());
    for (cc = 0;  cc < _cch.Ln;  cc++) {
       _cch [cc].time = 0;
       _cch [cc].valu = _cch [cc].val2 = _cch [cc].trk = 0;
@@ -188,10 +184,7 @@ TRC(" chase ctl actual valu in _f.trk[].e, set .p");
    for (t = 0;  t < _f.trk.Ln;  t++) {
       d = _f.trk [t].dev;   c = _f.trk [t].chn;
       for (p = 0, ne = _f.trk [t].ne, e = _f.trk [t].e;
-           (p < ne) && (e->time < tm);  p++, e++) {   // not <= (for next Put)
-      // any rec turns off ? trks
-         if ((! _lrn.hLrn) && TLrn (t))  continue;
-
+           (p < ne) && (e->time < tm);  p++, e++)     // not <= (for next Put)
          if (e->ctrl & 0x80) {
             for (cc = 0;  cc < _cch.Ln;  cc++)
                if ((_cch [cc].dev == d) && (_cch [cc].chn == c) &&
@@ -204,7 +197,6 @@ TRC(" chase ctl actual valu in _f.trk[].e, set .p");
 //DBG(" t=`d d=`d c=`d cc=`d p=`d time=`d valu=`d",t,d,c,cc,p,e->time,e->valu);
             }
          }
-      }
       _f.trk [t].p = p;                // chase _f.trk[].p
    }
 TRC(" put each ctl");
@@ -244,4 +236,5 @@ TRC(" timerset2");
 TStr d1,d2,d3;
 TRC("TmHop end: timer=`s timerSig=`s _now=`s",
 TmSt(d1,_timer->Get ()), TmSt(d2,_timer->Sig ()), TmSt(d3,_now));
+   _lrn.nt1 = true;
 }

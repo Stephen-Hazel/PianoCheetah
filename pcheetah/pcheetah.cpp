@@ -340,10 +340,10 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
   ubyte i;
   key   k;
   TStr  s;
-//DBG("keypressEvent raw m=`d k=`d", e->modifiers (), e->key ());
+//DBG("keyPressEvent raw m=`d k=`d", e->modifiers (), e->key ());
    if (! (k = km.Map (e->modifiers (), e->key ())))  return;
    StrCp (s, km.Str (k));
-DBG("keypressEvent `s", s);
+DBG("keyPressEvent `s", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
    if (i < 6)                        Upd (UCmd [i].cmd);
    if (i < NUCmd)             emit sgCmd (UCmd [i].cmd);
@@ -352,7 +352,6 @@ DBG("keypressEvent `s", s);
 DBG("help vis=`b", _dHlp->isVisible ());
       if (_dHlp->isVisible ())  _dHlp->Shut ();
       else                      _dHlp->Open ();
-//    _dHlp->MoveSc ("tr");
    }
 }
 
@@ -425,6 +424,18 @@ TRC(" tbar init");
    connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
    connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
 
+  CtlTBar tb5 (this,                   // eh, fuck those #s :)
+      "hear / play / practice\n"
+         "Click Lrn column of track grid to practice it.\n"
+         "Once you have played the song a few times, you can practice loops."
+         "`view-visible" "`l\0",
+      "tbLrnM");
+  Up.tbbLrn = tb5.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
+                             Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
+                             Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
+   connect (tb5.Act (0), & QAction::triggered,
+            this, [this]() {emit sgCmd ("learn");});
+
   CtlTBar tb3 (this,                 // transport - play/pause/etc
       "restart"            "`:/tbar/time/0" "`1\0"
       "previous loop/page" "`:/tbar/time/1" "`Left\0"
@@ -459,18 +470,6 @@ TRC(" tbar init");
             this, [this]() {emit sgCmd ("tempoHop");});
    connect (tb4.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo>");});
-
-  CtlTBar tb5 (this,
-      "hear / play / practice\n"
-         "In left square of track grid, red dot means 'play(record) this'.\n"
-         "Once you have played the song a few times, you can practice loops."
-         "`view-visible" "`l\0",
-      "tbLrnM");
-  Up.tbbLrn = tb5.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
-                             Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
-                             Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
-   connect (tb5.Act (0), & QAction::triggered,
-            this, [this]() {emit sgCmd ("learn");});
 
   CtlTBar tb6 (this,
       "`split the learn track (3E and below) into new LH track"
@@ -541,6 +540,7 @@ TRC(" dlg init");
    _dFng = new DlgFng (this);   _dFng->Init ();
    _dMov = new DlgMov (this);   _dMov->Init ();
    _dHlp = new DlgHlp (this);   _dHlp->Init ();
+   connect (_dCfg, & DlgCfg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dTDr, & DlgTDr::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dCue, & DlgCue::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dChd, & DlgChd::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
@@ -552,10 +552,6 @@ TRC(" dlg init");
    connect (_dFL,  & QDialog::rejected, this, & PCheetah::Quit);
    connect (_dCtl, & QDialog::accepted, this, [this]() {emit sgCmd ("ctl");});
    connect (_dMov, & QDialog::accepted, this, [this]() {emit sgCmd ("mov");});
-
-   if (Sy->Dead () && StrCm (Sn->Desc (), CC("OFF")))
-      Gui.Hey ("Another app owns sound device.\n"
-               "So no Syn till you close that app and restart PianoCheetah :(");
 
 // parse cmdline arg:  try to load song in dir or turn fn into song to do
   bool ld = false;

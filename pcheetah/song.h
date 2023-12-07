@@ -12,8 +12,8 @@
 #define LHLRN  'b'
 #define LPRAC  'c'
 #define LPLAY  'd'
-#define  HEAR  (Up.lrn == LHEAR)
-#define  HLRN  (Up.lrn == LHLRN)
+#define  HEAR  (Up.lrn == LHEAR)       // hear rec
+#define  HLRN  (Up.lrn == LHLRN)       // hear lrn
 #define  PRAC  (Up.lrn == LPRAC)
 #define  PLAY  (Up.lrn == LPLAY)
 
@@ -69,8 +69,7 @@ struct RecDef  {ubyt4 tm, ms;};        // map o all rec evs
 
 struct LrnDef {
    char  pLrn, hand;                   // prev lrn mode;  hand: \0=none/L/R/B
-   bool  hLrn,                         // hear ?ez instead of rec?  set in HopTo
-         ez;                           // ez mode
+   bool  ez;                           // ez mode
    ubyt4 lpBgn, lpEnd;                 // current loop's bgn,end times
    bool  POZ,                          // paused?
          chd;                          // w of cue area
@@ -79,7 +78,8 @@ struct LrnDef {
    RecDef  rec [2][128];               // notes cur down from EvRcrd
    ubyte    nt    [128];               // track nondrum non? held notes
    ubyte recLH    [128];               // NtGet finds NtDn lh/rh but needs to
-};                                     // remember for NtUp
+   bool  nt1;                          // 1st note after hopto?   remem fer NtUp
+};
 
 
 //______________________________________________________________________________
@@ -148,7 +148,7 @@ private:
    ubyte DrumCon ();                   // outputs _mapD
    void  DrumExp (bool setBnk = true);    // usin _mapD
    void  CCClean ();
-   void  TmpoPik (char o_r);           // stamp cur tmpo w rec'd or orig vals
+   void  TmpoPik (char l_r);           // stamp cur tmpo w lrn or rec'd vals
    void  Load    (char *fn);
    void  Save    (bool prac = false);  // true for prac;  false/omit for rec
 
@@ -203,7 +203,6 @@ private:
    void  Split   ();
    bool  TxtIns  (ubyt4 tm, char *s, Arr<TxtRow,MAX_LYR> *at, char cue = '\0');
    void  TrkSnd  (ubyt4 snew);
-   void  NewSnd  (char ofs);
    void  NewGrp  (char *grp),  NewSnd (char *snd),  NewDev (char *dev);
    void  TrkSplt ();
    void  TrkDel  (ubyte t);
@@ -234,10 +233,9 @@ private:
 // sCmd.cpp
    ubyte ChkETrk ();
    void  Msg (char *s), LoopInit (),
-         EdSong (char ofs), EdTrak (char ofs),
-         EdTime (char ofs), EdTmpo (char ofs),
-         EdRec  (char ofs), EdLrn  (char ofs),
-         HType  (char *s),  Mix    (char *s);
+         EdSong (char ofs), EdTime (char ofs), EdTmpo (char ofs),
+         EdRec  (char ofs), EdLrn  (char ofs), HType  (char *s),
+         Mix    (char *s);
 
 // sReDo.cpp
    bool  TSho   (ubyte t);
@@ -245,7 +243,7 @@ private:
    bool  TEz    (ubyte t);
    bool  TDrm   (ubyte t);
    void  ReTrk  ();                    // give gui _trk info ta draw
-   ubyt4 ReEv   ();                    // redo _tpo,_tSg,_kSg,_tEnd,etccccc
+   ubyt4 ReEv   (bool tpo = false);    // redo _tpo,_tSg,_kSg,_tEnd,etccccc
    void  BarH   (ubyt2 *h, ubyte *sb, ubyt2 b);
    void  SetDn  (char q = '\0'),       // default to no quantize
          SetLp  (char dir),

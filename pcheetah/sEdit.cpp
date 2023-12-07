@@ -471,14 +471,31 @@ void Song::NtHop ()                    // move note time,dur to new key
   ColDef  co;
    MemCp (& co, & pg->col [ac], sizeof (co));
    sy = & co.sym [as];   t = sy->tr;   n = & _f.trk [t].n [sy->nt];
-   e = _f.trk [t].e;
+   e = _f.trk [t].e;                   // n is only ok if NON ez
 
 DBG("NtHop pg=`d co=`d sy=`d x2=`d tr=`d", ap, ac, as, x2, t);
-   nx = Nt2X (co.nMn, & co);
-   if ((x2 < nx) || (x2 >= CtlX (& co)))  return;     // lame dest nt pos
+   nx  = Nt2X (co.nMn, & co);
+   dnt = ((x2 < nx) || (x2 >= CtlX (& co))) ? 0 :
+            co.nMn + (x2 - nx) / W_NT; // note to move it to
+DBG("dnt=`s", MKey2Str (s1, dnt));
+   if (_lrn.ez) {                      // restart eztrack on this note pos
+   // kill any existing .ezpos oct* cues for my oct/track
+      StrFmt (s1, ".ezpos `d", (sy->nt / 12)-1);
+      for (p = 0;  p < _f.cue.Ln;) {   // kill it if ya got it
+         if ( (_f.cue [p].time == sy->tm) &&
+              (! MemCm (_f.cue [p].s, s1, StrLn (s1))) )
+               _f.cue.Del (p);
+         else  p++;
+      }
+   // and if resettin pos, we're done.  else set new pos .ezpos_nt
+      if (dnt)  {StrFmt (s1, ".ezpos `s", MKey2Str (s2, dnt));
+                 TxtIns (sy->tm, s1, & _f.cue, 'c');}
+      ReDo ();
+      return;
+   }
+   if (! dnt)  return;
 
 // quit if overlap
-   dnt = co.nMn + (x2 - nx) / W_NT;    // note to move it to
    if ((p = NtHit (t, n->tm, n->te, dnt, dnt))) {
       StrFmt (s1, "can't move - overlap at note=`s time=`s",
          MKey2Str (s2, dnt), TmSt (s3, e [p-1].time));

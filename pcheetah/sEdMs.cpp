@@ -67,10 +67,19 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
 
       ne = _f.cue.Ln;   Up.pos.p = NONE;   *Up.pos.str = '\0';
       for (p = 0;  (p < ne) && (_f.cue [p].time <  tm1);  p++)  ;
-      if (         (p < ne) && (_f.cue [p].time <= tm2)) {
-         Up.pos.got = 'y';   StrCp (Up.pos.str, _f.cue [Up.pos.p = p].s);
+      for (     ;  (p < ne) && (_f.cue [p].time <= tm2);  p++) {
+         if (! Up.pos.got) {
+            Up.pos.got = 'y';   Up.pos.p = p;
+            StrCp (Up.pos.str, _f.cue [p].s);
+         }
+         else {
+            StrAp (Up.pos.str, CC(" / "));
+            StrAp (Up.pos.str, _f.cue [p].s);
+         }
+      }
+      if (Up.pos.got && *Up.pos.str)
          return (Up.pos.at = 'q');
-      }                                // now look thru all (unsorted) .tends
+   // now look thru all (unsorted) .tends
       for (p = 0;  p < ne;  p++)
          if (_f.cue [p].tend && (_f.cue [p].tend >= tm1) &&
                                 (_f.cue [p].tend <= tm2)) {
@@ -271,7 +280,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          TmSt           (s , tm);    StrAp (s, CC("-"));
          StrAp (s, TmSt (s2, te));   StrAp (s, CC(" "));
          StrAp (s, dr ? MDrm2Str (s2, nt) : MKey2Str (s2, nt));
-         StrAp (s, ev ? StrFmt (s2, "_`d ", ev->valu & 0x007F) : CC("_? "));
+         StrAp (s, ev ? StrFmt (s2, "_`d ", ev->valu & 0x007F) : CC(" "));
          if (! dr)  {StrAp (s, SndName (tr));   StrAp (s, CC(" "));}
          StrAp (s, DevName (tr));
          if (! dr)  StrAp (s, StrFmt (s2, ".`d", _f.trk [tr].chn+1));
@@ -440,13 +449,13 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
       if (! Up.pos.pPoz) Poz (false);
    }
    if (Up.pos.drg == 'd') {            // [d]ur
-      Up.pos.y2 = y;   NtDur ();
+      Up.pos.y2 = y;   if (! _lrn.ez)  NtDur ();
       if (! Up.pos.pPoz) Poz (false);
    }
    if (Up.pos.drg == 'n') {            // [n]oteHop
       Up.pos.x1 = x - Up.pos.xo;   Up.pos.y1 = y - Up.pos.yo;
       if (ABSL (x - Up.pos.xp) > DRAG)  NtHop ();
-      else                              PreFng ();
+      else             if (! _lrn.ez)  PreFng ();
       if (! Up.pos.pPoz) Poz (false);
    }
 //DBG("MsUp end");

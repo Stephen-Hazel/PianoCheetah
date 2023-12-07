@@ -68,7 +68,7 @@ static int SigCmp (void *p1, void *p2)  // ..._sig sortin (by .time)
    return t1 - t2;
 }
 
-ubyt4 Song::ReEv ()
+ubyt4 Song::ReEv (bool tpo)
 // redo _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch given mod'd _f.trk[].e[]
 { ubyte t, d, c, tc;
   ubyt4 e, p, mint = 9999*M_WHOLE, maxt = 0, bard, tm;
@@ -76,13 +76,14 @@ ubyt4 Song::ReEv ()
   TrkEv *ev;
 TRC("ReEv  rebuild _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch");
    CtlClean ();
-   _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = _f.tpo.Ln = 0;
+   _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = 0;
+   if (tpo)  _f.tpo.Ln = 0;
    for (t = 0;  t < Up.rTrk;  t++) {
       for (d = _f.trk [t].dev, c = _f.trk [t].chn, ev = _f.trk [t].e,
            e = 0;  e < _f.trk [t].ne;  e++) {
          if ((tc = ev [e].ctrl) & 0x80) {
             StrCp (s, _f.ctl [tc & 0x7F].s);
-            if (! StrCm (s, CC("Tmpo")))  if (! _f.tpo.Full ()) {
+            if (tpo && (! StrCm (s, CC("Tmpo"))))  if (! _f.tpo.Full ()) {
                p = _f.tpo.Ins ();
                _f.tpo [p].time = ev [e].time;
                _f.tpo [p].val  = ev [e].valu | (ev [e].val2 << 8);
@@ -119,13 +120,16 @@ TRC("ReEv  rebuild _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch");
          maxt =             _f.trk [t].e [_f.trk [t].ne-1].time;
    }                                   // maxt of ALL evs (last bar to SHOW)
 TRC(" sort tpo,tSig,kSig by time");
-   Sort (_f.tpo.Ptr (), _f.tpo.Ln, _f.tpo.Siz (), SigCmp);
+   if (tpo)  Sort (_f.tpo.Ptr (), _f.tpo.Ln, _f.tpo.Siz (), SigCmp);
    Sort (_f.tSg.Ptr (), _f.tSg.Ln, _f.tSg.Siz (), SigCmp);
    Sort (_f.kSg.Ptr (), _f.kSg.Ln, _f.kSg.Siz (), SigCmp);
 TRC(" tpo.Ln=`d", _f.tpo.Ln);
-   if (! _f.tpo.Ln)                    // every song needs tempo to keep edits
+   if (tpo && (! _f.tpo.Ln))           // every song needs tempo to keep edits
       for (t = 0;  t < Up.rTrk;  t++)  if (TDrm (t)) {
 TRC("    empty so ins a 120");
+         _f.tpo.Ins (0);
+         _f.tpo [0].time = 0;
+         _f.tpo [0].val  = 120;
          EvIns (t, 0);
          _f.trk [t].e [0].time = 0;
          _f.trk [t].e [0].ctrl = CCUpd (CC("tmpo"), t);
@@ -169,20 +173,19 @@ void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
 { ubyte t, c, d, nn, x, pf, ppf, pnt, nt, nmin, nmax, navg, pmin, pmax, pavg,
                                        f, bf;
-  ubyt4 p, q, tpos [128], tm, ptm, dp, w, bw, popt;
+  ubyt4 p, q, tpos [128], tm, ptm, dp, w, bw;
   bool  got, qd [MAX_TRK], didq, fst;
   char  ht;
   TrkEv *e;
   ubyt4 ne;
-  TStr  k;
-  struct {ubyte pos;   char dir;} xx [64*1024];  // extra _dn info
+  TStr  k, st;
+  struct {ubyte pos;   char dir, key;} xx [64*1024];  // more _dn info
   struct {ubyte t;   ubyt4 p;} on [2][128];
-   _pDn = _dn.Ln = 0;
 TRC("SetDn qu=`c", qu);
-   _dn.Ln = 0;   MemSet (tpos, 0, sizeof (tpos));
-                 MemSet (qd,   0, sizeof (qd));
-   MemSet (on, 0, sizeof (on));
-   for (didq = false, got = true;  got; ) {
+   _pDn = 0;   _dn.Ln = 0;   didq = false;
+   MemSet (tpos, 0, sizeof (tpos));
+   MemSet (qd,   0, sizeof (qd));
+   for (got = true;  got;) {
       got = false;
    // get tm - min time of a NtDn across all ? trks
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))
@@ -198,18 +201,15 @@ TRC("SetDn qu=`c", qu);
          for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t)) {
             if (qu == 'q') {           // ARE mini quantizing to 64th note
                for (p = tpos [t], e = _f.trk [t].e, ne = _f.trk [t].ne;
-                    (p < ne) && (e [p].time < tm + 12);  p++)   // 12 ticks=64th
-                  if (ENTDN (& e [p])) {
-                     ptm = tm;
-                     if (e [p].time != tm) {
-//if (! didq) {
-//   didq = true;
-//   for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
-//}
-//TStr s1, s2;
-//DBG(" SetDn quant trk=`d p=`d/`d tmFr=`s tmTo=`s",
-//t, p, ne, TmSt(s1,e [p].time), TmSt(s2,tm));
-                        qd [t] = true;   ptm = e [p].time;
+                    (p < ne) && (e [p].time < tm + 7);  p++)    // bouta 128th
+                  if (ENTDN (& e [p])) {         // got a ntdn w time within
+                     ptm = tm;                   // 12 ticks of this dn time?
+                     if (e [p].time != tm) {     // if not matchin we DO qu
+                        didq = true;   qd [t] = true;
+                        ptm = e [p].time;        // signal we're CHANGIN it
+TStr s1, s2, s3;
+DBG(" SetDn quant ntDn trk=`d p=`d/`d nt=`s tmFr=`s tmTo=`s",
+t, p, ne, MKey2Str (s3, e [p].ctrl), TmSt(s1,e [p].time), TmSt(s2,tm));
                      }
                      e [p].time = tm;   d = TDrm (t) ? 1 : 0;
                      on [d][e [p].ctrl].t = t+1;
@@ -218,8 +218,14 @@ TRC("SetDn qu=`c", qu);
                   // need to scoot a possible NtUp earlier cuzu me?
                      if (ptm != tm)  for (q = p;  q;  q--)
                         if ((e [q-1].ctrl == e [p].ctrl) && ENTUP (& e [q-1]) &&
-                            (e [q-1].time >= tm) && (e [q-1].time <= ptm))
-                           {e [q-1].time = tm ? tm-1 : 0;   break;}
+                            (e [q-1].time >= tm) && (e [q-1].time <= ptm)) {
+TStr s1, s2, s3;
+DBG(" SetDn quant ntUp trk=`d p=`d/`d nt=`s tmFr=`s tmTo=`s",
+t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
+                                         TmSt(s2,tm?(tm-1):0));
+                           e [q-1].time = tm ? tm-1 : 0;
+                           break;
+                        }
                   }
             }
             else {                     // NO quantizing
@@ -251,15 +257,15 @@ TRC("SetDn qu=`c", qu);
       }
    }
 
-// ez - max o one per trk per dn
+// ez - max o one note o five per dn time
    if (_lrn.ez)  for (t = 0;  t < Up.rTrk;  t++)  if (TEz (t)) {
       ht = (CHUP (_f.trk [t].name [0]) == 'L') ? 'L' : 'R';
-      k [0] = _f.trk [t].ht;   k [2] = '\0';
+      k [0] = _f.trk [t].ht;   k [2] = '\0';     // setup k w our octave
 //DBG("tr=`d  ...min avg max", t);
-   // first we calc all the directions usin' maxnt in dn n prev dn maxnt
+   // first we calc all the directions usin' nmin/nmax in dn n prev dn
       fst = true;   pnt = 128;
       for (dp = 0;  dp < _dn.Ln;  dp++) {
-         c = 128;   nn = 0;   nmin = nmax = 0;
+         c = 128;   nn = 0;   nmin = nmax = 0;   // get nt min,max for this dn
          for (x = 0;  x < _dn [dp].nNt;  x++)
             if (_dn [dp].nt [x].t == t) {
                nt = _dn [dp].nt [x].nt;
@@ -270,18 +276,16 @@ TRC("SetDn qu=`c", qu);
                }
                nn++;   if (c == 128)  c = x;
             }
-         if (! nn)
-            xx [dp].pos = 99;
+         if (! nn)  xx [dp].pos = 99;  // if no notes in dn for my trk
          else {
-            xx [dp].pos = c;
+            xx [dp].pos = c;           // first nt pos for my trk
             if (fst)                                     xx [dp].dir = '=';
             else if (((ht == 'L') ? nmin : nmax) > pnt)  xx [dp].dir = '>';
             else if (((ht == 'L') ? nmin : nmax) < pnt)  xx [dp].dir = '<';
             else                                         xx [dp].dir = '=';
             fst = false;
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
-            _dn [dp].nt [c].nt = pnt =
-                     ((ht == 'L') ? nmin : nmax);
+            _dn [dp].nt [c].nt = pnt = ((ht == 'L') ? nmin : nmax);
          // toss any notes of my trk beyond c
             for (x = c+1;  x < _dn [dp].nNt;) {
                if (_dn [dp].nt [x].t == t)
@@ -292,11 +296,23 @@ TRC("SetDn qu=`c", qu);
             }
          }
       }
-      pf = 0;   popt = 0;
+
+   // now collect manually picked notes in _f.cue[].s for my track's octave
+      StrFmt (st, ".ezpos `c", k [0]);
+      for (p = 0;  p < _f.cue.Ln;  p++)  if (! MemCm (_f.cue [p].s, st,
+                                                                    StrLn (st)))
+         for (dp = 0;  dp < _dn.Ln;  dp++)  if (_dn [dp].time ==
+                                                              _f.cue [p].time) {
+            xx [dp].dir = '!';
+            xx [dp].key = _f.cue [p].s [8];
+//DBG("xx[`d].key=`c s=`s (.pos=`d)",
+//dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
+         }
+      pf = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {
 
       // check for rolled chord/trill (fast stuff - time diff of < 15 ticks)
-      // find max nt within trill notes and align to pinky=4 for rh/=0 for lh
+      // find max nt within trill notes and align to pinky=4 for rh / 0 for lh
       // then follow <>= back to start of trill, then forward to end of it
         ulong pmax, pend;              // max dn pos, end of trill pos
          tm = _dn [dp].time;           // max is actually min for LH
@@ -314,33 +330,13 @@ TRC("SetDn qu=`c", qu);
             else  break;
          }
          if (c) {
-         // ok we gotta trill but optimize wraps in prev segment first
-//TStr s1;
-//DBG("popt=`d dp=`d `s", popt, dp, TmSt (s1, _dn [popt].time));
-            for (ubyte ofs = 0;  ofs < 5;  ofs++) {
-               f = ofs;   w = 0;
-               for (p = popt;  p < dp;  p++)  if (xx [p].pos != 99) {
-                  if      (xx [p].dir == '<')  {if (f-- == 0)  {w++;   f = 4;}}
-                  else if (xx [p].dir == '>')  {if (f++ == 4)  {w++;   f = 0;}}
-               }
-            // init   else replace a best if it iz
-               if (ofs == 0)    {bf = 0;     bw = w;}
-               else if (w < bw) {bf = ofs;   bw = w;}
-//DBG("   ofs=`d w=`d", ofs, w);
-            }                          // set da best
-            for (f = bf, p = popt;  p <= dp;  p++)  if (xx [p].pos != 99) {
-               if      (xx [p].dir == '<')  {if (f-- == 0)  f = 4;}
-               else if (xx [p].dir == '>')  {if (f++ == 4)  f = 0;}
-               k [1] = 'c' + f;
-               _dn [p].nt [xx [p].pos].nt = MKey (k);
-            }
-           char pdir;
+           char pdir;                  // usin prev dir n goin in reverse
             pf = (ht == 'L') ? 0 : 4;
             k [1] = 'c' + pf;
             _dn [pmax].nt [xx [pmax].pos].nt = MKey (k);
             pdir =         xx [pmax].dir;
             for (p = pmax-1;  c && (p >= dp);    p--)  if (xx [p].pos != 99) {
-               c--;                    // usin prev dir n goin in reverse
+               c--;
                if      (pdir == '>')  {if (pf-- == 0)  pf = 4;}
                else if (pdir == '<')  {if (pf++ == 4)  pf = 0;}
                k [1] = 'c' + pf;
@@ -348,6 +344,7 @@ TRC("SetDn qu=`c", qu);
                pdir =      xx [p].dir;
             }
 
+         // and now regular forward
             pf = (ht == 'L') ? 0 : 4;
             for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos != 99) {
                c--;
@@ -356,33 +353,15 @@ TRC("SetDn qu=`c", qu);
                k [1] = 'c' + pf;
                _dn [p].nt [xx [p].pos].nt = MKey (k);
             }
-            dp = pend;   pf = 0;   popt = dp+1;
+            dp = pend;   pf = 0;
          }
          else {
-            if      (xx [dp].dir == '<')  {if (pf-- == 0)  pf = 4;}
+            if      (xx [dp].dir == '!')  pf = xx [dp].key - 'c';
+            else if (xx [dp].dir == '<')  {if (pf-- == 0)  pf = 4;}
             else if (xx [dp].dir == '>')  {if (pf++ == 4)  pf = 0;}
             k [1] = 'c' + pf;
             _dn [dp].nt [xx [dp].pos].nt = MKey (k);
          }
-      }
-   // one last finger opt  (docs above cuz dup'in code :/ )
-//TStr s1;
-//DBG("popt=`d ln=`d `s", popt, _dn.Ln, TmSt (s1, _dn [popt].time));
-      for (ubyte ofs = 0;  ofs < 5;  ofs++)  if (xx [p].pos != 99) {
-         f = ofs;   w = 0;
-         for (p = popt;  p < _dn.Ln;  p++) {
-            if      (xx [p].dir == '<')  {if (f-- == 0)  {w++;   f = 4;}}
-            else if (xx [p].dir == '>')  {if (f++ == 4)  {w++;   f = 0;}}
-         }
-         if (ofs == 0)     {bf = 0;     bw = w;}
-         else if (w < bw)  {bf = ofs;   bw = w;}
-//DBG("   ofs=`d w=`d", ofs, w);
-      }
-      for (f = bf, p = popt;  p < _dn.Ln;  p++)  if (xx [p].pos != 99) {
-         if      (xx [p].dir == '<')  {if (f-- == 0)  f = 4;}
-         else if (xx [p].dir == '>')  {if (f++ == 4)  f = 0;}
-         k [1] = 'c' + f;
-         _dn [p].nt [xx [p].pos].nt = MKey (k);
       }
    }
 //if (didq)  for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))
@@ -397,22 +376,24 @@ TRC("SetDn qu=`c", qu);
          Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
 //    for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
    }
+//Dump ();
 TRC("SetDn end");
 }
 
 
 //______________________________________________________________________________
 static int LpCmp (void *p1, void *p2)
+// by #times desc,time
 { sbyt4 *i1 = (sbyt4 *)p1, *i2 = (sbyt4 *)p2, d;
-   if ((d = i2 [2] - i1 [2]))  return d;    // by .t desc
-   return   i1 [0] - i2 [0];                //    .tm asc
+// if ((d = i2 [2] - i1 [2]))  return d;    // by .t desc (#times of bugs)
+   return   i1 [0] - i2 [0];                //    .tm asc (time)
 }
 
 void Song::SetLp (char dir)
-// i=init to worst loop;  .=refresh(but no TmHop)  <,>=hop  f=focus
+// i=init  .=refresh(but no TmHop)  <,>=hop  b=hop to most bugs (f=focus oldish)
 // [cues, _dn, _bug=> calcd loops then set curr lpBgn,lpEnd n adj tempo %
 // make sure _dn is SET !
-{ ubyt4 nl, p, x, xt, l, nlB, tMn, tMx, in;
+{ ubyt4 nl, p, x, xt, l, tMn, tMx, in;
   bool  usex = true;                   // set _lrn.lp* to lp[x] ?
   TStr  ts, t2;
   struct {ubyt4 tm, te, d, nd;} lp [4096];
@@ -456,15 +437,17 @@ TRC(" _now's lp.tm=`s nLp=`d   bugs:", xt?TmSt(ts, xt):"outside", nl);
 //DBG("   lp=`d now #times=`d #bugs=`d", l, lp [l].d);
       }
    }
-   Sort (lp, nl, sizeof (lp[0]), LpCmp);    // by #times desc,#bugs desc,time
+   Sort (lp, nl, sizeof (lp[0]), LpCmp);
 
 // nlB = nLp with any bugs
-   nlB = nl;   while (nlB && lp [nlB-1].d == 0)  nlB--;
-TRC(" lp[] final  (nlB=`d)", nlB);
+// nlB = nl;   while (nlB && lp [nlB-1].d == 0)  nlB--;
+TRC(" lp[]:");
 for (l = 0;  l < nl;  l++)  TRC("   `d tb=`s te=`s #times=`d/`d",
 l, TmSt(ts,lp [l].tm), TmSt(t2,lp [l].te), lp [l].d, lp [l].nd);
 
-   if (dir == 'i')  x = 0;             // init loop to worst (top o list)
+   if      (dir == 'i')  x = 0;        // init loop to 1st one
+   else if (dir == 'b')                // set x to loop w most bug times
+        {for (x = l = 0;  l < nl;  l++)  if (lp [l].d > lp [x].d)  x = l;}
    else {                              // refind loop havin xt for lpBgn
       for (x = 0;  x < nl;  x++)  if (lp [x].tm == xt)  break;
       if (x >= nl)                     // outside all lps?  use worst one
@@ -496,23 +479,23 @@ TRC("focus");
       else     {_lrn.lpBgn = 0;           _lrn.lpEnd = _tEnd;}
    }
    if (dir != '.')  TmHop (_lrn.lpBgn);
-   if (x < nlB) {                      // in a loop w bugs?
+// if (x < nlB) {                      // in a loop w bugs?
 //    Hey (StrFmt (ts, "in loop #`d of `d  (bugs=`d)", x+1, nlB, lp [x].d));
-      if (PRAC) {
-         if (lp [x].nd == 0)
-DBG("SetLp() BUG!  _dn not set so div by 0 :(");
+//    if (PRAC) {
+//       if (lp [x].nd == 0)
+//DBG("SetLp() BUG!  _dn not set so div by 0 :(");
 //       x = (lp [x].d * 100) / lp [x].nd;
 //       if (x < 25) p = 100;   else if (x < 50) p = 80;   else p = 60;
 //       _f.tmpo = FIX1 * p / 100;
 //       p = TmpoAt (_timer->Get ());
 //TRC(" ok%=`d so _f.tmpo=`d TmpoAct=`d", 100-x, _f.tmpo, p);
 //       _lrn.lpRvw = (x < 50);
-         ShoCtl (CC("tmpo"), true);
 //       PutTp ((ubyt2)p);
-         DscSave ();
-         ReTrk ();
-      }
-   }
+//       DscSave ();
+//       ReTrk ();
+//    }
+// }
+   ShoCtl (CC("tmpo"), PRAC?true:false);
 TRC("SetLp end - bgn=`s end=`s", TmSt(ts,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd));
 }
 

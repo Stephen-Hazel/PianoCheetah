@@ -68,6 +68,9 @@ public:
    void Init (), Quit (), Open (), Shut ();
    void closeEvent (QCloseEvent *e)  {(void)e;   Shut ();}
 
+signals:
+   void sgCmd (char *s);
+
 private:
    Ui::DlgCfg *ui;
 };

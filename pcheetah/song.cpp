@@ -5,26 +5,32 @@
 UpdLst Up;                             // what gui needs from meee
 
 void Song::Init ()                     // init that there stuff we needz...
-{  _timer = new Timer ();              // boot timer
+{
+DBG("Song::Init bgn");
+   _timer = new Timer ();              // boot timer
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
    connect (_timer, & Timer::TimerMsEv, this,
             [this]()  {if (_lrn.POZ)  Shush (true);});
-   Sn = new SndO;
-   Sy = new Syn;
+   Sy.Init ();
+   if (Sy.Dead () && StrCm (Sy._snDsc, CC("OFF")))
+      Gui.Hey ("Another app owns sound device.\n"
+              "So no Syn till you close that app and restart PianoCheetah :(");
    Midi.Load ();
    OpenMIn ();                         // boot MidiI's
    for (ubyte d = 0;  d < _mi.Ln;  d++)
       QObject::connect (_mi [d].mi, & MidiI::MidiIEv, this, & Song::MIn);
    Wipe ();
-TRC("Init end");
+DBG("Song::Init end");
 }
 
 
 void Song::Quit ()                     // clean up
-{  Wipe ();   ShutMIn ();   delete Sy;   delete Sn;   delete _timer;
+{
+DBG("Song::Quit bgn");
+   Wipe ();   ShutMIn ();   Sy.Quit ();   delete _timer;
    if (_f.ev)  delete [] _f.ev;
    emit sgUpd ("bye");
-TRC("Quit end");
+DBG("Song::Quit end");
 }
 
 
@@ -227,8 +233,7 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
          }
       }
    }
-   if ((! bg) && TLrn (t) && (! TDrm (t)) && _lrn.ez && ENTDN (e) &&
-                                                                 (PRAC || PLAY))
+   if ((! bg) && TLrn (t) && (! TDrm (t)) && _lrn.ez && ENTDN (e) && (! HLRN))
       valu = 0x80 | _dn [_pDn].velo [_f.trk [t].ht - '1'];
    if (t >= Up.rTrk)
         {RecDvCh (t, e, & dv, & ch, & dL, & cL);
@@ -337,12 +342,12 @@ TRC(" trk lrn,rec loop:");
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
             if (ECTRL (& e [p]))       // ctrl:  if rec or ez or hLrn
-               {if ((! lrn) || _lrn.ez || _lrn.hLrn)
+               {if ((! lrn) || _lrn.ez || HLRN)
                                              PutCC (t, & e [p]);}
             else if (! lrn)            // note-rec: off if ez n melo
                {if (! (_lrn.ez && (! drm)))  PutNt (t, & e [p]);}
             else {                     // note-lrn: put n mark for hear/prac
-               if (_lrn.hLrn || (_lrn.ez && (! drm)))
+               if (HLRN || (_lrn.ez && (! drm)))
                                              PutNt (t, & e [p]);
                else if (! drm)  _lrn.nt [e [p].ctrl] = e [p].valu;
             }

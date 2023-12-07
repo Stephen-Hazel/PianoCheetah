@@ -4,8 +4,8 @@
 
 UCmdDef UCmd [] = {
 // done by gui/pcheetah
-   {"exit",      "",    "esc","quit",       "quit PianoCheetah"},
-   {"song<",     "3c",  "z",  "song",       "load prev"},
+   {"exit",      "",    "esc","song",       "quit PianoCheetah"},
+   {"song<",     "3c",  "z",  "",           "load prev"},
    {"song>",     "3d",  "x",  "",           "load next"},
    {"songRand",  "3c#", "a",  "",           "load random"},
    {"songKill",  "",    "!",  "",           "DELETE SONG (be CAREful)"},
@@ -17,24 +17,19 @@ UCmdDef UCmd [] = {
    {"timeBar>",  "3f#", "3",  "",           "next bar"},
    {"timeHop<",  "3g",  "lft","",           "prev page/loop/8th bar"},
    {"timeHop>",  "3g#", "rit","",           "next page/loop/8th bar"},
+   {"timeBug",   "",    "b",  "",           "hop to loop with most bugs"},
    {"tempoHop",  "3a",  "t",  "tempo",      "tempo: 60%=>80%=>100%=>"},
    {"tempo<",    "3a#", "f02","",           "down"},
    {"tempo>",    "3b",  "f03","",           "up"},
    {"tran<",     "4c",  "f11","transpose",  "down"},
    {"tran>",     "4c#", "f12","",           "up"},
-   {"recSave",   "4d",  "s",  "recording",  "save"},
+   {"recSave",   "4d",  "s",  "recording",  "save (broke - sorry)"},
    {"recWipe",   "4d#", "w",  "",           "wipe ALL (CAREFUL)"},
    {"learn",     "4e",  "l",  "song modes", "learn: hear=>play=>practice=>"},
    {"hand",      "4f",  "h",  "",           "hand: practice LH=>RH=>HT=>"},
    {"color",     "4f#", "c",  "",           "color: scale=>velocity=>track=>"},
-   {"hearLoop",  "4g",  "/",  "loop",       "Hear loop notes"},
-   {"hearRec",   "4g#", ".",  "",           "Hear loop recording"},
-   {"edTrk<",    "4a",  "up", "pick track", "prev"},
-   {"edTrk>",    "4a#", "dn", "",           "next"},
-   {"mute",      "5c",  "m",  "track mode", "toggle mute on edit track"},
-   {"prac",      "5d",  "p",  "",           "toggle practice on edit track"},
-   {"snd<",      "5e",  "[",  "pick sound", "prev sound on edit track"},
-   {"snd>",      "5f",  "]",  "",           "next sound on edit track"}
+   {"hearLoop",  "4g",  "/",  "loop",       "Hear loop notes to learn"},
+   {"hearRec",   "4g#", ".",  "",           "Hear your recording"}
 };
 ubyte NUCmd = BITS (UCmd);
 
@@ -54,40 +49,34 @@ DBG("Cmd='`s'", c);
       case  9:  EdTime (3);  break;         // timeBar>
       case 10:  EdTime (4);  break;         // timeHop<
       case 11:  EdTime (5);  break;         // timeHop>
+      case 12:  EdTime (6);  break;         // timeBug
 
-      case 12:  EdTmpo (0);  break;         // tempoHop
-      case 13:  EdTmpo (1);  break;         // tempo<
-      case 14:  EdTmpo (2);  break;         // tempo>
+      case 13:  EdTmpo (0);  break;         // tempoHop
+      case 14:  EdTmpo (1);  break;         // tempo<
+      case 15:  EdTmpo (2);  break;         // tempo>
 
-      case 15:  EdTmpo (3);  break;         // tran<
-      case 16:  EdTmpo (4);  break;         // tran>
+      case 16:  EdTmpo (3);  break;         // tran<
+      case 17:  EdTmpo (4);  break;         // tran>
 
-      case 17:  EdRec  (0);  break;         // recSave
-      case 18:  EdRec  (1);  break;         // recWipe
+      case 18:  EdRec  (0);  break;         // recSave
+      case 19:  EdRec  (1);  break;         // recWipe
 
-      case 19:  EdLrn  (0);  break;         // learn
-      case 20:  EdLrn  (1);  break;         // hand
-      case 21:  EdLrn  (2);  break;         // color
-      case 22:  EdLrn  (3);  break;         // hearLoop
-      case 23:  EdLrn  (4);  break;         // hearRec
-
-      case 24:  EdTrak (0);  break;         // edTrk<
-      case 25:  EdTrak (1);  break;         // edTrk>
-
-      case 26:  EdLrn  (5);  break;         // mute
-      case 27:  EdLrn  (6);  break;         // prac
-
-      case 28:  NewSnd ((char)0);  break;   // snd<
-      case 29:  NewSnd (1);  break;         // snd>
+      case 20:  EdLrn  (0);  break;         // learn
+      case 21:  EdLrn  (1);  break;         // hand
+      case 22:  EdLrn  (2);  break;         // color
+      case 23:  EdLrn  (3);  break;         // hearLoop
+      case 24:  EdLrn  (4);  break;         // hearRec
    }
-   else if (! StrCm (c, CC("init")))        Init ();
-   else if (! StrCm (c, CC("quit")))        Quit ();
-   else if (! StrCm (c, CC("wipe")))        Wipe ();
-   else if (! MemCm (c, CC("load "),   5))  Load (& c [5]);
-   else if (! StrCm (c, CC("dump")))        Dump (true);
-   else if (! MemCm (c, CC("tran "),   5))
+   else if (! StrCm (c, CC("init")))      Init ();
+   else if (! StrCm (c, CC("quit")))      Quit ();
+   else if (! StrCm (c, CC("wipe")))      Wipe ();
+   else if (! MemCm (c, CC("load "), 5))  Load (& c [5]);
+   else if (! StrCm (c, CC("mute")))      EdLrn (5);
+   else if (! StrCm (c, CC("prac")))      EdLrn (6);
+   else if (! StrCm (c, CC("dump")))      Dump (true);
+   else if (! StrCm (c, CC("quan")))      SetDn ('q');
+   else if (! MemCm (c, CC("tran "), 5))
       {NotesOff ();   _f.tran  = (sbyte) Str2Int (& c [5]);       DscSave ();}
-   else if (! MemCm (c, CC("quan x"),  6))  {SetDn ('q');   ReDo ();}
    else if (! StrCm (c, CC("showAll"))) {
      bool  dr, all = true;             // drums or melo, all shown now?
      ubyte t, nt = Up.rTrk;
@@ -128,14 +117,6 @@ DBG("Cmd='`s'", c);
 //______________________________________________________________________________
 ubyte Song::ChkETrk ()                 // be sure _eTrk is still ok
 {  if (Up.eTrk >= Up.rTrk) Up.eTrk = (ubyte)(Up.rTrk-1);   return Up.eTrk;  }
-
-
-void Song::EdTrak (char ofs)
-{ ubyte t = ChkETrk ();
-   if (ofs)  {if (++t == Up.rTrk)  t = 0;}
-   else      {if (! t--)  t = (ubyte)(Up.rTrk-1);}
-   Up.eTrk = t;   ReTrk ();
-}
 
 
 //______________________________________________________________________________
@@ -179,7 +160,17 @@ void Song::EdTime (char ofs)           // edit song time
                break;
             }
                                          bar += 8;  break;
-   }                                   // hop to new bar (minus a teeny bit)
+   case 6:  if (! PRAC) {              // timeBug
+              ubyte t;                 // if no lrn, show message
+               for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))  break;
+               if (t >= Up.rTrk)  {Cmd ("learn");   return;}
+
+               Up.lrn = LPRAC;
+            }
+            SetLp ('b');   Cmd ("recWipe");   Cmd ("timeBar1");
+            return;
+   }
+// hop to new bar (minus a teeny bit)
   ubyt4 t = Bar2Tm (bar);
    if (tofs)  {if (t >= (M_WHOLE/64))  t -= (M_WHOLE/64);   else t = 0;}
    TmHop (t);   if (! Up.uPoz)  Put ();
@@ -275,28 +266,19 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       }
       Hey (s);
    }
-   else if (ofs == 3) {                // hearLoop
-      if (! PRAC) {
-         Hey (CC("you need to be in practice mode to hear a loop"));
-         return;
-      }
-      Cmd ("recWipe");   Cmd ("timeBar1");
-      Up.lrn = LHLRN;   emit sgUpd ("tbLrn");
-      _lrn.pLrn = LPRAC;   _lrn.hLrn = true;     // hear the ? tracks, not rec
+   else if (ofs == 3) {                // hearLoop (lrn tracks, not rec, no bg)
+//    if (! PRAC)
+//       {Hey (CC("you need to be in practice mode to hear a loop"));   return;}
+      t = Up.lrn;   Cmd ("recWipe");   Cmd ("timeBar1");
+      Up.lrn = LHLRN;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
       return;                          // unpoz cuz we might be after timeBar1
    }
-   else if (ofs == 4) {                // hearRec
-//    SetLp ('f');    // focus
-      if (! PRAC) {
-         Hey (CC("you need to be in practice mode to hear a loop"));
-         return;
-      }
-      Cmd ("timeBar1");
-      Up.lrn = LHEAR;   emit sgUpd ("tbLrn");
-      _lrn.pLrn = LPRAC;   _lrn.hLrn = false;    // hear rec, not ? tracks
+   else if (ofs == 4) {                // hearRec (rec tracks and bg)
+      t = Up.lrn;   Cmd ("timeBar1");   TmpoPik ('r');
+      Up.lrn = LHEAR;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
-      return;                          // unpoz cuz we might be after timeBar1
+      return;
    }
    else if (ofs == 5) {                // flip shh (reset lrn,ht on shh true)
       if ((_f.trk [e].shh = ! _f.trk [e].shh))  {_f.trk [e].lrn = false;

@@ -45,18 +45,6 @@ TRC("CfgDef::Save");
 
 
 //______________________________________________________________________________
-/*
-void DlgCfg::ReDo ()
-{ TStr c, v;
-   if      ((ctrl == IDC_REDO) && (evnt == BN_CLICKED))
-      {App.SetTrc (false);   Cfg.Init ();   Init ();}
-   else if ((ctrl == IDC_QUAN) && (evnt == BN_CLICKED))
-      emit sgCmd ("quan x");
-   else if ((ctrl == IDC_TRAN) && (evnt == EN_CHANGE))
-      emit sgCmd (StrFmt (c, "tran `s", _tran.Get (v)));
-}
-*/
-
 void DlgCfg::Open ()
 { TStr s;
 TRC("DlgCfg::Open");
@@ -87,7 +75,9 @@ TRC("DlgCfg.Shut");
    done (true);   lower ();   hide ();
 }
 
-void DlgCfg::Init ()  {Cfg.Load ();   Gui.DlgLoad (this, "DlgCfg");}
+void DlgCfg::Init ()  {Cfg.Load ();   Gui.DlgLoad (this, "DlgCfg");
+   connect (ui->quan, & QPushButton::clicked, this, [this]()
+                                                   {emit sgCmd (CC("quan"));});}
 void DlgCfg::Quit ()  {Cfg.Save ();   Gui.DlgSave (this, "DlgCfg");}
 
 

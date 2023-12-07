@@ -413,7 +413,7 @@ TRC("NewSnd `s r=`d", sn, Up.eTrk);
    TrkSnd (Up.dvt [Up.dev [_f.trk [Up.eTrk].dev].dvt].SndID (g));
 }
 
-
+/*
 void Song::NewSnd (char ofs)
 // step to new snd via devtyp snd list and offset type
 { ubyte t;
@@ -425,6 +425,7 @@ void Song::NewSnd (char ofs)
    if (! Up.dvt [t].SndNew (& snew, _f.trk [Up.eTrk].snd, ofs))
        Hey (CC("can't change sound"));
 }
+*/
 
 
 //______________________________________________________________________________

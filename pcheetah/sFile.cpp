@@ -626,7 +626,7 @@ TRC(" sortin n ins rec trks");
    if (TrkIns (nt++, CC("rec melo")) == MAX_TRK)
       {TRC("} Load  Too many tracks for rec melo");   return;}
    CCClean ();
-   mint = ReEv ();
+   mint = ReEv (true);
 
 TRC(" lyr");
    for (e = 0;  e < _f.lyr.Ln;  e++)  if (StrCh (_f.lyr [e].s, '/'))  break;
@@ -681,6 +681,11 @@ _f.mapD [t].vol, _f.mapD [t].pan, _f.mapD [t].snd);
    DrumExp ();                         // SetBnk happens in DrumExp
    _f.got = true;                      // SetChn happens in TmHop
    ReDo ();
+
+   for (e = 0;  e < _f.cue.Ln;  e++)   // need ta init loops?
+      if (_f.cue [e].tend && (_f.cue [e].s [0] == '['))  break;
+   if (e >= _f.cue.Ln)  LoopInit ();
+
 if (App.trc)  Dump ();
    SetSym ();
    if (_rcrd)  Cmd (CC("timeBar1"));   else TmHop (mint);
@@ -689,18 +694,17 @@ TRC("Load end !");
 
 
 //______________________________________________________________________________
-void Song::TmpoPik (char o_r)
+void Song::TmpoPik (char l_r)
 // kill off n replace tempo events in 1st drum track
-// should only be used by Save (in the future) to save recording in .song file
-//                                                    NOT the learn .song
-//    on rec,  set to _dn[].tmpo s
-//    on orig, set to tpo[] holding .song file tempos
+// to save recording in .song file, hear rec'd tempo in loop review
+//    on rec, set to _dn[].tmpo s
+//    on lrn, set to tpo[] holding .song file tempos
 { ubyte t, cc;
   ubyt4 p;
   TrkEv *e;
   MidiEv m;
 // lookup tmpo track
-TRC("TmpoPik `s", (o_r == 'o') ? "orig" : "recd");
+TRC("TmpoPik `s", (l_r == 'l') ? "lrn" : "rec");
    for (t = 0;  t < _f.trk.Ln;  t++)  if (TDrm (t))  break;
    if (t >= _f.trk.Ln)  return;        // no tempo track??  nothin ta do
 
@@ -715,16 +719,15 @@ TRC("   tempo trk=`d cc=x`02x ne=`d", t, cc, _f.trk [t].ne);
       {if (e [p].ctrl == cc)  EvDel (t, p);   else p++;}
 TRC("   new ne=`d", _f.trk [t].ne);
    m.ctrl = cc;
-   if (o_r == 'o')
+   if (l_r != 'r')                     // lrn from _f.tpo[]
       for (p = 0;  p < _f.tpo.Ln;  p++) {
          m.time = _f.tpo [p].time;
          m.valu = (ubyte)(_f.tpo [p].val & 0x00FF);
          m.val2 = (ubyte)(_f.tpo [p].val >> 8);
          EvInsT (t, & m);
       }
-   else
+   else                                // rec from _dn[].tmpo
       for (p = 0;  p < _dn.Ln;  p++)  if (_dn [p].tmpo) {
-TRC("SETTIN tempo .ev from _dn ???");
          m.time = _dn [p].time;
          m.valu = (ubyte)(_dn [p].tmpo & 0x00FF);
          m.val2 = (ubyte)(_dn [p].tmpo >> 8);

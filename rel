@@ -66,3 +66,5 @@ echo "Depends: $d\n";
    $del = "sudo dpkg -P $app";            echo `$del`;
    $ins = "sudo dpkg -i $deb" . ".deb";   echo `$ins`;
    system          ("rm $deb" . ".deb");
+
+   system ("rm ~/dbg.txt");  // might as well
