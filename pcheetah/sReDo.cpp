@@ -353,7 +353,6 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          }
       }
    }
-DumpDn ();
 // always need dn[pdn].time >= _now so add a dummy at time=0 if none yet
    if ( (! _dn.Ln) || _dn [0].time )
       {_dn.Ins (0);   _dn [0].time = 0;   _dn [0].nNt = 0;}
@@ -364,7 +363,6 @@ DumpDn ();
          Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
 //    for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
    }
-Dump (true);
 TRC("SetDn end");
 }
 
