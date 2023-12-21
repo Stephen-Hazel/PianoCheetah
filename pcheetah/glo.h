@@ -137,15 +137,16 @@ struct PosDef {
 
 //______________________________________________________________________________
 struct UTrkRow {
-   ubyte dvt;   bool drm;   TStr lrn, ez, name, grp, snd, dev, notes, ctrls;
+   ubyte dvt;   bool drm;   TStr lrn, ht, name, grp, snd, dev, notes, ctrls;
 };
 struct UpdLst {
    ubyt2 txH;
    QPixmap *oct, *pnbg, *now, *dot, *fng, *cue, *bug, *lhmx, *fade, *tr;
-   QAction *tbbPoz,     *tbbLrn;
+   QAction *tbaPoz,     *tbaLrn;
    QIcon   *tbiPoz [2], *tbiLrn [3];
+   QToolButton *tbbEZ;
 // stuff Song sets for gui
-   bool  uPoz;                         // user said poz, not just learn mode
+   bool  ez, uPoz;                     // user said poz, not just learn mode
    char  lrn;
    TStr  hey, ttl, song, time, bars, tmpo, tsig, lyr;
    ubyte lyrHiB, lyrHiE;

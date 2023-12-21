@@ -25,11 +25,12 @@ UCmdDef UCmd [] = {
    {"tran>",     "4c#", "f12","",           "up"},
    {"recSave",   "4d",  "s",  "recording",  "save (broke - sorry)"},
    {"recWipe",   "4d#", "w",  "",           "wipe ALL (CAREFUL)"},
-   {"learn",     "4e",  "l",  "song modes", "learn: hear=>play=>practice=>"},
-   {"hand",      "4f",  "h",  "",           "hand: practice LH=>RH=>HT=>"},
-   {"color",     "4f#", "c",  "",           "color: scale=>velocity=>track=>"},
-   {"hearLoop",  "4g",  "/",  "loop",       "Hear loop notes to learn"},
-   {"hearRec",   "4g#", ".",  "",           "Hear your recording"}
+   {"learn",     "4e",  "l",  "learn mode", "learn: hear=>play=>practice=>"},
+   {"ez",        "4f",  "e",  "ez mode",    "(toggle)"},
+   {"hand",      "4f#", "h",  "",           "hand: practice LH=>RH=>HT=>"},
+   {"color",     "4g",  "c",  "",           "color: scale=>velocity=>track=>"},
+   {"hearLoop",  "4g#", "/",  "loop",       "Hear loop notes to learn"},
+   {"hearRec",   "4a",  ".",  "",           "Hear your recording"}
 };
 ubyte NUCmd = BITS (UCmd);
 
@@ -62,17 +63,18 @@ DBG("Cmd='`s'", c);
       case 19:  EdRec  (1);  break;         // recWipe
 
       case 20:  EdLrn  (0);  break;         // learn
-      case 21:  EdLrn  (1);  break;         // hand
-      case 22:  EdLrn  (2);  break;         // color
-      case 23:  EdLrn  (3);  break;         // hearLoop
-      case 24:  EdLrn  (4);  break;         // hearRec
+      case 21:  EdLrn  (1);  break;         // ez
+      case 22:  EdLrn  (2);  break;         // hand
+      case 23:  EdLrn  (3);  break;         // color
+      case 24:  EdLrn  (4);  break;         // hearLoop
+      case 25:  EdLrn  (5);  break;         // hearRec
    }
    else if (! StrCm (c, CC("init")))      Init ();
    else if (! StrCm (c, CC("quit")))      Quit ();
    else if (! StrCm (c, CC("wipe")))      Wipe ();
    else if (! MemCm (c, CC("load "), 5))  Load (& c [5]);
-   else if (! StrCm (c, CC("mute")))      EdLrn (5);
-   else if (! StrCm (c, CC("prac")))      EdLrn (6);
+   else if (! StrCm (c, CC("mute")))      EdLrn (6);
+   else if (! StrCm (c, CC("prac")))      EdLrn (7);
    else if (! StrCm (c, CC("dump")))      Dump (true);
    else if (! StrCm (c, CC("quan")))      SetDn ('q');
    else if (! MemCm (c, CC("tran "), 5))
@@ -241,10 +243,11 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       if (PRAC)  {Cmd ("recWipe");   Cmd ("timeBar1");}
       return;
    }
-   else if (ofs == 1) {                // hand type - ? LH,RH,'';  \0 show,''
+   else if (ofs == 1)  Up.ez = ! Up.ez;     // ez - toggle
+   else if (ofs == 2) {                // hand type - ? LH,RH,'';  \0 show,''
       if (! _lrn.hand)
          {Hey (CC("click tracks' 2nd square into RH,LH"));   return;}
-      if (_lrn.ez)
+      if (Up.ez)
          {Hey (CC("click tracks' 2nd square into RH,LH"));   return;}
       if      (_lrn.hand == 'B')  c = 'r';       // bump to next b=>r=>l=>b...
       else if (_lrn.hand == 'R')  c = 'l';
@@ -255,7 +258,7 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
          if (_f.trk [t].ht == 'R')  _f.trk [t].lrn = ((c == 'r') || (c == 'b'));
       }
    }
-   else if (ofs == 2) {                // color
+   else if (ofs == 3) {                // color
       if (++Cfg.ntCo == 3)  Cfg.ntCo = 0;   Cfg.Save ();
      TStr s;
       StrCp (s, CC("color of "));
@@ -266,25 +269,25 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       }
       Hey (s);
    }
-   else if (ofs == 3) {                // hearLoop (lrn tracks, not rec, no bg)
+   else if (ofs == 4) {                // hearLoop (lrn tracks, not rec, no bg)
 //    if (! PRAC)
 //       {Hey (CC("you need to be in practice mode to hear a loop"));   return;}
       t = Up.lrn;   Cmd ("recWipe");   Cmd ("timeBar1");
-      Up.lrn = LHLRN;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
+      Up.lrn = LHEAR;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
       return;                          // unpoz cuz we might be after timeBar1
    }
-   else if (ofs == 4) {                // hearRec (rec tracks and bg)
+   else if (ofs == 5) {                // hearRec (rec tracks and bg)
       t = Up.lrn;   Cmd ("timeBar1");   TmpoPik ('r');
-      Up.lrn = LHEAR;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
+      Up.lrn = LHREC;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
       return;
    }
-   else if (ofs == 5) {                // flip shh (reset lrn,ht on shh true)
+   else if (ofs == 6) {                // flip shh (reset lrn,ht on shh true)
       if ((_f.trk [e].shh = ! _f.trk [e].shh))  {_f.trk [e].lrn = false;
                                                  _f.trk [e].ht  = '\0';}
    }
-   else if (ofs == 6)                  // flip lrn
+   else if (ofs == 7)                  // flip lrn
       if ((_f.trk [e].lrn = ! _f.trk [e].lrn))  {_f.trk [e].shh = false;
                                                  _f.trk [e].ht  = '\0';}
    ReDo ();
@@ -292,14 +295,14 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
 
 
 //______________________________________________________________________________
-void Song::HType (char *s)             // \0=HT,RH,LH,ez1-ez7,x=flip S
-{ ubyte t, e = ChkETrk ();
-  char  c, ce;
+void Song::HType (char *s)             // \0=HT,RH,LH,x=flip S
+{ ubyte e = ChkETrk ();
+  char  c;
   TStr  tn;
 DBG("HType `s t=`d", s, e);
    c = *s;
    StrCp (tn, _f.trk [e].name);
-   if ((c == 'L') || (c == 'R')) {
+   if     ((c == 'L') || (c == 'R')) {
       if      (*tn == '\0')       StrCp (tn, CC("LH"));
       else if (! ((tn [1] == 'H') && ((tn [2] == '\0') ||
                                       (tn [2] == ' '))))
@@ -307,36 +310,14 @@ DBG("HType `s t=`d", s, e);
       *tn = c;
       StrCp (_f.trk [e].name, tn);
    }
-   if (c == '\0') {
+   else if (c != 'x') {                // '\0'=HT
       if      (! StrCm (& tn [1], CC("H")))            *tn = '\0';
       else if (! MemCm (& tn [1], CC("H "), 2))  StrCp (tn, & tn [3]);
       StrCp (_f.trk [e].name, tn);
    }
-   if (c == 'e')  c = s [2];           // ez1..7
-   if (c == 'x')  c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
+   else                                // flip show
+      c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
    _f.trk [e].ht = c;
-   if (TEz (e)) {                      // set one track ez, they all go
-      for (e = 0;  e < Up.rTrk;  e++)
-         if (TLrn (e) && (! TDrm (e)) && (! TEz (e))) {
-            StrCp (tn, _f.trk [e].name);
-            ce = (c = (*tn == 'L') ? '3' : '4') - 1;
-            while (c != ce) {
-               for (t = 0;  t < Up.rTrk;  t++)  if (_f.trk [t].ht == c) break;
-               if (t >= Up.rTrk)  break;
-               if (++c == '8')  c = '1';
-            }
-            if (c == ce)  c = '1';
-            _f.trk [e].ht = c;
-         }
-   }
-   else if (TLrn (e))                  // set one nonEZ, all other ez go HT
-      for (e = 0;  e < Up.rTrk;  e++)
-         if (TLrn (e) && (! TDrm (e)) &&    TEz (e) ) {
-            StrCp (tn, _f.trk [e].name);
-            _f.trk [e].ht = ((tn [1] == 'H') && ((tn [2] == ' ') ||
-                                                 (tn [2] == '\0')))
-                            ? *tn : '\0';
-         }
    ReDo ();
 }
 

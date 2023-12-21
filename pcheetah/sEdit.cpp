@@ -478,7 +478,7 @@ DBG("NtHop pg=`d co=`d sy=`d x2=`d tr=`d", ap, ac, as, x2, t);
    dnt = ((x2 < nx) || (x2 >= CtlX (& co))) ? 0 :
             co.nMn + (x2 - nx) / W_NT; // note to move it to
 DBG("dnt=`s", MKey2Str (s1, dnt));
-   if (_lrn.ez) {                      // restart eztrack on this note pos
+   if (Up.ez) {                        // restart eztrack on this note pos
    // kill any existing .ezpos oct* cues for my oct/track
       StrFmt (s1, ".ezpos `d", (sy->nt / 12)-1);
       for (p = 0;  p < _f.cue.Ln;) {   // kill it if ya got it

@@ -155,8 +155,7 @@ char TrPop (char *ls, ubyt2 r, ubyte c)
 {  *ls = '\0';
 TRC("TrPop r=`d c=`d", r, c);
    if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm)) {
-      MemCp (ls, CC("-\0L\0R\0ez1\0ez2\0ez3\0ez4\0ez5\0ez6\0ez7\0"),
-                     3*2+7*4+1);
+      MemCp (ls, CC("-\0L\0R\0"), 3*2+1);
       return 'l';
    }
    if (c == 2) {
@@ -283,10 +282,11 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, CC("bars")))  { CtlLabl l (ui->bars);  l.Set (Up.bars);}
    if (! StrCm (u, CC("tmpo")))  { CtlLabl l (ui->tmpo);  l.Set (Up.tmpo);}
    if (! StrCm (u, CC("tsig")))  { CtlLabl l (ui->tSig);  l.Set (Up.tsig);}
-   if (! StrCm (u, CC("tbPoz")))
-      Up.tbbPoz->setIcon (*Up.tbiPoz [Up.uPoz ? 1 : 0]);
-   if (! StrCm (u, CC("tbLrn")))
-      Up.tbbLrn->setIcon (*Up.tbiLrn [PLAY ? 1 : (PRAC ? 2 : 0)]);
+   if (! StrCm (u, CC("tbPoz")))  Up.tbaPoz->setIcon (
+                                     *Up.tbiPoz [Up.uPoz ? 1 : 0]);
+   if (! StrCm (u, CC("tbLrn")))  Up.tbaLrn->setIcon (
+                                     *Up.tbiLrn [PLAY ? 1 : (PRAC ? 2 : 0)]);
+   if (! StrCm (u, CC("tbEZ")))   Up.tbbEZ->setChecked (Up.ez);
    if (! StrCm (u, CC("lyr"))) {
      CtlText t (ui->lyr);
      QColor  fg = t.Fg (), hi = t.Hi ();
@@ -308,7 +308,7 @@ void PCheetah::Upd (QString upd)
      char *rp [32];
       _tr.Open ();   rp [8] = nullptr;
       for (ubyte i = 0, tc = 0;  i < Up.rTrk;  i++) {
-         rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ez;
+         rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ht;
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;
@@ -415,7 +415,7 @@ TRC(" tbar init");
    connect (tb.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
    connect (tb.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
 
-  CtlTBar tb2 (this,                 // list/prev/next song
+  CtlTBar tb2 (this,                   // list/prev/next song
       "pick from song list" "`:/tbar/song/0" "`\0"
       "`previous song"      "`:/tbar/song/1" "`z\0"
       "`next song"          "`:/tbar/song/2" "`x\0",
@@ -428,15 +428,20 @@ TRC(" tbar init");
       "hear / play / practice\n"
          "Click Lrn column of track grid to practice it.\n"
          "Once you have played the song a few times, you can practice loops."
-         "`view-visible" "`l\0",
+                         "`view-visible" "`l\0"
+      "toggle easy mode" "`*ez"          "`e\0",
       "tbLrnM");
-  Up.tbbLrn = tb5.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
-                             Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
-                             Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
+   Up.tbaLrn = tb5.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
+                              Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
+                              Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
+   Up.tbbEZ  = tb5.Btn (1);
+   Up.tbbEZ->setCheckable (true);
    connect (tb5.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("learn");});
+   connect (tb5.Act (1), & QAction::triggered,
+            this, [this]() {emit sgCmd ("ez");});
 
-  CtlTBar tb3 (this,                 // transport - play/pause/etc
+  CtlTBar tb3 (this,                   // transport - play/pause/etc
       "restart"            "`:/tbar/time/0" "`1\0"
       "previous loop/page" "`:/tbar/time/1" "`Left\0"
       "previous bar"       "`:/tbar/time/2" "`2\0"
@@ -444,7 +449,7 @@ TRC(" tbar init");
       "next bar"           "`:/tbar/time/4" "`3\0"
       "next loop/page"     "`:/tbar/time/5" "`Right\0",
       "tbTime");
-   Up.tbbPoz = tb3.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
+   Up.tbaPoz = tb3.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
                               Up.tbiPoz [1] = new QIcon (":/tbar/time/6");
    connect (tb3.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar1");});
@@ -507,7 +512,7 @@ TRC(" lyr,tr,nt init");
       "*Lrn\0"
      "*_Hand\0"
       "_Track\0"
-      "_SoundDir\0"
+      "_SnGrp\0"
       "_Sound\0"
       "_Dev.Chan\0"
       "Notes\0"

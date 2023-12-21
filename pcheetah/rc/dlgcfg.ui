@@ -27,7 +27,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="lCmdKey">
      <property name="text">
-      <string>cmd key</string>
+      <string>command key</string>
      </property>
     </widget>
    </item>
@@ -37,14 +37,14 @@
    <item row="4" column="0">
     <widget class="QCheckBox" name="barCl">
      <property name="text">
-      <string>barClip</string>
+      <string>bar=&gt;clipboard</string>
      </property>
     </widget>
    </item>
    <item row="5" column="0">
     <widget class="QCheckBox" name="trc">
      <property name="text">
-      <string>trace</string>
+      <string>trace in dbg.txt</string>
      </property>
     </widget>
    </item>

@@ -966,8 +966,7 @@ DBG("dump#4"); Dump(false);
 **       St [s].prog & 0x0FFFF, St [s].trak+1, Tr [St [s].trak].name,
 **       St [s].nT, St [s].nC, St [s].nN));
 */
-   Fs.Put (CC("learn=0\n"                 // Hear
-              "Track:\n"));
+   Fs.Put (CC("Track:\n"));
    for (s = 0;  s < St.Ln;  s++) {
       t = St [s].trak;
       if      (St [s].hand == 1) StrCp (ts, CC(".?RH "));

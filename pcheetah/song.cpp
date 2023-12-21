@@ -204,7 +204,7 @@ void Song::PutNt (ubyte t, TrkEv *e, bool bg)
    if (! TDrm (t))  ctrl += _f.tran;   // got some live transposin?
 // adjust velo if bg trk, learn mode n ntDn
    if (bg && (PRAC || PLAY) && ENTDN (e)) {
-      if (_lrn.ez) {
+      if (Up.ez) {
          for (v = d = i = 0;  i < 7;  i++)  if (_dn [_pDn].velo [i])
             {v += _dn [_pDn].velo [i];   d++;}
          if (d)  valu = e->valu = 0x80 |
@@ -233,7 +233,7 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
          }
       }
    }
-   if ((! bg) && TLrn (t) && (! TDrm (t)) && _lrn.ez && ENTDN (e) && (! HLRN))
+   if ((! bg) && TLrn (t) && (! TDrm (t)) && Up.ez && ENTDN (e) && (! HEAR))
       valu = 0x80 | _dn [_pDn].velo [_f.trk [t].ht - '1'];
    if (t >= Up.rTrk)
         {RecDvCh (t, e, & dv, & ch, & dL, & cL);
@@ -341,13 +341,13 @@ TRC(" trk lrn,rec loop:");
          drm = TDrm (t);
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
-            if (ECTRL (& e [p]))       // ctrl:  if rec or ez or hLrn
-               {if ((! lrn) || _lrn.ez || HLRN)
+            if (ECTRL (& e [p]))       // ctrl:  if rec or ez or hear
+               {if ((! lrn) || Up.ez || HEAR)
                                              PutCC (t, & e [p]);}
             else if (! lrn)            // note-rec: off if ez n melo
-               {if (! (_lrn.ez && (! drm)))  PutNt (t, & e [p]);}
+               {if (! (Up.ez && (! drm)))  PutNt (t, & e [p]);}
             else {                     // note-lrn: put n mark for hear/prac
-               if (HLRN || (_lrn.ez && (! drm)))
+               if (HEAR || (Up.ez && (! drm)))
                                              PutNt (t, & e [p]);
                else if (! drm)  _lrn.nt [e [p].ctrl] = e [p].valu;
             }
@@ -359,6 +359,7 @@ TRC(" trk lrn,rec loop:");
 
    // plow thru bg tracks from .p to _now and dump stuff to midiout
 TRC(" trk non-lrn,rec loop:");
+     bool hLrnX = HEAR && (_lrn.pLrn == LPRAC);
       for (t = 0;  t < Up.rTrk;  t++) {
          if (TLrn (t))  continue;      // already did
 
@@ -366,8 +367,8 @@ TRC(" trk non-lrn,rec loop:");
               (p < ne) && (e [p].time <= _now);  p++) {
          // ctrls ALWAYS go out
             if      (ECTRL (& e [p]))  PutCC (t, & e [p]);
-         // else gotta note - only goes if nonShh and nonHearLrn
-            else if ((! _f.trk [t].shh) && (! HLRN))
+         // else gotta note - only goes if nonShh and nonPrac
+            else if ((! _f.trk [t].shh) && (! hLrnX))
                                        PutNt (t, & e [p], true);
          }
          _f.trk [t].p = p;

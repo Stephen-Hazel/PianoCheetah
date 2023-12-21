@@ -415,8 +415,8 @@ void Put ()
    ly.Load (lFN);
 
    if (! f.Open (SFN, "w"))  {DBG("couldn't write .song", SFN);   exit (99);}
-   for (i = t = 0;  t < NTrk;  t++)  if (TNm [t][0] == '?')  {i = 1;   break;}
-   f.Put (i ? CC("Learn=3\n") : CC("Learn=0\n"));    // play : hearall
+   for (t = 0;  t < NTrk;  t++)  if (TNm [t][0] == '?')
+      {f.Put (CC("Learn=c\n"));   break;}   // play
    f.Put (    CC("Track:\n"));
    for (t = 0;  t < NTrk;  t++) {
       f.Put (StrFmt (s, ".  `s  .`s  `s\n",

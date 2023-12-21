@@ -3,23 +3,14 @@
 #include "song.h"
 
 
-// TDrm says whether drum or melodic
-// TLrn says if ?
-// TEz says if ez mode is on, melodic, and ? track
-//    ez can only be on for all melodic or off for everything hard mode
-//       ? drums are always hard mode
-// TSho says if track is drawn in notation
 bool Song::TDrm (ubyte t)  {return (_f.trk [t].chn == 9)  ? true : false;}
-bool Song::TLrn (ubyte t)  {return   _f.trk [t].lrn;}
-bool Song::TEz  (ubyte t)  {return ((_f.trk [t].ht>='1') &&
-                                    (_f.trk [t].ht<='7')) ? true : false;}
+bool Song::TLrn (ubyte t)  {return  _f.trk [t].lrn;}
 bool Song::TSho (ubyte t)  {return (TLrn (t) || (_f.trk [t].ht == 'S'))
                                                           ? true : false;}
 
 void Song::ReTrk ()
 // give gui what it needs in Up.trk
 { ubyte r;
-  char  c;
   TStr  s, g;
   char *sl;
    Up.trk.Ln = 0;
@@ -29,9 +20,8 @@ void Song::ReTrk ()
       Up.trk [r].drm = TDrm (r);
       StrCp (Up.trk [r].lrn, _f.trk [r].shh ? CC("mute")
                           : (_f.trk [r].lrn ? CC("lrn") : CC("")));
-      c = *s = _f.trk [r].ht;   s [1] = '\0';
-      if ((c >= '1') && (c <= '7'))  {StrCp (s, CC("*ez9"));   s [3] = c;}
-      StrCp (Up.trk [r].ez, s);
+      *s = _f.trk [r].ht;   s [1] = '\0';
+      StrCp (Up.trk [r].ht, s);
       StrCp (Up.trk [r].name, _f.trk [r].name);
       StrCp (s, SndName (r));
       *g = '\0';
@@ -171,9 +161,8 @@ TRC("ReEv end mint=`d", mint);
 //______________________________________________________________________________
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
-{ ubyte t, c, d, nn, x, pf, ppf, pnt, nt, nmin, nmax, navg, pmin, pmax, pavg,
-                                       f, bf;
-  ubyt4 p, q, tpos [128], tm, ptm, dp, w, bw;
+{ ubyte t, c, d, nn, x, pf, pnt, nt, nmin, nmax, f;
+  ubyt4 p, q, tpos [128], tm, ptm, dp, w;
   bool  got, qd [MAX_TRK], didq, fst;
   char  ht;
   TrkEv *e;
@@ -258,10 +247,10 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
    }
 
 // ez - max o one note o five per dn time
-   if (_lrn.ez)  for (t = 0;  t < Up.rTrk;  t++)  if (TEz (t)) {
-      ht = (CHUP (_f.trk [t].name [0]) == 'L') ? 'L' : 'R';
-      k [0] = _f.trk [t].ht;   k [2] = '\0';     // setup k w our octave
-//DBG("tr=`d  ...min avg max", t);
+   if (Up.ez)  for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t)) {
+      ht = _f.trk [t].ht;
+      k [0] = (ht == 'L') ? '3' : '4';   k [2] = '\0';     // k gets octave
+
    // first we calc all the directions usin' nmin/nmax in dn n prev dn
       fst = true;   pnt = 128;
       for (dp = 0;  dp < _dn.Ln;  dp++) {
@@ -364,8 +353,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          }
       }
    }
-//if (didq)  for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))
-//                                                      DumpTrEv (tx);
+DumpDn ();
 // always need dn[pdn].time >= _now so add a dummy at time=0 if none yet
    if ( (! _dn.Ln) || _dn [0].time )
       {_dn.Ins (0);   _dn [0].time = 0;   _dn [0].nNt = 0;}
@@ -376,7 +364,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
 //    for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
    }
-//Dump ();
+Dump (true);
 TRC("SetDn end");
 }
 
@@ -849,7 +837,7 @@ TRC("_col full prob cuz w,h");
                   if ((n [p].te >= tb) && (n [p].tm < te))
                      {dmap [nd++] = t;   break;}      // one'll do it
             }
-            else if (_lrn.ez) {
+            else if (Up.ez) {
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
                   ntb = nte = dr->time;   nte += (M_WHOLE/8*3/4);
                   for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t)
@@ -900,7 +888,7 @@ TRC("_col full prob cuz w,h");
                if (mt)  continue;      // empty of notes - neeext
                dpos--;                 // bump dpos
             }
-            if (_lrn.ez && (! TDrm (t))) {
+            if (Up.ez && (! TDrm (t))) {
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
                   ntb = nte = dr->time;   nte += (M_WHOLE/16);
                // look for a better nte (to next dn in my trk)
@@ -1076,9 +1064,6 @@ TRC("ReDo");
 TRC(" clear stuph");
    MemSet (_lrn.rec,   0, sizeof (_lrn.rec));
    MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
-TRC(" redo ez");
-   for (_lrn.ez = false, t = 0;  t < Up.rTrk;  t++)  if (TEz (t))
-                                                        _lrn.ez = true;
 // where are our hands - always ht(\0) unless got BOTH r,l
    for (_lrn.hand = ch = '\0', t = 0;  (ch != 'b') && (t < Up.rTrk);  t++) {
       if (_f.trk [t].ht == 'L')  ch = (ch == 'r') ? 'b' : 'l';
@@ -1092,9 +1077,8 @@ TRC(" redo ez");
    for (t = 0;  t < _f.ctl.Ln;  t++)   // show tempo ctl if we're in prac
       if (! StrCm (_f.ctl [t].s, CC("Tmpo")))
          _f.ctl [t].sho = (bool)(PRAC);
-TRC(" ez=`b hand=`c", _lrn.ez, _lrn.hand);
-TRC(" set icos");
-   emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
+TRC(" set icos  hand=`c", _lrn.hand);
+   emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");   emit sgUpd ("tbEZ");
 TRC(" ReEv SetDn SetNt SetLp TmHop SetSym Draw ReTrk DscSave :/");
    ReEv ();   SetDn ();   SetNt ();   SetLp ('.');   TmHop (_now);
    _pg = _tr = 0;   SetSym ();   Draw ('a');   ReTrk ();   DscSave ();

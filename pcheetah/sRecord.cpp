@@ -172,7 +172,7 @@ char Song::DnOK (char nxt)             // \0=current(default) or n[ext]
    }
 // even if all ok, if some nts not hit together, back to not ok-ish
    if ((ok == 'y') && (in == 'y') && ((mx-mn) > 100))
-      ok = _lrn.ez ? 'y' : 'a';        // w ez 2 people could be playin
+      ok = Up.ez ? 'y' : 'a';          // w ez 2 people could be playin
 TRC("DnOK `c=> `c", nxt?nxt:' ', ok);  // (can't easily sync)
    return ok;                          // y/n/a[gain]
 }
@@ -190,10 +190,10 @@ void Song::RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL)
    }
 
 // no echoing of ctrls in ez
-   if (_lrn.ez && MCTRL (ev))  return;
+   if (Up.ez && MCTRL (ev))  return;
 
    for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && (! TDrm (t))) {
-      if (_lrn.ez) {
+      if (Up.ez) {
          if (_f.trk [t].ht == (ev->ctrl / 12 - 1 + '0'))
                {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
       }
@@ -220,10 +220,10 @@ void Song::RecDvCh (ubyte ti,
    }
 
 // no echoing of ctrls in ez
-   if (_lrn.ez && MCTRL (ev))  return;
+   if (Up.ez && MCTRL (ev))  return;
 
    for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && (! TDrm (t))) {
-      if (_lrn.ez) {
+      if (Up.ez) {
          if (_f.trk [t].ht == (ev->ctrl / 12 - 1 + '0'))
                {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
       }
@@ -423,7 +423,7 @@ void Song::PozBuf (MidiEv *ev, char *cSt)
 //DBG("PozCC `s.`d `s=`d,`d  rTrk=`d  r2=`b  tm=`s tmr=`s",
 //Up.dev [dv].mo->Name (), ch+1, cSt, ev->valu, ev->val2, t, r2,
 //TmSt(s1,ev->time),TmSt(s2,_timer->Get ()));
-      if (_lrn.ez)  return;            // no need :/
+      if (Up.ez)  return;              // no need :/
 
       c = (ubyte)(ev->ctrl) & 0x7F;    // might be filtered?
       if ((craw = Up.dvt [Up.dev [dL].dvt].CCMap [c])) {
@@ -434,7 +434,7 @@ void Song::PozBuf (MidiEv *ev, char *cSt)
    else {                              // note
       if (ch != 9)  craw += Cfg.tran;
       lh = (ev->val2 & 0x40) ? true : false;
-      if (! _lrn.ez) {                 // don't echo these garbage notes :)
+      if (! Up.ez) {                   // don't echo these garbage notes :)
 //TStr s1,s2;
 //DBG("PozNt echo to `s.`d  rTrk=`d  tm=`s tmr=`s",
 //Up.dev [lh?dL:dv].mo->Name (), (lh?cL:ch)+1, t,
@@ -526,7 +526,7 @@ TRC("NtGet NtUp val2=$`02x", ev->val2);
    kind = 'w';                         // default to wrong
 
 // check ez first;  else is fer hard
-   if (_lrn.ez && (! dr)) {
+   if (Up.ez && (! dr)) {
      ubyt4 t, p, ne;
      TrkEv *e, te;
       if (ev->time <= dn->time) {

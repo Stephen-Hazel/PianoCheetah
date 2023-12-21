@@ -99,7 +99,8 @@ void Song::DscLoad ()                  // parse junk outa _dsc plus info={...}
       i = Str2Int (s);
       if ((i >= -36) && (i <= 36))    _f.tran = (sbyte)i;
    }
-   if (DscGet (CC("learn="), s))      Up.lrn   = (ubyte)Str2Int (s);
+   if (DscGet (CC("learn="), s))      Up.lrn  =  *s;
+   if (DscGet (CC("ez="), s))         Up.ez   = (*s == 'Y') ? true : false;
    Cfg.tran = _f.tran;                 // ...sigh
 TRC("DscLoad  tmpo=`d tran=`d lrn=`c", _f.tmpo, _f.tran, Up.lrn);
 }
@@ -111,7 +112,8 @@ void Song::DscSave ()                  // put junk back in _dsc
   BStr  buf;
    StrFmt (buf, "tempo=`d",     _f.tmpo);                DscPut (buf);
    StrFmt (buf, "transpose=`d", _f.tran);                DscPut (buf);
-   StrFmt (buf, "learn=`d",     Up.lrn);                 DscPut (buf);
+   StrFmt (buf, "learn=`c",     Up.lrn);                 DscPut (buf);
+   StrFmt (buf, "ez=`c",        Up.ez?'Y':'N');          DscPut (buf);
 
 // ok, make our summary thingy
 // prac   RH LH HT DRUM REC
@@ -593,11 +595,10 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
       _f.trk [t].grp = (*buf ==    '+') ? true : false;
       _f.trk [t].shh = StrCh (buf, '#') ? true : false;
       _f.trk [t].lrn = StrCh (buf, '?') ? true : false;
-      if  ((m = StrSt (buf, CC("EZ")))) _f.trk [t].ht = m [2];
-      else if  (StrSt (buf, CC("LH")))  _f.trk [t].ht = 'L';
-      else if  (StrSt (buf, CC("RH")))  _f.trk [t].ht = 'R';
-      else if  (StrSt (buf, CC("SH")))  _f.trk [t].ht = 'S';
-      else                              _f.trk [t].ht = '\0';
+      if      (StrSt (buf, CC("LH")))  _f.trk [t].ht = 'L';
+      else if (StrSt (buf, CC("RH")))  _f.trk [t].ht = 'R';
+      else if (StrSt (buf, CC("SH")))  _f.trk [t].ht = 'S';
+      else                             _f.trk [t].ht = '\0';
    }
    _lrn.chd = false;
    ne = st [TB_LYR].NRow ();
@@ -776,11 +777,12 @@ TRC("save fn=`s", fns);
          s3 [1] = *s4 = '\0';
          *s3 = _f.trk [t].shh ? '#' : '\0';
          if ((*s3 == '\0') && TLrn (t))  *s3 = pracOnly ? '?' : '#';
-         if      (TEz (t))        StrFmt (s4, "EZ`c", _f.trk [t].ht);
-         else if (_f.trk [t].ht)  StrFmt (s4, "`cH",  _f.trk [t].ht);
+         StrFmt (s4, "`cH",  _f.trk [t].ht);
          f.Put (StrFmt (s, "`s  `s  `c`s`s  `s\n",
-            DevName (t), *s2 ? s2 : "Piano/AcousticGrand",
-            _f.trk [t].grp ? '+' : '.', s3, s4, _f.trk [t].name));
+            DevName (t),
+            *s2 ? s2 : "Piano/AcousticGrand",
+            _f.trk [t].grp ? '+' : '.', s3, s4,       // s3=mute#/lrn?, s4=ht
+            _f.trk [t].name));
       }
 
       f.Put (CC("DrumMap:\n"));

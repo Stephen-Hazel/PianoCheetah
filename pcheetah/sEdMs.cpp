@@ -265,7 +265,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
 //DBG("pg=`d co=`d sy=`d", Up.pos.pg, Up.pos.co, Up.pos.sy);
         ubyt4  tm, te;
         TrkEv *ev = nullptr;
-         if (TEz (tr)) {               // cuz ez has no actual note
+         if (Up.ez) {                  // cuz ez has no actual note
             tm = te =   co.sym [Up.pos.sy].tm;   // SetSym set me
             nt = (ubyte)co.sym [Up.pos.sy].nt;   // not p !
             te += (M_WHOLE/8*3/4);
@@ -449,13 +449,13 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
       if (! Up.pos.pPoz) Poz (false);
    }
    if (Up.pos.drg == 'd') {            // [d]ur
-      Up.pos.y2 = y;   if (! _lrn.ez)  NtDur ();
+      Up.pos.y2 = y;   if (! Up.ez)  NtDur ();
       if (! Up.pos.pPoz) Poz (false);
    }
    if (Up.pos.drg == 'n') {            // [n]oteHop
       Up.pos.x1 = x - Up.pos.xo;   Up.pos.y1 = y - Up.pos.yo;
       if (ABSL (x - Up.pos.xp) > DRAG)  NtHop ();
-      else             if (! _lrn.ez)  PreFng ();
+      else             if (! Up.ez)  PreFng ();
       if (! Up.pos.pPoz) Poz (false);
    }
 //DBG("MsUp end");

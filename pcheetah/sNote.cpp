@@ -367,15 +367,14 @@ void Song::DrawFng (ubyt2 x, ubyt2 y, ubyte f, char tc)
 void Song::DrawSym (SymDef *s, ColDef *co)
 // draw round rect w scale/velo color, fill with drum=blu,white/black + scc
 { ubyte tr, t, tc, key, ef, n;
-  bool  dr, ez;
+  bool  dr;
   char  ha;
   ubyt2 nx, mo, x, y, w, h, dx, dw, dh;
   TrkRow *trk;
   TrkNt  *nt;
   QColor  clr, kc;                     // main color, key color
-   tr = s->tr;   trk = & _f.trk [tr];   nt = & trk->n [s->nt];
-                 ez = TEz (tr);         dr = TDrm (tr);
-   n = ez ? ((ubyte)s->nt) : nt->nt;
+   tr = s->tr;   trk = & _f.trk [tr];   nt = & trk->n [s->nt];   dr = TDrm (tr);
+   n = Up.ez ? ((ubyte)s->nt) : nt->nt;
    nx = Nt2X (co->nMn, co);
    if (dr) {
       switch (MDrm2Grp (trk->din)) {
@@ -391,7 +390,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
       if (Cfg.ntCo == 1)  clr = CRng [(nt->dn == NONE) ? 64 :
                                       (trk->e [nt->dn].valu & 0x7F)];
    }
-   else if (ez)                        // f to purple so it shows better
+   else if (Up.ez)                     // f to purple so it shows better
       clr = CScl [(tc = n % 12) == 5 ? 9 : tc];
    else
       switch (Cfg.ntCo) {
@@ -423,7 +422,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
                  Up.cnv.RectF (x, y, w, h, clr);
    if (s->top) {y -= 2;  h += 2;}   if (s->bot) h += 2;    // put em back
 
-   if ((! ez) && (nt->dn != NONE) && (ef = trk->e [nt->dn].val2 & 0x1F))
+   if ((! Up.ez) && (nt->dn != NONE) && (ef = trk->e [nt->dn].val2 & 0x1F))
       DrawFng (x + w/2, y, ef);
 
    if (dr) {
@@ -536,7 +535,7 @@ void Song::DrawPg (ubyt4 pp)
 
       // draw curr keysig;  if in scale, put step color
          w2 = 3;
-         if ((Cfg.ntCo == 0) && (! _lrn.ez))
+         if ((Cfg.ntCo == 0) && (! Up.ez))
             for (x2 = x+wb, n2 = oc*12+nt;  n2 <= oc*12+nd;  n2++, x2 += W_NT)
                if (ksig [n2 % 12] != ' ')
                   Up.cnv.RectF (x2 + w2, 5, W_NT-w2*2, W_NT-w2*2-2,

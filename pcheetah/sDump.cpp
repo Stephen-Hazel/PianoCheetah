@@ -6,11 +6,11 @@ char *Song::LrnS ()
 { static TStr s;
    StrCp (s, CC("x"));
    if (Up.lrn    == LHEAR)  StrCp (s, CC("hear"));
-   if (Up.lrn    == LHLRN)  StrCp (s, CC("hLrn"));
+   if (Up.lrn    == LHREC)  StrCp (s, CC("hRec"));
    if (Up.lrn    == LPRAC)  StrCp (s, CC("prac"));
    if (Up.lrn    == LPLAY)  StrCp (s, CC("play"));
    if (_lrn.pLrn == LHEAR)  StrAp (s, CC(" p=hear"));
-   if (_lrn.pLrn == LHLRN)  StrAp (s, CC(" p=hLrn"));
+   if (_lrn.pLrn == LHREC)  StrAp (s, CC(" p=hRec"));
    if (_lrn.pLrn == LPRAC)  StrAp (s, CC(" p=prac"));
    if (_lrn.pLrn == LPLAY)  StrAp (s, CC(" p=play"));
    return s;
@@ -53,6 +53,23 @@ void Song::DumpTrEv (ubyte t)
 }
 
 
+void Song::DumpDn ()
+{ TStr d1;
+  ulong p;
+   DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p");
+   for (p = 0;  p < _dn.Ln;  p++) {
+      DBG("`d `s `d `d `d",
+          p, TmSt (d1,_dn [p].time), _dn [p].msec, _dn [p].tmpo,
+          TmpoAct (_dn [p].tmpo));
+     TStr s;
+      for (ubyte c = 0;  c < _dn [p].nNt;  c++)
+         DBG("   `s `d `d", MKey2Str(s,_dn [p].nt [c].nt), _dn [p].nt [c].t,
+                                                           _dn [p].nt [c].p);
+   }
+   DBG("_dn end");
+}
+
+
 void Song::DumpRec ()
 {  for (ubyte t = Up.rTrk;  t < _f.trk.Ln;  t++) {
      TrkEv *ev = _f.trk [t].e;
@@ -80,7 +97,7 @@ DBG("DUMP");
       _onBt, TmSt(t2,_now), _pDn, TmSt(t3,_dn[_pDn].time),
       _dn.Ln, _f.nEv, _f.maxEv,
       Cfg.cmdKey, Cfg.ntCo, Cfg.barCl,
-      _f.tmpo, _f.tran, LrnS (), _lrn.ez, _lrn.hand?_lrn.hand:' ',
+      _f.tmpo, _f.tran, LrnS (), Up.ez, _lrn.hand?_lrn.hand:' ',
       _lrn.POZ, Up.uPoz,
       TmSt(t1,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd), _pg, _lrn.veloSng, _lrn.veloRec
    );
@@ -177,19 +194,6 @@ DBG("DUMP");
    DBG("bug time hits");
    for (s = 0; s < _f.bug.Ln; s++)
       DBG("`d `s `s", s, TmSt(t1,_f.bug [s].time), _f.bug [s].s);
-TStr d1;
-ulong p;
-   DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p");
-   for (p = 0;  p < _dn.Ln;  p++) {
-      DBG("`d `s `d `d `d",
-          p, TmSt (d1,_dn [p].time), _dn [p].msec, _dn [p].tmpo,
-          TmpoAct (_dn [p].tmpo));
-     TStr s;
-      for (ubyte c = 0;  c < _dn [p].nNt;  c++)
-         DBG("   `s `d `d", MKey2Str(s,_dn [p].nt [c].nt), _dn [p].nt [c].t,
-                                                           _dn [p].nt [c].p);
-   }
-   DBG("_dn end");
    DBG("_f.tmpo=`d/`d", _f.tmpo, FIX1);
    DBG("{ _f.tpo time tmpo tmpoAct");
    for (p = 0;  p < _f.tpo.Ln;  p++)

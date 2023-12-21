@@ -7,13 +7,13 @@
 
 #define HOVAL(v)  (((v) & 0x40) ? 1 : 0)
 
-// _f.lrn modes:  a=hear all, b=hear Lrn, c=prac(learn), d=play(lead)
+// _f.lrn modes:  a=hear, b=hearRec, c=prac(learn), d=play(lead)
 #define LHEAR  'a'
-#define LHLRN  'b'
+#define LHREC  'b'
 #define LPRAC  'c'
 #define LPLAY  'd'
-#define  HEAR  (Up.lrn == LHEAR)       // hear rec
-#define  HLRN  (Up.lrn == LHLRN)       // hear lrn
+#define  HEAR  (Up.lrn == LHEAR)       // hear lrn
+#define  HREC  (Up.lrn == LHREC)       // hear rec
 #define  PRAC  (Up.lrn == LPRAC)
 #define  PLAY  (Up.lrn == LPLAY)
 
@@ -69,7 +69,6 @@ struct RecDef  {ubyt4 tm, ms;};        // map o all rec evs
 
 struct LrnDef {
    char  pLrn, hand;                   // prev lrn mode;  hand: \0=none/L/R/B
-   bool  ez;                           // ez mode
    ubyt4 lpBgn, lpEnd;                 // current loop's bgn,end times
    bool  POZ,                          // paused?
          chd;                          // w of cue area
@@ -156,6 +155,7 @@ private:
    char *LrnS     ();
    void  DumpEv   (TrkEv *e, ubyte t, ubyt4 p = 1000000, char *pre = NULL);
    void  DumpTrEv (ubyte t);
+   void  DumpDn   ();
    void  DumpRec  ();
    void  Dump     (bool ev2 = false);
 
@@ -238,10 +238,7 @@ private:
          Mix    (char *s);
 
 // sReDo.cpp
-   bool  TSho   (ubyte t);
-   bool  TLrn   (ubyte t);
-   bool  TEz    (ubyte t);
-   bool  TDrm   (ubyte t);
+   bool  TSho (ubyte t), TLrn (ubyte t), TDrm (ubyte t);
    void  ReTrk  ();                    // give gui _trk info ta draw
    ubyt4 ReEv   (bool tpo = false);    // redo _tpo,_tSg,_kSg,_tEnd,etccccc
    void  BarH   (ubyt2 *h, ubyte *sb, ubyt2 b);
