@@ -250,12 +250,12 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
 //TStr db1,db2,db3;
 //DBG("   a nt=`s tDn=`s tUp=`s y=`d h=`d",
 //MKey2Str(db3,nt), TmSt(db1,ev.time), TmSt(db2,tUp), y, h);
-                  // clr = GRAY (196 - (ev.valu & 0x7F));
-                     Up.cnv.RectF (   x+6, y,   W_NT-12, h, CRec);
+                     qc = GRAY (255-((ev.valu & 0x7F) << 1));
+                     Up.cnv.RectF (   x+5, y,   W_NT-10, h, qc);
                      if (tDn == ev.time) {       // head
-                        Up.cnv.RectF (x+0, y,   W_NT-0,  1, CRec);
-                        Up.cnv.RectF (x+2, y+1, W_NT-4,  1, CRec);
-                        Up.cnv.RectF (x+4, y+2, W_NT-8,  1, CRec);
+                        Up.cnv.RectF (x+0, y,   W_NT-0,  1, qc);
+                        Up.cnv.RectF (x+2, y+1, W_NT-4,  1, qc);
+                        Up.cnv.RectF (x+4, y+2, W_NT-8,  1, qc);
                      }
                   }
                   on [nt] = NONE;
@@ -280,8 +280,8 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
 
             if (tDn < tMn)  tDn = tMn;   if (tUp > tMx)  tUp = tMx;
             if ((tUp > pMn) && (tDn < pMx)) {
-               if (tDn < pMn)  tDn = pMn;
-               if (tUp > pMx)  tUp = pMx;
+               if (tDn <  pMn)  tDn = pMn;
+               if (tUp >  pMx)  tUp = pMx;
                if (tUp >= tMx)  tUp = tMx-1;
                dnt = nt;
                if (! drm) {
@@ -301,11 +301,12 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
 //TStr db1,db2,db3;
 //DBG("   b nt=`s tDn=`s tUp=`s y=`d h=`d",
 //MKey2Str(db3,nt), TmSt(db1,tDn), TmSt(db2,tUp), y, h);
-               Up.cnv.RectF (   x+6, y,   W_NT-12, h, CRec);
+               qc = GRAY (255 - ((e [on [nt]].valu & 0x7F) << 1));
+               Up.cnv.RectF (   x+5, y,   W_NT-10, h, qc);
                if (tDn == e [on [nt]].time) {    // head
-                  Up.cnv.RectF (x+0, y,   W_NT-0,  1, CRec);
-                  Up.cnv.RectF (x+2, y+1, W_NT-4,  1, CRec);
-                  Up.cnv.RectF (x+4, y+2, W_NT-8,  1, CRec);
+                  Up.cnv.RectF (x+0, y,   W_NT-0,  1, qc);
+                  Up.cnv.RectF (x+2, y+1, W_NT-4,  1, qc);
+                  Up.cnv.RectF (x+4, y+2, W_NT-8,  1, qc);
                }
             }
          }
@@ -1014,7 +1015,7 @@ void Song::DrawNow ()
             x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
             if (KeyCol [nt%12] == 'w')    ww = 24/2;
             Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  g*16, 0,  16, 16);
-            if ((f = tk [np->t].e [np->p].val2 & 0x1F))
+            if ((! Up.ez) && (f = tk [np->t].e [np->p].val2 & 0x1F))
                DrawFng (x+ww/2, H_NW-8, f, 't');
          }
       }

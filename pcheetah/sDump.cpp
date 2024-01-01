@@ -86,14 +86,14 @@ void Song::Dump (bool e2)
 //DumpX ();   return;
 DBG("DUMP");
    DBG(
-      "rcrd=`b bEnd=`d tEnd=`s rTrk=`d eTrk=`d eOn=`b pLyr=`d\n"
+      "bEnd=`d tEnd=`s rTrk=`d eTrk=`d eOn=`b pLyr=`d\n"
       "onBt=`b now=`s pDn=`d/`s\n"
       "dn.Ln=`d nEv=`d maxEv=`d\n"
       "Cfg_cmdKey=`d ntCo=`d barCl=`b\n"
       "SnF_tmpo=`d tran=`d `s ez=`b hand=`c\n"
       "POZ=`b uPoz=`b\n"
       "lrn: lpBgn=`s lpEnd=`s pg=`d veloSng=`d veloRec=`d",
-      _rcrd, _bEnd, TmSt(t1,_tEnd), Up.rTrk, Up.eTrk, _eOn, _pLyr,
+      _bEnd, TmSt(t1,_tEnd), Up.rTrk, Up.eTrk, _eOn, _pLyr,
       _onBt, TmSt(t2,_now), _pDn, TmSt(t3,_dn[_pDn].time),
       _dn.Ln, _f.nEv, _f.maxEv,
       Cfg.cmdKey, Cfg.ntCo, Cfg.barCl,

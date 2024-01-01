@@ -757,6 +757,11 @@ void DlgFng::Open ()
 {  StrFmt (_s, "fng `d `d", Up.pos.tr, Up.pos.p);
   CtlLabl l (ui->info);
    l.Set (Up.pos.str);
+  CtlBttn qp (ui->qp);
+  CtlBttn qn (ui->qn);
+  TStr s;
+   qp.Set (StrFmt (s, "quantPrev: `s", Up.pos.stp));
+   qn.Set (StrFmt (s, "quantNext: `s", Up.pos.stn));
    show ();   raise ();   activateWindow ();
    Gui.DlgMv (this, Up.gp, "Tc");
 }
@@ -777,6 +782,8 @@ void DlgFng::Init ()
       "accent"                      "`:/tbar/fng/l4" "`\0"
       "staccatissimo (or WHAtever)" "`:/tbar/fng/l5" "`\0"
    );
+   connect (ui->qp,   & QPushButton::clicked,  this, [this]()  {Set (95);});
+   connect (ui->qn,   & QPushButton::clicked,  this, [this]()  {Set (96);});
    connect (tb.Act (0), & QAction::triggered,  this, [this]()  {Set (97);});
    connect (tb.Act (1), & QAction::triggered,  this, [this]()  {Set (98);});
    connect (tb.Act (2), & QAction::triggered,  this, [this]()  {Set (99);});

@@ -505,7 +505,6 @@ TRC(" ftb=`s fte=`s", TmSt (s1, ftb), TmSt (s2, fte));
       NtIns (t+2, tb, te-1, 2*12+root);
    }
    ReDo ();
-   _rcrd = true;
    TmHop (itm);
 }
 
@@ -552,7 +551,7 @@ void Song::PreChd ()
 // tm1(for hopTo), ch1, ch2, (for ChdBtw)
    Up.pos.got = got ? 'y' : '\0';
    Up.pos.cp = cp;   Up.pos.tm = tm;   Up.pos.tmBt = tm1;
-   StrCp (Up.pos.str, s);   StrCp (Up.d [0][0], ch1);   
+   StrCp (Up.pos.str, s);   StrCp (Up.d [0][0], ch1);
                             StrCp (Up.d [0][1], ch2);
    MemCp (& Up.pos.kSg, KSig (tm), sizeof (KSgRow));
    emit sgUpd ("dChd");
@@ -584,7 +583,7 @@ DBG("new: chd='`s' old: s='`s' got=`b", chd, s, got);
          else if ((! got) &&    *chd )  _f.chd.Ins (p);
          if (*chd)  {StrCp (_f.chd [p].s, chd);
                             _f.chd [p].time = tm;}
-      }      
+      }
       return;
    }
 // kill em all

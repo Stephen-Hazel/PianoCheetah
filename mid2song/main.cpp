@@ -195,6 +195,7 @@ TRC("{ Trk2Ev tr=`d res=`d trPos=`d trLen=`d", tr, res, MidP, l);
                hmmgot = (hmmlen > MAXTSTR) ? MAXTSTR : hmmlen;
                MemCp (s, & Mid [MidP+p], hmmgot);
                FixStrLy ((ubyte *) s, (ubyte) hmmgot);
+ TRC("`02d `s: ly=`s cmp=`b", tr+1, TmS (TMS, time), s, LyCmp);
                if (LyCmp)        break;     // already got track of lyrics
                if (*s == '\0')   break;     // skip cr,lf or hold
                if (Ly.Full ())   break;     // got room?
@@ -981,7 +982,7 @@ DBG("dump#4"); Dump(false);
       if (St [s].prog & 0x00FFFF)
          StrFmt (& snnm [StrLn (snnm)], ".`03d`03d",
             (St [s].prog & 0x00FF00) >> 8, St [s].prog & 0x0000FF);
-      Fs.Put (StrFmt (SB, ".  `s  `s\n", snnm, ts));
+      Fs.Put (StrFmt (SB, ".  `s  `s#`s\n", snnm, ts, snnm));
 TRC("SB=`s", SB);
    }
    if (Ly.Ln) {                        // tack any Lyrics onto .song file

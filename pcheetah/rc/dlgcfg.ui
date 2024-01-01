@@ -6,66 +6,92 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>231</width>
-    <height>280</height>
+    <width>237</width>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="lTran">
-     <property name="text">
-      <string>transpose</string>
-     </property>
-    </widget>
+  <layout class="QVBoxLayout" name="v2">
+   <item>
+    <layout class="QHBoxLayout" name="h1">
+     <item>
+      <widget class="QLabel" name="lTran">
+       <property name="text">
+        <string>transpose</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="tran">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="0" column="1">
-    <widget class="QSpinBox" name="tran"/>
+   <item>
+    <layout class="QHBoxLayout" name="h2">
+     <item>
+      <widget class="QLabel" name="lCmdKey">
+       <property name="text">
+        <string>command key</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="cmdKey">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="lCmdKey">
-     <property name="text">
-      <string>command key</string>
-     </property>
-    </widget>
+   <item>
+    <layout class="QVBoxLayout" name="v1">
+     <item>
+      <widget class="QLabel" name="lSVol">
+       <property name="text">
+        <string>syn volume</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="sVol">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="cmdKey"/>
-   </item>
-   <item row="4" column="0">
+   <item>
     <widget class="QCheckBox" name="barCl">
      <property name="text">
-      <string>bar=&gt;clipboard</string>
+      <string>bar to clipbd for lyrics</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item>
     <widget class="QCheckBox" name="trc">
      <property name="text">
-      <string>trace in dbg.txt</string>
+      <string>trace to ~/dbg.txt</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item>
     <widget class="QPushButton" name="quan">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>quantize</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QSlider" name="sVol">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="lSVol">
-     <property name="text">
-      <string>syn volume</string>
      </property>
     </widget>
    </item>

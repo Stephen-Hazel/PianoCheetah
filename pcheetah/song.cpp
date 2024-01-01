@@ -44,7 +44,7 @@ TRC(" a");
 TRC(" b");
    for (ubyte d = 0;  d < Up.dev.Ln;  d++)  ShutDev (d);
    Up.dev.Ln = 0;                      // should already be 0 after Shuts
-   _rcrd = _prac = false;   _onBt = false;
+   _prac = false;   _onBt = false;
    _pNow = _rNow = _now = 0;
 TRC(" c");
    _f.ctl.Ln = _f.trk.Ln = 0;   Up.rTrk = Up.eTrk = 0;
@@ -266,14 +266,14 @@ void Song::Put ()                      // PianoCheetah's heartbeat
                               TRC("Put (naw cuz no song)");   return;
    }
 TRC("Put");
-   tend = _rcrd ? Bar2Tm (_bEnd+1) : _tEnd;
+   tend = Bar2Tm (_bEnd+1);            // just listenin? : _tEnd;
    while (_timer->Get () >= _now) {
 TRC(" loopTop tmr=`s now=`s", TmSt(d1,_timer->Get ()), TmSt(d2,_now));
       _rNow = _now;
       if (_f.got && (_now >= tend)) {
 TRC(" end o song");
-         if (_rcrd)  Cmd ("timeBar1");              // restart
-         else       {Cmd ("song>");   return;}      // kick off next song
+         Cmd ("timeBar1");             // restart
+//       else       {Cmd ("song>");   return;}      // kick off next song
       }
 
    // get bar.beat str for now n tL8r (default to wakeup on next subbeat)

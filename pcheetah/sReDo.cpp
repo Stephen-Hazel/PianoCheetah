@@ -12,7 +12,7 @@ void Song::ReTrk ()
 // give gui what it needs in Up.trk
 { ubyte r;
   TStr  s, g;
-  char *sl;
+  char *sl, *c;
    Up.trk.Ln = 0;
    for (r = 0;  r < Up.rTrk;  r++) {
       Up.trk.Ins (r);
@@ -23,6 +23,7 @@ void Song::ReTrk ()
       *s = _f.trk [r].ht;   s [1] = '\0';
       StrCp (Up.trk [r].ht, s);
       StrCp (Up.trk [r].name, _f.trk [r].name);
+//    if ((c = StrCh (Up.trk [r].name, '#')))  *c = '\0';
       StrCp (s, SndName (r));
       *g = '\0';
       if (*s) {
@@ -573,7 +574,7 @@ TmSt (s1, e [p].time), MKey2Str (s2, e [p].ctrl), t);
   bool  un;
 //TStr  db1,db2,db3,db4,db5,db6,db7;
    _lm.Ln = 1;   _lm [0].tm = 0;   _lm [0].nt = 0;
-   if (_lrn.hand != 'B')  _lm.Ln = 0;
+   if (Up.ez || (_lrn.hand != 'B'))  _lm.Ln = 0;
    else
       for (t = 0;  t < Up.rTrk;  t++)
          if (TLrn (t) && (_f.trk [t].ht == 'L'))
@@ -768,7 +769,7 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
 void Song::SetSym ()
 // ok, now paginate it all up given our CtlNt's w,h and all them thar notes
 // Draw calls us, not ReDo;  depends on SetDn(_dn[]) n SetNt(trk[].n) tho
-{ ubyte nw, ww, nMn, nMx, nd, dmap [128], dpos, td, t, st, bl, sb, i, nt;
+{ ubyte nw, ww, nMn, nMx, nd, dmap [128], dpos, td, t, st, bl, sb, i, j, nt;
   ubyt2 W, H, x, xo, w, th, ch, b, dx, cw, y1, y2, h;
   ubyt4 np, nc, nb, ns, p, q, nn, pc1, cb1, cs1, tb, te, ntb, nte, sn, d, e;
   bool  drm, mt;
@@ -837,12 +838,11 @@ TRC("_col full prob cuz w,h");
             }
             else if (Up.ez) {
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
-                  ntb = nte = dr->time;   nte += (M_WHOLE/8*3/4);
+                  ntb = dr->time;
                   for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t)
-                     if ((nte >= tb) && (ntb < te)) {
+                     if ((ntb >= tb) && (ntb < te)) {
                         if (dr->nt [i].nt < nMn)  nMn = dr->nt [i].nt;
                         if (dr->nt [i].nt > nMx)  nMx = dr->nt [i].nt;
-                        break;                        // one'll do it
                      }
                }
             }
@@ -886,55 +886,43 @@ TRC("_col full prob cuz w,h");
                if (mt)  continue;      // empty of notes - neeext
                dpos--;                 // bump dpos
             }
-            if (Up.ez && (! TDrm (t))) {
+            if (Up.ez && (! drm)) {
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
-                  ntb = nte = dr->time;   nte += (M_WHOLE/16);
-               // look for a better nte (to next dn in my trk)
-                  for (mt = true, e = d+1;  e < _dn.Ln;  e++) {
-                     for (i = 0;  i < _dn [e].nNt;  i++)
-                        if (_dn [e].nt [i].t == t) {
-                           if (    (_dn [e].time - 4) > nte)
-                              nte = _dn [e].time - M_WHOLE/64;
-                           mt = false;   break;
-                        }
-                     if (! mt)  break;
-                  }
+                  ntb = nte = dr->time;
                   for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t) {
-                     if ((nte < tb) || (ntb >= te))  continue;
+                     if ((ntb < tb) || (ntb >= te))  continue;
+
+                     nte += (M_WHOLE/16);
+                  // look for a better nte (to next dn in my trk)
+                     for (mt = true, e = d+1;  e < _dn.Ln;  e++) {
+                        for (j = 0;  j < _dn [e].nNt;  j++)
+                           if (_dn [e].nt [j].t == t) {
+                              if (    (_dn [e].time - 4) > nte) {
+                                 nte = _dn [e].time - M_WHOLE/64;
+                                 if (nte >= te)  nte = te-1;  // limit it to col
+                              }
+                              mt = false;   break;
+                           }
+                        if (! mt)  break;
+                     }
                      nt = dr->nt [i].nt;
                      ns = _sym.Ins ();
                      _sym [ns].tr = t;   _sym [ns].nt = nt;     // not p !
                      _sym [ns].tm = ntb;
                      _sym [ns].top = _sym [ns].bot = true;
-                     if      (ntb < ((tb < M_WHOLE/32) ? 0 : (tb-M_WHOLE/32)))
-                        {_sym [ns].top = false;   _sym [ns].y = H_KB;}
-                     else if (ntb < tb) {
-                     // top stickin into piano area
-                        q = cb1;
-                        _sym [ns].y = (ubyt2)(_blk [q].y - _blk [q].h *
-                                              (_blk [q].tMn - ntb) /
-                                              (_blk [q].tMx - _blk [q].tMn));
-                     }
-                     else {
-                        for (q = cb1;  q < nb;  q++)
-                           if ((ntb >= _blk [q].tMn) &&
-                               (ntb <  _blk [q].tMx))  break;
-                        _sym [ns].y = (ubyt2)(_blk [q].y + _blk [q].h *
-                                              (ntb          - _blk [q].tMn) /
-                                              (_blk [q].tMx - _blk [q].tMn));
-                     }
-                     if (nte >= te)
-                        {_sym [ns].bot = false;
-                         _sym [ns].h = ch - _sym [ns].y;}
-                     else {
-                        for (q = cb1;  q < nb;  q++)
-                           if ((nte >= _blk [q].tMn) &&
-                               (nte <  _blk [q].tMx))  break;
-                        _sym [ns].h = (ubyt2)(_blk [q].y + _blk [q].h *
-                                              (nte          - _blk [q].tMn) /
-                                              (_blk [q].tMx - _blk [q].tMn) -
-                                              _sym [ns].y + 1);
-                     }
+                     for (q = cb1;  q < nb;  q++)
+                        if ((ntb >= _blk [q].tMn) &&
+                            (ntb <  _blk [q].tMx))  break;
+                     _sym [ns].y = (ubyt2)(_blk [q].y + _blk [q].h *
+                                           (ntb          - _blk [q].tMn) /
+                                           (_blk [q].tMx - _blk [q].tMn));
+                     for (q = cb1;  q < nb;  q++)
+                        if ((nte >= _blk [q].tMn) &&
+                            (nte <  _blk [q].tMx))  break;
+                     _sym [ns].h = (ubyt2)(_blk [q].y + _blk [q].h *
+                                           (nte          - _blk [q].tMn) /
+                                           (_blk [q].tMx - _blk [q].tMn) -
+                                           _sym [ns].y + 1);
                      if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
 
                   // always white
@@ -955,6 +943,7 @@ TRC("_col full prob cuz w,h");
                        p = 0;  p < nn;  p++) {
                      ntb = n [p].tm;   nte = n [p].te;
                      if ((nte < tb) || (ntb >= te))  continue;
+
                      if ((! drm) && (KeyCol [n [p].nt % 12] ==
                                      (bl ? 'w' : 'b')))        continue;
                      ns = _sym.Ins ();

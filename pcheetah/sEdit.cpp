@@ -183,7 +183,7 @@ TRC("p");
    Fn2Path (fn);   d.Kill (fn);
 TRC("q");
    if (c == 2)  c = 1;   else if (c == 3)  c = 7;  else c = 0;
-   _rcrd = true;   DrumExp ();   ReDo ();   TmHop (m [r].time + M_WHOLE*c);
+   DrumExp ();   ReDo ();   TmHop (m [r].time + M_WHOLE*c);
 }
 
 
@@ -312,25 +312,31 @@ void Song::PreFng ()
 DBG("PreFng");
   PagDef *pg = & _pag [Up.pos.pg];
   ColDef  co;
-   MemCp (& co, & pg->col [Up.pos.co], sizeof (co)); // load column
+   MemCp (& co, & pg->col [Up.pos.co], sizeof (co));  // load column
   SymDef *it = & co.sym [Up.pos.sy];
   ubyte   t  = it->tr;
   TrkNt *nt = & _f.trk [t].n [it->nt];
+  ubyt4  tm, dp, tp, tn;
   TStr   st, s1, s2;
    if (nt->dn == NONE)  StrCp (st, CC("ntDn: NONE\n"));
    else {
       TmSt (s1, _f.trk [t].e [nt->dn].time);
-      StrFmt (st,                "ntDn: `s velo=`d\n",
-                s1, _f.trk [t].e [nt->dn].valu & 0x7F);
+      StrFmt (st,                     "ntDn: `s velo=`d\n",
+            s1, _f.trk [t].e [nt->dn].valu & 0x7F);
    }
    if (nt->up == NONE)  StrAp (st, CC("ntUp: NONE"));
    else {
       TmSt (s2, _f.trk [t].e [nt->up].time);
-      StrFmt (& st [StrLn (st)], "ntUp: `s velo=`d",
-                s2, _f.trk [t].e [nt->up].valu & 0x7F);
+      StrFmt (& st [StrLn (st)],      "ntUp: `s velo=`d",
+            s2, _f.trk [t].e [nt->up].valu & 0x7F);
    }
+   tm = nt->tm;
+   for (dp = 0;  dp < _dn.Ln;  dp++)  if (_dn [dp].time == tm)  break;
+
 // pass st, t, it->nt;  dlg sends on t,nt,fng
    StrCp (Up.pos.str, st);   Up.pos.tr = t;   Up.pos.p = it->nt;
+   StrCp (Up.pos.stp, TmSt (s1,  dp           ? _dn [dp-1].time :  0));
+   StrCp (Up.pos.stn, TmSt (s1, (dp+1<_dn.Ln) ? _dn [dp+1].time : tm));
    emit sgUpd ("dFng");
 }
 
@@ -353,18 +359,29 @@ DBG("Fng `d `d `d", t, n, f);
    if (nt->dn != NONE)  MemCp (& dn, & _f.trk [t].e [nt->dn], sizeof (dn));
    if (nt->up != NONE)  MemCp (& up, & _f.trk [t].e [nt->up], sizeof (up));
 DBG("t=`d n=`d/`d f=`d dn=`d up=`d", t, n, _f.trk [t].nn, f, nt->dn, nt->up);
-   if (nt->dn == NONE)
-      {MemCp (& dn, & up, sizeof (dn));   dn.time = (up.time >(M_WHOLE/32-1)) ?
-                                                    (up.time -(M_WHOLE/32-1)):0;
-                                          dn.valu = 100;
-TRC("made dn");
-                                          }
-   if (nt->up == NONE)
-      {MemCp (& up, & dn, sizeof (dn));   up.time = dn.time + (M_WHOLE/32-1);
-                                          up.valu = 64;
-TRC("made up");
-                                          }
-   if (f == 99) {
+   if (nt->dn == NONE) {
+      MemCp (& dn, & up, sizeof (dn));   dn.time = (up.time >(M_WHOLE/32-1)) ?
+                                                   (up.time -(M_WHOLE/32-1)):0;
+                                         dn.valu = 100;
+TRC("made ntDn");
+   }
+   if (nt->up == NONE) {
+      MemCp (& up, & dn, sizeof (dn));   up.time = dn.time + (M_WHOLE/32-1);
+                                         up.valu = 64;
+TRC("made ntUp");
+   }
+   if ((f == 95) || (f == 96)) {       // quantize prev/next
+      if ((p = nt->dn) == NONE) {
+         e = _f.trk [t].e;   ne = _f.trk [t].ne;
+         for (p = 0;  (p < ne) && (dn.time >= e [p].time);  p++)  ;
+         EvIns (t, p);   MemCp (& e [p], & dn, sizeof (dn));
+      }
+      _f.trk [t].e [p].time = Str2Tm ((f == 95) ? Up.pos.stp : Up.pos.stn);
+//TOOD check dur :/
+      ReDo ();
+      return;
+   }
+   if (f == 99) {                      // stomp every finger
       for (t = 0;  t < _f.trk.Ln;  t++)
          for (e = _f.trk [t].e, ne = _f.trk [t].ne, p = 0;  p < ne;  p++)
             if (! (e [p].ctrl & 0x80))  e [p].val2 = e [p].val2 & 0x80;
@@ -383,7 +400,7 @@ TRC("dst trk=`d", tc);
       if (nt->up != NONE)  EvDel (t, nt->up);    // del up 1st so dn stays
       if (nt->dn != NONE)  EvDel (t, nt->dn);    // in same pos
       if (f == 98)  {ReDo ();   return;}         // that's it for del
-//TODO wtf is tc ?? (dbg to remove compiler warning)
+
       e = _f.trk [tc].e;   ne = _f.trk [tc].ne;
       for (p = 0;  (p < ne) && (dn.time >= e [p].time);  p++)  ;
 //TStr d1;

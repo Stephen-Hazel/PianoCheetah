@@ -273,7 +273,7 @@ private:
    SongFile             _f;
    Arr<ubyt4,128>       _sySn;         // syn's sound bank: just melodic no drum
 
-   bool   _onBt, _rcrd, _prac;         // tL8r is still on beat?  recording?
+   bool   _onBt, _prac;                // tL8r is still on beat?
    ubyt4  _tEnd;                       // last time       DID some practice evs?
    ubyt2  _bEnd;                       // last bar
 // _now is curr time if poz'd, else next time Put happens (usually in future)

@@ -695,7 +695,7 @@ TRC("EvRcrd: c");
    DrawNow ();
 
 // stamp song as practiced?
-   if (_rcrd && (! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
+   if ((! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
 TRC("EvRcrd end");
 }
 

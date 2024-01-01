@@ -470,7 +470,6 @@ void Song::Load (char *fn)
       StrAp (_f.dsc, buf);   StrAp (_f.dsc, CC("\n"));
    }
    DscLoad ();
-   _rcrd = HEAR ? false : true;        // just listenin?
 
 TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    _f.maxEv = st [TB_EVT].NRow () + MAX_RCRD;    // couple extra but wtf :)
@@ -589,6 +588,9 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    for (t = 0;  t < nt;  t++) {
       _f.trk [t].p = 0;   _f.trk [t].dev = _f.trk [t].chn = 0xFF;    // nothin
       StrCp (_f.trk [t].name, st [TB_TRK].Get (t,3));      // track name col
+             _f.trk [t].etc [0] = '\0';
+      if ((p = StrCh (_f.trk [t].name, '#')))
+         {StrCp (_f.trk [t].etc, p);   *p = '\0';}
 
    // set .grp,.shh,.lrn,.ht outa track mode thingy
       StrCp (buf, st [TB_TRK].Get (t,2));                  // track mode col
@@ -689,7 +691,7 @@ _f.mapD [t].vol, _f.mapD [t].pan, _f.mapD [t].snd);
 
 if (App.trc)  Dump ();
    SetSym ();
-   if (_rcrd)  Cmd (CC("timeBar1"));   else TmHop (mint);
+   Cmd (CC("timeBar1"));               // just listenin?  else TmHop (mint);
 TRC("Load end !");
 }
 
@@ -777,12 +779,13 @@ TRC("save fn=`s", fns);
          s3 [1] = *s4 = '\0';
          *s3 = _f.trk [t].shh ? '#' : '\0';
          if ((*s3 == '\0') && TLrn (t))  *s3 = pracOnly ? '?' : '#';
-         StrFmt (s4, "`cH",  _f.trk [t].ht);
-         f.Put (StrFmt (s, "`s  `s  `c`s`s  `s\n",
+         if (_f.trk [t].ht)  StrFmt (s4, "`cH",  _f.trk [t].ht);
+         else                       *s4 = '\0';
+         f.Put (StrFmt (s, "`s  `s  `c`s`s  `s`s\n",
             DevName (t),
             *s2 ? s2 : "Piano/AcousticGrand",
             _f.trk [t].grp ? '+' : '.', s3, s4,       // s3=mute#/lrn?, s4=ht
-            _f.trk [t].name));
+            _f.trk [t].name, _f.trk [t].etc));
       }
 
       f.Put (CC("DrumMap:\n"));
