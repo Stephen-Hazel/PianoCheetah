@@ -3,6 +3,9 @@
 #ifndef PCHEETAH_H
 #define PCHEETAH_H
 
+#include "ctlNt.h"
+#include "song.h"
+
 #include "ui_pcheetah.h"
 #include "ui_dlgcfg.h"
 #include "ui_dlgfl.h"
@@ -16,8 +19,6 @@
 #include "ui_dlgksg.h"
 #include "ui_dlgmov.h"
 #include "ui_dlghlp.h"
-#include "ctlNt.h"
-#include "song.h"
 
 extern TStr Kick;                      // kick up an app on exit - like MidiCfg
 

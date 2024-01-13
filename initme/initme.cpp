@@ -2,7 +2,7 @@
 
 #include "initme.h"
 
-char  Buf [8000000];
+char  Buf [800000000];
 ubyt4 Len;
 
 
@@ -19,17 +19,19 @@ DBG("Init");
    if (Gui.AskDir (dir, "Pick a dir to put the pianocheetah dir into")) {
       StrAp (dir, CC("/pianocheetah"));
 DBG("picked=`s", dir);
+      App.CfgPut (CC("d"), dir);
       if (! f.Size (dir)) {
+         Gui.Hey ("I gotta download a BIG bank of samples.\n"
+                  "Then PianoCheetah will start.\n\n"
+                  "Please be patient :)");
          Len = WGet (Buf, sizeof (Buf),
             CC("https://pianocheetah.app/download/pianocheetah.tar.gz"));
          StrFmt (fn, "`s.tar.gz", dir);
          f.Save (fn, Buf, Len);
-DBG("Len=`d size=`d", Len, f.Size (fn));
+DBG("Len=`d filesize=`d", Len, f.Size (fn));
          Zip (dir, 'x');
 DBG("unzip complete");
       }
-      App.CfgPut (CC("d"), dir);
-DBG("dir=`s", dir);
    }
 DBG("Init end");
    Gui.Quit ();

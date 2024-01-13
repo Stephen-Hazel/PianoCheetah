@@ -34,7 +34,7 @@ DBG("nt wheel=`d", j);
 }
 
 void CtlNt::mousePressEvent   (QMouseEvent *e)
-{ Up.gp = e->globalPos ();
+{ Up.gp = e->globalPosition ();
   sbyt2 x = e->pos ().x (),
         y = e->pos ().y ();   emit sgMsDn (e->button  (), x, y); }
 

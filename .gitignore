@@ -1,4 +1,5 @@
 *.txt.user
+*CMakeLists.txt
 
 # Prerequisites
 *.d

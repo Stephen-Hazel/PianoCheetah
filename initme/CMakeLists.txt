@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 
 project(initme VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -23,7 +21,7 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(initme
+    qt_add_executable(initme rc/rc.qrc
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
@@ -39,7 +37,7 @@ else()
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(initme rc/rc.qrc
+        add_executable(initme
             ${PROJECT_SOURCES}
         )
     endif()
@@ -57,7 +55,9 @@ set_target_properties(initme PROPERTIES
 
 install(TARGETS initme
     BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(initme)
