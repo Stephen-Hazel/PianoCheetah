@@ -2,7 +2,7 @@
 <?php
 ## rel (release kubuntu/rpi - cp to /opt/app/$app n create a .deb, etccc)
 
-   $arc = isset ($argv [1]) ? 'armhf' : 'amd64';      // any arg=rpi else kub
+   $arc = isset ($argv [1]) ? 'arm64' : 'amd64';      // any arg=rpi else kub
    $app = "pcheetah";
    $exe = [
       $app, 'midicfg', 'initme',                 // gui
