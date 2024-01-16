@@ -207,8 +207,8 @@ ofs, _f.tmpo, FIX1, tt, tp);
    }
    else if (ofs <= 4) {                // transpose, actually :/
       NotesOff ();                     // SHUSH !
-      if (ofs == 3) {if (_f.tran > -12) _f.tran--;}
-      else          {if (_f.tran <  12) _f.tran++;}
+      if (ofs == 3) {if (_f.tran > (sbyte)-12) _f.tran--;}
+      else          {if (_f.tran < (sbyte) 12) _f.tran++;}
       DscSave ();   StrFmt (ts, "transpose=`d", _f.tran);   Hey (ts);
    }
 }
