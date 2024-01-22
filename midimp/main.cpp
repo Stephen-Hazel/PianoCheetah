@@ -60,7 +60,7 @@ int main (int argc, char *argv [])
 { TStr c, s;
   File f;
   Path d;  (void)argc;   (void)argv;
-DBGTH("MidiImp");
+DBGTH("MidImp");
 TRC("bgn");
    App.Init (CC("pcheetah"), CC("midimp"), CC("midimp"));
    App.Path (DirF, 'd');   StrCp (DirT, DirF);
