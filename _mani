@@ -13,8 +13,7 @@ flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani
    "buildsystem": "cmake-ninja",
    "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
    "sources": [
-    {"type": "dir", "path": "initme"}, 
-	 {"type": "dir", "path": "stv"}
+    {"type": "git", "url": "git@github.com:Stephen-Hazel/pcheetah.git"}
    ]
   },
   {
@@ -22,8 +21,7 @@ flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani
    "buildsystem": "cmake-ninja",
    "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
    "sources": [
-    {"type": "dir", "path": "pcheetah"},
-	 {"type": "dir", "path": "stv"}
+    {"type": "git", "url": "git@github.com:Stephen-Hazel/pcheetah.git"}
    ]
   }
  ],
