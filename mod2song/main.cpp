@@ -1,8 +1,8 @@
 // mod2song.c - suck in a .MOD, write out .song aaand .WAVs for syn
 
-#include "../../stv/os.h"
-#include "../../stv/wav.h"
-#include "../../stv/midi.h"
+#include "stv/os.h"
+#include "stv/wav.h"
+#include "stv/midi.h"
 
 
 // our parsin' limits

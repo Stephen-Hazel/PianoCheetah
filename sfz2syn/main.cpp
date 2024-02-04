@@ -1,9 +1,9 @@
 // sfz2syn.cpp - rip .wav files outa .sfz with key,velo ranges in .wav fn
 //               and give it ta syn
 
-#include "../../stv/os.h"
-#include "../../stv/midi.h"
-#include "../../stv/wav.h"
+#include "stv/os.h"
+#include "stv/midi.h"
+#include "stv/wav.h"
 
 TStr  Top, To, SndN, Kit, FlacExe;     // top dir, dest dir,
                                        // soundDir under To, drumkit,

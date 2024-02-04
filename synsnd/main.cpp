@@ -1,7 +1,7 @@
 // SynSnd.cpp  build device/syn/sound.txt from all the dirs of wav files
 
-#include "../../stv/os.h"
-#include "../../stv/midi.h"
+#include "stv/os.h"
+#include "stv/midi.h"
 
 
 static TStr DirSyn, Snd [63*1024];

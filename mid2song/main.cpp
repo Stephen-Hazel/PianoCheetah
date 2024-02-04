@@ -1,7 +1,7 @@
 // mid2song.cpp - convert a .mid file to .song file
 
-#include "../../stv/os.h"
-#include "../../stv/midi.h"
+#include "stv/os.h"
+#include "stv/midi.h"
 
 // need a "broader" TrkEv in here;  .prog not stamped till PutSong
 struct EvRow {ubyt4 time;  ubyt2 ctrl;  ubyte valu, val2;       // .x fer tmpo

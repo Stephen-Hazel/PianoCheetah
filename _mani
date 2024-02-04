@@ -14,7 +14,7 @@ flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani
    "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
    "sources": [
     {"type": "dir", "path": "initme"},
-    {"type": "dir", "path": "stv"}
+    {"type": "dir", "path": "../stv", "dest": "stv"}
    ]
   },
   {
@@ -23,7 +23,7 @@ flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani
    "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
    "sources": [
     {"type": "dir", "path": "pcheetah"},
-    {"type": "dir", "path": "stv"}
+    {"type": "dir", "path": "../stv", "dest": "stv"}
    ]
   }
  ],

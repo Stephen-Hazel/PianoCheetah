@@ -3,11 +3,11 @@
 #ifndef GLO_H
 #define GLO_H
 
-#include "../../stv/ui.h"
-#include "../../stv/uiKey.h"
-#include "../../stv/timer.h"
-#include "../../stv/syn.h"
-#include "../../stv/midi.h"
+#include "stv/ui.h"
+#include "stv/uiKey.h"
+#include "stv/timer.h"
+#include "stv/syn.h"
+#include "stv/midi.h"
 
 
 const ubyt4 LRN_BT = M_WHOLE/64;       // wakeup slice for Put

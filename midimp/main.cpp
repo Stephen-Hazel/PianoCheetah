@@ -1,6 +1,6 @@
 // midimp.cpp - midi import
 
-#include "../../stv/os.h"
+#include "stv/os.h"
 
 bool Did;
 TStr DirF, DirT;

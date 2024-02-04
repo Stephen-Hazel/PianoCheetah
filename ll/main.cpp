@@ -1,7 +1,7 @@
 // ll.cpp - list long like unix (but no sortin, only midi)
 
-#include "../../stv/os.h"
-#include "../../stv/midi.h"
+#include "stv/os.h"
+#include "stv/midi.h"
 
 char Ext, *ExS = CC("alll\0"   "midi\0"   "song\0");
 TStr Top;

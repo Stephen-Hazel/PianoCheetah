@@ -3,9 +3,9 @@
 #ifndef MIDICFG_H
 #define MIDICFG_H
 
-#include "../../stv/ui.h"
-#include "../../stv/midi.h"
-#include "../../stv/snd.h"
+#include "stv/ui.h"
+#include "stv/midi.h"
+#include "stv/snd.h"
 #include "ui_midicfg.h"
 
 extern BStr DevTyp;

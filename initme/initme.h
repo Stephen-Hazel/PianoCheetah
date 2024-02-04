@@ -1,7 +1,7 @@
 // initme.h - updater fer pcheetah
 #pragma once
 
-#include "../stv/ui.h"
+#include "stv/ui.h"
 #include "ui_initme.h"
 
 QT_BEGIN_NAMESPACE

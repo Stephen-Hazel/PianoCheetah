@@ -1,7 +1,7 @@
 // txt2song.cpp - convert my "text song" formatte a.txt to a.song
 
-#include "../../stv/os.h"              // sigh - midi needs threads needs qt
-#include "../../stv/midi.h"
+#include "stv/os.h"                    // sigh - midi needs threads needs qt
+#include "stv/midi.h"
 
 #define VEL(v)    ((v)*126/9+1)        // turn v of 0-9 into midi velo of 1-127
 
