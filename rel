@@ -1,5 +1,8 @@
 #!/usr/bin/env php
 <?php
+## flatpak-builder --repo=_repo --subject="pcheetah `date`" --ccache --force-clean _app _mani
+
+
 ## rel (release kubuntu/rpi - cp to /opt/app/$app n create a .deb, etccc)
 
    $arc = isset ($argv [1]) ? 'arm64' : 'amd64';      // any arg=rpi else kub

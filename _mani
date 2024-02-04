@@ -1,0 +1,37 @@
+{
+ "_cli": '
+flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani
+         ',
+ "app-id":  "app.shazel.pcheetah",
+ "command":            "pcheetah",
+ "sdk":     "org.kde.Sdk",
+ "runtime": "org.kde.Platform",
+ "runtime-version":          "6.6",
+ "modules": [
+  {
+   "name": "initme",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "initme"}, 
+	 {"type": "dir", "path": "stv"}
+   ]
+  },
+  {
+   "name": "pcheetah",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "pcheetah"},
+	 {"type": "dir", "path": "stv"}
+   ]
+  }
+ ],
+ "finish-args": [
+  "--share=ipc",
+  "--socket=x11",
+  "--socket=wayland",
+  "--filesystem=host",
+  "--device=dri"
+ ]
+}
