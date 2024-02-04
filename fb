@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php 
+## fb - flatpak builder stuph
+   $exe = [
+      'pcheetah', 'midicfg', 'initme',           // gui
+      'll', 'mid2song', 'midimp', 'txt2song',    // background
+      'synsnd', 'sfz2syn', 'mod2song'
+   ];
+   foreach ($exe as $e)  system ("rm              $e/stv");
+   system ("flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani");
+   foreach ($exe as $e)  system ("ln -s ../../stv $e/stv");

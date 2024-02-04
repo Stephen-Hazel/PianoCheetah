@@ -9,11 +9,85 @@ flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani
  "runtime-version":          "6.6",
  "modules": [
   {
+   "name": "ll",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "ll"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+  {
+   "name": "sfz2syn",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "sfz2syn"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+  {
+   "name": "synsnd",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "synsnd"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+  {
+   "name": "midimp",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "midimp"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+
+  {
+   "name": "mid2song",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "mid2song"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+  {
+   "name": "txt2song",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "txt2song"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+  {
+   "name": "mod2song",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "mod2song"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+
+  {
    "name": "initme",
    "buildsystem": "cmake-ninja",
    "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
    "sources": [
     {"type": "dir", "path": "initme"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+  {
+   "name": "midicfg",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "midicfg"},
     {"type": "dir", "path": "../stv", "dest": "stv"}
    ]
   },
