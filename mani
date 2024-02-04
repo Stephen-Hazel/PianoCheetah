@@ -1,6 +1,6 @@
 {
  "_cli": '
-flatpak-builder -v --ccache --force-clean --repo=_repo _app _mani
+flatpak-builder --repo=_/repo _/build _mani
          ',
  "app-id":  "app.shazel.pcheetah",
  "command":            "pcheetah",
