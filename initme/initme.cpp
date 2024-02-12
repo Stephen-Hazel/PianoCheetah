@@ -9,13 +9,14 @@ ubyt4 Len;
 void InitMe::Init ()
 { TStr s, dir, fn;
   File f;
-DBG("Init");
+DBGTH("initme");DBG("Init");
    Gui.Hey (
       "Oh hi :)\n\n"
       "I need you to pick a directory for your pianocheetah files.\n"
       "Your home dir is fine.\n\n"
       "I'll make a pianocheetah dir there.");
    StrCp (dir, getenv ("HOME"));
+DBG("home=`s", dir);
    if (Gui.AskDir (dir, "Pick a dir to put the pianocheetah dir into")) {
       StrAp (dir, CC("/pianocheetah"));
 DBG("picked=`s", dir);

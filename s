@@ -6,7 +6,7 @@
    $x = isset ($argv [1]) ? 'y' : 'n';           // any arg=y
    
    $exe = [
-      'pcheetah', 'midicfg', 'initme',           // gui
+      'pianocheetah', 'midicfg', 'initme',           // gui
       'll', 'mid2song', 'midimp', 'txt2song',    // background
       'synsnd', 'sfz2syn', 'mod2song'
    ];
