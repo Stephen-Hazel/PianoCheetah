@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>app.pianocheetah.pianocheetah</id>
+  
+  <name>PianoCheetah</name>
+  <summary>Steve&apos;s weird midi sequencer for playing pop songs on piano n drum</summary>
+  
+  <metadata_license>MIT</metadata_license>
+  <project_license>GPL-2.0-or-later</project_license>
+  
+  <description>
+    <p>
+      - It&apos;s for playing a song on piano and drums.  And practicing. - Show notes in a &quot;pianoroll&quot; format that&apos;s a little bit fancy. - You practice the piano parts and the bass and vocals sync to your tempo. - NOT a daw!! We&apos;re here to get a take, not to mix down. - Getting a song into your head and fingers is the aim.
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">app.pianocheetah.pianocheetah.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://pianocheetah.app/doc/screen_ez.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://pianocheetah.app/doc/toolbar.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://pianocheetah.app/doc/screen.png</image>
+    </screenshot>
+  </screenshots>
+</component> 
