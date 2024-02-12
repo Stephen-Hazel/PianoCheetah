@@ -1,8 +1,8 @@
 #!/usr/bin/env php
 <?php # fb - flatpak builder stuph
 
-system ("echo ---uninstall");
-system ("flatpak -y uninstall app.shazel.pcheetah");
+#system ("echo ---uninstall");
+#system ("flatpak -y uninstall app.shazel.pcheetah");
 
 #system ("echo ---del remote");
 #system ("flatpak --force remote-delete pch_repo");

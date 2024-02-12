@@ -12,6 +12,10 @@
   "--socket=fallback-x11",
   "--socket=pulseaudio"
  ],
+ "build-options" : {
+  "strip": true, 
+  "no-debuginfo": true
+ },
  "modules": [
   {
    "name": "_meta",
