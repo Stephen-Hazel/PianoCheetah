@@ -8,12 +8,11 @@ system ("flatpak -y uninstall app.shazel.pcheetah");
 #system ("flatpak --force remote-delete pch_repo");
 
 system ("echo ---rebuild");
-system ("rm -fr .flatpak-builder");
 system ("rm -fr _build");   #system ("rm -fr _repo");
 system ("mkdir  _build");   #system ("mkdir  _repo");
 #system("flatpak-builder --repo=_repo _build _mani");
 system ("flatpak-builder              _build _mani");
-system ("rm -fr _build/files/lib/debug");
+system ("rm -fr .flatpak-builder _build/files/lib/debug");
 
 #system ("echo ---add remote");
 #system ("flatpak remote-add --no-gpg-verify pch_repo _repo");
