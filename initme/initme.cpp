@@ -9,7 +9,7 @@ ubyt4 Len;
 void InitMe::Init ()
 { TStr s, dir, fn;
   File f;
-DBGTH("initme");DBG("Init");
+DBG("Init bgn");
    Gui.Hey (
       "Oh hi :)\n\n"
       "I need you to pick a directory for your pianocheetah files.\n"
@@ -22,8 +22,9 @@ DBG("home=`s", dir);
 DBG("picked=`s", dir);
       if (! f.Size (dir)) {
          Gui.Hey ("I need to download a BIG file of samples.\n"
-                  "Then I'll start PianoCheetah.\n"
-                  "Please be patient :)");
+                  "Then I'll start PianoCheetah's midi configuration.\n"
+                  "This will take 3 minutes.  Please be patient :)\n"
+                  "In the mean time, turn on all your midi devices.");
          Len = WGet (Buf, sizeof (Buf),
             CC("https://pianocheetah.app/download/pianocheetah.tar.gz"));
          StrFmt (fn, "`s.tar.gz", dir);

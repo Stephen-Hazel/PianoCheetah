@@ -9,7 +9,7 @@
 			"name": "bin_to_app",
 			"buildsystem": "simple",
 			"build-commands": [ 
-				"cp -pr share /app" 
+				"cp -pr share /app",
 				"cp -pr bin   /app"
 			],
 			"sources": [

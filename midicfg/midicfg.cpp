@@ -7,34 +7,21 @@
 #include "midicfg.h"
 
 TStr SynCfg;
-
-struct {TStr nm, info;   ubyt4 sz;} DTyp [100];   ubyte NDTyp;
 BStr DevTyp;
-char Buf [1024*1024];   ubyt4 Len;
 
-void InitDevTyp ()
-{ ubyt4 p, q;
-  TStr  rec;
-   Len = WGet (Buf, sizeof (Buf),
-               CC("http://PianoCheetah.app/rep/_dev/_list.txt"));
-   for (p = 0;  p < Len;) {
-      p = NextLn (rec, Buf, Len, p);
-     ColSep cs (rec, 2);          // parse a record into name, size, info
-      StrCp (DTyp [NDTyp].nm,           cs.Col [0]);
-             DTyp [NDTyp].sz = Str2Int (cs.Col [1]);
-      StrCp (DTyp [NDTyp].info,         cs.Col [2]);
-//DBG("`d name=`s size=`d info=`s",
-//NDTyp, DTyp [NDTyp].nm, DTyp [NDTyp].sz, DTyp [NDTyp].info);
-      NDTyp++;
-   }
-   if (NDTyp < 2)  DBG ("rats, I neeed the internet");
-   StrCp (DevTyp, CC("OFF"));          // make zz str
-   for (q = 4, p = 0;  p < NDTyp;  p++) {
-      StrCp (& DevTyp [q], DTyp [p].nm);
-      q += (StrLn (DTyp [p].nm) + 1);
-   }
+void InitDevType ()
+{ TStr   dev;
+  StrArr a;
+  ubyt2  n, i, q;
+  char  *p;
+   App.Path (dev, 'd');   StrAp (dev, CC("/device"));
+   a.GetDir (dev);   n = a.NRow ();
+   StrCp (DevTyp, CC("OFF"));
+   for (q = 4, i = 0;  i < n;  i++)    // make a zz str for gui
+      {StrCp (& DevTyp [q], p = a.Get (i));   q += StrLn (p) + 1;}
    DevTyp [q] = '\0';
 }
+
 
 char TPop (char *ls, ubyt2 r, ubyte c)
 {  *ls = '\0';
@@ -192,21 +179,9 @@ void MidiCfg::Save ()
             Midi._lst [i].name, Midi._lst [i].type, Midi._lst [i].desc));
    f.Shut ();
 
-// collect our distinct devTypes in dt [n] to make sure they're downloaded
-   n = 0;
-   for (i = 0;  i < Midi._len;  i++) {
-      StrCp (ts, Midi._lst [i].type);
-      for (got = false, d = 0;  d < n;  d++)
-         if (! StrCm (ts, dt [d]))  {got = true;   break;}
-      if (! got)  StrCp (dt [n++], ts);
-   }
   CtlList so (ui->lstSyn);
    so.GetS (SynCfg);
    App.CfgPut (CC("syn"), SynCfg);
-// for (d = 0;  d < n;  d++)  DLDevTyp (dt [d]);
-// turn off devs if they hit cancel on devtyp d/l
-
-// App.Run (StrFmt (ts, "cat `p", fn));
    emit Reload ();
 }
 
@@ -336,9 +311,9 @@ void MidiCfg::MidiIEv ()
 
 void MidiCfg::Init ()
 {  _io = ' ';   _nMI = 0;
-TRC("Init");
+DBG("Init");
+   InitDevType ();
    Gui.WinLoad ();
-   InitDevTyp ();
    App.CfgGet (CC("syn"), SynCfg);
   CtlTBar tb (this,
       "Refresh device lists\n"
@@ -369,7 +344,7 @@ TRC("Init");
    connect (this, & MidiCfg::Reload, this, & MidiCfg::Load,
             Qt::QueuedConnection);
    emit Reload ();
-TRC("Init end");
+DBG("Init end");
 }
 
 
@@ -380,122 +355,13 @@ int main (int argc, char *argv [])
 { QApplication app (argc, argv);
   MidiCfg      win;
 DBGTH("MidiCfg");
-TRC("bgn");
+DBG("bgn");
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
    App.Init (CC("pcheetah"), CC("midicfg"), CC("MidiCfg"));
    Gui.Init (& app, & win);   win.Init ();
   int rc = Gui.Loop ();       win.Quit ();
-   App.Spinoff (CC("pcheetah"));
-TRC("end");
+   App.Spinoff (CC("pianocheetah"));
+DBG("end");
    return rc;
 }
-
-
-/*
-class ThrDLDevTyp: public Thread {
-public:
-   ThrDLDevTyp (Waiter *w): _w (w), Thread (w->wnd)  {}
-private:
-   Waiter *_w;
-
-   int End ()  {PostDadW (MSG_CLOSE, 0, 0);   return 0;}
-
-   DWORD Go ()
-   { MSG  msg;
-     TStr wn, fn, zn, db, arg;
-     INet in;
-     File f;
-     ubyt4 sz;
-DBG("{ ThrDLDevTyp::Go `s", _w->arg);
-      InitMsgQ ();   msg.message = 0;   StrCp (arg, _w->arg);
-
-      Len = sz = 0;
-      for (ubyte i = 0;  i < NDTyp;  i++)
-         if (! StrCm (DTyp [i].nm, arg))  {sz = DTyp [i].sz;   break;}
-DBG("name=`s size=`d", arg, sz);
-
-      StrFmt (wn, "http://PianoCheetah.app/rep/_dev/`s.zip", arg);
-      if (_w->Set (5, "downloading...")) {
-DBG("} ThrDLDevTyp::Go - cancel1");
-         return End ();
-      }
-      if (! in.GetInit (wn, Buf, sizeof (Buf))) {
-         _w->msg.Set (StrFmt (db, "couldn't open url `s", wn));
-DBG("} ThrDLDevTyp::Go - couldn't open `s", wn);
-         return End ();
-      }
-      while (in.GetNext (& Len)) {
-         StrFmt (db, "downloading DeviceType=`s  `dK of `dK...", arg, Len/1024,
-                                                                       sz/1024);
-         if (_w->Set (sz ? (ubyte)(5+(uhuge)70*Len/sz) : 0, db)) {
-DBG("} ThrDLDevTyp::Go - cancel2");
-            return End ();
-         }
-      }
-
-      StrFmt (db, "end download - `d bytes;  begin unzip", Len);
-      if (_w->Set (75, db)) {
-DBG("} ThrDLDevTyp::Go - cancel3");
-         return End ();
-      }
-      if (Len >= sizeof (Buf))  Die ("couldn't download devicetype", arg);
-      Buf [Len] = '\0';
-      if (StrSt (Buf, "<html>")) {
-DBG("} ThrDLDevTyp::Go - couldn't download devicetype :(", arg);
-         return End ();
-      }
-      StrFmt (fn, "`s/Device/`s.zip",  App.Path (wn, 'd'), arg);
-      f.Save (fn, Buf, Len);
-      if (_w->die) {
-DBG("} ThrDLDevTyp::Go - died");
-         return End ();
-      }
-
-      StrCp (zn, fn);   Fn2Name (zn);   Zip (zn, 'u');
-      f.Kill (fn);
-
-DBG("} ThrDLDevTyp::Go - OK!");        // ok, you can close (too?), Pop
-      _w->rc = 0;                      // it WERKED :)
-      return End ();
-   }
-};
-
-
-class DlgDLDevTyp: public Dialog {
-public:
-   DlgDLDevTyp (char *arg): Dialog (IDD_WAIT, IDI_APP), _t (NULL)
-                   {StrCp (_w.arg, arg);_w.rc = 99;   DBG(arg);}
-  ~DlgDLDevTyp ()  {delete _t;}
-   bool Cool ()    {return (_w.rc == 0) ? true : false;}
-private:
-   ThrDLDevTyp *_t;
-   Waiter       _w;
-   void Open ()  {_w.Init (Wndo ());   _t = new ThrDLDevTyp (& _w);}
-   void Done ()  {_w.Quit ();   _t->PostKid (WM_CLOSE, 0, 0);}
-};
-
-
-void DLDevTyp (char *nm)
-{ char *p;
-  TStr  s, fn;
-  File  f;
-DBG("{ DLDevTyp `s", nm);
-   StrCp (s, nm);   if (p = StrCh (s, ' '))  *p = '\0';
-   App.Path (fn, 'd');   StrAp (fn, "/device/");   StrAp (fn, s);
-
-   if ( (! StrCm (s, "OFF")) || f.PathGot (fn) ) {
-DBG("} DLDevTyp  (already got or OFF)");
-      return;
-   }
-
-  DlgDLDevTyp dlg (s);
-   dlg.Ok (App.wndo);
-   if (! dlg.Cool ()) {                // didn't get all the way done :(
-DBG("cancel so killin it");
-      f.PathKill (fn);
-   }
-DBG("} DLDevTyp");
-}
-
-*/

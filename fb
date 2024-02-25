@@ -1,21 +1,7 @@
 #!/usr/bin/env php
 <?php # fb - flatpak builder stuph
 
-#system ("echo ---uninstall");
-#system ("flatpak -y uninstall app.shazel.pcheetah");
-
-#system ("echo ---del remote");
-#system ("flatpak --force remote-delete pch_repo");
-
-system ("echo ---rebuild");
-system ("rm -fr _build");   #system ("rm -fr _repo");
-system ("mkdir  _build");   #system ("mkdir  _repo");
-#system("flatpak-builder --repo=_repo _build _mani");
-system ("flatpak-builder              _build _mani");
+system ("rm -fr _build .flatpak-builder");
+system ("mkdir  _build");
+system ("flatpak-builder _build _mani");
 system ("rm -fr .flatpak-builder _build/files/lib/debug");
-
-#system ("echo ---add remote");
-#system ("flatpak remote-add --no-gpg-verify pch_repo _repo");
-
-#system ("echo ---install");
-#system ("flatpak install --noninteractive pch_repo app.shazel.pcheetah");
