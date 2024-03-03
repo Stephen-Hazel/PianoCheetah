@@ -603,7 +603,7 @@ int main (int arc, char *argv [])
   StrArr a;
 DBGTH("sfz2syn");
 DBG("bgn");
-   App.Init (CC("pcheetah"), CC("sfz2syn"), CC("Sfz2Syn"));
+   App.Init ();
    StrCp (Top, argv [1]);
 DBG("Top=`s", Top);
 // Top minus path (no ext) => To - our sampleset in syn dir

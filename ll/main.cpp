@@ -39,7 +39,7 @@ int main (int argc, char *argv [])
 { ulong p;
   TStr  fn, to;
 DBGTH("ll");
-   App.Init (CC("pcheetah"), CC("ll"), CC("ll"));
+   App.Init ();
    if (argc < 3)                           return 99;
    if (! (Ext = PosInZZ (argv [1], ExS)))  return 99;
    Ext--;

@@ -62,7 +62,7 @@ int main (int argc, char *argv [])
   Path d;  (void)argc;   (void)argv;
 DBGTH("MidImp");
 TRC("bgn");
-   App.Init (CC("pcheetah"), CC("midimp"), CC("midimp"));
+   App.Init ();
    App.Path (DirF, 'd');   StrCp (DirT, DirF);
 // from ..pianocheetah/midi_import to ..pianocheetah/4_queue
    StrAp (DirF, CC("/midi_import"));

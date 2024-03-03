@@ -606,13 +606,13 @@ int main (int argc, char *argv [])
 // if (! One.Open ("Ditty_is_HERE", App.parm))
 //    {DBG ("PCheetah already goin");   return 0;}
 // ::SystemParametersInfo (SPI_SETSCREENSAVEACTIVE, 0, 0, 0);   // stop scrsaver
-   App.Init (CC("pcheetah"), CC("pianocheetah"), CC("PianoCheetah"));
+   App.Init ();
+   Gui.Init (& app, & win, "PianoCheetah");   win.Init ();   RandInit ();
    App.Run  (CC("midimp &"));
-   Gui.Init (& app, & win);   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
    qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton" );
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
-  int rc = Gui.Loop ();       win.Quit ();
+  int rc = Gui.Loop ();                       win.Quit ();
    return rc;
 }

@@ -387,7 +387,7 @@ int main (int argc, char *argv [])
   FDir d;
   File f;
 DBGTH("Mod2Song");
-   App.Init (CC("pcheetah"), CC("mod2song"), CC("MOD2Song"));
+   App.Init ();
 TRC("arg=`s", argv [1]);               // we EXPECT ta be called by midimp
                                        // so .../4_queue/dir/song/a.mod
 // MODs have loads of weird .exts so can't check

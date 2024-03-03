@@ -1092,7 +1092,7 @@ int main (int argc, char *argv [])
 { TStr fn, to;
   File f;
 DBGTH("Mid2Song");
-   App.Init (CC("pcheetah"), CC("mid2song"), CC("mid2song"));
+   App.Init ();
    StrCp (FN, argv [1]);
    if (argc < 2)  {DBG ("usage is Mid2Song fn.mid");   return 99;}
 TRC("FN=`s", FN);

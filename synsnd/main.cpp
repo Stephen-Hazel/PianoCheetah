@@ -99,8 +99,7 @@ int main (int arc, char *argv [])
   File f;
 DBGTH("SynSnd");
 TRC("bgn");
-   App.Init (CC("pcheetah"), CC("synsnd"), CC("SynSnd"));
-
+   App.Init ();
    StrFmt (DirSyn, "`s/device/syn", App.Path (ts, 'd'));
 TRC("DirSyn=`s", DirSyn);
 

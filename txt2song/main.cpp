@@ -670,7 +670,7 @@ int main (int argc, char *argv [])
 { char *msg;
   File  f;
 DBGTH("Txt2Song");
-   App.Init (CC("pcheetah"), CC("txt2song"), CC("txt2song"));
+   App.Init ();
 TRC("arg=`s", argv [1]);
    if (argc < 2)  return 99;
 
