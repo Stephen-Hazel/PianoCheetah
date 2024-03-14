@@ -1,1 +1,0 @@
-/home/sh/.var/app/app.pianocheetah.pianocheetah/config
