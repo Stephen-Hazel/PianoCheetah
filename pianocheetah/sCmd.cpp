@@ -269,7 +269,7 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       }
       Hey (s);
    }
-   else if (ofs == 4) {                // hearLoop (lrn tracks, not rec, no bg)
+   else if (ofs == 4) {                // hearLoop (lrn not rec)
 //    if (! PRAC)
 //       {Hey (CC("you need to be in practice mode to hear a loop"));   return;}
       t = Up.lrn;   Cmd ("recWipe");   Cmd ("timeBar1");
@@ -277,7 +277,7 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
       return;                          // unpoz cuz we might be after timeBar1
    }
-   else if (ofs == 5) {                // hearRec (rec tracks and bg)
+   else if (ofs == 5) {                // hearRec  (rec not lrn)
       t = Up.lrn;   Cmd ("timeBar1");   TmpoPik ('r');
       Up.lrn = LHREC;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}

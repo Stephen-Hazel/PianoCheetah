@@ -4,6 +4,14 @@
    "sdk":     "org.kde.Sdk",
    "runtime": "org.kde.Platform",
    "runtime-version": "6.6",
+   "finish-args": [
+      "--filesystem=host",
+      "--share=ipc",
+      "--share=network",
+      "--socket=wayland",
+      "--socket=fallback-x11",
+      "--socket=pulseaudio"
+   ],
    "modules": [
       {
          "name": "cp_to_app",
@@ -14,18 +22,11 @@
          ],
          "sources": [
             {
-               "type": "dir",
-               "path": "_build/files"
+               "type": "git",
+               "url": "https://github.com/Stephen-Hazel/pc_build.git",
+               "branch": "main"
             }
          ]
       }
-   ],
-   "finish-args": [
-      "--filesystem=host",
-      "--share=ipc",
-      "--share=network",
-      "--socket=wayland",
-      "--socket=fallback-x11",
-      "--socket=pulseaudio"
    ]
 }

@@ -201,10 +201,13 @@ if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
 void Song::PutNt (ubyte t, TrkEv *e, bool bg)
 { ubyte ctrl = e->ctrl, valu = e->valu, i, dv, ch, dL, cL;
   ubyt4 v, d;
+//DBG("a");
    if (! TDrm (t))  ctrl += _f.tran;   // got some live transposin?
 // adjust velo if bg trk, learn mode n ntDn
    if (bg && (PRAC || PLAY) && ENTDN (e)) {
+//DBG("b");
       if (Up.ez) {
+//DBG("c");
          for (v = d = i = 0;  i < 7;  i++)  if (_dn [_pDn].velo [i])
             {v += _dn [_pDn].velo [i];   d++;}
          if (d)  valu = e->valu = 0x80 |
@@ -212,6 +215,7 @@ void Song::PutNt (ubyte t, TrkEv *e, bool bg)
 TRC("   ezbg valu=128+`d", valu & 0x7F);
       }
       else {
+//DBG("d");
          if (_lrn.veloRec && _lrn.veloSng) {
             if      (_lrn.veloRec > _lrn.veloSng) {
                v =  (_lrn.veloRec - _lrn.veloSng) * (128 - (valu & 0x7F));
@@ -233,12 +237,14 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
          }
       }
    }
+//DBG("e");
    if ((! bg) && TLrn (t) && (! TDrm (t)) && Up.ez && ENTDN (e) && (! HEAR))
       valu = 0x80 | _dn [_pDn].velo [_f.trk [t].ht - '1'];
    if (t >= Up.rTrk)
         {RecDvCh (t, e, & dv, & ch, & dL, & cL);
          if ((cL != 128) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}
    else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
+//DBG("f");
 
 if (App.trc) {TStr d1,d2;
 StrFmt (d1, "PutNt `s.`d velo=`d", Up.dev [dv].mo->Name (), ch+1, valu&0x7F);
@@ -339,16 +345,17 @@ TRC(" trk lrn,rec loop:");
          lrn = TLrn (t);   if ((! lrn) && (t < Up.rTrk))  continue;
                                        // lrn==true for lrn trk, false for rec
          drm = TDrm (t);
+TRC("  t=`d lrn=`b drm=`b Up.lrn=`s Up.ez=`b", t, lrn, drm, LrnS(), Up.ez);
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
             if (ECTRL (& e [p]))       // ctrl:  if rec or ez or hear
                {if ((! lrn) || Up.ez || HEAR)
-                                             PutCC (t, & e [p]);}
+                                           PutCC (t, & e [p]);}
             else if (! lrn)            // note-rec: off if ez n melo
                {if (! (Up.ez && (! drm)))  PutNt (t, & e [p]);}
             else {                     // note-lrn: put n mark for hear/prac
                if (HEAR || (Up.ez && (! drm)))
-                                             PutNt (t, & e [p]);
+                                           PutNt (t, & e [p]);
                else if (! drm)  _lrn.nt [e [p].ctrl] = e [p].valu;
             }
          }

@@ -78,7 +78,7 @@
    <item>
     <widget class="QCheckBox" name="trc">
      <property name="text">
-      <string>trace to ~/dbg.txt</string>
+      <string>trace to dbg.txt</string>
      </property>
     </widget>
    </item>
