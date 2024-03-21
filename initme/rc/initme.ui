@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>345</width>
-    <height>78</height>
+    <width>452</width>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,14 +17,17 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>10</y>
-      <width>301</width>
-      <height>51</height>
+      <width>433</width>
+      <height>204</height>
      </rect>
     </property>
     <property name="text">
-     <string>let's get pianocheetah setup...</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Let's get pianocheetah setup...&lt;br/&gt;&lt;/p&gt;&lt;p&gt;I need to download a BIG file of samples.&lt;/p&gt;&lt;p&gt;Then I'll start PianoCheetah's midi configuration.&lt;/p&gt;&lt;p&gt;This will take &lt;span style=&quot; font-weight:700;&quot;&gt;3 minutes&lt;/span&gt;. Please be patient :)&lt;/p&gt;&lt;p&gt;In the mean time, turn on all your midi devices.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

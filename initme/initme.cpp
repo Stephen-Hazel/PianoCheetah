@@ -6,8 +6,16 @@ char  Buf [800000000];
 ubyt4 Len;
 
 
-void InitMe::Init ()
-{ TStr s, dir, fn;
+void InitMe::Init ()  {}
+void InitMe::Quit ()  {}
+
+int main (int argc, char *argv [])
+{ QApplication app (argc, argv);
+  InitMe       win;
+DBGTH("InitMe");
+   App.Init ();   Gui.Init (& app, & win, "InitMe");   win.Init ();
+
+  TStr s, dir, fn;
   File f;
 DBG("Init bgn");
    Gui.Hey (
@@ -21,10 +29,6 @@ DBG("home=`s", dir);
       StrAp (dir, CC("/pianocheetah"));
 DBG("picked=`s", dir);
       if (! f.Size (dir)) {
-         Gui.Hey ("I need to download a BIG file of samples.\n"
-                  "Then I'll start PianoCheetah's midi configuration.\n"
-                  "This will take 3 minutes.  Please be patient :)\n"
-                  "In the mean time, turn on all your midi devices.");
          Len = WGet (Buf, sizeof (Buf),
             CC("https://pianocheetah.app/download/pianocheetah.tar.gz"));
          StrFmt (fn, "`s.tar.gz", dir);
@@ -37,16 +41,9 @@ DBG("unzip complete");
 DBG("dir=`s", dir);
    }
 DBG("Init end");
-   Gui.Quit ();
-}
+// Gui.Quit ();
 
-void InitMe::Quit ()  {}
-
-int main (int argc, char *argv [])
-{ QApplication app (argc, argv);
-  InitMe       win;
-DBGTH("InitMe");
-   App.Init ();   Gui.Init (& app, & win, "InitMe");   win.Init ();
-  int rc = Gui.Loop ();                                win.Quit ();
-   return rc;
+// int rc = Gui.Loop ();
+   win.Quit ();
+   return 0;
 }

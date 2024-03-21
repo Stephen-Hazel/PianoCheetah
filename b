@@ -23,7 +23,8 @@
 // add _build n release manifest to flathub pr's git repo
    system ("rm -fr _xb _repo");        // unused build dir _xb for fb
    system ("mkdir  _xb _repo");
-   system ("$fb --repo=_repo _xb $app.json");    // flathub release manifest
+// make repo from THIS _build dir w _rel json
+   system ("$fb --repo=_repo _xb _rel");    
    system ("rm -fr    _build _xb .$fb");
 
 // add repo, install, remove n rm repo  (just tryna be neat)

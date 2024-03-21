@@ -1,29 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>app.pianocheetah.pianocheetah</id>
-  
   <name>PianoCheetah</name>
-  <summary>Steve&apos;s weird midi sequencer for playing pop songs on piano n drum</summary>
+  <summary>Steve&apos;s weird midi sequencer for pop piano n drum</summary>
   
   <metadata_license>MIT</metadata_license>
   <project_license>GPL-2.0-or-later</project_license>
+  <url type="homepage">https://pianocheetah.app</url>
+  <developer id="app.pianocheetah">
+    <name>Stephen Hazel</name>
+  </developer>
   
   <description>
     <p>
-      - It&apos;s for playing a song on piano and drums.  And practicing. - Show notes in a &quot;pianoroll&quot; format that&apos;s a little bit fancy. - You practice the piano parts and the bass and vocals sync to your tempo. - NOT a daw!! We&apos;re here to get a take, not to mix down. - Getting a song into your head and fingers is the aim.
+      It&apos;s for playing and practicing a song on piano and drums.
+      Shows notes in a &quot;pianoroll&quot; format that&apos;s a little bit fancy.
+    </p>
+    <p>
+      You practice the piano parts and the background tracks sync to your tempo.
+      Getting a song into your head and fingers is the aim.
+
+      The real notes of the song can be simplifed down to one note per hand max.
+      And your hands can stay in one position.
     </p>
   </description>
   
   <launchable type="desktop-id">app.pianocheetah.pianocheetah.desktop</launchable>
   <screenshots>
     <screenshot type="default">
+      <caption>Playing a song in easy mode - 1 note max per hand</caption>
       <image>https://pianocheetah.app/doc/screen_ez.png</image>
     </screenshot>
     <screenshot>
+      <caption>PianoCheetah toolbar</caption>
       <image>https://pianocheetah.app/doc/toolbar.png</image>
     </screenshot>
     <screenshot>
+      <caption>Playing the full notes of a song</caption>
       <image>https://pianocheetah.app/doc/screen.png</image>
     </screenshot>
   </screenshots>
+
+  <content_rating type="oars-1.0" />
+
+  <releases>
+    <release version="1.0" date="2024-03-20">
+      <description>
+        <p>Initial release on flathub.</p>
+      </description>
+    </release>
+  </releases>
 </component> 

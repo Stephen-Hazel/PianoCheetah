@@ -23,9 +23,8 @@
          ],
          "sources": [
             {
-               "type": "git",
-               "url": "https://github.com/Stephen-Hazel/pc_build.git",
-               "commit": "9676f924cb3b3f68c6acedd648c135eb57e9ef76"
+               "type": "dir",
+               "path": "_build/files"
             }
          ]
       }
