@@ -182,7 +182,7 @@ void MidiCfg::Save ()
   CtlList so (ui->lstSyn);
    so.GetS (SynCfg);
    App.Path (fn, 'd');   StrAp (fn, CC("/device/syn.txt"));
-   f.Save (fn, SynCfg);
+   f.Save (fn, SynCfg, StrLn (SynCfg));
    emit Reload ();
 }
 
@@ -317,8 +317,11 @@ DBG("Init");
    Gui.WinLoad ();
   TStr fn;
   File f;
+  ulong ln;
    App.Path (fn, 'd');   StrAp (fn, CC("/device/syn.txt"));
-   f.Load (fn, SynCfg);
+   ln = f.Load (fn, SynCfg, sizeof (SynCfg)-1);
+   SynCfg [ln] = '\0';
+   while (ln && (SynCfg [ln-1] == '\n'))  SynCfg [--ln] = '\0';
   CtlTBar tb (this,
       "Refresh device lists\n"
        "(if you've installed/uninstalled/forgot to power on devices)"
