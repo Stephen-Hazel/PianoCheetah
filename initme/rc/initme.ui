@@ -24,7 +24,13 @@
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Let's get pianocheetah setup...&lt;br/&gt;&lt;/p&gt;&lt;p&gt;I need to download a BIG file of samples.&lt;/p&gt;&lt;p&gt;Then I'll start PianoCheetah's midi configuration.&lt;/p&gt;&lt;p&gt;This will take &lt;span style=&quot; font-weight:700;&quot;&gt;3 minutes&lt;/span&gt;. Please be patient :)&lt;/p&gt;&lt;p&gt;In the mean time, turn on all your midi devices.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>I need to download a BIG bunch of samples.
+This will take -4- minutes :(   Please be patient :)
+
+When I'm done, I'll bring up MidiConfig
+so please turn on all your midi devices.
+
+(and please don't close me - sorry)</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>

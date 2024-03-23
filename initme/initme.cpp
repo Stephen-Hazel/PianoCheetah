@@ -2,21 +2,12 @@
 
 #include "initme.h"
 
+TStr  DirPC;
 char  Buf [800000000];
 ubyt4 Len;
 
-
-void InitMe::Init ()  {}
-void InitMe::Quit ()  {}
-
-int main (int argc, char *argv [])
-{ QApplication app (argc, argv);
-  InitMe       win;
-DBGTH("InitMe");
-   App.Init ();   Gui.Init (& app, & win, "InitMe");   win.Init ();
-
-  TStr s, dir, fn;
-  File f;
+void InitMe::Init ()
+{ TStr dir;
 DBG("Init bgn");
    Gui.Hey (
       "Oh hi :)\n\n"
@@ -27,23 +18,32 @@ DBG("Init bgn");
 DBG("home=`s", dir);
    if (Gui.AskDir (dir, "Pick a dir to put the pianocheetah dir into")) {
       StrAp (dir, CC("/pianocheetah"));
-DBG("picked=`s", dir);
-      if (! f.Size (dir)) {
-         Len = WGet (Buf, sizeof (Buf),
-            CC("https://pianocheetah.app/download/pianocheetah.tar.gz"));
-         StrFmt (fn, "`s.tar.gz", dir);
-         f.Save (fn, Buf, Len);
-DBG("Len=`d size=`d", Len, f.Size (fn));
-         Zip (dir, 'x');
-DBG("unzip complete");
-      }
-      App.CfgPut (CC("d"), dir);
-DBG("dir=`s", dir);
+      StrCp (DirPC, dir);
+DBG("picked=`s", DirPC);
+      App.CfgPut (CC("d"), DirPC);
+      Gui.WinLoad ();
    }
 DBG("Init end");
-// Gui.Quit ();
+}
 
-// int rc = Gui.Loop ();
+void InitMe::Quit ()  {}
+
+int main (int argc, char *argv [])
+{ QApplication app (argc, argv);
+  InitMe       win;
+  File   f;
+  Setup *s  = nullptr;
+  int    rc = 0;
+DBGTH("InitMe");   DBG("bgn");
+   App.Init ();   Gui.Init (& app, & win, "InitMe");   win.Init ();
+   if (*DirPC && (! f.Size (DirPC))) {
+      s  = new Setup ();
+DBG("came back from thread");
+      rc = Gui.Loop ();
+DBG("gui loop done");
+      delete s;
+   }
    win.Quit ();
-   return 0;
+DBG("end");
+   return rc;
 }
