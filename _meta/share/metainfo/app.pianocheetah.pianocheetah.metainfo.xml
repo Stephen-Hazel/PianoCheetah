@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
+   
   <id>app.pianocheetah.pianocheetah</id>
+   
   <name>PianoCheetah</name>
-  <summary>Steve&apos;s weird midi sequencer for pop piano n drum</summary>
+   
+  <summary>Piano practice that&apos;s kinda fun</summary>
   
   <metadata_license>MIT</metadata_license>
-  <project_license>GPL-2.0-or-later</project_license>
+  <project_license>GPL-3.0-or-later</project_license>
+   
   <url type="homepage">https://pianocheetah.app</url>
   <developer id="app.pianocheetah">
     <name>Stephen Hazel</name>
@@ -13,21 +17,24 @@
   
   <description>
     <p>
-      It&apos;s for playing and practicing a song on piano and drums.
+      Play and practice a pop song on piano and drums.
       Shows notes in a &quot;pianoroll&quot; format that&apos;s a little bit fancy.
     </p>
     <p>
       You practice the piano parts and the background tracks sync to your tempo.
-      Getting a song into your head and fingers is the aim.
+      Our aim is to get a song into our head and fingers.
 
       The real notes of the song can be simplifed down to one note per hand max.
       And your hands can stay in one position.
+       
+      Any midi file can become a song for you to practice and play.
 
-      More description / install docs / screenshots on the website.
+      More description / install docs / screenshots on the website (see Links).
     </p>
   </description>
   
   <launchable type="desktop-id">app.pianocheetah.pianocheetah.desktop</launchable>
+   
   <screenshots>
     <screenshot type="default">
       <caption>Playing a song in easy mode - 1 note max per hand</caption>
@@ -42,7 +49,12 @@
       <image>https://pianocheetah.app/doc/screen.png</image>
     </screenshot>
   </screenshots>
-
+   
+  <branding>
+    <color type="primary" scheme_preference="light">#ffffcb</color>
+    <color type="primary" scheme_preference="dark">#121212</color>
+  </branding>
+   
   <content_rating type="oars-1.0" />
 
   <releases>
@@ -52,4 +64,5 @@
       </description>
     </release>
   </releases>
+
 </component> 
