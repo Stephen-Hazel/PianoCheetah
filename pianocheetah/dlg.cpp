@@ -664,11 +664,14 @@ DBG("no _midicache.txt for `s", dMid);
    f.DoText (fnC, nullptr, FLFind);   FFnd.Shut ();
 DBG("found `d", NFnd);
    if (NFnd == 0)   {Gui.Hey ("rats!  got nothin");   return;}
-
+DBG("a");
    if (NFnd >= 100)  if (Gui.YNo (
                          "I'm only copyin 100 of the midi files, pal.\n"
-                         "wanna view all matched filenames?"))
+                         "wanna view all matched filenames?")) {
+DBG("b");
       App.Run (StrFmt (c, "xdg-open `p &", fnF));
+   }
+DBG("c");
 
 // ok copy em to 4_queue/found
    StrCp (DirF, dMid);   StrCp (DirT, dFnd);   f.DoText (fnF, nullptr, FLCopy);
