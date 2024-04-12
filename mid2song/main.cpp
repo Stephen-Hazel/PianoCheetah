@@ -788,7 +788,7 @@ void Song::PutSong ()  // ...FROM HELLLLL !!  clean up the TERRIBLE midi format
   ubyt2 t, dd,  dtrk [128];  // per dev, store drum trak (tr# will ALWAYS be >0)
   bool  mt, gs = false;
   char  dr;
-  TStr  ts, snnm;
+  TStr  ts, tm, snnm;
   File  tf;
 TRC("PutSong bgn");
    TSig ();                            // organize TimeSig cc events
@@ -970,11 +970,11 @@ DBG("dump#4"); Dump(false);
    Fs.Put (CC("Track:\n"));
    for (s = 0;  s < St.Ln;  s++) {
       t = St [s].trak;
-      if      (St [s].hand == 1) StrCp (ts, CC(".?RH "));
-      else if (St [s].hand == 2) StrCp (ts, CC(".?LH "));
-      else                       StrCp (ts, CC(".SH "));
-      StrAp (ts, Tr [t].name);
-      if (s && (St [s].chan == St [s-1].chan))  *ts = '+';
+      if      (St [s].hand == 1) StrCp (tm, CC(".?RH"));
+      else if (St [s].hand == 2) StrCp (tm, CC(".?LH"));
+      else                       StrCp (tm, CC(".SH"));
+      StrCp (ts, Tr [t].name);
+      if (s && (St [s].chan == St [s-1].chan))  *tm = '+';
       ts [40] = '\0';                  // trim to 40 chars MAX
       while (StrLn (ts) && (ts [StrLn (ts)-1] == ' '))  StrAp (ts, CC(""), 1);
       if ((St [s].chan & 0x0F) == 9)  StrCp (snnm, CC("Drum/*"));
@@ -982,7 +982,7 @@ DBG("dump#4"); Dump(false);
       if (St [s].prog & 0x00FFFF)
          StrFmt (& snnm [StrLn (snnm)], ".`03d`03d",
             (St [s].prog & 0x00FF00) >> 8, St [s].prog & 0x0000FF);
-      Fs.Put (StrFmt (SB, ".  `s  `s#`s\n", snnm, ts, snnm));
+      Fs.Put (StrFmt (SB, ".  `s  `s  `s#`s\n", snnm, tm, ts, snnm));
 TRC("SB=`s", SB);
    }
    if (Ly.Ln) {                        // tack any Lyrics onto .song file

@@ -230,7 +230,8 @@ TRC(" put each ctl");
 TRC(" timerset");                      // unpoz unless uPoz
    _timer->Set (_pNow = 1 + (_rNow = _now = tm));   _onBt = true;
    _lrn.POZ = false;   Poz (Up.uPoz);
-   Draw ('a');
+DBG("skip Draw a ok?");
+// Draw ('a');
 TRC(" timerset2");
    _timer->Set (_now);                 // Draw takes a while :/
 TStr d1,d2,d3;

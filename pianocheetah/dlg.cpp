@@ -640,7 +640,9 @@ void DlgFL::Find ()
   ColSep ss (srch, 8);
    for (NCol = 0;  ss.Col [NCol][0];  NCol++)  Col [NCol] = ss.Col [NCol];
    App.CfgGet (CC("DlgFL_dir"), dMid);
+DBG("a dir=`s", dMid);
    if (*dMid == '\0')  StrCp (dMid, getenv ("HOME"));
+DBG("b dir=`s", dMid);
    if (! Gui.AskDir (dMid, "pick dir to search for songs in (NOT / please)"))
       return;
 
@@ -669,7 +671,7 @@ DBG("a");
                          "I'm only copyin 100 of the midi files, pal.\n"
                          "wanna view all matched filenames?")) {
 DBG("b");
-      App.Run (StrFmt (c, "xdg-open `p &", fnF));
+      App.Run (StrFmt (c, "xdg-open `p &", fnF), false);
    }
 DBG("c");
 
