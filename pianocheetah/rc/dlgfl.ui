@@ -58,7 +58,14 @@
         </layout>
        </item>
        <item>
-        <widget class="QTableWidget" name="fLst"/>
+        <widget class="QTableWidget" name="fLst">
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
