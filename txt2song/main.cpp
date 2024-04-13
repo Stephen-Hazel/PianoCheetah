@@ -228,11 +228,11 @@ char *DoCC (char *b)
    if (! StrCm (b, CC("name"  ))) {
       StrCp (TNm [NTrk], p);
       if (! MemCm (p, CC("drum"), 4))
-         {StrCp (TNm [NTrk], CC("DrumTrack"));
-          StrCp (TSn [NTrk], CC("Drum/*"));}
+           {StrCp (TNm [NTrk], CC("DrumTrack"));
+            StrCp (TSn [NTrk], CC("Drum/*"));}
       else if ( (! StrCm (p, CC("LH"))) ||
                 (! StrCm (p, CC("RH"))) )
-         {StrCp (& TMd [NTrk][1], p);   TMd [NTrk][0] = '?';}
+           {StrCp (& TMd [NTrk][1], p);   TMd [NTrk][0] = '?';}
       return nullptr;
    }
    if (! StrCm (b, CC("section"))) {
@@ -415,9 +415,7 @@ void Put ()
    ly.Load (lFN);
 
    if (! f.Open (SFN, "w"))  {DBG("couldn't write .song", SFN);   exit (99);}
-   for (t = 0;  t < NTrk;  t++)  if (TNm [t][0] == '?')
-      {f.Put (CC("Learn=c\n"));   break;}   // play
-   f.Put (    CC("Track:\n"));
+   f.Put (CC("Track:\n"));
    for (t = 0;  t < NTrk;  t++) {
       f.Put (StrFmt (s, ".  `s  .`s  `s\n",
          TSn [t][0] ? TSn [t] : "Piano_AcousticGrand",
