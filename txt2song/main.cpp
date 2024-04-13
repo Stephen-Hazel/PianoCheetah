@@ -46,9 +46,10 @@ char  Scale [12], Artc,           // defaults
 
 
 void Die (char *msg)
-{ TStr s;
+{ TStr s, p;
   File f;
-   StrFmt (s, "`s  (file `s line `d)\n", msg, ErrFN, ErrLine+1);
+   StrCp (p, ErrFN);   Fn2Path (p);   Fn2Path (p);
+   StrFmt (s, "`s\n`s line `d\n", msg, & ErrFN [StrLn (p)+1], ErrLine+1);
    f.Save (FNRats, s, StrLn (s));
    exit (99);
 }
@@ -97,16 +98,16 @@ char *DoNote (char *b, ubyte l)
   bool  got, nt;
   ubyte len, step, f, chd [4], nChd, i, rollOfs = 0;
    while (l && (*b == ' '))  {b++; l--;}
-   if (l == 0)                         Die (CC("DoNote  Missin duration"));
+   if (l == 0)                         Die (CC("Missin duration"));
    for (len = 0;  len < l;  len++)  if (b [len] == ' ') break;
-   if (! DoDur (b, len))               Die (CC("DoNote  Bad duration"));
+   if (! DoDur (b, len))               Die (CC("Bad duration"));
    b += len;  l -= len;  while (l && (*b == ' '))  {b++; l--;}
    while (l) {
       got = nt = false;
    // velocity change?
       if ((l >= 2) && (*b == 'V')) {
          step = b [1];
-         if ((step < '0') || (step > '9'))  Die (CC("DoNote  Bad velocity"));
+         if ((step < '0') || (step > '9'))  Die (CC("Bad velocity"));
                   got = true;  Velo = VEL (step-'0');  b += 2;  l -= 2;
       }
    // drum?
@@ -121,8 +122,8 @@ char *DoNote (char *b, ubyte l)
    // regular octNoteNote...
       if (! got) {
          if ((*b >= '0') && (*b <= '9'))  {Octv = *b - '0';  b++;  l--;}
-         if (l == 0)                   Die (CC("DoNote  Missin Nt after Oct"));
-         if (! (p = StrCh (NoteSym, *b)))   Die (CC("DoNote  Bad note"));
+         if (l == 0)                        Die (CC("Missin Nt after Oct"));
+         if (! (p = StrCh (NoteSym, *b)))   Die (CC("Bad note"));
          step = p - NoteSym;                                 b++;  l--;
          if (l && StrCh (CC("%#@"), *b))  {shrp = *b;        b++;  l--;}
          else                              shrp = ' ';
@@ -133,7 +134,7 @@ char *DoNote (char *b, ubyte l)
       }
       if (nt) {
       // ok, got dur and step - create the note
-         if (NE+2 >= MAX_EVT)          Die (CC("DoNote  Hit max events"));
+         if (NE+2 >= MAX_EVT)          Die (CC("Hit max events"));
          if (Grace) {
             if (Time < (M_WHOLE/32))   Die (CC("Gracenote can't start bar 1"));
             E [NE+0].time = Time-(M_WHOLE/32);
@@ -152,20 +153,20 @@ char *DoNote (char *b, ubyte l)
          if (l && (*b == '!'))  {b++; l--;  E [NE+0].valu = 0xFF;
                                             E [NE+1].valu = 0x7F;}
          if (l && (*b == '['))  {      // fingering
-            b++;  l--;  if (l == 0)    Die (CC("DoNote  Missin fingering"));
+            b++;  l--;  if (l == 0)    Die (CC("Missin fingering"));
             fing[0] = *b;
-            b++;  l--;  if (l == 0)    Die (CC("DoNote  Missin fingering"));
+            b++;  l--;  if (l == 0)    Die (CC("Missin fingering"));
             if (*b == ']')    fing[1] = '\0';
             else {
                fing[1] = *b;  fing[2] = '\0';
                b++;  l--;
                if ((l == 0) || (*b != ']'))
-                                       Die (CC("DoNote  Missin ]"));
+                                       Die (CC("Missin ]"));
             }
             b++;  l--;
             for (f = 0;  f < BITS (MFing);  f++)
                if (StrCm (MFing [f], fing) == 0)  break;
-            if (f >= BITS (MFing))     Die (CC("DoNote  Inval fingering"));
+            if (f >= BITS (MFing))     Die (CC("Inval fingering"));
             E [NE+0].val2 = f+1;
          }
          NE += 2;
@@ -186,7 +187,7 @@ char *DoNote (char *b, ubyte l)
                                      {chd[2] = 4;  b++;  l--;}
                }
             }
-            if ((NE+2*nChd) >= MAX_EVT)  Die (CC("DoNote  Hit max events +"));
+            if ((NE+2*nChd) >= MAX_EVT)  Die (CC("Hit max events +"));
             for (i = 0;  i < nChd;  i++) {
                step += chd [i];
                E [NE+0].time =                        E [NE-2].time;
@@ -210,7 +211,7 @@ char *DoCC (char *b)
 { ubyte c, i;
   ubyt2 v, n, d;
   char *p, *p2, *p3;
-   if (! (p = StrCh (b, '=')))  Die (CC("DoCC  no ="));
+   if (! (p = StrCh (b, '=')))  Die (CC("missing ="));
    *p++ = '\0';
 
 // special-ish ones...
@@ -235,10 +236,12 @@ char *DoCC (char *b)
            {StrCp (& TMd [NTrk][1], p);   TMd [NTrk][0] = '?';}
       return nullptr;
    }
+   if (! StrCm (b, CC("marker")))
+      Die (CC("use section.  not marker.  sorry."));
    if (! StrCm (b, CC("section"))) {
-      if (NMrk >= BITS (Mrk))  Die (CC("DoCC  tooo many sections"));
+      if (NMrk >= BITS (Mrk))  Die (CC("tooo many sections"));
       if (NMrk && (Time <= Mrk [NMrk-1].t))
-         Die (CC("DoCC  section's time is BEFORE previously found section - "
+         Die (CC("section's time is BEFORE previously found section - "
                   "keep all sections in the same track"));
       StrCp (Mrk [NMrk].s, p);   Mrk [NMrk].t = Time;
 TStr db;
@@ -248,9 +251,9 @@ NMrk, Mrk[NMrk].s, Mrk[NMrk].t, TmS (db,Mrk[NMrk].t));
       return nullptr;
    }
    if (! StrCm (b, CC("cue"))) {
-      if (NCue >= BITS (Cue))  Die (CC("DoCC  tooo many cue lines"));
+      if (NCue >= BITS (Cue))  Die (CC("tooo many cue lines"));
       if (NCue && (Time <= Cue [NCue-1].t))
-         Die (CC("DoCC  this cue time is BEFORE a prev cue - "
+         Die (CC("this cue time is BEFORE a prev cue - "
                   "keep all !cue=... stuff in the SAME track"));
       StrCp (Cue [NCue].s, p);   Cue [NCue].t = Time;
       NCue++;
@@ -261,24 +264,24 @@ NMrk, Mrk[NMrk].s, Mrk[NMrk].t, TmS (db,Mrk[NMrk].t));
    for (c = 0;  c < NCtrl;  c++)  if (! StrCm (Ctrl [c], b))  break;
    if (c >= NCtrl) {                   // new dude
       if (StrLn (b) > (sizeof (WStr)-1))
-                                 Die (CC("DoCC  control name too long"));
-      if (NCtrl >= BITS (Ctrl))  Die (CC("DoCC  too many controls"));
+                                 Die (CC("control name too long"));
+      if (NCtrl >= BITS (Ctrl))  Die (CC("too many controls"));
       StrCp (Ctrl [NCtrl++], b);
    }
 
 // ok, parse the wierd ones first (tsig, ksig)
    if      (! StrCm (b, CC("TSig"))) {
-      if (! (p2 = StrCh (p, '/')))     Die (CC("DoCC  TSig Missing /"));
+      if (! (p2 = StrCh (p, '/')))     Die (CC("TSig Missing /"));
       p3 = StrCh (++p2, '/');
       n = (ubyt2) Str2Int (p);
       d = (ubyt2) Str2Int (p2);
       for (i = 0;  i < 8;  i++) if ((1 << i) == d) break;
-      if (i >= 8)                      Die (CC("DoCC  bad TSig denom"));
+      if (i >= 8)                      Die (CC("bad TSig denom"));
       v = (i << 8) | n;
       if (p3) {                  // got subbeat?
          i = (ubyte) Str2Int (p3+1);
          if ((i >= 1) && (i <= 8))  v |= ((i-1) << 12);
-         else                          Die (CC("DoCC  bad TSig subbeat"));
+         else                          Die (CC("bad TSig subbeat"));
       }
       else if (v == 0x0204)      // default 4/4 to 4/4/4
          v = 0x3204;
@@ -294,7 +297,7 @@ NMrk, Mrk[NMrk].s, Mrk[NMrk].t, TmS (db,Mrk[NMrk].t));
    else
       v = (ubyt2) Str2Int (p);         // a regular one
 
-   if (NE >= MAX_EVT)  Die (CC("DoCC  tooo many events"));
+   if (NE >= MAX_EVT)  Die (CC("tooo many events"));
    E [NE].time = Time;   E [NE].ctrl = 0x80 | c;
                          E [NE].valu = (ubyte)(v & 0x00FF);
                          E [NE].val2 = (ubyte)(v >> 8);
@@ -317,7 +320,7 @@ char *DoChord (char *b, ubyte l)
       MemCp (chd, b, len);   chd [len] = '\0';
       if (StrCm (chd, CC("|"))) {      // | really does nothin, just legibility
          if (StrCm (chd, CC("/"))) {   // / only bumps Time
-            if (NCue >= BITS (Cue))  Die (CC("DoChord  tooo many"));
+            if (NCue >= BITS (Cue))  Die (CC("tooo many chords"));
             Cue [NCue].t     = Time;
             Cue [NCue].s [0] = '*';   StrCp (& Cue [NCue].s [1], chd);
             NCue++;
@@ -603,9 +606,9 @@ char *DoLine (char *b, ubyt2 l, ubyt4 line, void *ptr)
    if (! StrCm (b, CC("unroll")))  {unr = 1;  return nullptr;}
    if (unr) {
       if (NSct >= BITS (Sct))
-                            Die (CC("DoLine  tooo many sections under unroll"));
+                      Die (CC("too many sections in unroll"));
       for (i = 0;  i < NMrk;  i++)  if (! StrCm (Mrk [i].s, b))  break;
-      if (i >= NMrk)        Die (CC("DoLine  unroll section not HERE"));
+      if (i >= NMrk)  Die (CC("unknown section in unroll"));
       StrCp (Sct [NSct++], b);
       return nullptr;
    }
@@ -638,9 +641,10 @@ char *DoLine (char *b, ubyt2 l, ubyt4 line, void *ptr)
 
 // default scale/artic?
    if (*b == '$')  {
-      if (l < 8)                        Die (CC("DoLine  Bad scale"));
+      if (l < 8)             Die (CC("Bad scale"));
       if (l > 8) {
-         if (! StrCh (ArtcSym, b [8]))  Die (CC("DoLine  Bad default Artic"));
+         if (! StrCh (ArtcSym, b [8]))
+                             Die (CC("Bad default Artic"));
          Artc = b [8];
       }
       Scale[0] = b[1];  Scale[2] = b[2];  Scale[4] = b[3];

@@ -470,7 +470,7 @@ void FLstDef::Save ()
 bool FLstDef::DoDir (char *dir)
 // if pc dir (win expl play song dir), just scoot to it in list
 { ubyt4 i, ln;
-  TStr  pc, fn, c;
+  BStr  pc, fn, fne, c;
   File  f;
 TRC("FL.DoDir `s", dir);
    FL.pos = 0;
@@ -480,8 +480,15 @@ TRC("FL.DoDir `s", dir);
       return false;
    }
    if (! f.Size (StrFmt (fn, "`s/a.song", dir))) {
-      if      (f.Size (StrFmt (fn, "`s/a.txt", dir)))
+      if      (f.Size (StrFmt (fn, "`s/a.txt", dir))) {
          App.Run (StrFmt (c, "txt2song `p", fn));
+         StrFmt (fne, "`s/RATS.txt", dir);
+         if (f.Size (fne)) {
+            f.Load (fne, c, sizeof (c), 'z');
+            Gui.Hey (c);
+            Gui.Quit ();               // eh, just blow the scene, mannn
+         }
+      }
       else if (f.Size (StrFmt (fn, "`s/a.mid", dir)))
          App.Run (StrFmt (c, "mid2song `p", fn));
       FL.Load ();
