@@ -216,7 +216,7 @@ char *DoCC (char *b)
 // special-ish ones...
    if (! StrCm (b, CC("sound" ))) {
       StrCp (TSn [NTrk], p);
-      if (! StrCm (p, CC("drum"), 4))
+      if (! MemCm (p, CC("drum"), 4))
          {StrCp (TNm [NTrk], CC("DrumTrack"));
           StrCp (TSn [NTrk], CC("Drum/*"));}
       return nullptr;
