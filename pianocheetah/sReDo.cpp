@@ -772,7 +772,7 @@ void Song::SetSym ()
 { ubyte nw, ww, nMn, nMx, nd, dmap [128], dpos, td, t, st, bl, sb, i, j, nt;
   ubyt2 W, H, x, xo, w, th, ch, b, dx, cw, y1, y2, h;
   ubyt4 np, nc, nb, ns, p, q, nn, pc1, cb1, cs1, tb, te, ntb, nte, sn, d, e;
-  bool  drm, mt;
+  bool  drm, mt, got;
   TrkNt   *n;
   DownRow *dr;
 TStr ts1, ts2;
@@ -886,44 +886,61 @@ TRC("_col full prob cuz w,h");
                if (mt)  continue;      // empty of notes - neeext
                dpos--;                 // bump dpos
             }
-            if (Up.ez && (! drm)) {
+            if (Up.ez && (! drm)) {    // in ez, syms come from _dn notes
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
-                  ntb = nte = dr->time;
                   for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t) {
-                     if ((ntb < tb) || (ntb >= te))  continue;
-
-                     nte += (M_WHOLE/16);
-                  // look for a better nte (to next dn in my trk)
-                     for (mt = true, e = d+1;  e < _dn.Ln;  e++) {
+                     ntb = dr->time;
+                     nte = dr->time + (M_WHOLE/16);   // even trills always 16th
+                  // true nte is next dn in my trk
+                     for (got = false, e = d+1;  e < _dn.Ln;  e++) {
                         for (j = 0;  j < _dn [e].nNt;  j++)
                            if (_dn [e].nt [j].t == t) {
                               if (    (_dn [e].time - 4) > nte) {
                                  nte = _dn [e].time - M_WHOLE/64;
-                                 if (nte >= te)  nte = te-1;  // limit it to col
+                                 if (nte >= te)  nte = te-1;    // limit to col
                               }
-                              mt = false;   break;
+                              got = true;   break;
                            }
-                        if (! mt)  break;
-                     }
+                        if (got)  break;
+                     }                 // LONG one or no next so go qnote
+                     if ((! got) || ((nte - ntb) > M_WHOLE))
+                        nte = dr->time + (M_WHOLE/4);
+
+                     if ((nte < tb) || (ntb >= te))  continue;
+
                      nt = dr->nt [i].nt;
                      ns = _sym.Ins ();
                      _sym [ns].tr = t;   _sym [ns].nt = nt;     // not p !
                      _sym [ns].tm = ntb;
                      _sym [ns].top = _sym [ns].bot = true;
-                     for (q = cb1;  q < nb;  q++)
-                        if ((ntb >= _blk [q].tMn) &&
-                            (ntb <  _blk [q].tMx))  break;
-                     _sym [ns].y = (ubyt2)(_blk [q].y + _blk [q].h *
-                                           (ntb          - _blk [q].tMn) /
-                                           (_blk [q].tMx - _blk [q].tMn));
-                     for (q = cb1;  q < nb;  q++)
-                        if ((nte >= _blk [q].tMn) &&
-                            (nte <  _blk [q].tMx))  break;
-                     _sym [ns].h = (ubyt2)(_blk [q].y + _blk [q].h *
-                                           (nte          - _blk [q].tMn) /
-                                           (_blk [q].tMx - _blk [q].tMn) -
-                                           _sym [ns].y + 1);
-                     if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
+                     if (ntb < tb) {
+                        _sym [ns].top = false;
+                        q = cb1;
+                        _sym [ns].y = (ubyt2)(_blk [q].y - _blk [q].h *
+                                              (_blk [q].tMn - ntb) /
+                                              (_blk [q].tMx - _blk [q].tMn));
+                     }
+                     else {
+                        for (q = cb1;  q < nb;  q++)
+                           if ((ntb >= _blk [q].tMn) &&
+                               (ntb <  _blk [q].tMx))  break;
+                        _sym [ns].y = (ubyt2)(_blk [q].y + _blk [q].h *
+                                              (ntb          - _blk [q].tMn) /
+                                              (_blk [q].tMx - _blk [q].tMn));
+                     }
+                     if (nte >= te) {
+                        _sym [ns].bot = false;
+                        _sym [ns].h = ch - _sym [ns].y;
+                     }
+                     else {
+                        for (q = cb1;  q < nb;  q++)
+                           if ((nte >= _blk [q].tMn) &&
+                               (nte <  _blk [q].tMx))  break;
+                        _sym [ns].h = (ubyt2)(_blk [q].y + _blk [q].h *
+                                              (nte          - _blk [q].tMn) /
+                                              (_blk [q].tMx - _blk [q].tMn) -
+                                              _sym [ns].y + 1);
+                     }
 
                   // always white
                      x = xo + (nt - nMn) * nw;   w = ww;
