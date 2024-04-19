@@ -23,7 +23,6 @@ void Song::ReTrk ()
       *s = _f.trk [r].ht;   s [1] = '\0';
       StrCp (Up.trk [r].ht, s);
       StrCp (Up.trk [r].name, _f.trk [r].name);
-//    if ((c = StrCh (Up.trk [r].name, '#')))  *c = '\0';
       StrCp (s, SndName (r));
       *g = '\0';
       if (*s) {

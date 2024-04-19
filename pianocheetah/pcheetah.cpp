@@ -81,10 +81,10 @@ void PCheetah::SongKill ()
 
    StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
    if (MemCm (dr, t, StrLn (t)))
-      return;//{Heya ("songKill only works in 4_queue dir");   return;}
-   FL.lst.Del (p);   d.Kill (dr);      // and maybe group dir too
+      {Gui.Hey ("songKill only works in 4_queue dir");   return;}
+   FL.lst.Del (p);   d.Kill (dr);
    Fn2Path (dr);   if (d.Empty (dr))  d.Kill (dr);
-   FL.pos = p;
+   FL.pos = p;                         // and parent dir if left empty
    emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
 }
 
@@ -309,6 +309,7 @@ void PCheetah::Upd (QString upd)
       _tr.Open ();   rp [8] = nullptr;
       for (ubyte i = 0, tc = 0;  i < Up.rTrk;  i++) {
          rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ht;
+DBG("t=`d  ht=`s", i, Up.trk [i].ht);
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;

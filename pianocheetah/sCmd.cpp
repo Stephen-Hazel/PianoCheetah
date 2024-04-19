@@ -284,12 +284,18 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       return;
    }
    else if (ofs == 6) {                // flip shh (reset lrn,ht on shh true)
-      if ((_f.trk [e].shh = ! _f.trk [e].shh))  {_f.trk [e].lrn = false;
-                                                 _f.trk [e].ht  = '\0';}
+      _f.trk [e].lrn = false;
+      _f.trk [e].ht  = '\0';
+      _f.trk [e].shh = ! _f.trk [e].shh;
    }
-   else if (ofs == 7)                  // flip lrn
-      if ((_f.trk [e].lrn = ! _f.trk [e].lrn))  {_f.trk [e].shh = false;
-                                                 _f.trk [e].ht  = '\0';}
+   else if (ofs == 7) {                // flip lrn  (restore ht if lrn on)
+      _f.trk [e].shh = false;
+      _f.trk [e].ht  = '\0';
+      if ((_f.trk [e].lrn = ! _f.trk [e].lrn)) {
+         c = (_f.trk [e].name [1] == 'H') ? _f.trk [e].name [0] : 'x';
+         if ((c == 'L') || (c == 'R'))  _f.trk [e].ht = c;
+      }
+   }
    ReDo ();
 }
 
