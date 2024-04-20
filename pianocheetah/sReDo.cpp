@@ -904,16 +904,18 @@ TRC("_col full prob cuz w,h");
                      }                 // LONG one or no next so go qnote
                      if ((! got) || ((nte - ntb) > M_WHOLE))
                         nte = dr->time + (M_WHOLE/4);
-
                      if ((nte < tb) || (ntb >= te))  continue;
-
+                                       // FINALLY got nte
                      nt = dr->nt [i].nt;
                      ns = _sym.Ins ();
                      _sym [ns].tr = t;   _sym [ns].nt = nt;     // not p !
                      _sym [ns].tm = ntb;
                      _sym [ns].top = _sym [ns].bot = true;
-                     if (ntb < tb) {
-                        _sym [ns].top = false;
+                     if      (ntb < ((tb < M_WHOLE/32) ? 0 : (tb-M_WHOLE/32))) {
+                        _sym [ns].top = false;   _sym [ns].y = H_KB;
+                     }
+                     else if (ntb < tb) {
+                     // top stickin into piano area
                         q = cb1;
                         _sym [ns].y = (ubyt2)(_blk [q].y - _blk [q].h *
                                               (_blk [q].tMn - ntb) /
@@ -928,8 +930,7 @@ TRC("_col full prob cuz w,h");
                                               (_blk [q].tMx - _blk [q].tMn));
                      }
                      if (nte >= te) {
-                        _sym [ns].bot = false;
-                        _sym [ns].h = ch - _sym [ns].y;
+                        _sym [ns].bot = false;   _sym [ns].h = ch - _sym [ns].y;
                      }
                      else {
                         for (q = cb1;  q < nb;  q++)
@@ -940,6 +941,7 @@ TRC("_col full prob cuz w,h");
                                               (_blk [q].tMx - _blk [q].tMn) -
                                               _sym [ns].y + 1);
                      }
+                     if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
 
                   // always white
                      x = xo + (nt - nMn) * nw;   w = ww;
@@ -966,8 +968,9 @@ TRC("_col full prob cuz w,h");
                      _sym [ns].tr = t;   _sym [ns].nt = p;
                      _sym [ns].top = (n [p].dn != NONE) ? true : false;
                      _sym [ns].bot = (n [p].up != NONE) ? true : false;
-                     if      (ntb < ((tb < M_WHOLE/32) ? 0 : (tb-M_WHOLE/32)))
-                        {_sym [ns].top = false;   _sym [ns].y = H_KB;}
+                     if      (ntb < ((tb < M_WHOLE/32) ? 0 : (tb-M_WHOLE/32))) {
+                        _sym [ns].top = false;   _sym [ns].y = H_KB;
+                     }
                      else if (ntb < tb) {
                      // top stickin into piano area
                         q = cb1;
@@ -983,9 +986,9 @@ TRC("_col full prob cuz w,h");
                                               (ntb          - _blk [q].tMn) /
                                               (_blk [q].tMx - _blk [q].tMn));
                      }
-                     if (nte >= te)
-                        {_sym [ns].bot = false;
-                         _sym [ns].h = ch - _sym [ns].y;}
+                     if (nte >= te) {
+                        _sym [ns].bot = false;   _sym [ns].h = ch - _sym [ns].y;
+                     }
                      else {
                         for (q = cb1;  q < nb;  q++)
                            if ((nte >= _blk [q].tMn) &&
