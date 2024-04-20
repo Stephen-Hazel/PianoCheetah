@@ -604,7 +604,10 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
       ro [0] = s1;   ro [1] = s2;   ro [2] = nullptr;
       _t.Put (ro);
    }
-   _t.Shut ();   _t.HopTo (FL.pos, 0);
+   _t.Shut ();
+DBG("colw=`d", _t.ColW (1));
+   if (_t.ColW (1) > 600)  _t.SetColW (1, 600);
+   _t.HopTo (FL.pos, 0);
    Pik ();
 }
 
