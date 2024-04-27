@@ -7,6 +7,7 @@ bool Song::DscGet (char *key, char *val)    // key is whatev= or whatev={
 // messin w _f.dsc
 { char *p, *e;
    *val = '\0';
+DBG("DscGet key='`s'", key);
    if (! (p = StrSt (_f.dsc, key)))    return false;
    if (key [StrLn (key)-1] == '{') {
       if (! (e = StrSt (p, CC("}\n"))))  return false;
@@ -17,6 +18,7 @@ bool Song::DscGet (char *key, char *val)    // key is whatev= or whatev={
       p += StrLn (key);
    }
    MemCp (val, p, e-p);   val [e-p] = '\0';
+DBG("   val='`s'", val);
    return true;
 }
 
@@ -26,7 +28,7 @@ void Song::DscPut (char *repl)
 { char *e, *p, *p2;
   ubyt4 ofs;
   TStr  tag;
-//DBG("DscPut repl=`s _f.dsc=...\n`s", repl, _f.dsc);
+DBG("DscPut repl=`s _f.dsc=...\n`s", repl, _f.dsc);
    e = StrCh (repl, '=');
    MemCp (tag, repl, e-repl+1);   tag [e-repl+1] = '\0';
    if ((p = StrSt (_f.dsc, tag))) {    // get n find 'tag='  replace btw end p2
@@ -49,7 +51,7 @@ void Song::DscPut (char *repl)
          DBG("DscPut  ins - outa room `s", repl);
       StrAp (_f.dsc, repl);   StrAp (_f.dsc, CC("\n"));
    }
-//DBG("DscPut:  _f.dscOut=...\n`s", _f.dsc);
+DBG("   => _f.dsc=...\n`s", _f.dsc);
 }
 
 
@@ -58,6 +60,7 @@ void Song::Pract ()
 { char *p;                             // (too tricky for DscPut)
   TStr  day, mo, chk;
   ubyt4 ln, pLn;
+DBG("pract _f.dsc=...\n`s", _f.dsc);
    Now (day);   StrCp (mo, day);   mo [6] = '\0';
                 day [5] = ' ';   day [8] = '\0';      // use & day [5] for " dd"
    StrFmt (chk, "pract `s", mo);
@@ -83,11 +86,14 @@ void Song::Pract ()
       StrCp (& _f.dsc [pLn + StrLn (chk)], & _f.dsc [pLn]);
       MemCp (& _f.dsc [pLn], chk, StrLn (chk));
    }
+DBG("   => _f.dsc=...\n`s", _f.dsc);
 }
 
 
 void Song::DscInit ()                  // init w defaults
-{  _f.tmpo = FIX1;   _f.tran = 0;   Up.lrn = LHEAR;  }
+{  _f.tmpo = FIX1;   _f.tran = 0;   Up.lrn = LHEAR;
+DBG("DscInit");
+}
 
 
 void Song::DscLoad ()                  // parse junk outa _dsc plus info={...}
@@ -102,14 +108,16 @@ void Song::DscLoad ()                  // parse junk outa _dsc plus info={...}
    if (DscGet (CC("learn="), s))      Up.lrn  =  *s;
    if (DscGet (CC("ez="), s))         Up.ez   = (*s == 'Y') ? true : false;
    Cfg.tran = _f.tran;                 // ...sigh
-TRC("DscLoad  tmpo=`d tran=`d lrn=`c", _f.tmpo, _f.tran, Up.lrn);
+TRC("DscLoad  tmpo=`d tran=`d lrn=`c ez=`b",
+_f.tmpo, _f.tran, Up.lrn, Up.ez);
 }
 
 
-void Song::DscSave ()                  // put junk back in _dsc
+void Song::DscSave ()                  // put stats into _dsc
 { ubyte i;
   TStr  pr, ks, ts, tp, s;
   BStr  buf;
+DBG("DscSave");
    StrFmt (buf, "tempo=`d",     _f.tmpo);                DscPut (buf);
    StrFmt (buf, "transpose=`d", _f.tran);                DscPut (buf);
    StrFmt (buf, "learn=`c",     Up.lrn);                 DscPut (buf);
@@ -440,6 +448,7 @@ void Song::Load (char *fn)
   File  f;
   TrkEv *e2;
   STable st [TB_MAX];
+   Wipe ();
    App.Path (buf, 'd');   StrAp (buf, CC("/4_queue/"));    // git window title
    if (MemCm (fn, buf, StrLn (buf)))  FnName (fnt, fn);
    else                               StrCp  (fnt, & fn [StrLn (buf)]);
@@ -609,8 +618,8 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
       StrCp (buf,  st [TB_LYR].Get (e, 1));
       while ((m = StrCh (buf, '_')))  *m = ' ';
       if      (*buf == '*') {                                        // * chd
-         _lrn.chd = true;
          if (StrCm (buf, CC("*SHOW")))  TxtIns (tm, & buf [1], & _f.chd);
+         else                           _lrn.chd = true;
       }
       else if (*buf == '!')  TxtIns (tm, & buf [1], & _f.bug);       // ! bug
       else if (*buf == '?')  TxtIns (tm, & buf [1], & _f.cue, 'c');  // ? cue
@@ -800,14 +809,14 @@ TRC("save fn=`s", fns);
             MDrm2Str (s2,     _f.mapD [d].inp)
          ));
 
-   // jam _f.cue,_f.bug,_f.chd into _f.lyr
+   // jam ?cue,*chd,!bug into lyr to write em all
       for (i = 0;  i < _f.cue.Ln;  i++) {
          StrCp (s2, CC("?"));
          if (_f.cue [i].tend)
             StrFmt (s2, "?/`d", _f.cue [i].tend - _f.cue [i].time);
          TxtIns (_f.cue [i].time, StrAp  (s2,        _f.cue [i].s), & _f.lyr);
       }                                // SHOW chord flag needed?
-      if (_lrn.chd && (! _f.chd.Ln))  TxtIns (0, CC("*SHOW"), & _f.lyr);
+      if (_lrn.chd)  TxtIns (0, CC("*SHOW"), & _f.lyr);
       for (i = 0;  i < _f.chd.Ln;  i++)
          TxtIns (_f.chd [i].time, StrFmt (s2, "*`s", _f.chd [i].s), & _f.lyr);
       for (i = 0;  i < _f.bug.Ln;  i++)

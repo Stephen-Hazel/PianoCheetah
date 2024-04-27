@@ -516,8 +516,8 @@ TRC(" lyr,tr,nt init");
       "_SnGrp\0"
       "_Sound\0"
       "_Dev.Chan\0"
-      "Notes\0"
-      "Ctrls\0", TrPop);
+      ">Notes\0"
+      ">Ctrls\0", TrPop);
    _tr.SetRowH (Gui.FontH ()+1);
 
    ui->tr->setContextMenuPolicy (Qt::CustomContextMenu);

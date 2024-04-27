@@ -27,7 +27,7 @@
    system ("$fb --repo=_repo _xb _rel");    
    system ("rm -fr    _build _xb .$fb");
 
-// add repo, install, remove n rm repo  (just tryna be neat)
+// add repo, install, n remove repo  (just tryna be neat)
    system ("$f remote-add --no-gpg-verify $repo _repo");
    system ("$f install --noninteractive   $repo $app");
    system ("$f --force remote-delete      $repo");
