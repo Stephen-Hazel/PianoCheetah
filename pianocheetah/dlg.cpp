@@ -692,8 +692,7 @@ DBG("found `d", NFnd);
 }
 
 
-void DlgFL::Brow ()
-{ TStr d, c;   if (system (StrFmt (c, "dolphin `p", App.Path (d, 'd'))))  {}  }
+void DlgFL::Brow ()  { TStr d;   App.Open (App.Path (d, 'd'));}
 
 void DlgFL::Up ()
 { ubyt4 p = FL.pos;
