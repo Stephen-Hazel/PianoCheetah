@@ -7,7 +7,7 @@ bool Song::DscGet (char *key, char *val)    // key is whatev= or whatev={
 // messin w _f.dsc
 { char *p, *e;
    *val = '\0';
-DBG("DscGet key='`s'", key);
+//DBG("DscGet key='`s'", key);
    if (! (p = StrSt (_f.dsc, key)))    return false;
    if (key [StrLn (key)-1] == '{') {
       if (! (e = StrSt (p, CC("}\n"))))  return false;
@@ -18,7 +18,7 @@ DBG("DscGet key='`s'", key);
       p += StrLn (key);
    }
    MemCp (val, p, e-p);   val [e-p] = '\0';
-DBG("   val='`s'", val);
+//DBG("   val='`s'", val);
    return true;
 }
 
@@ -28,7 +28,7 @@ void Song::DscPut (char *repl)
 { char *e, *p, *p2;
   ubyt4 ofs;
   TStr  tag;
-DBG("DscPut repl=`s _f.dsc=...\n`s", repl, _f.dsc);
+//DBG("DscPut repl=`s _f.dsc=...\n`s", repl, _f.dsc);
    e = StrCh (repl, '=');
    MemCp (tag, repl, e-repl+1);   tag [e-repl+1] = '\0';
    if ((p = StrSt (_f.dsc, tag))) {    // get n find 'tag='  replace btw end p2
@@ -51,7 +51,7 @@ DBG("DscPut repl=`s _f.dsc=...\n`s", repl, _f.dsc);
          DBG("DscPut  ins - outa room `s", repl);
       StrAp (_f.dsc, repl);   StrAp (_f.dsc, CC("\n"));
    }
-DBG("   => _f.dsc=...\n`s", _f.dsc);
+//DBG("   => _f.dsc=...\n`s", _f.dsc);
 }
 
 
@@ -60,7 +60,7 @@ void Song::Pract ()
 { char *p;                             // (too tricky for DscPut)
   TStr  day, mo, chk;
   ubyt4 ln, pLn;
-DBG("pract _f.dsc=...\n`s", _f.dsc);
+//DBG("pract _f.dsc=...\n`s", _f.dsc);
    Now (day);   StrCp (mo, day);   mo [6] = '\0';
                 day [5] = ' ';   day [8] = '\0';      // use & day [5] for " dd"
    StrFmt (chk, "pract `s", mo);
@@ -86,13 +86,13 @@ DBG("pract _f.dsc=...\n`s", _f.dsc);
       StrCp (& _f.dsc [pLn + StrLn (chk)], & _f.dsc [pLn]);
       MemCp (& _f.dsc [pLn], chk, StrLn (chk));
    }
-DBG("   => _f.dsc=...\n`s", _f.dsc);
+//DBG("   => _f.dsc=...\n`s", _f.dsc);
 }
 
 
 void Song::DscInit ()                  // init w defaults
 {  _f.tmpo = FIX1;   _f.tran = 0;   Up.lrn = LHEAR;
-DBG("DscInit");
+//DBG("DscInit");
 }
 
 
@@ -117,7 +117,7 @@ void Song::DscSave ()                  // put stats into _dsc
 { ubyte i;
   TStr  pr, ks, ts, tp, s;
   BStr  buf;
-DBG("DscSave");
+//DBG("DscSave");
    StrFmt (buf, "tempo=`d",     _f.tmpo);                DscPut (buf);
    StrFmt (buf, "transpose=`d", _f.tran);                DscPut (buf);
    StrFmt (buf, "learn=`c",     Up.lrn);                 DscPut (buf);

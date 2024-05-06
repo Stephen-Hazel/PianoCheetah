@@ -44,6 +44,7 @@ public slots:
    void Brow ();
    void Up   ();
    void Dn   ();
+   void Sfz2Syn ();
 
 private:
    Ui::DlgFL *ui;
