@@ -45,6 +45,7 @@ public slots:
    void Up   ();
    void Dn   ();
    void Sfz2Syn ();
+   void Mod2Song ();
 
 private:
    Ui::DlgFL *ui;

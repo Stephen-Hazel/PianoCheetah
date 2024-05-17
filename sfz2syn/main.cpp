@@ -68,11 +68,16 @@ sbyt4 Vel2Int (char *s)
 }
 
 //______________________________________________________________________________
+void FnFixSl (char *s)  {  while (*s)  {if (*s == '\\') *s = '/';
+                                        s++;}
+                        }              // fix \ into / shoish
+
+
 void DoWav (char *dp, char *sm, char got [3][NSFZP],
                                sbyt4 sfz [3][NSFZP])
 { sbyt4 i, sp, ia [15];
   ubyte j, k;
-  TStr  fn, ts, s [15], ffn, wfn, sfn, pre, suf;      // sfn is new syn fn
+  TStr  fn, ts, s [15], wfn, xfn, fnx, sfn, pre, suf; // sfn is new syn fn
   BStr  cmd;
   bool  ok;
   BStr  ps;
@@ -110,21 +115,19 @@ DBG("DoWav dp=`s sm=`s", dp, sm);
 DBG(" sample not THERE: `s", fn);
       return;                          // sample not there so baaaail
    }
-   *ffn = '\0';   StrCp (wfn, fn);
+   *xfn = *fnx = '\0';   StrCp (wfn, fn);
    i = StrLn (fn);
-   if      ( (i > 5) && (! StrCm (& fn [i-5], CC(".flac"))) ) {
-      StrCp (ffn, fn);   StrAp (wfn, CC(".WAV"), 5);
-      if (*FlacExe == '\0') {
-         App.CfgGet (CC("flac"), FlacExe);
-         if (*FlacExe == '\0') {
-DBG("can't convert .flac without flac app :(");
-            return;
-         }
-      }
-      App.Run (StrFmt (cmd, "`s -d \"`s\"", FlacExe, ffn));
+// gotta convert some format to .wav?
+   if ( (i > 4) && (! StrCm (& fn [i-4], CC(".ogg"))) )
+      StrCp (fnx,                        CC(".ogg"));
+   if ( (i > 5) && (! StrCm (& fn [i-5], CC(".flac"))) )
+      StrCp (fnx,                        CC(".flac"));
+   if (*fnx) {
+      StrCp (xfn, fn);   StrAp (wfn, CC(".WAV"), StrLn (fnx));
+      App.Run (StrFmt (cmd, "ffmpeg -i `p `p", xfn, wfn));
    }
    else if ( (i > 4) && (  StrCm (& fn [i-4], CC(".wav"))) ) {
-DBG(" non .wav fn=`s", fn);
+DBG(" non .wav fn=`s ???", fn);
       return;                          // non .WAV so baaail
    }
 
@@ -167,7 +170,7 @@ s[0],s[1],s[2],s[3],s[4], s[5],s[6],s[7],s[8],s[9]));
    if (! MemCm (CC("ERROR"), ts, 5)) {
 LF.Put (StrFmt (ps, "`s for `s\n", ts, wfn));
       wv.Wipe ();
-      if (*ffn)  f.Kill (wfn);         // clean up .flac's temp .wav
+      if (*xfn)  f.Kill (wfn);         // clean up .flac's temp .wav
 DBG(" can't read wfn=`s", wfn);
       return;                          // can't read .WAV so baaaail
    }
@@ -237,7 +240,7 @@ MKey2Str (s[0], (ubyte)sfz [0][KL]), MDrm2Str (s[1], (ubyte)sfz [0][KL]) ));
    wv.Save (fn);
    wv.Wipe ();
 
-   if (*ffn)  f.Kill (wfn);            // clean up .flac's temp .wav
+   if (*xfn)  f.Kill (wfn);            // clean up .flac's temp .wav
 }
 
 char *LIn [3] = {CC("region"), CC("group"), CC("global")};
@@ -412,11 +415,13 @@ LF.Put (StrFmt (ps, "default_path=`s\n", dp));
                StrFmt (ts, "`s/`s`s", Top, dp, sm);
                if (! f.Size (ts))  StrAp (sm, CC(".flac"), 4);
             }
+            FnFixSl (sm);
          }
          else {
             if (p [7] == '*') {                       // ez-est at least
                MemCp (sm, & p [7], e = (ubyt4)(q-p-7));
                sm [e] = '\0';
+               FnFixSl (sm);
                StrCp (p, q);
             }
             else {
@@ -428,11 +433,13 @@ LF.Put (StrFmt (ps, "default_path=`s\n", dp));
                if      ((q = StrSt (r2, CC(".wav")))) {
                   StrCp (p, (q [4] == ' ') ? (& q [4]) : CC(""));
                   q [4] = '\0';   StrCp (sm, r2);
+                  FnFixSl (sm);
 DBG("   .wav: sm=`s", sm);
                }
                else if ((q = StrSt (r2, CC(".flac")))) {
                   StrCp (p, (q [5] == ' ') ? (& q [5]) : CC(""));
                   q [5] = '\0';   StrCp (sm, r2);
+                  FnFixSl (sm);
 DBG("   .flac: sm=`s", sm);
                }
                else if ((q = StrCh (r2, '$'))) {
@@ -442,6 +449,7 @@ DBG("   .flac: sm=`s", sm);
                   if (r2 [StrLn (r2)-1] == '.')  StrAp (r2, CC(""), 1);
                   StrCp (sm, r2);
                   StrAp (sm, CC(".wav"));
+                  FnFixSl (sm);
                   StrFmt (ts, "`s/`s`s", Top, dp, sm);
 //DBG("   pa=`s dp=`s sm=`s ts='`s' size=`d", Top, dp, sm, ts, f.Size (ts));
                   if (! f.Size (ts))  StrAp (sm, CC(".flac"), 4);
@@ -613,7 +621,7 @@ DBG("Top=`s", Top);
    StrFmt (To, "`s/device/syn/`s", App.Path (ts, 'd'), fn);
 DBG("To=`s", To);
 
-// ok, make To dir n open log.txt there
+// ok, (re)make To dir n open log.txt there
    p.Kill (To);   p.Make (To);
    if (! LF.Open (StrFmt (fn, "`s/log.txt", To), "w")) {
 DBG("couldn't write file=`s", fn);
@@ -669,7 +677,6 @@ LF.Put(ls);   LF.Put (CC("\n"));   DBG(ls);
       DoSfz (Fn [i]);
    }
    LF.Shut ();
-   App.Run (CC("synsnd"));
 DBG("end");
    return 0;
 }
