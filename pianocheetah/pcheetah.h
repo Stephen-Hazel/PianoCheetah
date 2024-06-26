@@ -41,11 +41,12 @@ public slots:
    void ReDo ();
    void Pik  ();
    void Find ();
-   void Brow ();
    void Up   ();
    void Dn   ();
-   void Sfz2Syn ();
+   void Sfz2Syn  ();
    void Mod2Song ();
+   void MidImp   ();
+   void Brow     ();
 
 private:
    Ui::DlgFL *ui;

@@ -63,16 +63,16 @@ int main (int argc, char *argv [])
 DBGTH("MidImp");
 TRC("bgn");
    App.Init ();
-   App.Path (DirF, 'd');   StrCp (DirT, DirF);
-// from ..pianocheetah/midi_import to ..pianocheetah/4_queue
-   StrAp (DirF, CC("/midi_import"));
-   StrAp (DirT, CC("/4_queue"));
+// from ..pianocheetah/midi_import - nope pickable
+   StrCp (DirF, argv [1]);
+// to ..pianocheetah/4_queue
+   App.Path (DirT, 'd');   StrAp (DirT, CC("/4_queue"));
+DBG("DirFr=`s DirTo=`s", DirF, DirT);
 
 // list midi files in midi_import n move+mid2song em
    App.Run (StrFmt (c, "ll midi `p", DirF));
    StrCp (s, DirF);   StrAp (s, CC("/_midicache.txt"));
    f.DoText (s, nullptr, Move);
-   App.Run (CC("synsnd"));             // in caase o .mod s
 
 // list off leftovers n move to midi_junk
    App.Run (StrFmt (c, "ll alll `p", DirF));

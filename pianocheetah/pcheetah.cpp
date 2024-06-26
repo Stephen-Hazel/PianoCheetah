@@ -609,7 +609,6 @@ int main (int argc, char *argv [])
 // ::SystemParametersInfo (SPI_SETSCREENSAVEACTIVE, 0, 0, 0);   // stop scrsaver
    App.Init ();
    Gui.Init (& app, & win, "PianoCheetah");   win.Init ();   RandInit ();
-   App.Run  (CC("midimp &"));
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
    qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton" );

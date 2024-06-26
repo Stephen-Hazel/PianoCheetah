@@ -118,6 +118,8 @@ DBG(" sample not THERE: `s", fn);
    *xfn = *fnx = '\0';   StrCp (wfn, fn);
    i = StrLn (fn);
 // gotta convert some format to .wav?
+   if ( (i > 4) && (! StrCm (& fn [i-4], CC(".mp3"))) )
+      StrCp (fnx,                        CC(".mp3"));
    if ( (i > 4) && (! StrCm (& fn [i-4], CC(".ogg"))) )
       StrCp (fnx,                        CC(".ogg"));
    if ( (i > 5) && (! StrCm (& fn [i-5], CC(".flac"))) )
@@ -677,6 +679,7 @@ LF.Put(ls);   LF.Put (CC("\n"));   DBG(ls);
       DoSfz (Fn [i]);
    }
    LF.Shut ();
+   App.Run (CC("synsnd"));
 DBG("end");
    return 0;
 }

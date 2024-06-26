@@ -711,9 +711,8 @@ void DlgFL::Sfz2Syn ()
    if (*d == '\0')  StrCp (d, getenv ("HOME"));
    if (Gui.AskDir (d, "pick dir with .sfz files")) {
       App.CfgPut (CC("DlgFL_sfzdir"), d);   // remember it
-      App.Run (StrFmt (c, "sfz2syn `p", d));
+      App.Spinoff (StrFmt (c, "sfz2syn `p", d));
    }
-   App.Run (CC("synsnd"));             // in case dirs del'd etc
 }
 
 void DlgFL::Mod2Song ()
@@ -723,9 +722,19 @@ void DlgFL::Mod2Song ()
    if (*d == '\0')  StrCp (d, getenv ("HOME"));
    if (Gui.AskDir (d, "pick dir with .sfz files")) {
       App.CfgPut (CC("DlgFL_moddir"), d);   // remember it
-      App.Run (StrFmt (c, "mod2song `p", d));
+      App.Spinoff (StrFmt (c, "mod2song `p", d));
    }
-   App.Run (CC("synsnd"));             // in case dirs del'd etc
+}
+
+void DlgFL::MidImp ()
+{ TStr d;
+  BStr c;
+   App.CfgGet (CC("DlgFL_middir"), d);
+   if (*d == '\0')  StrCp (d, getenv ("HOME"));
+   if (Gui.AskDir (d, "pick dir with midi files")) {
+      App.CfgPut (CC("DlgFL_middir"), d);   // remember it
+      App.Spinoff (StrFmt (c, "midimp `p", d));
+   }
 }
 
 void DlgFL::Brow ()
@@ -750,21 +759,25 @@ void DlgFL::Init ()
       "Search\n"   "Search a big midi file dir for matching search strings\n"
                    "   fill in the search box below THEN click me"
                    "`:/tbar/flst/2" "`\0"
-      "Sfz2Syn\n"  "Pick a dir with .sfz files to add to Syn's sound banks"
+      "MidImp\n"   "Pick a dir tree with midi files to convert to songs\n"
+                   "in the 4_queue dir"
                    "`:/tbar/flst/3" "`\0"
-      "Mod2Song\n" "Pick a .mod files to convert to a song and\n"
-                   "add to Syn's sound banks"
+      "Sfz2Syn\n"  "Pick a dir with .sfz files to add to a Syn sound bank"
                    "`:/tbar/flst/4" "`\0"
+      "Mod2Song\n" "Pick a .mod file to convert to\n"
+                   "a .song and a Syn sound bank"
+                   "`:/tbar/flst/5" "`\0"
       "Browse\n"   "Open file browser in PianoCheetah/device directory\n"
                    "   to delete/rename/etc"
-                   "`:/tbar/flst/5" "`\0"
+                   "`:/tbar/flst/6" "`\0"
    );
    connect (tb.Act (0), & QAction::triggered, this, & DlgFL::Up);
    connect (tb.Act (1), & QAction::triggered, this, & DlgFL::Dn);
    connect (tb.Act (2), & QAction::triggered, this, & DlgFL::Find);
    connect (tb.Act (3), & QAction::triggered, this, & DlgFL::Sfz2Syn);
    connect (tb.Act (4), & QAction::triggered, this, & DlgFL::Mod2Song);
-   connect (tb.Act (5), & QAction::triggered, this, & DlgFL::Brow);
+   connect (tb.Act (5), & QAction::triggered, this, & DlgFL::MidImp);
+   connect (tb.Act (6), & QAction::triggered, this, & DlgFL::Brow);
 
    _t.Init (ui->fLst, "Stage\0Song\0");
    connect (ui->fLst, &QTableWidget::itemClicked,       this, & DlgFL::Pik);

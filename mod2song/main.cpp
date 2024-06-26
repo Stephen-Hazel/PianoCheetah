@@ -418,6 +418,7 @@ LF.Put (StrFmt (fn, "`s\n", FN));
    CvtMod ();                          // do eeeet
 
    LF.Shut ();
+   App.Run (CC("synsnd"));
 TRC("end");
    return 0;
 }
