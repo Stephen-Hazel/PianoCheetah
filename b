@@ -10,10 +10,11 @@
    $f = "flatpak";      $fb = "flatpak-builder";
 
 // source => _build
-   system ("rm -fr _build .$fb");
+#  system ("rm -fr _build .$fb");
+   system ("rm -fr _build");
    system ("mkdir  _build");
    system ("$fb    _build _manif", $rc);         // _manif is build manifest
-   system ("rm -fr .$fb");
+#  system ("rm -fr .$fb");
    if (($rc != 0) || ($arg == 'o'))  exit;
                                        // build error :( or build only
 // uninstall old app
@@ -25,7 +26,8 @@
    system ("mkdir  _xb _repo");
 // make repo from THIS _build dir w _rel json
    system ("$fb --repo=_repo _xb _rel");    
-   system ("rm -fr    _build _xb .$fb");
+#  system ("rm -fr    _build _xb .$fb");
+   system ("rm -fr    _build _xb");
 
 // add repo, install, n remove repo  (just tryna be neat)
    system ("$f remote-add --no-gpg-verify $repo _repo");
@@ -36,4 +38,3 @@
 // cleanup app's .var/app/ dir for full reset
    if ($arg != 'c')  exit;
    system ("rm -fr ~/.var/app/$app");
-   system ("rm -fr ~/pianocheetah");   // specific to mee

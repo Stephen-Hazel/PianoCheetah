@@ -704,6 +704,14 @@ void DlgFL::Dn ()
    FL.lst.MvDn (p);   FL.pos++;   FL.Save ();   ReDo ();
 }
 
+void DlgFL::Song2Wav ()
+{ TStr fn;
+  BStr c;
+   App.Path (fn, 'd');
+   if (Gui.AskR (fn, "pick .song to render to .wav"))
+      App.Spinoff (StrFmt (c, "song2wav `p", fn));
+}
+
 void DlgFL::Sfz2Syn ()
 { TStr d;
   BStr c;
@@ -762,22 +770,25 @@ void DlgFL::Init ()
       "MidImp\n"   "Pick a dir tree with midi files to convert to songs\n"
                    "in the 4_queue dir"
                    "`:/tbar/flst/3" "`\0"
-      "Sfz2Syn\n"  "Pick a dir with .sfz files to add to a Syn sound bank"
+      "Song2Wav\n" "Render .song to a .wav file"
                    "`:/tbar/flst/4" "`\0"
+      "Sfz2Syn\n"  "Pick a dir with .sfz files to add to a Syn sound bank"
+                   "`:/tbar/flst/5" "`\0"
       "Mod2Song\n" "Pick a .mod file to convert to\n"
                    "a .song and a Syn sound bank"
-                   "`:/tbar/flst/5" "`\0"
+                   "`:/tbar/flst/6" "`\0"
       "Browse\n"   "Open file browser in PianoCheetah/device directory\n"
                    "   to delete/rename/etc"
-                   "`:/tbar/flst/6" "`\0"
+                   "`:/tbar/flst/7" "`\0"
    );
    connect (tb.Act (0), & QAction::triggered, this, & DlgFL::Up);
    connect (tb.Act (1), & QAction::triggered, this, & DlgFL::Dn);
    connect (tb.Act (2), & QAction::triggered, this, & DlgFL::Find);
    connect (tb.Act (3), & QAction::triggered, this, & DlgFL::Sfz2Syn);
-   connect (tb.Act (4), & QAction::triggered, this, & DlgFL::Mod2Song);
-   connect (tb.Act (5), & QAction::triggered, this, & DlgFL::MidImp);
-   connect (tb.Act (6), & QAction::triggered, this, & DlgFL::Brow);
+   connect (tb.Act (4), & QAction::triggered, this, & DlgFL::Song2Wav);
+   connect (tb.Act (5), & QAction::triggered, this, & DlgFL::Mod2Song);
+   connect (tb.Act (6), & QAction::triggered, this, & DlgFL::MidImp);
+   connect (tb.Act (7), & QAction::triggered, this, & DlgFL::Brow);
 
    _t.Init (ui->fLst, "Stage\0Song\0");
    connect (ui->fLst, &QTableWidget::itemClicked,       this, & DlgFL::Pik);

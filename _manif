@@ -19,6 +19,15 @@
  },
  "modules": [
   {
+   "name": "song2wav",
+   "buildsystem": "cmake-ninja",
+   "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+   "sources": [
+    {"type": "dir", "path": "song2wav"},
+    {"type": "dir", "path": "../stv", "dest": "stv"}
+   ]
+  },
+  {
    "name": "pianocheetah",
    "buildsystem": "cmake-ninja",
    "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],

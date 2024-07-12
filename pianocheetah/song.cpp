@@ -345,7 +345,7 @@ TRC(" trk lrn,rec loop:");
          lrn = TLrn (t);   if ((! lrn) && (t < Up.rTrk))  continue;
                                        // lrn==true for lrn trk, false for rec
          drm = TDrm (t);
-TRC("  t=`d lrn=`b drm=`b Up.lrn=`s Up.ez=`b", t, lrn, drm, LrnS(), Up.ez);
+//TRC("  t=`d lrn=`b drm=`b Up.lrn=`s Up.ez=`b", t, lrn, drm, LrnS(), Up.ez);
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
             if (ECTRL (& e [p]))       // ctrl:  if rec or ez or hear
@@ -365,7 +365,7 @@ TRC("  t=`d lrn=`b drm=`b Up.lrn=`s Up.ez=`b", t, lrn, drm, LrnS(), Up.ez);
       }
 
    // plow thru bg tracks from .p to _now and dump stuff to midiout
-TRC(" trk non-lrn,rec loop:");
+TRC(" trk non - lrn,rec loop:");
      bool hLrnX = HEAR && (_lrn.pLrn == LPRAC);
       for (t = 0;  t < Up.rTrk;  t++) {
          if (TLrn (t))  continue;      // already did

@@ -43,6 +43,7 @@ public slots:
    void Find ();
    void Up   ();
    void Dn   ();
+   void Song2Wav ();
    void Sfz2Syn  ();
    void Mod2Song ();
    void MidImp   ();

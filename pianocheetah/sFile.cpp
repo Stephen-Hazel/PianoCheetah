@@ -628,8 +628,8 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
 TRC(" map dev/chn/snd");
    Up.rTrk = nt;
-   for (t = 0; t < nt; t++)  PickDev (t, st [TB_TRK].Get (t, 1),
-                                         st [TB_TRK].Get (t, 0));
+   for (t = 0;  t < nt;  t++)  PickDev (t, st [TB_TRK].Get (t, 1),
+                                           st [TB_TRK].Get (t, 0));
 TRC(" sortin n ins rec trks");
    for (t = 0;  t < nt;  t++)   // sort play events
       Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
