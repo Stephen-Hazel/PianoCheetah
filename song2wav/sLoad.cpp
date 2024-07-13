@@ -214,7 +214,7 @@ DBG(" SetBnk");
    for (t = 0;  t < _trk.Ln;  t++) {
       if (_trk [t].chn != 9) {         // melodic
          StrCp (ts, _trk [t].snd);
-DBG("    tr=`d melo '`s'", t, ts);
+DBG("   tr=`d melo `s", t, ts);
          if (*ts == '\0')  continue;
 
          for (s = 0;  s < ns;  s++)  if (! StrCm (_bnk [s], ts))  break;
@@ -224,16 +224,13 @@ DBG("    tr=`d melo '`s'", t, ts);
          }
 DBG("      prog=`d", s);
       }
-      else {                           // drum (only 1 track)
+      else                             // drum (only 1 track)
          for (s = 0;  s < _drm.Ln;  s++) {
-DBG("   tr=`d drum ctl=`d sn='`s'", t, _drm [s].ctl, _drm [s].snd);
-            if (_drm [s].snd [0] == '\0')  continue;
-            if (! _drm [s].shh)
+DBG("   tr=`d drum ctl=`d snd=`s", t, _drm [s].ctl, _drm [s].snd);
+            if (_drm [s].snd [0] && (! _drm [s].shh))
                StrCp (_bnk [128+_drm [s].ctl], _drm [s].snd);
          }
-      }
    }
-DBG(" nSndMelo=`d  maxch=`d", ns, mc);
    Sy.LoadSnd (_bnk, mc);
 
 // do progch's for ALL song melo chans

@@ -704,18 +704,34 @@ void DlgFL::Dn ()
    FL.lst.MvDn (p);   FL.pos++;   FL.Save ();   ReDo ();
 }
 
-void DlgFL::Song2Wav ()
-{ TStr fn;
+void DlgFL::MidImp ()
+{ TStr d;
   BStr c;
-   App.Path (fn, 'd');
-   if (Gui.AskR (fn, "pick .song to render to .wav"))
+   App.CfgGet    (CC("DlgFL_middir"), d);
+   if (*d == '\0')  StrCp (d, getenv ("HOME"));
+   if (Gui.AskDir (d, "pick dir with midi files")) {
+      App.CfgPut (CC("DlgFL_middir"), d);   // remember it
+      App.Spinoff (StrFmt (c, "midimp `p", d));
+   }
+}
+
+void DlgFL::Song2Wav ()
+{ TStr fn, d;
+  BStr c;
+   App.CfgGet    (CC("DlgFL_s2wdir"), fn);
+   if (*fn == '\0')  StrCp (fn, getenv ("HOME"));
+   StrAp (fn, CC("/a.song"));
+   if (Gui.AskR (fn, "pick .song to render to .wav")) {
+      StrCp (d, fn);   Fn2Path (d);
+      App.CfgPut (CC("DlgFL_s2wdir"), d);   // remember it
       App.Spinoff (StrFmt (c, "song2wav `p", fn));
+   }
 }
 
 void DlgFL::Sfz2Syn ()
 { TStr d;
   BStr c;
-   App.CfgGet (CC("DlgFL_sfzdir"), d);
+   App.CfgGet    (CC("DlgFL_sfzdir"), d);
    if (*d == '\0')  StrCp (d, getenv ("HOME"));
    if (Gui.AskDir (d, "pick dir with .sfz files")) {
       App.CfgPut (CC("DlgFL_sfzdir"), d);   // remember it
@@ -726,22 +742,11 @@ void DlgFL::Sfz2Syn ()
 void DlgFL::Mod2Song ()
 { TStr d;
   BStr c;
-   App.CfgGet (CC("DlgFL_moddir"), d);
+   App.CfgGet    (CC("DlgFL_moddir"), d);
    if (*d == '\0')  StrCp (d, getenv ("HOME"));
    if (Gui.AskDir (d, "pick dir with .sfz files")) {
       App.CfgPut (CC("DlgFL_moddir"), d);   // remember it
       App.Spinoff (StrFmt (c, "mod2song `p", d));
-   }
-}
-
-void DlgFL::MidImp ()
-{ TStr d;
-  BStr c;
-   App.CfgGet (CC("DlgFL_middir"), d);
-   if (*d == '\0')  StrCp (d, getenv ("HOME"));
-   if (Gui.AskDir (d, "pick dir with midi files")) {
-      App.CfgPut (CC("DlgFL_middir"), d);   // remember it
-      App.Spinoff (StrFmt (c, "midimp `p", d));
    }
 }
 

@@ -95,13 +95,14 @@ void Song::PutNt (ubyte t, TrkEv *e)
 //------------------------------------------------------------------------------
 ubyt4 Song::Put (File *f)
 // the main dude - writes whole song to .wav
-// slices up song time, converts to sample ofs, writes buffers of samples
+//    slices up song time between midi events, converts to sample ofs,
+//    sends midi, writes buffers of samples
 { ubyte  t, ctl;
   ubyt4  tL8r, p, ne, tm, s, b, totSmp = 0;
   TStr   bar, end;
   TrkEv *e;
 DBG("Song::Put bgn");
-   TmStr (bar, _tEnd);   StrFmt (end, "`d", Str2Int (bar)-1);
+   TmStr (bar, _tEnd);   StrFmt (end, "`04d", Str2Int (bar));
    for (_now = 0;  _now < _tEnd;) {
       TmStr (bar, _now, & tL8r);   StrAp (bar, CC(" / "));   StrAp (bar, end);
 DBG(" bar=`s _now=`d tl8r=`d tEnd=`d", bar, _now, tL8r, _tEnd);
@@ -153,6 +154,7 @@ int main (int argc, char *argv [])
 { TStr fn;
   File f;
 DBGTH("S2W"); DBG("bgn");
+   App.Init ();
    StrCp (fn, argv [1]);
    Sy.Init ('w');   Sg.Init ();   Sg.Load (fn);
 
