@@ -309,7 +309,6 @@ void PCheetah::Upd (QString upd)
       _tr.Open ();   rp [8] = nullptr;
       for (ubyte i = 0, tc = 0;  i < Up.rTrk;  i++) {
          rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ht;
-DBG("t=`d  ht=`s", i, Up.trk [i].ht);
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;

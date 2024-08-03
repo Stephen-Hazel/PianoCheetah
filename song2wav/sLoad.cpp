@@ -181,9 +181,9 @@ DBG(" set events");
       _trk [t].shh = StrCh (buf, '#') ? true : false;
       _trk [t].chn = MemCm (_trk [t].snd, CC("Drum/"), 5) ? 0xFF : 9;
    }
-  ubyte mc = 0;                        // also maxchans for syn
+  ubyte mc = 0;                        // finalize _chn n get maxchans for syn
    for (t = 0;  t < nt;  t++)  if (_trk [t].chn != 9)
-      _trk [t].chn = _trk [t].grp ? mc : mc++;
+      _trk [t].chn = (_trk [t].grp && t) ? _trk [t-1].chn : mc++;
 
 DBG(" sortin trks");
    for (t = 0;  t < nt;  t++)          // sort trk events

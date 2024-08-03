@@ -4,13 +4,13 @@ ubyt4 Song::Bar2Tm (ubyt2 b, ubyte bt)      // get song time of a bar + bt
 { ubyt2 s = 0;
   ubyt4 t;
    while (((ubyt4)s+1 < _tSg.Ln) && (_tSg [s+1].bar <= b))  s++;
-   if ((s >= _tSg.Ln) || (_tSg [s].bar > b))
-      t = (b-1) * M_WHOLE;
-      return t + (b-1) * M_WHOLE / 4;  // none or none apply yet - use 4/4
-
+   if ((s >= _tSg.Ln) || (_tSg [s].bar > b)) {
+      t = (b-1) * M_WHOLE;             // none or none apply yet - use 4/4
+      return t + (bt-1) * M_WHOLE / 4;
+   }
    b -= _tSg [s].bar;                  // got tsig so offset from it
    t = _tSg [s].time + (b * M_WHOLE * _tSg [s].num / _tSg [s].den);
-   return    t + (b-1) * M_WHOLE / 4;
+   return    t + (bt-1) * M_WHOLE / _tSg [s].den;
 }
 
 

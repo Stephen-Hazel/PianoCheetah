@@ -85,6 +85,7 @@ void Song::Dump (bool e2)
   TrkEv *ev;
 //DumpX ();   return;
 DBG("DUMP");
+   Sy.Dump ();
    DBG(
       "bEnd=`d tEnd=`s rTrk=`d eTrk=`d eOn=`b pLyr=`d\n"
       "onBt=`b now=`s pDn=`d/`s\n"

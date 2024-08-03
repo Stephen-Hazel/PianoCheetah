@@ -8,6 +8,26 @@ Song  Sg;
 sbyt2 SmpBuf [2*1024];                 // 1024 stereo sbyt2 samples
 
 
+void Song::DumpEv (TrkEv *e, ubyte t, ubyt4 p)
+{ TStr  o, s, ts;
+  ubyte v;
+   StrFmt (o, "t=`d ", t);
+   if (p < 1000000)  StrAp (o, StrFmt (ts, "p=`d ", p));
+   StrAp (o, TmS (ts, e->time));   StrAp (o, CC(" "));
+  bool dr = (_trk [t].chn == 9) ? true : false;
+   if (ECTRL (e))
+      StrFmt (&o[StrLn(o)], "`s(cc`d)=`02x,`02x",
+              _ctl [e->ctrl & 0x7F], e->ctrl & 0x7F, e->valu, e->val2);
+   else {
+      StrFmt (&o[StrLn(o)], "`s`c`d",
+         dr ? MDrm2Str (s, e->ctrl) : MKey2Str (s, e->ctrl),
+         EUP (e) ? '^' : (EDN (e) ? '_' : '~'),  e->valu & 0x007F);
+      if ((v = (e->val2 & 0x1F)))
+         {StrAp (o, CC("@"));   StrAp (o, MFing [v-1]);}
+   }
+   DBG(o);
+}
+
 void Song::Dump ()
 { ubyte t;
   ubyt2 s;
@@ -18,7 +38,7 @@ void Song::Dump ()
       DBG("`d `s `d `s `08x `d `d `b",
          t,
          (char *)_trk [t].name,
-         _trk [t].chn,
+         _trk [t].chn+1,
          _trk [t].snd,
          _trk [t].e,
          _trk [t].ne,
@@ -37,6 +57,14 @@ void Song::Dump ()
          _tSg [s].num,
          _tSg [s].den
       );
+/*
+  TrkEv *ev;
+   for (t = 0; t < _trk.Ln; t++) {
+      DBG("t=`d ne=`d", t, _trk [t].ne);
+      ev = _trk [t].e;
+      for (ubyt4 e = 0;  e < _trk [t].ne;  e++, ev++)  DumpEv (ev, t, e);
+   }
+*/
    DBG("} DUMP");
 }
 
@@ -120,8 +148,10 @@ DBG(" bar=`s _now=`d tl8r=`d tEnd=`d", bar, _now, tL8r, _tEnd);
    // when do we write events next?  render samples till then
       _now = tL8r;
       totSmp += (s = _timer.Set (_now));
+DBG(" _now=`d s=`d totSmp=`d", _now, s, totSmp);
       while (s) {
          b = (s > 1024) ? 1024 : s;   s -= b;
+DBG(" b=`d s=`d", b, s);
          Sy.PutWav (SmpBuf, b);   f->Put (SmpBuf, b*4);
       }
    }

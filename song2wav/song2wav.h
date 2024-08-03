@@ -61,6 +61,7 @@ public:
    void Init ()  {_trk.Ln = _ctl.Ln = 0;   _dvt.Init ();}
 
 // Song
+   void  DumpEv (TrkEv *e, ubyte t, ubyt4 p);
    void  Dump   ();
    void  Wipe   ();
    void  SetChn (ubyte trk);

@@ -716,16 +716,10 @@ void DlgFL::MidImp ()
 }
 
 void DlgFL::Song2Wav ()
-{ TStr fn, d;
+{ TStr fn;
   BStr c;
-   App.CfgGet    (CC("DlgFL_s2wdir"), fn);
-   if (*fn == '\0')  StrCp (fn, getenv ("HOME"));
-   StrAp (fn, CC("/a.song"));
-   if (Gui.AskR (fn, "pick .song to render to .wav")) {
-      StrCp (d, fn);   Fn2Path (d);
-      App.CfgPut (CC("DlgFL_s2wdir"), d);   // remember it
-      App.Spinoff (StrFmt (c, "song2wav `p", fn));
-   }
+   StrCp (fn, FL.lst [FL.pos]);   StrAp (fn, CC("/a.song"));
+   App.Spinoff (StrFmt (c, "song2wav `p", fn));
 }
 
 void DlgFL::Sfz2Syn ()
