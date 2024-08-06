@@ -13,7 +13,7 @@ void CfgDef::Init ()                   // default the global settings
    cmdKey = MKey (CC("8c"));           // trc from App
    ntCo   = 0;                         // scale
    barCl  = false;
-   sVol   = 7;
+   sVol   = 30;
 }
 
 void CfgDef::Load ()                   // load global settings
@@ -32,6 +32,7 @@ TRC("CfgDef::Load");
       if (StrSt (s, CC("barCl" )))  Cfg.barCl  = (*v == 'y') ? true:false;
       if (StrSt (s, CC("sVol"  )))  Cfg.sVol   = (ubyte)Str2Int (v);
    }
+   Sy._vol = (real)Cfg.sVol / 100.0;
 }
 
 void CfgDef::Save ()                   // save global settings
@@ -78,9 +79,16 @@ TRC("DlgCfg.Shut");
    done (true);   lower ();   hide ();
 }
 
-void DlgCfg::Init ()  {Cfg.Load ();   Gui.DlgLoad (this, "DlgCfg");
+void DlgCfg::Init ()
+{  Cfg.Load ();   Gui.DlgLoad (this, "DlgCfg");
+   connect (ui->sVol, & QSlider::valueChanged, this, [this]() {
+     CtlSldr s (ui->sVol);
+      Sy._vol = (real)s.Get () / 100.0;
+   });
    connect (ui->quan, & QPushButton::clicked, this, [this]()
-                                                   {emit sgCmd (CC("quan"));});}
+   {  emit sgCmd (CC("quan"));
+   });
+}
 void DlgCfg::Quit ()  {Cfg.Save ();   Gui.DlgSave (this, "DlgCfg");}
 
 
