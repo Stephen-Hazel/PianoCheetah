@@ -45,7 +45,7 @@ char *Move (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 char *Wipe (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 { ubyte i;
   TStr  fr, to, fnx;
-  File  f;                             // move flattened fn to midi_junk dir
+  File  f;                             // move flattened fn to _junk dir
    (void)len;   (void)pos;   (void)ptr;
    Did = true;                         // settin this leave junk dir there
    StrCp (fnx, fn);
@@ -57,16 +57,16 @@ char *Wipe (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 
 
 int main (int argc, char *argv [])
-{ TStr c, s;
+{ TStr ds, c, s;
   File f;
   Path d;  (void)argc;   (void)argv;
 DBGTH("MidImp");
 TRC("bgn");
    App.Init ();
-// from ..pianocheetah/midi_import - nope pickable
-   StrCp (DirF, argv [1]);
-// to ..pianocheetah/4_queue
-   App.Path (DirT, 'd');   StrAp (DirT, CC("/4_queue"));
+// from picked dir
+   StrCp (DirF, argv [1]);   FnName (ds, DirF);
+// to ..pianocheetah/4_queue/botdirpicked
+   StrFmt (DirT, "`s/4_queue/`s", App.Path (s, 'd'), ds);   d.Make (DirT);
 DBG("DirFr=`s DirTo=`s", DirF, DirT);
 
 // list midi files in midi_import n move+mid2song em
@@ -76,11 +76,11 @@ DBG("DirFr=`s DirTo=`s", DirF, DirT);
 
 // list off leftovers n move to midi_junk
    App.Run (StrFmt (c, "ll alll `p", DirF));
-   Fn2Path (DirT);   StrAp (DirT, CC("/midi_junk"));   d.Make (DirT);
+   StrAp (DirT, CC("/_junk"));   d.Make (DirT);
    StrCp (s, DirF);   StrAp (s, CC("/_cache.txt"));
    f.DoText (s, nullptr, Wipe);
    if (! Did)  d.Kill (DirT);          // kill it if didn't put nothin in
-   d.Kill (DirF);   d.Make (DirF);     // kill n remake DirF so left empty
+   d.Kill (DirF);                      // kill it it's empty
 TRC("end");
    return 0;
 }
