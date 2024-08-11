@@ -58,6 +58,16 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="2024.08" date="2024-08-08">
+      <description>
+        <p>
+          syn plays all sounds properly.  
+          new song2wav to render .wav for a song.
+          it, sfz2syn, mod2song, midimp now have GUIs (in Song List dialog).
+          improved docs on my website.
+        </p>
+      </description>
+    </release>
     <release version="2024.04" date="2024-04-29">
       <description>
         <p>
