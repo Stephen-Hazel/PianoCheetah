@@ -23,7 +23,7 @@ UCmdDef UCmd [] = {
    {"tempo>",    "3b",  "f03","",           "up"},
    {"tran<",     "4c",  "f11","transpose",  "down"},
    {"tran>",     "4c#", "f12","",           "up"},
-   {"recSave",   "4d",  "s",  "recording",  "save (broke - sorry)"},
+   {"recSave",   "4d",  "s",  "recording",  "save recording"},
    {"recWipe",   "4d#", "w",  "",           "wipe ALL (CAREFUL)"},
    {"learn",     "4e",  "l",  "learn mode", "learn: hear=>play=>practice=>"},
    {"ez",        "4f",  "e",  "ez mode",    "(toggle)"},
@@ -216,9 +216,9 @@ ofs, _f.tmpo, FIX1, tt, tp);
 
 //______________________________________________________________________________
 void Song::EdRec (char ofs)
-{  if (ofs == 0)  {Save ();   ReTrk ();   return;}    // recSave
+{  if (ofs == 0)  {Save ('r');   ReTrk ();   return;}      // recSave
    for (ubyte t = Up.rTrk;  t < _f.trk.Ln;  t++)  EvDel (t, 0, _f.trk [t].ne);
-   ReDo ();                                           // recWipe
+   ReDo ();                                                // recWipe
 }
 
 

@@ -149,7 +149,7 @@ private:
    void  CCClean ();
    void  TmpoPik (char l_r);           // stamp cur tmpo w lrn or rec'd vals
    void  Load    (char *fn);
-   void  Save    (bool prac = false);  // true for prac;  false/omit for rec
+   void  Save    (char rec = '\0');    // '' for a.song  'r' for rec/.song
 
 // sDump.cpp
    char *LrnS     ();

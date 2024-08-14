@@ -129,7 +129,7 @@ void PCheetah::SongRate ()
    else if (r == '\0')   StrCp (nm, & nm [3]);
    else                  nm [1] = r;
    StrAp (dr, CC("/"));   StrAp (dr, nm);
-DBG("dr=`s", dr);
+TRC("dr=`s", dr);
    ch = & dr [StrLn (dr)-1];
    if ( (*ch >= '0') && (*ch <= '9') && (*(ch-1) == '_') )
       StrAp (dr, CC(""), 2);
@@ -140,7 +140,7 @@ DBG("dr=`s", dr);
          i = Str2Int (ch+1);   StrFmt (ch+1, "`d", ++i);
       }
    }
-DBG("done dr=`s", dr);
+TRC("done dr=`s", dr);
    f.ReNm (FL.lst [p], dr);   StrCp (FL.lst [p], dr);
    FL.pos = p;
    emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
@@ -161,7 +161,7 @@ TRC("TrPop r=`d c=`d", r, c);
    if (c == 2) {
       if (! Up.trk [r].drm)  return 'e';    // edit melodic track name
      StrArr l (CC("drum.txt"), 256, 128*sizeof(TStr));
-DBG("dvt=`d name=`s", Up.trk [r].dvt, Up.dvt [Up.trk [r].dvt].Name ());
+TRC("dvt=`d name=`s", Up.trk [r].dvt, Up.dvt [Up.trk [r].dvt].Name ());
      TStr   s, s2;                     // see if devtype has a drum.txt
       l.Load (StrFmt (s, "`s/device/`s/drum.txt",
          App.Path (s2, 'd'), Up.dvt [Up.trk [r].dvt].Name ()));
@@ -343,13 +343,13 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
 //DBG("keyPressEvent raw m=`d k=`d", e->modifiers (), e->key ());
    if (! (k = km.Map (e->modifiers (), e->key ())))  return;
    StrCp (s, km.Str (k));
-DBG("keyPressEvent `s", s);
+TRC("keyPressEvent `s", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
    if (i < 6)                        Upd (UCmd [i].cmd);
    if (i < NUCmd)             emit sgCmd (UCmd [i].cmd);
    if (! StrCm (s, CC("d")))  emit sgCmd ("dump");
    if (! StrCm (s, CC("f01"))) {
-DBG("help vis=`b", _dHlp->isVisible ());
+TRC("help vis=`b", _dHlp->isVisible ());
       if (_dHlp->isVisible ())  _dHlp->Shut ();
       else                      _dHlp->Open ();
    }
@@ -603,10 +603,7 @@ int main (int argc, char *argv [])
 {  DBGTH ("PcGui");
   QApplication app (argc, argv);
   PCheetah     win;
-// if (! One.Open ("Ditty_is_HERE", App.parm))
-//    {DBG ("PCheetah already goin");   return 0;}
-// ::SystemParametersInfo (SPI_SETSCREENSAVEACTIVE, 0, 0, 0);   // stop scrsaver
-   App.Init ();
+   App.Init ();                        //TODO scrsaver off.  limit one instance?
    Gui.Init (& app, & win, "PianoCheetah");   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");

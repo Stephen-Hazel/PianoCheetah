@@ -37,7 +37,8 @@ char *Move (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
    StrFmt (to, "`s/`s/a.mid", DirT, fnx);
    if (mod)  StrAp (to, CC("mod"), 3);
 // move n mid2song
-   f.ReNm (fr, to);   App.Run (StrFmt (c, "`s2song `p", mod?"mod":"mid", to));
+   f.Copy (fr, to);   f.Kill (fr);   
+   App.Run (StrFmt (c, "`s2song `p", mod?"mod":"mid", to));
    return nullptr;
 }
 
@@ -51,7 +52,8 @@ char *Wipe (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
    StrCp (fnx, fn);
    for (i = 0;  i < StrLn (fnx);  i++)  if (fnx [i] == '/')  fnx [i] = '_';
    StrFmt (fr, "`s/`s", DirF, fn);
-   StrFmt (to, "`s/`s", DirT, fnx);   f.ReNm (fr, to);
+   StrFmt (to, "`s/`s", DirT, fnx);   
+   f.Copy (fr, to);   f.Kill (fr);
    return nullptr;
 }
 

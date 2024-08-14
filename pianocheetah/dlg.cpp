@@ -791,10 +791,10 @@ void DlgFL::Init ()
    connect (tb.Act (0), & QAction::triggered, this, & DlgFL::Up);
    connect (tb.Act (1), & QAction::triggered, this, & DlgFL::Dn);
    connect (tb.Act (2), & QAction::triggered, this, & DlgFL::Find);
-   connect (tb.Act (3), & QAction::triggered, this, & DlgFL::Sfz2Syn);
+   connect (tb.Act (3), & QAction::triggered, this, & DlgFL::MidImp);
    connect (tb.Act (4), & QAction::triggered, this, & DlgFL::Song2Wav);
-   connect (tb.Act (5), & QAction::triggered, this, & DlgFL::Mod2Song);
-   connect (tb.Act (6), & QAction::triggered, this, & DlgFL::MidImp);
+   connect (tb.Act (5), & QAction::triggered, this, & DlgFL::Sfz2Syn);
+   connect (tb.Act (6), & QAction::triggered, this, & DlgFL::Mod2Song);
    connect (tb.Act (7), & QAction::triggered, this, & DlgFL::Brow);
 
    _t.Init (ui->fLst, "Stage\0Song\0");

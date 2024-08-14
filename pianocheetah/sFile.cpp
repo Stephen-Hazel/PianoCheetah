@@ -750,36 +750,32 @@ TRC("TmpoPik end");
 
 
 //______________________________________________________________________________
-void Song::Save (bool pracOnly)
-// Wipe sets pracOnly to true for autosave of practice a.song
-// usually false for RecSave() to save in Recording/yyyymmddEtc/a.song
+void Song::Save (char rec)
+// Wipe sets rec to '\0' for autosave of practice a.song
+// 'r' for save in pc/rec/yyyymmdd_hhmm_songname.song
 { File  f;
-  TStr  fnt, fns, fm, s, s2, s3, s4;
+  TStr  fnt, fns, s, s2, s3, s4;
   char *m;
   ubyt4 i;
   ubyte d, t, dt, c;
   TrkEv *e;
   bool   prac = StrSt (_f.fn, CC("PianoCheetah")) ? true : false;  // in pc dir?
-TRC("Save pracOnly=`b prac=`b _f.fn=`s trkLn=`d",
-pracOnly, prac, _f.fn, Up.rTrk);
-   if ((! Up.rTrk) || (pracOnly && (! prac)))  return;
+TRC("Save rec=`c prac=`b _f.fn=`s trkLn=`d",
+rec?rec:'_', prac, _f.fn, Up.rTrk);
+   if ((! Up.rTrk) || ((rec != 'r') && (! prac)))  return;
 
 TRC("actually savin'");
-   StrCp (fm, CC("w"));
-   if (pracOnly) {                     // new practice a.song w backup
-      Cmd ("recWipe");
-      StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));   StrCp (fm, CC("wb"));
-   }
-   else {                              // recorded\songTitle\yyyymmddEtc
-     Path d;
-//    TmpoPik ('r');                                         // /a.song into fns
-      FnName (fnt, _f.fn);   Fn2Name (fnt);   // kill path
-      StrFmt (fns, "`s/recorded/`s/`s",  App.Path (s2, 'd'), fnt, Now (s));
-      d.Make (fns);   StrAp (fns, CC("/a.song"));
+   if (rec != 'r')                     // new practice a.song w backup
+        {Cmd ("recWipe");   StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));}
+   else {                              // rec/yyyymmdd_hhmm_songTitle
+      TmpoPik ('r');
+      Now (s);   s [13] = '\0';                  // kill secs n on
+      FnName (fnt, _f.fn);   Fn2Name (fnt);      // kill path leavin songdir
+      StrFmt (fns, "`s/rec/`s_`s.song", App.Path (s2, 'd'), s, fnt);
    }
 TRC("save fn=`s", fns);
    dt = DrumCon ();                    // which also sets _f.mapD for us
-   if (f.Open (fns, fm)) {
+   if (f.Open (fns, (rec == 'r') ? "w":"wb")) {
       f.Put (_f.dsc);
 
       f.Put (CC("Track:\n"));
@@ -787,7 +783,7 @@ TRC("save fn=`s", fns);
          StrCp (s2, TDrm (t) ? CC("Drum/*") : SndName (t));
          s3 [1] = *s4 = '\0';
          *s3 = _f.trk [t].shh ? '#' : '\0';
-         if ((*s3 == '\0') && TLrn (t))  *s3 = pracOnly ? '?' : '#';
+         if ((*s3 == '\0') && TLrn (t))  *s3 = (rec != 'r') ? '?' : '#';
          if (_f.trk [t].ht)  StrFmt (s4, "`cH",  _f.trk [t].ht);
          else                       *s4 = '\0';
          f.Put (StrFmt (s, "`s  `s  `c`s`s  `s`s\n",
@@ -876,7 +872,7 @@ TRC("save fn=`s", fns);
       }
       f.Shut ();
    }
-// if (! pracOnly)  TmpoPik ('o');     // restore tempo from having set to rec
+   if (rec == 'r')  TmpoPik ('o');     // restore tempo from having set to rec
    DrumExp (false);
 TRC("Save done");
 }
