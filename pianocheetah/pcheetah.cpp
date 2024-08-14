@@ -415,14 +415,16 @@ TRC(" tbar init");
    connect (tb.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
    connect (tb.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
 
-  CtlTBar tb2 (this,                   // list/prev/next song
+  CtlTBar tb2 (this,                   // list/prev/next/rand song
       "pick from song list" "`:/tbar/song/0" "`\0"
-      "`previous song"      "`:/tbar/song/1" "`z\0"
-      "`next song"          "`:/tbar/song/2" "`x\0",
+      "previous song"       "`:/tbar/song/1" "`z\0"
+      "next song"           "`:/tbar/song/2" "`x\0"
+      "random song"         "`*??"           "`a\0",
       "tbSLst");
    connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::Load);
    connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
    connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
+   connect (tb2.Act (3), & QAction::triggered, this, & PCheetah::SongRand);
 
   CtlTBar tb5 (this,                   // eh, fuck those #s :)
       "hear / play / practice\n"

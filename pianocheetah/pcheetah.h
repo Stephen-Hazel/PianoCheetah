@@ -385,7 +385,7 @@ private:
    DlgHlp      *_dHlp;
    QThread      _thrSong;
 
-   void SongRand (), SongKill (), SongRate ();
+   void SongKill (), SongRate ();
 
 protected:
    void keyPressEvent (QKeyEvent *e);
@@ -395,10 +395,11 @@ public slots:
    void LoadGo ();
    void MCfg   ();
    void GCfg   ();
-   void TDr  ();
+   void TDr    ();
 
-   void SongPrv ();
-   void SongNxt ();
+   void SongPrv  ();
+   void SongNxt  ();
+   void SongRand ();
 
    void Trak ();
 
