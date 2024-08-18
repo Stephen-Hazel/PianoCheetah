@@ -188,9 +188,10 @@ struct CfgDef {
 extern CfgDef Cfg;
 
 struct FLstDef {
-   Arr<TStr,65536> lst;                // last byte flags rand already picked
-   const ubyte     X = sizeof (TStr)-1;
-   ubyt4           pos;
+   const ubyt4      MAX = 100000;      // sigh
+   const ubyte      X = sizeof (TStr)-1;
+   Arr<TStr,100000> lst;               // last byte flags rand already picked
+   ubyt4            pos;
    void Load (), Save ();
    bool DoFN  (char *fn);
    bool DoDir (char *dir);

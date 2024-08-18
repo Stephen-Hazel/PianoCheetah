@@ -394,7 +394,7 @@ static bool SongOK (void *ptr, char dfx, char *fn)
 { StrArr *a = (StrArr *) ptr;
   ubyt4   ln = StrLn (fn);
    if ( (dfx == 'f') && (ln > 7) && (! StrCm (& fn [ln-7], CC("/a.song"))) )
-      {fn [ln-7] = '\0';   a->Add (fn);}
+      {fn [ln-7] = '\0';   if (! a->Add (fn))  return true;}
    return false;
 }
 
@@ -403,9 +403,9 @@ void FLstDef::Load ()
 { ubyt4  i, j, r, ins1, ins2;
   TStr   dr, fn, c;
   File   f;
-  StrArr t (CC("FL.Load"), 65536, 65536*sizeof (TStr)/2);
+  StrArr t (CC("FL.Load"), FL.MAX, FL.MAX*sizeof (TStr)/2);
 TRC("FL.Load");
-// load cfg/songlist.txt w order of learn,rep songs
+// load prev songlist.txt in cfg dir w order of learn,rep songs
    App.Path (fn, 'c');   StrAp (fn, CC("/songlist.txt"));   t.Load (fn);
    FL.pos = 0;   FL.lst.Ln = t.num;
    for (ubyt4 r = 0;  r < t.num;  r++)
@@ -414,21 +414,21 @@ TRC("FL.Load");
 //for (i=0;i<FLst.Ln;i++) DBG("`d `s", i, FLst [i]);
 
 // reinit t n list every a.song file in Pianocheetah dir
-   t.Init (CC("lstS"), 65536, 65536*sizeof (TStr)/2);
+   t.Init (CC("lstS"), FL.MAX, FL.MAX*sizeof (TStr)/2);
    App.Path (dr, 'd');
-   StrFmt (fn,  "`s/1_learning",   dr);   f.DoDir (fn, & t, SongOK);
-   StrFmt (fn,  "`s/2_repertoire", dr);   f.DoDir (fn, & t, SongOK);
-   StrFmt (fn,  "`s/3_done",       dr);   f.DoDir (fn, & t, SongOK);
-   StrFmt (fn,  "`s/4_queue",      dr);   f.DoDir (fn, & t, SongOK);
+   StrFmt (fn, "`s/1_learning",   dr);   f.DoDir (fn, & t, SongOK);
+   StrFmt (fn, "`s/2_repertoire", dr);   f.DoDir (fn, & t, SongOK);
+   StrFmt (fn, "`s/3_done",       dr);   f.DoDir (fn, & t, SongOK);
+   StrFmt (fn, "`s/4_queue",      dr);   f.DoDir (fn, & t, SongOK);
    t.Sort ();
-//DBG("songs:"); t.Dump();
+TRC("num pc songs=`d", t.num); // t.Dump ();
 
 // upd FL / ins at top / del learn/rep songs to keep prev order
    ins1 = 0;
    for (i = 0;  i < FL.lst.Ln;  i++)
       if (StrSt (FL.lst [i], CC("2_repertoire")))  break;
    ins2 = i;
-   for (i = 0;  i < t.num;  i++) {
+   for (i = 0;  i < t.num;  i++) {     // leave i at 3_done or 4_queue pos
       if (StrSt (t.str [i], CC("3_done")) || StrSt (t.str [i], CC("4_queue")))
                                                                          break;
       for (j = 0;  j < FL.lst.Ln;  j++)     // do an upd ?
@@ -436,27 +436,30 @@ TRC("FL.Load");
                                               {FL.lst [j][FL.X] = 'y';   break;}
       if (j >= FL.lst.Ln)  {                // gotta ins
          if (StrSt (t.str [i], CC("1_learning"))) {
-            FL.lst.Ins (ins1);   StrCp (FL.lst [ins1], t.str [i]);
-                                        FL.lst [ins1][FL.X] = 'y';
-            ins1++;   ins2++;
+            if (FL.lst.Ins (ins1)) {
+               StrCp (FL.lst [ins1], t.str [i]);   FL.lst [ins1][FL.X] = 'y';
+               ins1++;   ins2++;
+            }
          }
          else {
-            FL.lst.Ins (ins2);   StrCp (FL.lst [ins2], t.str [i]);
-                                        FL.lst [ins2][FL.X] = 'y';
-            ins2++;
+            if (FL.lst.Ins (ins2)) {
+               StrCp (FL.lst [ins2], t.str [i]);   FL.lst [ins2][FL.X] = 'y';
+               ins2++;
+            }
          }
       }
    }
    for (j = 0;  j < FL.lst.Ln;)        // del gone ones
       {if (FL.lst [j][FL.X] == 'n')  FL.lst.Del (j);   else  j++;}
-
    r = FL.lst.Ln;                      // append done/queue to FLst[]
-   for (;  i < t.num;  i++, r++) {     // FLAG init for rand load
-      FL.lst.Ins (r);    StrCp (FL.lst [r], t.str [i]);
-      FL.lst [r][FL.X] = StrSt (FL.lst [r], CC("4_queue")) ? 'n' : 'y';
-   }
+   for (;  i < t.num;  i++, r++)       // FLAG init for rand load
+      if (FL.lst.Ins (r)) {
+         StrCp (FL.lst [r], t.str [i]);
+         FL.lst [r][FL.X] = (StrSt (FL.lst [r], CC("4_queue")) != nullptr)
+                            ? 'n' : 'y';
+      }
    Save ();
-//for (i=0;i<FL.lst.Ln;i++) DBG("`d `c `s", i, FL.lst [i][FL.X], FL.lst [i]);
+TRC("sl final len=`d", FL.lst.Ln);
 }
 
 
@@ -765,7 +768,8 @@ void DlgFL::Shut ()
 {  FL.pos = _t.CurRow ();   done (true);   lower ();   hide ();  }
 
 void DlgFL::Init ()
-{  Gui.DlgLoad (this, "DlgFL", ui->spl);   FL.Load ();
+{  Gui.DlgLoad (this, "DlgFL", ui->spl);
+   FL.Load ();
   CtlTBar tb (this,
       "Up\n"         "Scoot song up in the list"
                      "`:/tbar/flst/0" "`\0"

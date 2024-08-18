@@ -773,9 +773,9 @@ TRC("actually savin'");
       FnName (fnt, _f.fn);   Fn2Name (fnt);      // kill path leavin songdir
       StrFmt (fns, "`s/rec/`s_`s.song", App.Path (s2, 'd'), s, fnt);
    }
-TRC("save fn=`s", fns);
+TRC("fns=`s", fns);
    dt = DrumCon ();                    // which also sets _f.mapD for us
-   if (f.Open (fns, (rec == 'r') ? "w":"wb")) {
+   if (f.Open (fns, "wb")) {
       f.Put (_f.dsc);
 
       f.Put (CC("Track:\n"));
@@ -872,7 +872,7 @@ TRC("save fn=`s", fns);
       }
       f.Shut ();
    }
-   if (rec == 'r')  TmpoPik ('o');     // restore tempo from having set to rec
+   if (rec == 'r')  TmpoPik ('l');     // restore tempo from having set to rec
    DrumExp (false);
 TRC("Save done");
 }
