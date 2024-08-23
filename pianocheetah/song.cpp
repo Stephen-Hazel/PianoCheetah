@@ -39,7 +39,7 @@ void Song::Wipe ()                     // wipe all data and "empty" display
 TRC("Wipe");
    _f.got = false;   _pg = _tr = 0;
 TRC(" a");
-   Save (true);
+   Save ('a');
    *_f.fn = '\0';
 TRC(" b");
    for (ubyte d = 0;  d < Up.dev.Ln;  d++)  ShutDev (d);

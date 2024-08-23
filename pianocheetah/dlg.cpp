@@ -487,7 +487,7 @@ TRC("FL.DoDir `s", dir);
    FL.pos = 0;
    App.Path (pc, 'd');
    if (MemCm (dir,  pc,  StrLn (pc))) {
-      Gui.Hey ("Put new midi files in .../pianocheetah/midi_import");
+      Gui.Hey ("use MidiImport in the song file dialog");
       return false;
    }
    if (! f.Size (StrFmt (fn, "`s/a.song", dir))) {
