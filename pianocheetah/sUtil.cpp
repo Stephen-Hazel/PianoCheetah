@@ -566,7 +566,7 @@ void Song::TrkDel (ubyte t)
   ubyt4 i;
   bool  got;
    if (t >= Up.rTrk)  return;          // can't :/
-TRC("TrkDel");
+TRC("TrkDel t=`d", t);
    NotesOff ();
    if (((ubyte)(t+1) < Up.rTrk) && _f.trk [t+1].grp && (! _f.trk [t].grp)) {
       _f.trk [t+1].grp = false;        // re-start group on next track down
@@ -584,8 +584,9 @@ TRC("TrkDel");
       }
       ShutDev (_f.trk [t].dev);
    }
-   _f.trk.Del (t);   Up.rTrk--;
-   if (Up.eTrk >  t)        Up.eTrk--;      // adj all .trk refs
+   _f.trk.Del (t);
+   if (t < Up.rTrk)         Up.rTrk--;      // adj all .trk refs
+   if (Up.eTrk >  t)        Up.eTrk--;
    if (Up.eTrk >= Up.rTrk)  Up.eTrk--;
 }
 
@@ -598,7 +599,8 @@ TRC("TrkIns t=`d/`d nm=`s sn=`s", t, _f.trk.Ln, name?name:"", snd?snd:"");
    if (t >= _f.trk.Ln)  t = (ubyte)(_f.trk.Ln);
 
 // init most _f.trk fields to 0;  set .name, .e
-   _f.trk.Ins (t);   Up.rTrk++;        // MemSets _f.trk [t] to 0
+   _f.trk.Ins (t);                     // MemSets _f.trk [t] to 0
+   if (t < Up.rTrk)  Up.rTrk++;
    if (name)  StrCp (_f.trk [t].name, name);
    _f.trk [t].e   = t ? (_f.trk [t-1].e + _f.trk [t-1].ne) : _f.ev;
    if (snd)  PickDev (t, *snd ? snd : CC("Piano/AcousticGrand"));

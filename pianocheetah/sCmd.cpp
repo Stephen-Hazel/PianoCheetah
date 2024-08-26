@@ -9,7 +9,6 @@ UCmdDef UCmd [] = {
    {"song>",     "3d",  "x",  "",           "load next"},
    {"songRand",  "3c#", "a",  "",           "load random"},
    {"songKill",  "",    "!",  "",           "DELETE SONG (be CAREful)"},
-   {"songRate",  "",    "r",  "",           "rating: none=>a=>b=>c=>"},
 // done by thread/song
    {"timePause", "3d#", "spc","time",       "play/pause"},
    {"timeBar1",  "3e",  "1",  "",           "hop to 1st bar"},
@@ -42,32 +41,32 @@ void Song::Cmd (QString s)
 DBGTH("PcSng");                        // first time Song is hit :/
 DBG("Cmd='`s'", c);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (c, CC(UCmd [i].cmd)))  break;
-   if (i < 6)     {emit sgUpd (s);   return;}
+   if (i < 5)     {emit sgUpd (s);   return;}
    if (i < NUCmd)  switch (i) {
-      case  6:  EdTime (0);  break;         // timePause
-      case  7:  EdTime (1);  break;         // timeBar1
-      case  8:  EdTime (2);  break;         // timeBar<
-      case  9:  EdTime (3);  break;         // timeBar>
-      case 10:  EdTime (4);  break;         // timeHop<
-      case 11:  EdTime (5);  break;         // timeHop>
-      case 12:  EdTime (6);  break;         // timeBug
+      case  5:  EdTime (0);  break;         // timePause
+      case  6:  EdTime (1);  break;         // timeBar1
+      case  7:  EdTime (2);  break;         // timeBar<
+      case  8:  EdTime (3);  break;         // timeBar>
+      case  9:  EdTime (4);  break;         // timeHop<
+      case 10:  EdTime (5);  break;         // timeHop>
+      case 11:  EdTime (6);  break;         // timeBug
 
-      case 13:  EdTmpo (0);  break;         // tempoHop
-      case 14:  EdTmpo (1);  break;         // tempo<
-      case 15:  EdTmpo (2);  break;         // tempo>
+      case 12:  EdTmpo (0);  break;         // tempoHop
+      case 13:  EdTmpo (1);  break;         // tempo<
+      case 14:  EdTmpo (2);  break;         // tempo>
 
-      case 16:  EdTmpo (3);  break;         // tran<
-      case 17:  EdTmpo (4);  break;         // tran>
+      case 15:  EdTmpo (3);  break;         // tran<
+      case 16:  EdTmpo (4);  break;         // tran>
 
-      case 18:  EdRec  (0);  break;         // recSave
-      case 19:  EdRec  (1);  break;         // recWipe
+      case 17:  EdRec  (0);  break;         // recSave
+      case 18:  EdRec  (1);  break;         // recWipe
 
-      case 20:  EdLrn  (0);  break;         // learn
-      case 21:  EdLrn  (1);  break;         // ez
-      case 22:  EdLrn  (2);  break;         // hand
-      case 23:  EdLrn  (3);  break;         // color
-      case 24:  EdLrn  (4);  break;         // hearLoop
-      case 25:  EdLrn  (5);  break;         // hearRec
+      case 19:  EdLrn  (0);  break;         // learn
+      case 20:  EdLrn  (1);  break;         // ez
+      case 21:  EdLrn  (2);  break;         // hand
+      case 22:  EdLrn  (3);  break;         // color
+      case 23:  EdLrn  (4);  break;         // hearLoop
+      case 24:  EdLrn  (5);  break;         // hearRec
    }
    else if (! StrCm (c, CC("init")))      Init ();
    else if (! StrCm (c, CC("quit")))      Quit ();

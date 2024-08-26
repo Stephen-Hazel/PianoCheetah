@@ -457,7 +457,7 @@ void Song::Load (char *fn)
    StrCp (_f.fn, fn);   _f.got = false;
 
    StrAp (fn, CC("/a.song"));
-   if (! f.Size (fn)) {TRC("} Load  file size=0");   return;}
+   if (! f.Size (fn)) {TRC("Song::Load  file size=0");   return;}
 
    if (_f.ev)  delete [] _f.ev;        // hope ya init'd it or BOOM :(
    _f.ev = NULL;   _f.nEv = 0;   _f.maxEv = 0;
@@ -468,7 +468,7 @@ void Song::Load (char *fn)
    st [TB_EVT].Init (CC("Event:")  , 2, MAX_EVT);
 
    if ((m = f.DoText (fn, & st, SongRec)))
-      {TRC("} Load  DoText err=`s", m);   return;}
+      {TRC("Song::Load  DoText err=`s", m);   return;}
 //st [TB_DSC].Dump (); st [TB_TRK].Dump (); st [TB_DRM].Dump ();
 //st [TB_LYR].Dump (); st [TB_EVT].Dump ();
 
@@ -483,7 +483,7 @@ void Song::Load (char *fn)
 TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    _f.maxEv = st [TB_EVT].NRow () + MAX_RCRD;    // couple extra but wtf :)
    _f.ev = new TrkEv [_f.maxEv];   _f.nEv = 0;
-   if (! _f.ev)  {TRC("} Load  ev alloc fail");   return;}
+   if (! _f.ev)  {TRC("Song::Load  ev alloc fail");   return;}
 
    nt = (ubyte)(_f.trk.Ln = st [TB_TRK].NRow ());
    ne =                     st [TB_EVT].NRow ();
@@ -493,7 +493,7 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    _f.tSg.Ln = 0;
    for (t = 0, pe = e = 0;  e < ne;  e++) {
       if (! StrCm (st [TB_EVT].Get (e, 0), CC("EndTrack"))) {
-         if (t >= nt)  {TRC("} Load  EndTrack>nt");   return;}
+         if (t >= nt)  {TRC("Song::Load  EndTrack>nt");   return;}
          _f.trk [t].ne = (e-pe);   pe = e+1;
          _f.trk [t].e = & _f.ev [_f.nEv];   _f.nEv += _f.trk [t].ne;
          t++;
@@ -501,12 +501,13 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
       if ('!' ==       st [TB_EVT].Get (e, 1) [0]) {
          StrCp (buf, & st [TB_EVT].Get (e, 1) [1]);
          if ((m = StrCh (buf, '=')))  *m = '\0';
-         else  {TRC("} Load  !ctrl no = at trk=`d ev#=`d", t+1, e);   return;}
+         else  {TRC("Song::Load  !ctrl no = at trk=`d ev#=`d", t+1, e);
+                return;}
 
          for (i = 0;  i < _f.ctl.Ln;  i++)  if (! StrCm (buf, _f.ctl [i].s))
                                                break;
          if (i >= _f.ctl.Ln) {         // new ctl s
-            if (_f.ctl.Ln >= 128)  {TRC("} Load  >128 ctls");   return;}
+            if (_f.ctl.Ln >= 128)  {TRC("Song::Load  >128 ctls");   return;}
             _f.ctl.Ln++;   StrCp (_f.ctl [i].s, buf);
          }
          if ((i == 1) && (! _f.tSg.Full ())) {
@@ -519,7 +520,7 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
          }
       }
    }
-   if (t < nt)  {TRC("} Load  EndTrack<ntrk");   return;}
+   if (t < nt)  {TRC("Song::Load  EndTrack<ntrk");   return;}
    for (t = 0;  t < _f.ctl.Ln;  t++)  _f.ctl [t].sho = false;
 
 // init initial tSg - sort by bar n calc .time
@@ -544,7 +545,8 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
       StrCp (buf, st [TB_EVT].Get (e, 1));
       if (*buf == '!') {               // ctl
          if ((m = StrCh (buf, '=')))  *m++ = '\0';
-         else  {TRC("} Load  !ctl no = in trk=`d ev#=`d", t+1, e);   return;}
+         else  {TRC("Song::Load  !ctl no = in trk=`d ev#=`d", t+1, e);
+                return;}
          for (i = 0;  i < _f.ctl.Ln;  i++)
             if (! StrCm (& buf [1], _f.ctl [i].s))
                {e2->ctrl = (ubyte)(0x80 | i);   break;}
@@ -556,14 +558,16 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
          else if (i == 1) {            // tsig
            ubyte n, d, s, x;
             if (! (p = StrCh (m, '/')))
-               {TRC("} Load  TSig missing / trk=`d ev#=`d", t+1, e);   return;}
+               {TRC("Song::Load  TSig missing / trk=`d ev#=`d", t+1, e);
+                return;}
             n = (ubyte)Str2Int (m);
             d = (ubyte)Str2Int (++p);
             s = 1;
             if ((m = StrCh (p, '/')))  s = (ubyte)Str2Int (++m);
             for (x = 0;  x < 8;  x++)  if ((1 << x) == d)  break;
             if (x >= 8)
-               {TRC("} Load  TSig bad denom trk=`d ev#=`d", t+1, e);   return;}
+               {TRC("Song::Load  TSig bad denom trk=`d ev#=`d", t+1, e);
+                return;}
             e2->valu = n;   e2->val2 = x | ((s-1) << 4);
          }
          else if (i == 2) {            // ksig
@@ -634,9 +638,9 @@ TRC(" sortin n ins rec trks");
    for (t = 0;  t < nt;  t++)   // sort play events
       Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
    if (TrkIns (nt++, CC("rec drum")) == MAX_TRK)
-      {TRC("} Load  Too many tracks for rec drum");   return;}
+      {TRC("Song::Load  Too many tracks for rec drum");   return;}
    if (TrkIns (nt++, CC("rec melo")) == MAX_TRK)
-      {TRC("} Load  Too many tracks for rec melo");   return;}
+      {TRC("Song::Load  Too many tracks for rec melo");   return;}
    CCClean ();
    mint = ReEv (true);
 
@@ -751,7 +755,7 @@ TRC("TmpoPik end");
 
 //______________________________________________________________________________
 void Song::Save (char rec)
-// Wipe sets rec to '\0' for autosave of practice a.song
+// Wipe sets rec to 'a' for autosave of practice a.song
 // 'r' for save in pc/rec/yyyymmdd_hhmm_songname.song
 { File  f;
   TStr  fnt, fns, s, s2, s3, s4;
@@ -761,11 +765,11 @@ void Song::Save (char rec)
   TrkEv *e;
   bool   prac = StrSt (_f.fn, CC("PianoCheetah")) ? true : false;  // in pc dir?
 TRC("Save rec=`c prac=`b _f.fn=`s trkLn=`d",
-rec?rec:'_', prac, _f.fn, Up.rTrk);
-   if ((! Up.rTrk) || ((rec != 'r') && (! prac)))  return;
+rec, prac, _f.fn, Up.rTrk);
+   if ((! Up.rTrk) || ((rec == 'a') && (! prac)))  return;
 
 TRC("actually savin'");
-   if (rec != 'r')                     // new practice a.song w backup
+   if (rec == 'a')                     // write a.song w backup
         {Cmd ("recWipe");   StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));}
    else {                              // rec/yyyymmdd_hhmm_songTitle
       TmpoPik ('r');
@@ -783,7 +787,7 @@ TRC("fns=`s", fns);
          StrCp (s2, TDrm (t) ? CC("Drum/*") : SndName (t));
          s3 [1] = *s4 = '\0';
          *s3 = _f.trk [t].shh ? '#' : '\0';
-         if ((*s3 == '\0') && TLrn (t))  *s3 = (rec != 'r') ? '?' : '#';
+         if ((*s3 == '\0') && TLrn (t))  *s3 = (rec == 'a') ? '?' : '#';
          if (_f.trk [t].ht)  StrFmt (s4, "`cH",  _f.trk [t].ht);
          else                       *s4 = '\0';
          f.Put (StrFmt (s, "`s  `s  `c`s`s  `s`s\n",

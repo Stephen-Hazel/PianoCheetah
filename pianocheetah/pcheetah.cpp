@@ -15,36 +15,21 @@ void PCheetah::Trak ()
 
 }
 
+void PCheetah::GCfg ()  {_dCfg->Open ();}
+
+void PCheetah::MCfg ()  {DBG("gonna midicfg");
+                         StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
+
 void PCheetah::LoadGo ()
 { TStr s;   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));  }
 
 void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open ();}
-void PCheetah::GCfg ()                        {_dCfg->Open ();}
-void PCheetah::MCfg ()  {DBG("gonna midicfg");
-                         StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
-                                       // ^kick midicfg.  quit cuz midi sharin'
-void PCheetah::TDr ()   {emit sgCmd ("preTDr");}
 
 void PCheetah::SongNxt ()
-{ ubyt4 p = FL.pos, ln = FL.lst.Ln;
-  TStr  s;
-   p = (ln && (p != (ln - 1)))  ?  (p+1) : ln;   FL.pos = p;
-   emit sgCmd ("wipe");
-   if (p < ln)            emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
-}
-
+{  if (FL.pos+1 < FL.lst.Ln) {emit sgCmd ("wipe");   FL.pos++;   LoadGo ();}  }
 void PCheetah::SongPrv ()
-{ TStr s;
-   if (FL.pos)  FL.pos--;
-   emit sgCmd ("wipe");   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
-}
+{  if (FL.pos)               {emit sgCmd ("wipe");   FL.pos--;   LoadGo ();}  }
 
-static char Rate (char *fn)
-{ TStr t;
-   FnName (t, fn);
-   if ((t [0] == '_') && (t [2] == '_'))  return t [1];
-   return '\0';
-}
 
 void PCheetah::SongRand ()
 { ulong p, ln, i, q, tot, unp;         // FL.Load inits 4_qu to n(ot picked)
@@ -53,97 +38,29 @@ void PCheetah::SongRand ()
    emit sgCmd ("wipe");
    ln = FL.lst.Ln;   if (ln == 0)  return;
    p  = FL.pos;
-   r = Rate (FL.lst [p]);
    for (q = 0;  q < ln;  q++)  if (StrSt (FL.lst [q], CC("4_queue")))  break;
-   for (unp = tot = 0, i = q;  i < ln;  i++)  if (Rate (FL.lst [i]) == r)
-      {tot++;   if (FL.lst [i][FL.X] == 'n')  unp++;}
-   if (tot == 0)
-      {Gui.Hey (CC("no songs with that rating in queue"));   return;}
-   if (unp == 0) {                  // reset all
-      for (i = q;  i < ln;  i++)
-         if (Rate (FL.lst [i]) == r)  {unp++;   FL.lst [i][FL.X] = 'n';}
-      FL.lst [p][FL.X] = 'y';   if (p >= q)  unp--;
-   }
-   Gui.Hey (StrFmt (s, "rating `c has `d unpicked of `d", r, unp, tot));
+   for (unp = 0, i = q;  i < ln;  i++)  if (FL.lst [i][FL.X] == 'n')  unp++;
+   if (unp == 0)                       // reset all
+      for (i = q;  i < ln;  i++)  {unp++;   FL.lst [i][FL.X]  = 'n';}
 // rand pick one not already picked
-   do    {p = Rand () * ln / RAND_MAX;   if (p >= ln)  p = ln-1;}
-   while ( (FL.lst [p][FL.X] == 'y') || (Rate (FL.lst [p]) != r) );
-   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
+   p = Rand () * unp / RAND_MAX;   if (p >= unp)  p = unp-1;
+   for (i = q;  i < ln;  i++)
+      if (FL.lst [i][FL.X] == 'n')  if (p-- == 0)
+         {FL.lst [i][FL.X] = 'Y';   FL.pos = i;   break;}
+   LoadGo ();
 }
 
 
 void PCheetah::SongKill ()
-{ ubyt4 p = FL.pos;
-  TStr  dr, t, s;
+{ ubyt4 p;
+  TStr  dr, t;
   Path  d;
-  File  f;
-   if (p >= FL.lst.Ln)  return;
-
+   if ((p = FL.pos) >= FL.lst.Ln)  return;
    StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
    if (MemCm (dr, t, StrLn (t)))
       {Gui.Hey ("songKill only works in 4_queue dir");   return;}
-   FL.lst.Del (p);   d.Kill (dr);
-   Fn2Path (dr);   if (d.Empty (dr))  d.Kill (dr);
-   FL.pos = p;                         // and parent dir if left empty
-   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
-}
-
-
-void PCheetah::SongRate ()
-{ ulong p, ln, i, q, tot, unp;         // SL.Load inits 4_qu to n(ot picked)
-  FDir  d;
-  File  f;
-  TStr  dr, t, nm, s;
-  char  r, *ch;
-   emit sgCmd ("wipe");
-   ln = FL.lst.Ln;   if (ln == 0)  return;
-   p  = FL.pos;
-   r = Rate (FL.lst [p]);
-   for (q = 0;  q < ln;  q++)  if (StrSt (FL.lst [q], CC("4_queue")))  break;
-   for (unp = tot = 0, i = q;  i < ln;  i++)  if (Rate (FL.lst [i]) == r)
-      {tot++;   if (FL.lst [i][FL.X] == 'n')  unp++;}
-   if (tot == 0) {Gui.Hey (CC("no songs with that rating in queue"));   return;}
-
-   if (unp == 0) {                  // reset all
-      for (i = q;  i < ln;  i++)
-         if (Rate (FL.lst [i]) == r)  {unp++;   FL.lst [i][FL.X] = 'n';}
-      FL.lst [p][FL.X] = 'y';   if (p >= q)  unp--;
-   }
-   Gui.Hey (StrFmt (t, "rating `c has `d unpicked of `d", r, unp, tot));
-// rand pick one not already picked
-   do    {p = Rand () * ln / RAND_MAX;   if (p >= ln) p = ln-1;}
-   while ( (FL.lst [p][FL.X] == 'y') || (Rate (FL.lst [p]) != r) );
-
-   if (p < ln) {
-      StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
-      if (MemCm (dr, t, StrLn (t)))
-         {Gui.Hey (CC("songRate only works in 4_queue dir"));   return;}
-   }
-   r = Rate (FL.lst [p]);
-   switch (r) {
-      case 'a': r = 'b';  break;   case 'b': r = 'c'; break;
-      case 'c': r = '\0'; break;   default:  r = 'a'; break;
-   }
-   StrCp (dr, FL.lst [p]);   FnName (nm, dr);   Fn2Path (dr);
-   if      (r == 'a')   {StrCp (& nm [3], nm);   MemCp (nm, CC("_a_"), 3);}
-   else if (r == '\0')   StrCp (nm, & nm [3]);
-   else                  nm [1] = r;
-   StrAp (dr, CC("/"));   StrAp (dr, nm);
-TRC("dr=`s", dr);
-   ch = & dr [StrLn (dr)-1];
-   if ( (*ch >= '0') && (*ch <= '9') && (*(ch-1) == '_') )
-      StrAp (dr, CC(""), 2);
-   if (d.Got (dr)) {
-      StrAp (dr, CC("_2"));
-      while (d.Got (dr)) {
-         for (ch = & dr [StrLn (dr)-2];  *ch != '_';  ch--)  ;
-         i = Str2Int (ch+1);   StrFmt (ch+1, "`d", ++i);
-      }
-   }
-TRC("done dr=`s", dr);
-   f.ReNm (FL.lst [p], dr);   StrCp (FL.lst [p], dr);
-   FL.pos = p;
-   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));
+   FL.lst.Del (p);   d.Kill (dr);   if (p == FL.lst.Ln)  p--;
+   FL.pos = p;   LoadGo ();
 }
 
 
@@ -245,7 +162,6 @@ void PCheetah::Upd (QString upd)
       case 2:  SongNxt  ();   break;   // song>
       case 3:  SongRand ();   break;   // songRand
       case 4:  SongKill ();   break;   // songKill
-      case 5:  SongRate ();   break;   // songRate
       }
       return;
    }
@@ -494,7 +410,7 @@ TRC(" tbar init");
    connect (tb6.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd sp");});
    connect (tb6.Act (1), & QAction::triggered,
-            this, & PCheetah::TDr);
+            this, [this]() {emit sgCmd ("preTDr");});
    connect (tb6.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd +");});
    connect (tb6.Act (3), & QAction::triggered,
