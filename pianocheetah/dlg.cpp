@@ -404,7 +404,6 @@ void FLstDef::Load ()
   TStr   dr, fn, c;
   File   f;
   StrArr t (CC("FL.Load"), FL.MAX, FL.MAX*sizeof (TStr)/2);
-TRC("FL.Load");
 // load prev songlist.txt in cfg dir w order of learn,rep songs
    App.Path (fn, 'c');   StrAp (fn, CC("/songlist.txt"));   t.Load (fn);
    FL.pos = 0;   FL.lst.Ln = t.num;
@@ -451,8 +450,8 @@ TRC("FL.Load");
       FL.lst [r][FL.X] = StrSt (t.str [i], CC("4_queue")) ? 'n' : 'y';
    }
    Save ();
-TRC("FL.Ln=`d", FL.lst.Ln);
-for(i=0;i<FL.lst.Ln;i++)DBG("`d `s `c", i, FL.lst[i], FL.lst[i][FL.X]);
+TRC("FL::Load ln=`d", FL.lst.Ln);
+//for(i=0;i<FL.lst.Ln;i++)DBG("`d `s `c", i, FL.lst[i], FL.lst[i][FL.X]);
 }
 
 
@@ -903,7 +902,17 @@ void DlgFng::Quit ()  {Gui.DlgSave (this, "DlgFng");}
 // dlgHlp - help meee
 
 void DlgHlp::Open ()
-{  show ();   raise ();   /* don't steal focus activateWindow (); */  }
+{  setAttribute (Qt::WA_ShowWithoutActivating, true);
+   setWindowFlags (windowFlags () |    // doesn't seem to work
+      Qt::Tool |                       // maybe cuz flatpak ??
+      Qt::WindowStaysOnTopHint |
+   // Qt::WindowTransparentForInput |
+   //   Qt::FramelessWindowHint |
+   //   Qt::NoDropShadowWindowHint |
+   //   Qt::X11BypassWindowManagerHint |
+      Qt::WindowDoesNotAcceptFocus);
+   show ();   raise ();
+/* don't steal focus activateWindow (); */  }
 
 void DlgHlp::Shut ()
 {  Gui.DlgSave (this, "DlgHlp");
@@ -913,6 +922,7 @@ void DlgHlp::Shut ()
 void DlgHlp::Init ()
 { char *ro [10];
    ro [4] = nullptr;
+   Gui.DlgLoad (this, "DlgHlp");
    setAttribute (Qt::WA_ShowWithoutActivating, true);
    setWindowFlags (windowFlags () |
       Qt::Tool |
@@ -922,7 +932,6 @@ void DlgHlp::Init ()
    //   Qt::NoDropShadowWindowHint |
    //   Qt::X11BypassWindowManagerHint |
       Qt::WindowDoesNotAcceptFocus);
-   Gui.DlgLoad (this, "DlgHlp");
    _t.Init (ui->t, "Group\0Note\0Key\0Command Description\0");
    _t.Open ();
    for (ubyte i = 0;  i < NUCmd;  i++) {

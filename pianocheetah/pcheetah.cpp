@@ -44,9 +44,11 @@ void PCheetah::SongRand ()
       for (i = q;  i < ln;  i++)  {unp++;   FL.lst [i][FL.X]  = 'n';}
 // rand pick one not already picked
    p = Rand () * unp / RAND_MAX;   if (p >= unp)  p = unp-1;
+DBG("SongRand pick=`d/`d", p, unp);
    for (i = q;  i < ln;  i++)
       if (FL.lst [i][FL.X] == 'n')  if (p-- == 0)
          {FL.lst [i][FL.X] = 'Y';   FL.pos = i;   break;}
+DBG("   pos=`d=`s", i, FL.lst [i]);
    LoadGo ();
 }
 
@@ -56,6 +58,7 @@ void PCheetah::SongKill ()
   TStr  dr, t;
   Path  d;
    if ((p = FL.pos) >= FL.lst.Ln)  return;
+DBG("SongKill `s", FL.lst [FL.pos]);
    StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
    if (MemCm (dr, t, StrLn (t)))
       {Gui.Hey ("songKill only works in 4_queue dir");   return;}
@@ -155,7 +158,7 @@ void PCheetah::Upd (QString upd)
 //TRC("Upd `s", u);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, CC(UCmd [i].cmd)))  break;
    if (i < NUCmd) {
-      if (i > 5) {emit sgCmd (s);   return;}
+      if (i > 4) {emit sgCmd (s);   return;}
       switch (i) {
       case 0:  Gui.Quit ();   break;   // exit
       case 1:  SongPrv  ();   break;   // song<
@@ -261,11 +264,10 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
    StrCp (s, km.Str (k));
 TRC("keyPressEvent `s", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
-   if (i < 6)                        Upd (UCmd [i].cmd);
-   if (i < NUCmd)             emit sgCmd (UCmd [i].cmd);
+   if (i < NUCmd)             Upd (UCmd [i].cmd);
    if (! StrCm (s, CC("d")))  emit sgCmd ("dump");
    if (! StrCm (s, CC("f01"))) {
-TRC("help vis=`b", _dHlp->isVisible ());
+TRC("help - was vis=`b", _dHlp->isVisible ());
       if (_dHlp->isVisible ())  _dHlp->Shut ();
       else                      _dHlp->Open ();
    }
