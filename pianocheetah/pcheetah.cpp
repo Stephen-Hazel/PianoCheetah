@@ -43,7 +43,7 @@ void PCheetah::SongRand ()
    if (unp == 0)                       // reset all
       for (i = q;  i < ln;  i++)  {unp++;   FL.lst [i][FL.X]  = 'n';}
 // rand pick one not already picked
-   p = Rand () * unp / RAND_MAX;   if (p >= unp)  p = unp-1;
+   p = Rand (unp);
 DBG("SongRand pick=`d/`d", p, unp);
    for (i = q;  i < ln;  i++)
       if (FL.lst [i][FL.X] == 'n')  if (p-- == 0)

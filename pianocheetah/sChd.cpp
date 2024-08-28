@@ -277,27 +277,27 @@ static bool ChdProg (ubyte bars, WStr *prog, ubyt4 maxp)
   TStr  ch, tCh;
    nbt = 0;   tm = 0;   nprog = 0;
    StrCp (ch, CC("C"));                // start on tonic major
-   tb = nbt = 1 + Rnd (5);             // init totalBeats,numBeats to  1-5;
+   tb = nbt = 1 + Rand (5);            // init totalBeats,numBeats to  1-5;
 // stamp nbt and ch into prog[nprog++]
    StrFmt (prog [nprog++], "`d`s", nbt, ch);
 
 // calc next chords (seq of chords back to (pre)tonic)
    while (tb <= bars*4) {
       nls = ChdNxt (& ls, ch);
-      r = (ubyte)Rnd (nls);
+      r = (ubyte)Rand (nls);
       StrCp (ch, ls [r]);
 DBG(" Prg=> `s (`d/`d)", ch, r, nls);
 
    // 1/3 of time, pick rand equivalent chord into Ch;  restore Ch w tCh l8r
       StrCp (tCh, ch);
-      if (! Rnd (3))  if ((nls = ChdEqu (& ls, ch))) {
-         r = (ubyte)Rnd (nls);
+      if (! Rand (3))  if ((nls = ChdEqu (& ls, ch))) {
+         r = (ubyte)Rand (nls);
          StrCp (ch, ls [r]);
 DBG("  Equ> `s (`d/`d)", ch, r, nls);
       }
 
    // set NBt randomly from 1-5
-      tm += nbt;   nbt = 1 + Rnd (5);
+      tm += nbt;   nbt = 1 + Rand (5);
       ttm = (tm / 8 * 8) + 8;          // every odd bar needs chord on beat 1
       if (tm + nbt > ttm)  nbt = ttm - tm;
 //DBG("`04d.`d `s\n", 1+tm/4, 1+(tm%4), ch);
@@ -491,8 +491,8 @@ TRC(" ftb=`s fte=`s", TmSt (s1, ftb), TmSt (s2, fte));
       }
       Sort (nt, nnt, sizeof (nt [0]), CmpB);
       for (i = 0, tm = tb;  tm < te-1;  tm += M_WHOLE/16, i++)
-//       NtIns (t, tm, tm+M_WHOLE/16-1, nt [i % nnt], 32 + Rnd (96));
-         NtIns (t, tm, tm+M_WHOLE/16-1, nt [Rnd (nnt)], 32 + Rnd (96));
+//       NtIns (t, tm, tm+M_WHOLE/16-1, nt [i % nnt],    32 + Rand (96));
+         NtIns (t, tm, tm+M_WHOLE/16-1, nt [Rand (nnt)], 32 + Rand (96));
 
    // chord - chord notes 3f-4e(nonroot)
       for (i = 1;  s [i] != 'x';  i++) {
