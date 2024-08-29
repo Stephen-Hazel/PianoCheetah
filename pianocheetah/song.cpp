@@ -44,7 +44,7 @@ TRC(" a");
 TRC(" b");
    for (ubyte d = 0;  d < Up.dev.Ln;  d++)  ShutDev (d);
    Up.dev.Ln = 0;                      // should already be 0 after Shuts
-   _prac = false;   _onBt = false;
+   _prac = false;   _onBt = false;   Up.ez = false;
    _pNow = _rNow = _now = 0;
 TRC(" c");
    _f.ctl.Ln = _f.trk.Ln = 0;   Up.rTrk = Up.eTrk = 0;

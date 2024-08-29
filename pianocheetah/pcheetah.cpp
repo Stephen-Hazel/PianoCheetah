@@ -44,11 +44,11 @@ void PCheetah::SongRand ()
       for (i = q;  i < ln;  i++)  {unp++;   FL.lst [i][FL.X]  = 'n';}
 // rand pick one not already picked
    p = Rand (unp);
-DBG("SongRand pick=`d/`d", p, unp);
+TRC("SongRand pick=`d/`d", p, unp);
    for (i = q;  i < ln;  i++)
       if (FL.lst [i][FL.X] == 'n')  if (p-- == 0)
          {FL.lst [i][FL.X] = 'Y';   FL.pos = i;   break;}
-DBG("   pos=`d=`s", i, FL.lst [i]);
+TRC("   pos=`d=`s", i, FL.lst [i]);
    LoadGo ();
 }
 
@@ -58,7 +58,7 @@ void PCheetah::SongKill ()
   TStr  dr, t;
   Path  d;
    if ((p = FL.pos) >= FL.lst.Ln)  return;
-DBG("SongKill `s", FL.lst [FL.pos]);
+TRC("SongKill `s", FL.lst [FL.pos]);
    StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
    if (MemCm (dr, t, StrLn (t)))
       {Gui.Hey ("songKill only works in 4_queue dir");   return;}
