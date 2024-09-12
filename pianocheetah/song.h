@@ -232,10 +232,10 @@ private:
 
 // sCmd.cpp
    ubyte ChkETrk ();
-   void  Msg (char *s), LoopInit (),
+   void  RecWipe (), Msg (char *s), LoopInit (),
          EdSong (char ofs), EdTime (char ofs), EdTmpo (char ofs),
-         EdRec  (char ofs), EdLrn  (char ofs), HType  (char *s),
-         Mix    (char *s);
+         EdLrn  (char ofs),
+         HType  (char *s);
 
 // sReDo.cpp
    bool  TSho (ubyte t), TLrn (ubyte t), TDrm (ubyte t);

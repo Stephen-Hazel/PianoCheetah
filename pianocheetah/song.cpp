@@ -238,8 +238,10 @@ valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
       }
    }
 //DBG("e");
-   if ((! bg) && TLrn (t) && (! TDrm (t)) && Up.ez && ENTDN (e) && (! HEAR))
-      valu = 0x80 | _dn [_pDn].velo [_f.trk [t].ht - '1'];
+   if ((! bg) && TLrn (t) && (! TDrm (t)) && Up.ez && ENTDN (e) && (! HEAR)) {
+     ubyte oct = (_f.trk [t].ht == 'L') ? 2 : 3;
+      valu = 0x80 | _dn [_pDn].velo [oct];
+   }
    if (t >= Up.rTrk)
         {RecDvCh (t, e, & dv, & ch, & dL, & cL);
          if ((cL != 128) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}

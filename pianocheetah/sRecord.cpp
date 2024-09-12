@@ -180,30 +180,22 @@ TRC("DnOK `c=> `c", nxt?nxt:' ', ok);  // (can't easily sync)
 
 void Song::RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL)
 // given mEv n _lrn, get out dev,chn (and LH dev,chn) from lrn trks
-{ ubyte t;
+{ ubyte t, oct;
    *d = *dL = 0;   *c = *cL = 128;
+   if (Up.ez)  return;                 // no echoing nothin in ez
+
    if (ev->chan == 9) {                // drums are just a dev to lookup
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && TDrm (t))
                {*d  = _f.trk [t].dev;   *c  = 9;   break;}
 //TRC("RecDvChM dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
       return;
    }
-
-// no echoing of ctrls in ez
-   if (Up.ez && MCTRL (ev))  return;
-
    for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && (! TDrm (t))) {
-      if (Up.ez) {
-         if (_f.trk [t].ht == (ev->ctrl / 12 - 1 + '0'))
-               {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
-      }
-      else {
-         if (_f.trk [t].ht == 'L')
-               {*dL = _f.trk [t].dev;   *cL = _f.trk [t].chn;}
-         else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
-      }
+      if (_f.trk [t].ht == 'L')
+            {*dL = _f.trk [t].dev;   *cL = _f.trk [t].chn;}
+      else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
    }
-//TRC("RecDvCh dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
+//TRC("RecDvChM dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
 }
 
 
@@ -212,6 +204,8 @@ void Song::RecDvCh (ubyte ti,
 // given trk,tEv n _lrn here
 { ubyte t;
    *d = *dL = 0;   *c = *cL = 128;
+   if (Up.ez)  return;
+
    if (ti == Up.rTrk) {                // drums are just a dev to lookup
       for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && TDrm (t))
                {*d  = _f.trk [t].dev;   *c  = 9;   break;}
@@ -219,19 +213,10 @@ void Song::RecDvCh (ubyte ti,
       return;
    }
 
-// no echoing of ctrls in ez
-   if (Up.ez && MCTRL (ev))  return;
-
    for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t) && (! TDrm (t))) {
-      if (Up.ez) {
-         if (_f.trk [t].ht == (ev->ctrl / 12 - 1 + '0'))
-               {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
-      }
-      else {
-         if (_f.trk [t].ht == 'L')
-               {*dL = _f.trk [t].dev;   *cL = _f.trk [t].chn;}
-         else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
-      }
+      if (_f.trk [t].ht == 'L')
+            {*dL = _f.trk [t].dev;   *cL = _f.trk [t].chn;}
+      else  {*d  = _f.trk [t].dev;   *c  = _f.trk [t].chn;}
    }
 //TRC("RecDvChT dv=`d ch=`d dL=`d cL=`d", *d, *c+1, *dL, *cL+1);
 }
@@ -554,13 +539,15 @@ TRC("NtGet ez hard BOING forward");
                break;
             }
       }
-//DBG("NtGet ez lrnTrk=`d `s _pDn=`d velo=`d",
-//tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"), _pDn, ev->valu&0x7F);
+TRC("NtGet ez lrnTrk=`d `s _pDn=`d velo=`d",
+tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"), _pDn, ev->valu&0x7F);
 
    // store our velo in _dn[].velo[]
-      if (tr < (ubyte)0x80)
-         _dn [_pDn + ((kind=='n')?1:0)].velo [_f.trk [tr].ht - '1'] =
-                                                                ev->valu & 0x7F;
+      if (tr < (ubyte)0x80) {
+        ubyte oct = (_f.trk [tr].ht == 'L') ? 2 : 3;
+TRC("oct=`d", oct);
+         _dn [_pDn + ((kind=='n')?1:0)].velo [oct] = ev->valu & 0x7F;
+      }
       return;
    }
 

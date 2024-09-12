@@ -192,6 +192,7 @@ struct FLstDef {
    const ubyte      X = sizeof (TStr)-1;
    Arr<TStr,100000> lst;               // last byte flags rand already picked
    ubyt4            pos;
+   bool             ext;
    void Load (), Save ();
    bool DoFN  (char *fn);
    bool DoDir (char *dir);

@@ -16,39 +16,108 @@ void PCheetah::Trak ()
 }
 
 void PCheetah::GCfg ()  {_dCfg->Open ();}
-
 void PCheetah::MCfg ()  {DBG("gonna midicfg");
                          StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
-
 void PCheetah::LoadGo ()
 { TStr s;   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));  }
 
 void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open ();}
 
-void PCheetah::SongNxt ()
-{  if (FL.pos+1 < FL.lst.Ln) {emit sgCmd ("wipe");   FL.pos++;   LoadGo ();}  }
-void PCheetah::SongPrv ()
-{  if (FL.pos)               {emit sgCmd ("wipe");   FL.pos--;   LoadGo ();}  }
 
+void PCheetah::SongNxt ()
+{  if (! FL.ext) {
+      if (FL.pos+1 < FL.lst.Ln) {emit sgCmd ("wipe");   FL.pos++;   LoadGo ();}
+      return;
+   }
+
+}
+
+
+void PCheetah::SongPrv ()
+{  if (! FL.ext) {
+      if (FL.pos)               {emit sgCmd ("wipe");   FL.pos--;   LoadGo ();}
+      return;
+   }
+
+}
+
+
+static char *LstCnt (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
+{  if (MemCm (ln, CC("DIDXX "), 6)) FL.pos++;   return nullptr;  }
+
+static File  Fw;
+static TStr  LstFn;
+static ubyt4 Skip;
+
+static char *LstSet (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
+{ TStr o;
+   StrFmt (o, "`s\n", ln);
+   if (MemCm (o, CC("DIDXX "), 6))  if (Skip-- == 0)
+      {StrCp (LstFn, ln);   StrFmt (o, "DIDXX `s\n", ln);   Skip = 0xFFFFFFFF;}
+   Fw.Put (o);   return nullptr;
+}
 
 void PCheetah::SongRand ()
-{ ulong p, ln, i, q, tot, unp;         // FL.Load inits 4_qu to n(ot picked)
-  char  r;
-  TStr  s;
+{ ubyt4 ln, i;
+  TStr  dMid, fnC, fnW, dFnd, c;
+  File  f;
+  Path  d;
    emit sgCmd ("wipe");
-   ln = FL.lst.Ln;   if (ln == 0)  return;
-   p  = FL.pos;
-   for (q = 0;  q < ln;  q++)  if (StrSt (FL.lst [q], CC("4_queue")))  break;
-   for (unp = 0, i = q;  i < ln;  i++)  if (FL.lst [i][FL.X] == 'n')  unp++;
-   if (unp == 0)                       // reset all
-      for (i = q;  i < ln;  i++)  {unp++;   FL.lst [i][FL.X]  = 'n';}
-// rand pick one not already picked
-   p = Rand (unp);
-TRC("SongRand pick=`d/`d", p, unp);
-   for (i = q;  i < ln;  i++)
-      if (FL.lst [i][FL.X] == 'n')  if (p-- == 0)
-         {FL.lst [i][FL.X] = 'Y';   FL.pos = i;   break;}
-TRC("   pos=`d=`s", i, FL.lst [i]);
+   ln = 0;
+   App.CfgGet (CC("DlgFL_dir"), dMid);
+DBG("SongRand dir=`s", dMid);
+   if (*dMid)  ln = f.Size (StrFmt (fnC, "`s/_midicache.txt", dMid));
+   if ((*dMid == '\0') || (! ln)) {
+      if (*dMid == '\0')  StrCp (dMid, getenv ("HOME"));
+DBG("default dir=`s", dMid);
+      if (! Gui.AskDir (dMid, "pick dir to search for midis in (NOT / please)"))
+         return;
+      App.CfgPut (CC("DlgFL_dir"), dMid);
+   }
+   StrFmt (fnC, "`s/_midicache.txt", dMid);
+   if (! f.Size (fnC)) {               // no cache yet so start makin one
+DBG("no _midicache.txt for `s", dMid);
+      App.Run (StrFmt (c, "ll midi `p &", dMid));
+      Gui.Hey ("Making midi cache in that dir...\n"
+               "Come back when __midicache.txt turns to _midicache.txt");
+      return;
+   }
+
+// count # undid undeld
+   FL.ext = true;   FL.pos = 0;   f.DoText (fnC, nullptr, LstCnt);
+DBG("SongRand unpicked=`d", FL.pos);
+   if (! FL.pos) {
+//TODO reset all 'DIDXX 's
+   }
+   FL.pos = Skip = Rand (FL.pos);
+DBG("   pick=`d", FL.pos);
+
+   if (Fw.Open (StrFmt (fnW, "`s/__midicache.txt", dMid), "w"))
+      {f.DoText (fnC, nullptr, LstSet);   Fw.Shut ();}
+   f.ReNm (fnW, fnC);
+
+DBG("LstFn=`s", LstFn);
+// recreate dest dir
+   StrFmt (dFnd, "`s/4_queue/found", App.Path (c, 'd'));
+DBG("dFnd=`s", dFnd);
+   d.Kill (dFnd);   d.Make (dFnd);
+
+// ok copy it to 4_queue/found
+  TStr fr, to, frP, toP, cmd;
+   StrCp  (to, LstFn);   StrAp (to, CC(""), 4);   FnFix (to);
+DBG("to=`s", to);
+   StrFmt (frP, "`s/`s",          dMid, LstFn);
+DBG("frP=`s", frP);
+   StrFmt (toP, "`s/`s/path.txt", dFnd, to);   f.Save (toP, frP, StrLn (frP));
+DBG("wrote path.txt=`s", toP);
+   StrFmt (toP, "`s/`s/a.mid",    dFnd, to);   f.Copy (frP, toP);
+   App.Run (StrFmt (cmd, "mid2song `p", toP));
+
+// relist and move pos to 4_queue/found
+   FL.Load ();   FL.pos = 0;
+   for (ln = StrLn (dFnd), i = 0;  i < FL.lst.Ln;  i++)
+      if (! MemCm (dFnd, FL.lst [i], ln))  {FL.pos = i;   break;}
+DBG("gonna LoadGo");
    LoadGo ();
 }
 
@@ -57,13 +126,16 @@ void PCheetah::SongKill ()
 { ubyt4 p;
   TStr  dr, t;
   Path  d;
-   if ((p = FL.pos) >= FL.lst.Ln)  return;
+   if (! FL.ext) {
+      if ((p = FL.pos) >= FL.lst.Ln)  return;
 TRC("SongKill `s", FL.lst [FL.pos]);
-   StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
-   if (MemCm (dr, t, StrLn (t)))
-      {Gui.Hey ("songKill only works in 4_queue dir");   return;}
-   FL.lst.Del (p);   d.Kill (dr);   if (p == FL.lst.Ln)  p--;
-   FL.pos = p;   LoadGo ();
+      StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
+      if (MemCm (dr, t, StrLn (t)))
+         {Gui.Hey ("songKill only works in 4_queue dir");   return;}
+      FL.lst.Del (p);   d.Kill (dr);   if (p == FL.lst.Ln)  p--;
+      FL.pos = p;   LoadGo ();
+   }
+
 }
 
 
@@ -158,13 +230,13 @@ void PCheetah::Upd (QString upd)
 //TRC("Upd `s", u);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, CC(UCmd [i].cmd)))  break;
    if (i < NUCmd) {
-      if (i > 4) {emit sgCmd (s);   return;}
-      switch (i) {
-      case 0:  Gui.Quit ();   break;   // exit
-      case 1:  SongPrv  ();   break;   // song<
-      case 2:  SongNxt  ();   break;   // song>
-      case 3:  SongRand ();   break;   // songRand
-      case 4:  SongKill ();   break;   // songKill
+      if (i > 4)  emit sgCmd (upd);
+      else  switch (i) {
+         case 0:  Gui.Quit ();   break;     // exit
+         case 1:  SongPrv  ();   break;     // song<
+         case 2:  SongNxt  ();   break;     // song>
+         case 3:  SongRand ();   break;     // songRand
+         case 4:  SongKill ();   break;     // songKill
       }
       return;
    }

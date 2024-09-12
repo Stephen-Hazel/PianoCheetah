@@ -760,15 +760,13 @@ void Song::Save (char rec)
 { File  f;
   TStr  fnt, fns, s, s2, s3, s4;
   char *m;
-  ubyt4 i;
-  ubyte d, t, dt, c;
+  ubyt4 i, p;
+  ubyte d, t, dt, c, pv, oct;
   TrkEv *e;
-  bool   prac = StrSt (_f.fn, CC("PianoCheetah")) ? true : false;  // in pc dir?
-TRC("Save rec=`c prac=`b _f.fn=`s trkLn=`d",
-rec, prac, _f.fn, Up.rTrk);
-   if ((! Up.rTrk) || ((rec == 'a') && (! prac)))  return;
+DBG("Save rec=`c fn=`s nTrk=`d", rec, _f.fn, Up.rTrk);
+   if (! Up.rTrk)  return;             // nothin ta save?
 
-TRC("actually savin'");
+DBG("actually savin'");
    if (rec == 'a')                     // write a.song w backup
         {Cmd ("recWipe");   StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));}
    else {                              // rec/yyyymmdd_hhmm_songTitle
@@ -777,7 +775,7 @@ TRC("actually savin'");
       FnName (fnt, _f.fn);   Fn2Name (fnt);      // kill path leavin songdir
       StrFmt (fns, "`s/rec/`s_`s.song", App.Path (s2, 'd'), s, fnt);
    }
-TRC("fns=`s", fns);
+DBG("fns=`s", fns);
    dt = DrumCon ();                    // which also sets _f.mapD for us
    if (f.Open (fns, "wb")) {
       f.Put (_f.dsc);
@@ -833,9 +831,11 @@ TRC("fns=`s", fns);
 
       f.Put (CC("Event:\n"));
       for (t = 0;  t < Up.rTrk;  t++) {
-         for (i = 0, e = _f.trk [t].e;  i < _f.trk [t].ne;  i++) {
+         oct = (_f.trk [t].ht == 'L') ? 2 : 3;
+         for (p = i = 0, e = _f.trk [t].e;  i < _f.trk [t].ne;  i++) {
             f.Put (StrFmt (s, "`<9s ", TmSt (s2, e [i].time)));
-            c = e [i].ctrl;
+            while ((_dn [p].time < e [i].time) && (p+1 < _dn.Ln))  p++;
+            c = e [i].ctrl;            // ^ sync
             if (c & 0x0080) {          // ctrl
                StrCp (s, _f.ctl [c & 0x7F].s);
                if      (! StrCm (s,  CC("Tmpo")))  // tmpo,tsig,ksig are special
@@ -862,6 +862,11 @@ TRC("fns=`s", fns);
                }
             }
             else {                     // note
+               if (TLrn (t) && EDN (& e [i]) && (rec == 'r')) {
+                  pv = e [i].valu;
+                  if (_dn [p].velo [oct])  e [i].valu =
+                      _dn [p].velo [oct];
+               }
                StrFmt (s, "`s`c`d",
                   TDrm (t) ? MDrm2Str (s2, c) : MKey2Str (s2, c),
                   EUP (& e [i]) ? '^' : (EDN (& e [i]) ? '_' : '~'),
@@ -869,6 +874,8 @@ TRC("fns=`s", fns);
                if ((c = (e [i].val2 & 0x1F)))  {StrAp (s, CC("@"));
                                                 StrAp (s, MFing [c-1]);}
                f.Put (s);
+               if (TLrn (t) && EDN (& e [i]) && (rec == 'r'))
+                  e [i].valu = pv;
             }
             f.Put (CC("\n"));
          }
@@ -878,5 +885,5 @@ TRC("fns=`s", fns);
    }
    if (rec == 'r')  TmpoPik ('l');     // restore tempo from having set to rec
    DrumExp (false);
-TRC("Save done");
+DBG("Save done");
 }

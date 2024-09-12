@@ -56,7 +56,7 @@ void Song::DumpTrEv (ubyte t)
 void Song::DumpDn ()
 { TStr d1;
   ulong p;
-   DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p");
+   DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p  /  ezvelo");
    for (p = 0;  p < _dn.Ln;  p++) {
       DBG("`d `s `d `d `d",
           p, TmSt (d1,_dn [p].time), _dn [p].msec, _dn [p].tmpo,
@@ -65,6 +65,10 @@ void Song::DumpDn ()
       for (ubyte c = 0;  c < _dn [p].nNt;  c++)
          DBG("   `s `d `d", MKey2Str(s,_dn [p].nt [c].nt), _dn [p].nt [c].t,
                                                            _dn [p].nt [c].p);
+      *s = '\0';
+      for (ubyte c = 0;  c < 7;  c++)
+         StrAp (s, StrFmt (d1, " `d", _dn [p].velo [c]));
+      DBG(s);
    }
    DBG("_dn end");
 }
@@ -83,6 +87,7 @@ void Song::Dump (bool e2)
   ubyt4  s;
   TStr   t1, t2, t3;
   TrkEv *ev;
+//   DumpDn ();
 //DumpX ();   return;
 DBG("DUMP");
    Sy.Dump ();

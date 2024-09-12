@@ -379,7 +379,7 @@ void DlgCue::Quit ()  {Gui.DlgSave (this, "DlgCue");}
 
 
 //______________________________________________________________________________
-// dlgfl - PianoCheetah's file list (FL.lst[], FL.pos)
+// dlgfl - PianoCheetah's file list (FL.lst[], FL.pos, FL.ext)
 //         and dialog to mess w it
 
 FLstDef FL;
@@ -471,7 +471,7 @@ void FLstDef::Save ()
 
 
 bool FLstDef::DoDir (char *dir)
-// if pc dir (win expl play song dir), just scoot to it in list
+// if pc dir (dolphin song dir pick), just scoot to it in list
 { ubyt4 i, ln;
   BStr  pc, fn, fne, c;
   File  f;
@@ -516,6 +516,7 @@ void DlgFL::Pik ()
   bool  in = false;
   StrArr tb (CC("FLstEtc"), 16000, 6000*sizeof(TStr));
    if ((p = _t.CurRow ()) >= 0)  FL.pos = p;
+   FL.ext = false;
 
 // git the .song fn, load for infoz
    StrCp (fn, FL.lst [FL.pos]);   StrAp (fn, CC("/a.song"));

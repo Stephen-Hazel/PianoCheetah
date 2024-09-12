@@ -58,8 +58,8 @@ DBG("Cmd='`s'", c);
       case 15:  EdTmpo (3);  break;         // tran<
       case 16:  EdTmpo (4);  break;         // tran>
 
-      case 17:  EdRec  (0);  break;         // recSave
-      case 18:  EdRec  (1);  break;         // recWipe
+      case 17:  Save ('r');  break;         // recSave
+      case 18:  RecWipe ();  break;         // recWipe
 
       case 19:  EdLrn  (0);  break;         // learn
       case 20:  EdLrn  (1);  break;         // ez
@@ -100,7 +100,6 @@ DBG("Cmd='`s'", c);
    else if (! MemCm (c, CC("grp "),   4))  NewGrp (& c [4]);
    else if (! MemCm (c, CC("snd "),   4))  NewSnd (& c [4]);
    else if (! MemCm (c, CC("dev "),   4))  NewDev (& c [4]);
-   else if (! MemCm (c, CC("mix "),   4))  Mix    (& c [4]);
    else if (! MemCm (c, CC("drmap "), 6))  DrMap  (& c [6]);
    else if (! MemCm (c, CC("trkEd "), 6))  TrkEd  (& c [6]);
    else if (! MemCm (c, CC("preTDr"), 6))  PreTDr ();
@@ -118,6 +117,11 @@ DBG("Cmd='`s'", c);
 //______________________________________________________________________________
 ubyte Song::ChkETrk ()                 // be sure _eTrk is still ok
 {  if (Up.eTrk >= Up.rTrk) Up.eTrk = (ubyte)(Up.rTrk-1);   return Up.eTrk;  }
+
+void Song::RecWipe ()
+{  for (ubyte t = Up.rTrk;  t < _f.trk.Ln;  t++)  EvDel (t, 0, _f.trk [t].ne);
+   ReDo ();
+}
 
 
 //______________________________________________________________________________
@@ -210,14 +214,6 @@ ofs, _f.tmpo, FIX1, tt, tp);
       else          {if (_f.tran < (sbyte) 12) _f.tran++;}
       DscSave ();   StrFmt (ts, "transpose=`d", _f.tran);   Hey (ts);
    }
-}
-
-
-//______________________________________________________________________________
-void Song::EdRec (char ofs)
-{  if (ofs == 0)  {Save ('r');   ReTrk ();   return;}      // recSave
-   for (ubyte t = Up.rTrk;  t < _f.trk.Ln;  t++)  EvDel (t, 0, _f.trk [t].ne);
-   ReDo ();                                                // recWipe
 }
 
 
@@ -324,15 +320,4 @@ DBG("HType `s t=`d", s, e);
       c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
    _f.trk [e].ht = c;
    ReDo ();
-}
-
-
-void Song::Mix (char *s)
-{ char *s2;
-  ubyte v, p;
-  v = (ubyte)Str2Int (s, & s2);
-  p = (ubyte)Str2Int (s2);
-TRC("mix v=`d p=`d", v, p);
-  ubyte e = ChkETrk ();   CCInit (e, CC("Vol"), v);
-                          CCInit (e, CC("Pan"), p);   ReTrk ();
 }
