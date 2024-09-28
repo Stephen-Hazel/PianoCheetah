@@ -605,7 +605,7 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
    }
 //DBG("i=`d", i);
    _t.Shut ();
-//DBG("colw=`d", _t.ColW (1));
+DBG("colw=`d", _t.ColW (1));
    if (_t.ColW (1) > 600)  _t.SetColW (1, 600);
    _t.HopTo (FL.pos, 0);
    Pik ();
@@ -790,9 +790,10 @@ void DlgFL::Init ()
    connect (tb.Act (6), & QAction::triggered, this, & DlgFL::Mod2Song);
    connect (tb.Act (7), & QAction::triggered, this, & DlgFL::Brow);
 
-   _t.Init (ui->fLst, "Stage\0Song\0");
+   _t.Init (ui->fLst, "Stage\0Song\0", nullptr, 'w');
    connect (ui->fLst, &QTableWidget::itemClicked,       this, & DlgFL::Pik);
    connect (ui->fLst, &QTableWidget::itemDoubleClicked, this, & DlgFL::Shut);
+   _t.SetColWrapOK (1);
 
   CtlLine s (ui->srch);
   CtlChek a (ui->all);

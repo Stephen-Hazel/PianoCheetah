@@ -756,24 +756,29 @@ TRC("TmpoPik end");
 //______________________________________________________________________________
 void Song::Save (char rec)
 // Wipe sets rec to 'a' for autosave of practice a.song
-// 'r' for save in pc/rec/yyyymmdd_hhmm_songname.song
+// 'r' for save in pc/done/yyyymmdd_hhmm_songname/a.song
 { File  f;
+  Path  dr;
   TStr  fnt, fns, s, s2, s3, s4;
   char *m;
   ubyt4 i, p;
   ubyte d, t, dt, c, pv, oct;
   TrkEv *e;
-DBG("Save rec=`c fn=`s nTrk=`d", rec, _f.fn, Up.rTrk);
-   if (! Up.rTrk)  return;             // nothin ta save?
-
-DBG("actually savin'");
+TRC("Save rec=`c fn=`s nTrk=`d", rec, _f.fn, Up.rTrk);
+   if (! Up.rTrk)  return;             // no tracks ta save?
+   StrFmt (fnt, "`s/4_queue/", App.Path (s2, 'd'));
+   if (! MemCm (_f.fn, fnt, StrLn (fnt)))  return;
+                                       // don't waste time savin in 4_queue
+TRC("actually savin'");
    if (rec == 'a')                     // write a.song w backup
         {Cmd ("recWipe");   StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));}
-   else {                              // rec/yyyymmdd_hhmm_songTitle
+   else {                              // d_done/yyyymmdd_hhmm_songTitle
       TmpoPik ('r');
       Now (s);   s [13] = '\0';                  // kill secs n on
       FnName (fnt, _f.fn);   Fn2Name (fnt);      // kill path leavin songdir
-      StrFmt (fns, "`s/rec/`s_`s.song", App.Path (s2, 'd'), s, fnt);
+      StrFmt (fns, "`s/3_done/`s_`s", App.Path (s2, 'd'), s, fnt);
+      dr.Make (fns);
+      StrAp (fns, CC("/a.song"));
    }
 DBG("fns=`s", fns);
    dt = DrumCon ();                    // which also sets _f.mapD for us
@@ -885,5 +890,5 @@ DBG("fns=`s", fns);
    }
    if (rec == 'r')  TmpoPik ('l');     // restore tempo from having set to rec
    DrumExp (false);
-DBG("Save done");
+TRC("Save done");
 }

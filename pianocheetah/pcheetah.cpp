@@ -24,52 +24,83 @@ void PCheetah::LoadGo ()
 void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open ();}
 
 
-void PCheetah::SongNxt ()
-{  if (! FL.ext) {
-      if (FL.pos+1 < FL.lst.Ln) {emit sgCmd ("wipe");   FL.pos++;   LoadGo ();}
-      return;
-   }
+static char *LstLen (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
+{  if (MemCm (ln, CC("DIDXX "), 6)) FL.xLen++;   return nullptr;  }
 
+static File  Fw;
+
+static char *LstGet (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
+{ TStr o;
+  static ubyt4 n;
+   StrFmt (o, "`s\n", ln);
+   if (pos == 0)  n = 0;
+   if (MemCm (o, CC("DIDXX "), 6))
+      if (n++ == FL.xPos)  {StrCp (FL.xFn, ln);   StrFmt (o, "DIDXX `s\n", ln);}
+   Fw.Put (o);   return nullptr;
+}
+
+static void XLoad ()
+{ ubyt4 ln, i;
+  TStr  dMid, fnC, fnW, dFnd, s;
+  File  f;
+  Path  d;
+   App.CfgGet (CC("DlgFL_dir"), dMid);
+   ln = f.Size (StrFmt (fnC,  "`s/_midicache.txt", dMid));
+
+   if (Fw.Open (StrFmt (fnW, "`s/__midicache.txt", dMid), "w"))
+      {f.DoText (fnC, nullptr, LstGet);   Fw.Shut ();}
+   f.ReNm (fnW, fnC);
+//TODO recache if FL.xLen hits 0
+   if (--FL.xLen == 0)  {Gui.Hey ("_midicache has 0 left - repick midi dir");
+                         return;}
+DBG("   xPos=`d xLen=`d xFn=`s dMid=`s", FL.xPos, FL.xLen, FL.xFn, dMid);
+// recreate dest dir
+   StrFmt (dFnd, "`s/4_queue/found", App.Path (s, 'd'));
+   d.Kill (dFnd);   d.Make (dFnd);
+
+// ok copy it to 4_queue/found
+  TStr fr, to, frP, toP, cmd;
+   StrCp  (to, FL.xFn);   StrAp (to, CC(""), 4);   FnFix (to);
+   StrFmt (frP, "`s/`s",          dMid, FL.xFn);
+   StrFmt (toP, "`s/`s/path.txt", dFnd, to);   f.Save (toP, frP, StrLn (frP));
+   StrFmt (toP, "`s/`s/a.mid",    dFnd, to);   f.Copy (frP, toP);
+   App.Run (StrFmt (cmd, "mid2song `p", toP));
+
+// relist and move pos to 4_queue/found
+   FL.Load ();   FL.pos = 0;
+   for (ln = StrLn (dFnd), i = 0;  i < FL.lst.Ln;  i++)
+      if (! MemCm (dFnd, FL.lst [i], ln))  {FL.pos = i;   break;}
+}
+
+
+void PCheetah::SongNxt ()
+{  emit sgCmd ("wipe");
+   if (FL.ext) {if (FL.xPos+1 < FL.xLen)   FL.xPos++;
+                XLoad ();}
+   else         if (FL.pos+1 < FL.lst.Ln)  FL.pos++;
+   LoadGo ();
 }
 
 
 void PCheetah::SongPrv ()
-{  if (! FL.ext) {
-      if (FL.pos)               {emit sgCmd ("wipe");   FL.pos--;   LoadGo ();}
-      return;
-   }
-
+{  emit sgCmd ("wipe");
+   if (FL.ext) {if (FL.xPos)  FL.xPos--;
+                XLoad ();}
+   else         if (FL.pos)   FL.pos--;
+   LoadGo ();
 }
 
-
-static char *LstCnt (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
-{  if (MemCm (ln, CC("DIDXX "), 6)) FL.pos++;   return nullptr;  }
-
-static File  Fw;
-static TStr  LstFn;
-static ubyt4 Skip;
-
-static char *LstSet (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
-{ TStr o;
-   StrFmt (o, "`s\n", ln);
-   if (MemCm (o, CC("DIDXX "), 6))  if (Skip-- == 0)
-      {StrCp (LstFn, ln);   StrFmt (o, "DIDXX `s\n", ln);   Skip = 0xFFFFFFFF;}
-   Fw.Put (o);   return nullptr;
-}
 
 void PCheetah::SongRand ()
-{ ubyt4 ln, i;
-  TStr  dMid, fnC, fnW, dFnd, c;
+{ ubyt4 ln;
+  TStr  dMid, fnC, c;
   File  f;
-  Path  d;
    emit sgCmd ("wipe");
    ln = 0;
    App.CfgGet (CC("DlgFL_dir"), dMid);
-DBG("SongRand dir=`s", dMid);
    if (*dMid)  ln = f.Size (StrFmt (fnC, "`s/_midicache.txt", dMid));
    if ((*dMid == '\0') || (! ln)) {
       if (*dMid == '\0')  StrCp (dMid, getenv ("HOME"));
-DBG("default dir=`s", dMid);
       if (! Gui.AskDir (dMid, "pick dir to search for midis in (NOT / please)"))
          return;
       App.CfgPut (CC("DlgFL_dir"), dMid);
@@ -84,40 +115,10 @@ DBG("no _midicache.txt for `s", dMid);
    }
 
 // count # undid undeld
-   FL.ext = true;   FL.pos = 0;   f.DoText (fnC, nullptr, LstCnt);
-DBG("SongRand unpicked=`d", FL.pos);
-   if (! FL.pos) {
-//TODO reset all 'DIDXX 's
-   }
-   FL.pos = Skip = Rand (FL.pos);
-DBG("   pick=`d", FL.pos);
-
-   if (Fw.Open (StrFmt (fnW, "`s/__midicache.txt", dMid), "w"))
-      {f.DoText (fnC, nullptr, LstSet);   Fw.Shut ();}
-   f.ReNm (fnW, fnC);
-
-DBG("LstFn=`s", LstFn);
-// recreate dest dir
-   StrFmt (dFnd, "`s/4_queue/found", App.Path (c, 'd'));
-DBG("dFnd=`s", dFnd);
-   d.Kill (dFnd);   d.Make (dFnd);
-
-// ok copy it to 4_queue/found
-  TStr fr, to, frP, toP, cmd;
-   StrCp  (to, LstFn);   StrAp (to, CC(""), 4);   FnFix (to);
-DBG("to=`s", to);
-   StrFmt (frP, "`s/`s",          dMid, LstFn);
-DBG("frP=`s", frP);
-   StrFmt (toP, "`s/`s/path.txt", dFnd, to);   f.Save (toP, frP, StrLn (frP));
-DBG("wrote path.txt=`s", toP);
-   StrFmt (toP, "`s/`s/a.mid",    dFnd, to);   f.Copy (frP, toP);
-   App.Run (StrFmt (cmd, "mid2song `p", toP));
-
-// relist and move pos to 4_queue/found
-   FL.Load ();   FL.pos = 0;
-   for (ln = StrLn (dFnd), i = 0;  i < FL.lst.Ln;  i++)
-      if (! MemCm (dFnd, FL.lst [i], ln))  {FL.pos = i;   break;}
-DBG("gonna LoadGo");
+   FL.ext = true;   FL.xLen = 0;   f.DoText (fnC, nullptr, LstLen);
+DBG("   init FL.xLen=`d", FL.xLen);
+   FL.xPos = Rand (FL.xLen);
+   XLoad ();
    LoadGo ();
 }
 
@@ -126,16 +127,15 @@ void PCheetah::SongKill ()
 { ubyt4 p;
   TStr  dr, t;
   Path  d;
-   if (! FL.ext) {
-      if ((p = FL.pos) >= FL.lst.Ln)  return;
+   if ((p = FL.pos) >= FL.lst.Ln)  return;
 TRC("SongKill `s", FL.lst [FL.pos]);
-      StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
-      if (MemCm (dr, t, StrLn (t)))
-         {Gui.Hey ("songKill only works in 4_queue dir");   return;}
-      FL.lst.Del (p);   d.Kill (dr);   if (p == FL.lst.Ln)  p--;
-      FL.pos = p;   LoadGo ();
-   }
+   StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
+   if (MemCm (dr, t, StrLn (t)))
+      {Gui.Hey ("songKill only works in 4_queue dir");   return;}
 
+//TODO gotta path.txt?  rm that .mid too
+   FL.lst.Del (p);   d.Kill (dr);   if (p == FL.lst.Ln)  p--;
+   FL.pos = p;   LoadGo ();
 }
 
 

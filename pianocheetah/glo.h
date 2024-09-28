@@ -191,7 +191,8 @@ struct FLstDef {
    const ubyt4      MAX = 100000;      // sigh
    const ubyte      X = sizeof (TStr)-1;
    Arr<TStr,100000> lst;               // last byte flags rand already picked
-   ubyt4            pos;
+   ubyt4            pos,  xLen, xPos;
+   TStr                   xFn;
    bool             ext;
    void Load (), Save ();
    bool DoFN  (char *fn);
