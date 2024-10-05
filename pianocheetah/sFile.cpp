@@ -783,14 +783,14 @@ TRC("actually savin'");
 DBG("fns=`s", fns);
    dt = DrumCon ();                    // which also sets _f.mapD for us
    if (f.Open (fns, "wb")) {
-      f.Put (_f.dsc);
-
+      p = Up.lrn;   Up.lrn = LHEAR;   DscSave ();
+      f.Put (_f.dsc);   Up.lrn = p;   DscSave ();
       f.Put (CC("Track:\n"));
       for (t = 0;  t < Up.rTrk;  t++) {
          StrCp (s2, TDrm (t) ? CC("Drum/*") : SndName (t));
          s3 [1] = *s4 = '\0';
          *s3 = _f.trk [t].shh ? '#' : '\0';
-         if ((*s3 == '\0') && TLrn (t))  *s3 = (rec == 'a') ? '?' : '#';
+         if (TLrn (t))    *s3 = '?';
          if (_f.trk [t].ht)  StrFmt (s4, "`cH",  _f.trk [t].ht);
          else                       *s4 = '\0';
          f.Put (StrFmt (s, "`s  `s  `c`s`s  `s`s\n",
@@ -836,7 +836,8 @@ DBG("fns=`s", fns);
 
       f.Put (CC("Event:\n"));
       for (t = 0;  t < Up.rTrk;  t++) {
-         oct = (_f.trk [t].ht == 'L') ? 2 : 3;
+         oct = 99;
+         if ((rec == 'r') && TLrn (t))  oct = (_f.trk [t].ht == 'L') ? 2 : 3;
          for (p = i = 0, e = _f.trk [t].e;  i < _f.trk [t].ne;  i++) {
             f.Put (StrFmt (s, "`<9s ", TmSt (s2, e [i].time)));
             while ((_dn [p].time < e [i].time) && (p+1 < _dn.Ln))  p++;
@@ -866,11 +867,10 @@ DBG("fns=`s", fns);
                   if (e [i].val2)  f.Put (StrFmt (s, " `d", e [i].val2));
                }
             }
-            else {                     // note
-               if (TLrn (t) && EDN (& e [i]) && (rec == 'r')) {
-                  pv = e [i].valu;
+            else {                     // note           repl w rec
+               if ((oct < 99) && EDOWN (& e [i])) { pv = e [i].valu;
                   if (_dn [p].velo [oct])  e [i].valu =
-                      _dn [p].velo [oct];
+                      _dn [p].velo [oct] | 0x80;
                }
                StrFmt (s, "`s`c`d",
                   TDrm (t) ? MDrm2Str (s2, c) : MKey2Str (s2, c),
@@ -879,9 +879,8 @@ DBG("fns=`s", fns);
                if ((c = (e [i].val2 & 0x1F)))  {StrAp (s, CC("@"));
                                                 StrAp (s, MFing [c-1]);}
                f.Put (s);
-               if (TLrn (t) && EDN (& e [i]) && (rec == 'r'))
-                  e [i].valu = pv;
-            }
+               if ((oct < 99) && EDOWN (& e [i]))   e [i].valu = pv;
+            }                                         // restore
             f.Put (CC("\n"));
          }
          f.Put (StrFmt (s, "EndTrack `d #ev=`d\n", t+1, _f.trk [t].ne));

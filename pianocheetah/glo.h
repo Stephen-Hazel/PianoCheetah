@@ -161,7 +161,7 @@ struct UpdLst {
    QRect    tpos, drag;                // drawnow's area to update, ms drag rc
    QPixmap *pm, *tpm;                  // main(all) and now(update) note pixmaps
    Canvas   cnv, tcnv;
-   PosDef   pos;                       // edit pos junkss
+   PosDef   pos, posx;                 // edit pos junkss and a copy when needed
 
 // Dlg val passin (TDr, Ctl, etc)
    ubyte   nR;

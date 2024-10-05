@@ -228,7 +228,7 @@ private:
 // sEdMs.cpp
    void  DragRc  ();
    char  MsPos   (sbyt2 x, sbyt2 y);
-   void  DbgPos  ();                   // MsDn,Mv,Up are slots below
+   void  DbgPos  (char x = '\0');      // MsDn,Mv,Up are slots below
 
 // sCmd.cpp
    ubyte ChkETrk ();

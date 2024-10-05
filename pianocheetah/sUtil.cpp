@@ -860,7 +860,7 @@ void Song::LoopInit ()
    }
    delete [] ev;
 
-// kill existing range [ or (repeat bar *
+// kill existing range [ or repeat bar *
    for (p = 0;  p < _f.cue.Ln;) {
       if (! _f.cue [p].tend)  p++;
       else {

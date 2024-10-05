@@ -284,22 +284,24 @@ TmSt (ts, tm), tr+1, cc, e.valu, e.val2);
 //______________________________________________________________________________
 void Song::Cue (char *s)
 { TStr s1;
-DBG("Cue '`s'", s);
+DBG("Cue '`s'", s);DbgPos('x');
    if (! StrCm (s, CC("loopInit")))  return LoopInit ();
    if (*s == '[')  return;             // can't del loops
 
-  ubyt4 tm = Up.pos.tm, te = 0;
-   if (Up.pos.got)
-      {tm = _f.cue [Up.pos.p].time;
-       te = _f.cue [Up.pos.p].tend;  _f.cue.Del (Up.pos.p);}
+  ubyt4 tm = Up.posx.tm, te = 0;
+   if (Up.posx.got)
+      {tm = _f.cue [Up.posx.p].time;
+       te = _f.cue [Up.posx.p].tend;   _f.cue.Del (Up.posx.p);}
    if (*s) {
       StrCp (s1, s);
       if (StrCh (CC("<>"), *s)) {      // need dur?
-         if (! Up.pos.got)  te = tm + M_WHOLE;
+         if (! Up.posx.got)  te = tm + M_WHOLE;
          StrFmt (s1, "/`d`s", te-tm, s);
       }
       if (*s == '(')                   // chop tm at bar for sections
          tm = Bar2Tm (Tm2Bar (tm));
+TStr ts;
+DBG("TxtIns tm=`s, s1=`s", TmSt(ts,tm), s1);
       TxtIns (tm, s1, & _f.cue, 'c');
    }
    ReDo ();

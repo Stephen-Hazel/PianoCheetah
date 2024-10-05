@@ -142,8 +142,9 @@ Up.pos.ct, Up.pos.cp, Up.pos.got, Up.pos.tr, Up.pos.p, TmSt(x1,Up.pos.tm));
 }
 
 
-void Song::DbgPos ()
+void Song::DbgPos (char x)
 { TStr s, s2, s3;
+   if (x)  MemCp (& Up.pos, & Up.posx, sizeof (Up.pos));
 DBG("Up.pos {\n"
     "   at=`c got=`c drg=`c pg=`d co=`d\n"
     "   tm=`s sy=`d p=`d\n"
@@ -400,8 +401,10 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
             Up.pos.tm = Bar2Tm (Tm2Bar (Up.pos.tm));
          TxtIns (Up.pos.tm, Up.pos.str, & _f.cue, 'c');
       }
-      else
+      else {
+         MemCp (& Up.posx, & Up.pos, sizeof (Up.pos));
          emit sgUpd ("dCue");          // dlg fer ins/upd/del cue
+      }
       _pg = 0;
       if (! Up.pos.pPoz) Poz (false);
    }
