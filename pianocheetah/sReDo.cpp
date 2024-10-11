@@ -161,10 +161,11 @@ TRC("ReEv end mint=`d", mint);
 //______________________________________________________________________________
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
-{ ubyte t, c, d, nn, x, pf, pnt, nt, nmin, nmax, f;
+{ ubyte t, c, d, nn, x, pf, pnt, nt, nmin, nmax, pntr, ntr, f;
+  ubyt2                              nsum;
   ubyt4 p, q, tpos [128], tm, ptm, dp, w;
   bool  got, qd [MAX_TRK], didq, fst;
-  char  ht;
+  char  ht, ch;
   TrkEv *e;
   ubyt4 ne;
   TStr  k, st;
@@ -254,27 +255,33 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
    // first we calc all the directions usin' nmin/nmax in dn n prev dn
       fst = true;   pnt = 128;
       for (dp = 0;  dp < _dn.Ln;  dp++) {
-         c = 128;   nn = 0;   nmin = nmax = 0;   // get nt min,max for this dn
+         c = 128;   nsum = nn = nmin = nmax = 0; // stats for this dn
          for (x = 0;  x < _dn [dp].nNt;  x++)
             if (_dn [dp].nt [x].t == t) {
                nt = _dn [dp].nt [x].nt;
-               if (nn == 0)  nmin = nmax = nt;
-               else {
-                  if (nt < nmin)  nmin = nt;
-                  if (nt > nmax)  nmax = nt;
-               }
+               if (nn == 0)  nsum = nmin = nmax = nt;
+               else         {nsum += nt;   if (nt < nmin) nmin = nt;
+                                           if (nt > nmax) nmax = nt;}
                nn++;   if (c == 128)  c = x;
             }
          if (! nn)  xx [dp].pos = 99;  // if no notes in dn for my trk
          else {
             xx [dp].pos = c;           // first nt pos for my trk
-            if (fst)                                     xx [dp].dir = '=';
-            else if (((ht == 'L') ? nmin : nmax) > pnt)  xx [dp].dir = '>';
-            else if (((ht == 'L') ? nmin : nmax) < pnt)  xx [dp].dir = '<';
-            else                                         xx [dp].dir = '=';
+            nt = nsum / nn;   ntr = nsum % nn;
+            if      (nt  > pnt)   ch = '>';
+            else if (nt  < pnt)   ch = '<';
+            else if (ntr > pntr)  ch = '>';
+            else if (ntr < pntr)  ch = '<';
+            else                  ch = '=';
+            xx [dp].dir = fst ? '=' : ch;
+TStr xd;
+DBG("tr=`d `s dp=`d nn=`d nsum=`d nt=`d ntr=`d pnt=`d pntr=`d ch=`c",
+t, TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntr, pnt, pntr, xx [dp].dir);
             fst = false;
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
-            _dn [dp].nt [c].nt = pnt = ((ht == 'L') ? nmin : nmax);
+            _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
+            pnt = nt;   pntr = ntr;
+
          // toss any notes of my trk beyond c
             for (x = c+1;  x < _dn [dp].nNt;) {
                if (_dn [dp].nt [x].t == t)
@@ -288,10 +295,10 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
 
    // now collect manually picked notes in _f.cue[].s for my track's octave
       StrFmt (st, ".ezpos `c", k [0]);
-      for (p = 0;  p < _f.cue.Ln;  p++)  if (! MemCm (_f.cue [p].s, st,
-                                                                    StrLn (st)))
-         for (dp = 0;  dp < _dn.Ln;  dp++)  if (_dn [dp].time ==
-                                                              _f.cue [p].time) {
+      for (p = 0;  p < _f.cue.Ln;  p++)
+                                     if (! MemCm (_f.cue [p].s, st, StrLn (st)))
+         for (dp = 0;  dp < _dn.Ln;  dp++)
+                                         if (_dn [dp].time == _f.cue [p].time) {
             xx [dp].dir = '!';
             xx [dp].key = _f.cue [p].s [8];
 //DBG("xx[`d].key=`c s=`s (.pos=`d)",
@@ -319,6 +326,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
             else  break;
          }
          if (c) {
+         // do rolled chord/trill
            char pdir;                  // usin prev dir n goin in reverse
             pf = (ht == 'L') ? 0 : 4;
             k [1] = 'c' + pf;
@@ -345,6 +353,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
             dp = pend;   pf = 0;
          }
          else {
+         // do regular
             if      (xx [dp].dir == '!')  pf = xx [dp].key - 'c';
             else if (xx [dp].dir == '<')  {if (pf-- == 0)  pf = 4;}
             else if (xx [dp].dir == '>')  {if (pf++ == 4)  pf = 0;}
