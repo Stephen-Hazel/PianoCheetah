@@ -286,7 +286,7 @@ void Song::Cue (char *s)
 { TStr s1;
 DBG("Cue '`s'", s);DbgPos('x');
    if (! StrCm (s, CC("loopInit")))  return LoopInit ();
-   if (*s == '[')  return;             // can't del loops
+   if (*s == '[')  return;             // can't edit loops
 
   ubyt4 tm = Up.posx.tm, te = 0;
    if (Up.posx.got)

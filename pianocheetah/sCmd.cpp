@@ -140,7 +140,9 @@ void Song::EdTime (char ofs)           // edit song time
             emit sgUpd ("tbPoz");
             return;
 
-   case 1:  Poz (false);               // timeBar1  ooUHN MO TAHM!
+   case 1:  if (PRAC || _lrn.pLrn)  {SetLp ('i');   return;}    // prac instead!
+
+            Poz (false);               // timeBar1  ooUHN MO TAHM!
             TmHop ((PRAC || (_lrn.pLrn==LPRAC)) ? _lrn.lpBgn : 0);
             if (Up.uPoz)  Poz (true);   else Put ();       // restart schedulin
             return;

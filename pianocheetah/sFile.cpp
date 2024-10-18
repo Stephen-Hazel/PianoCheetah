@@ -766,9 +766,7 @@ void Song::Save (char rec)
   TrkEv *e;
 TRC("Save rec=`c fn=`s nTrk=`d", rec, _f.fn, Up.rTrk);
    if (! Up.rTrk)  return;             // no tracks ta save?
-   StrFmt (fnt, "`s/4_queue/", App.Path (s2, 'd'));
-   if (! MemCm (_f.fn, fnt, StrLn (fnt)))  return;
-                                       // don't waste time savin in 4_queue
+
 TRC("actually savin'");
    if (rec == 'a')                     // write a.song w backup
         {Cmd ("recWipe");   StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));}

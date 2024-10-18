@@ -807,7 +807,7 @@ ubyt4 Song::NtDnPrv (ubyt4 tm)         // find prev trk=? noteDn+beat <= tm
 void Song::LoopInit ()
 // find repeat ranges, init loop points, clear bug counts
 { ubyte t, nTr, tr [MAX_TRK];
-  ubyt2 b, b2;
+  ubyt2 b, b2, bi;
   ubyt4 tMin, tMax, tX, p, l, ne, nEv,
         nPat, patBgn [MAXBAR], patEnd [MAXBAR], bar [MAXBAR], barf [MAXBAR];
   TrkEv  *e, *ev;
@@ -824,10 +824,10 @@ void Song::LoopInit ()
    patBgn [0] = patEnd [0] = 0;   nPat = 1;
    nEv = 0;   ev = new TrkEv [ne];   MemSet (ev, 0, ne * sizeof (TrkEv));
                                      MemSet (barf, 0, sizeof (barf));
-// process (by bar) notes of the tracks
+// pull out each bar's ntDn ev ctrl/inbar-times to compare (a pat per bar)
    for (b = 0;  b < _bEnd;  b++) {
       tMin = Bar2Tm (b+1);   tMax = Bar2Tm (b+2);
-      patBgn [nPat] = nEv;
+      patBgn [nPat] = nEv;             // start ev, patEnd is end ev+1
       for (t = 0;  t < nTr;  t++) {
          trk = & _f.trk [tr [t]];
          for (p = 0, l = trk->ne, e = trk->e;      // skip evs till >= tMin
@@ -840,27 +840,31 @@ void Song::LoopInit ()
       }
       patEnd [nPat] = nEv;
 
-      if (patBgn [nPat] == patEnd [nPat])  bar [b] = 0;    // empty bar
-      else {
-         for (p = 1; p < nPat; p++)
-      // got same bar pat?  (same ne, matching evs)
+      if (patBgn [nPat] == patEnd [nPat])  bar [b] = 0;    // empty bar can't
+      else {                                               // match anythin
+         for (p = 1;  p < nPat;  p++)
+         // got same bar pat?  (same ne, matching evs)
             if ( ((patEnd [p]    - patBgn [p]   ) ==
                   (patEnd [nPat] - patBgn [nPat])) &&
                  (! MemCm ((char *)& ev [patBgn [p]],
                            (char *)& ev [patBgn [nPat]],
                            sizeof (TrkEv) * (patEnd [p] - patBgn [p]), 'x')) )
                break;
-         if (p < nPat) {               // matched prev pat!  reset ev[],nEv
-              bar [b] = 0;   nEv = patBgn [nPat];     // n find bar stated 1st
-              for (b2 = 0;  b2 < b;  b2++)  if (bar [b2] == p)
-                                               {barf [b] = b2+1;   break;}
+         if (p < nPat) {
+         // matched a pat!  junk this pat, bar[]=0, n set my barf
+            bar [b] = 0;   nEv = patBgn [nPat];  // n find bar stated 1st
+            for (b2 = 0;  b2 < b;  b2++)  if (bar [b2] == p)
+                                             {barf [b] = b2+1;   break;}
          }
-         else bar [b] = nPat++;       // make it a new pat
+         else bar [b] = nPat++;        // else itsa new pat - ah well
       }
    }
    delete [] ev;
+// OK!  pat[]s of ev[]s are all compared n can toss em
+// bar  has pat#.  but 0 if empty or rep of a pat#
+// barf has            0 if empty or bar+1 of pat#'s first bar
 
-// kill existing range [ or repeat bar *
+// kill existing [range or .repeat bar *
    for (p = 0;  p < _f.cue.Ln;) {
       if (! _f.cue [p].tend)  p++;
       else {
@@ -871,26 +875,23 @@ void Song::LoopInit ()
       }
    }
 
-// put em in fresh - only skip if >= 3 rep'd bars
-   for (b = 0;  b+2 < _bEnd;) {        // first, skip ranges  (repeat bar 9999
-      if ( (! bar [b]) && (! bar [b+1]) && (! bar [b+2]) ) {
-         b2 = b+2;
+// put em in fresh - only skip if >= 3 empty/rep'd bars
+   for (b = 0;  b+2 < _bEnd;) {        // first, skip ranges
+      if (bar [b] || bar [b+1] || bar [b+2])  b++;
+      else {                           // yay :)
+         b2 = b+2;                     // can it be longer?
          while ((b2+1 < _bEnd) && (! bar [b2+1]))  b2++;
-         tMin = Bar2Tm (b+1);  if (tMin) tMin--;
-         tMax = Bar2Tm (b2+2) - 1;
-         StrFmt (ts, ".repeat bar `d", barf [b]);
-      // extra .rep... if from new bar not in sequence
-         for (b++;  (b <= b2) && (b < _bEnd);  b++)
-            if (barf [b] && (barf [b-1]+1 != barf [b])) {
-               tX = Bar2Tm (b+1);
+         for (bi = b;  bi <= b2;  bi++)
+            if ( barf [bi] &&          // nonempty and 1st or non-in-seq-bar
+                 ((bi == b) || (barf [bi] != barf [bi-1]+1)) ) {
+               tMin = Bar2Tm (bi+1);   if (tMin) tMin--;
+               StrFmt (ts, ".repeat bar `d", barf [bi]);
                TxtIns (tMin, ts, & _f.cue, 'c');
-               tMin = tX;   StrFmt (ts, ".repeat bar `d", barf [b]);
             }
-         TxtIns (tMin, ts, & _f.cue, 'c');
+         b = b2+1;
       }
-      else  b++;
    }
-   for (b = 0;  b < _bEnd;) {          // then, loop ranges [ .. ]
+   for (b = 0;  b < _bEnd;) {          // then, loop ranges [ n /dur
       if (b == 0)  while ((bar [b] == 0) && (b < _bEnd))  b++;
       tMin = Bar2Tm (b+1);      if (b)             tMin -= (M_WHOLE/4);
       for (b2 = b;  b2 < b+3;  b2++)

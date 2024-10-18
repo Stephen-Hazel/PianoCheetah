@@ -194,7 +194,7 @@ DBG("DUMP");
    for (s = 0; s < _f.chd.Ln; s++)
       DBG("`>3d `s `s", s, TmSt (t1, _f.chd [s].time), _f.chd [s].s);
    DBG("cue time tend str");
-   for (s = 0; s < _f.cue.Ln; s++)  if (_f.cue [s].s [0] != '[')
+   for (s = 0; s < _f.cue.Ln; s++)
       DBG("`d `s `s `s", s,  TmSt(t1,_f.cue [s].time),
            _f.cue [s].tend ? TmSt(t2,_f.cue [s].tend) : "", _f.cue [s].s);
    DBG("bug time hits");

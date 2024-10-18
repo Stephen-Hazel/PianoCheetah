@@ -161,8 +161,8 @@ TRC("ReEv end mint=`d", mint);
 //______________________________________________________________________________
 void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
 // calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
-{ ubyte t, c, d, nn, x, pf, pnt, nt, nmin, nmax, pntr, ntr, f;
-  ubyt2                              nsum;
+{ ubyte t, c, d, nn, x, pf, nt, nmin, nmax, pnt, f;
+  ubyt2                         nsum, ntr,  pntr;
   ubyt4 p, q, tpos [128], tm, ptm, dp, w;
   bool  got, qd [MAX_TRK], didq, fst;
   char  ht, ch;
@@ -267,7 +267,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          if (! nn)  xx [dp].pos = 99;  // if no notes in dn for my trk
          else {
             xx [dp].pos = c;           // first nt pos for my trk
-            nt = nsum / nn;   ntr = nsum % nn;
+            nt = nsum / nn;   ntr = (ubyt2)(32768 * (nsum % nn) / nn);
             if      (nt  > pnt)   ch = '>';
             else if (nt  < pnt)   ch = '<';
             else if (ntr > pntr)  ch = '>';
