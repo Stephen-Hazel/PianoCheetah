@@ -274,9 +274,9 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
             else if (ntr < pntr)  ch = '<';
             else                  ch = '=';
             xx [dp].dir = fst ? '=' : ch;
-TStr xd;
-DBG("tr=`d `s dp=`d nn=`d nsum=`d nt=`d ntr=`d pnt=`d pntr=`d ch=`c",
-t, TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntr, pnt, pntr, xx [dp].dir);
+//TStr xd;
+//DBG("tr=`d `s dp=`d nn=`d nsum=`d nt=`d ntr=`d pnt=`d pntr=`d ch=`c",
+//t, TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntr, pnt, pntr, xx [dp].dir);
             fst = false;
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);

@@ -58,6 +58,18 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="2024.10" date="2024-10-18">
+      <description>
+        <p>
+          Fixed bad bug that wan't refreshing screen.  
+          Testers needed - please help - stephen.hazel@hey.com .  
+          Recordings are now properly saved in 3_done directory with recSave command.  
+          Cue editing is fixed.  
+          EZ mode makes a new note upon any chord change.  
+          You can hop to a random song in your midi dir now.  
+        </p>
+      </description>
+    </release>
     <release version="2024.08" date="2024-08-08">
       <description>
         <p>

@@ -756,7 +756,7 @@ TRC("TmpoPik end");
 //______________________________________________________________________________
 void Song::Save (char rec)
 // Wipe sets rec to 'a' for autosave of practice a.song
-// 'r' for save in pc/done/yyyymmdd_hhmm_songname/a.song
+//                  'r' for save in pc/done/yyyymmdd_hhmm_songname/a.song
 { File  f;
   Path  dr;
   TStr  fnt, fns, s, s2, s3, s4;
@@ -781,8 +781,9 @@ TRC("actually savin'");
 DBG("fns=`s", fns);
    dt = DrumCon ();                    // which also sets _f.mapD for us
    if (f.Open (fns, "wb")) {
-      p = Up.lrn;   Up.lrn = LHEAR;   DscSave ();
-      f.Put (_f.dsc);   Up.lrn = p;   DscSave ();
+      if (rec == 'r')  {p = Up.lrn;   Up.lrn = LHEAR;}
+      DscSave ();   f.Put (_f.dsc);
+      if (rec == 'r')  {Up.lrn = p;   DscSave ();}
       f.Put (CC("Track:\n"));
       for (t = 0;  t < Up.rTrk;  t++) {
          StrCp (s2, TDrm (t) ? CC("Drum/*") : SndName (t));
