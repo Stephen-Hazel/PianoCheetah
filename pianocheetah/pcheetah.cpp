@@ -310,7 +310,6 @@ void PCheetah::Upd (QString upd)
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;
-         if ((rp [0][0] == '\0') && Up.trk [i].drm)  rp [0] = CC("drm");
          _tr.Put (rp);
          if (Cfg.ntCo == 2) {          // color by track (if lrn/show non drum)
             if (((rp [0][0] == 'l') || (rp [1][0] == 's')) &&

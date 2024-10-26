@@ -391,9 +391,10 @@ TRC("made ntUp");
       return;
    }
    if (f == 97) {                      // gotta find dst trk for hand swap
-      for (ok = false, h = _f.trk [t].ht, tc = 0;  tc < _f.trk.Ln;  tc++) {
-         if ((h == 'R') && (_f.trk [tc].ht == 'L'))  {ok = true;   break;}
-         if ((h == 'L') && (_f.trk [tc].ht == 'R'))  {ok = true;   break;}
+      for (ok = false, h = (_f.trk [t].ht < '4') ? 'L':'R',
+           tc = 0;  tc < _f.trk.Ln;  tc++) {
+         if ((h == 'R') && (_f.trk [tc].ht < '4'))  {ok = true;   break;}
+         if ((h == 'L') && (_f.trk [tc].ht > '3'))  {ok = true;   break;}
       }
       if (! ok)  {Hey (CC("can't find track for other hand"));   return;}
 TRC("dst trk=`d", tc);
@@ -558,7 +559,7 @@ int TPCmp (void *a1, void *a2)         // by t,p desc
 void Song::Mov ()
 // move rect of notes to RH,LH,bg,kill
 // if nondrag, insert a new note
-{ char *s, *c;
+{ char *s, *c, ht;
   ubyt4 ap, ac, p, p1, tm, t1, t2, tMx, dBt, dSb, ne, nn, i, nDel, nIns;
   sbyt2 x1, y1, x2, y2, tp;
   ubyt2 nx, br;
@@ -666,16 +667,17 @@ ap, ac, x1, y1, x2, y2, s);
              (((   co.sym [i].y                    >= y1) &&
                (   co.sym [i].y                    <= y2)) ||
               ((   co.sym [i].y + co.sym [i].h - 1 >= y1) &&
-               (   co.sym [i].y + co.sym [i].h - 1 <= y2))))
-            switch (_f.trk [co.sym [i].tr].ht) {
-               case 'R': got [0] = true;   break;
-               case 'L': got [1] = true;   break;
-               case 'S': got [2] = true;   break;
-            }
+               (   co.sym [i].y + co.sym [i].h - 1 <= y2)))) {
+            ht = _f.trk [co.sym [i].tr].ht;
+            if      (ht >  '3')  got [0] = true;
+            else if (ht <  '4')  got [1] = true;
+            else if (ht == 'S')  got [2] = true;
+         }
       tR = tL = 255;
       for (tr = 0;  tr < Up.rTrk;  tr++) {
-         if ((tR == 255) && (_f.trk [tr].ht == 'R')) tR = tr;
-         if ((tL == 255) && (_f.trk [tr].ht == 'L')) tL = tr;
+         ht = _f.trk [tr].ht;   if ((ht < '1') || (ht > '7'))  continue;
+         if ((tR == 255) && (ht > '3')) tR = tr;
+         if ((tL == 255) && (ht < '4')) tL = tr;
       }
       if (*s != '#') {
          if ((tR == 255) || (tL == 255))
@@ -738,8 +740,8 @@ ap, ac, x1, y1, x2, y2, s);
             }
             if      (*s == '>')  dn.x = up.x = tR;
             else if (*s == '<')  dn.x = up.x = tL;
-            else if (_f.trk [it->tr].ht == 'R')  dn.x = up.x = tR;
-            else                               dn.x = up.x = tL;
+            else if (_f.trk [it->tr].ht > '3')  dn.x = up.x = tR;
+            else                                dn.x = up.x = tL;
             MemCp (& ins [nIns++], & dn, sizeof (dn));
             MemCp (& ins [nIns++], & up, sizeof (up));
          }
