@@ -21,6 +21,10 @@ void Song::ReTrk ()
       StrCp (Up.trk [r].lrn, _f.trk [r].shh ? CC("mute")
                           : (_f.trk [r].lrn ? CC("lrn") : CC("")));
       *s = _f.trk [r].ht;   s [1] = '\0';
+      if (*s && (*s != 'S')) {
+         s [1] = *s;   *s = '*';       // un-icon it
+         StrCp (& s [2], CC((s [1] < '4') ? "LH" : "RH"));
+      }
       StrCp (Up.trk [r].ht, s);
       StrCp (Up.trk [r].name, _f.trk [r].name);
       StrCp (s, SndName (r));
@@ -249,8 +253,8 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
 
 // ez - max o one note o five per dn time
    if (Up.ez)  for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t)) {
-      ht = _f.trk [t].ht;
-      k [0] = (ht == 'L') ? '3' : '4';   k [2] = '\0';     // k gets octave
+      k [0] = _f.trk [t].ht;   k [2] = '\0';     // oct
+      ht = (*k < '4') ? 'L' : 'R';               // ht L/R
 
    // first we calc all the directions usin' nmin/nmax in dn n prev dn
       fst = true;   pnt = 128;
@@ -585,7 +589,7 @@ TmSt (s1, e [p].time), MKey2Str (s2, e [p].ctrl), t);
    if (Up.ez || (_lrn.hand != 'B'))  _lm.Ln = 0;
    else
       for (t = 0;  t < Up.rTrk;  t++)
-         if (TLrn (t) && (_f.trk [t].ht == 'L'))
+         if (TLrn (t) && (_f.trk [t].ht < '4'))
                                         for (n = 0;  n < _f.trk [t].nn;  n++) {
      TrkNt *tn = & _f.trk [t].n [n];
       if (tn->ov)  continue;           // underneath one takes care of me
@@ -1081,13 +1085,13 @@ TRC(" clear stuph");
    MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
 // where are our hands - always ht(\0) unless got BOTH r,l
    for (_lrn.hand = ch = '\0', t = 0;  (ch != 'b') && (t < Up.rTrk);  t++) {
-      if (_f.trk [t].ht == 'L')  ch = (ch == 'r') ? 'b' : 'l';
-      if (_f.trk [t].ht == 'R')  ch = (ch == 'l') ? 'b' : 'r';
+      if (_f.trk [t].ht < '4')  ch = (ch == 'r') ? 'b' : 'l';
+      if (_f.trk [t].ht > '3')  ch = (ch == 'l') ? 'b' : 'r';
    }                                   // set Cfg.hand based on what's ?d
    if (ch == 'b')  for (t = 0;  (_lrn.hand != 'B') && (t < Up.rTrk);  t++)
       if (TLrn (t)) {
-         if (_f.trk [t].ht == 'L')  _lrn.hand = (_lrn.hand == 'R') ? 'B' : 'L';
-         if (_f.trk [t].ht == 'R')  _lrn.hand = (_lrn.hand == 'L') ? 'B' : 'R';
+         if (_f.trk [t].ht < '4')  _lrn.hand = (_lrn.hand == 'R') ? 'B' : 'L';
+         if (_f.trk [t].ht > '3')  _lrn.hand = (_lrn.hand == 'L') ? 'B' : 'R';
       }
    for (t = 0;  t < _f.ctl.Ln;  t++)   // show tempo ctl if we're in prac
       if (! StrCm (_f.ctl [t].s, CC("Tmpo")))

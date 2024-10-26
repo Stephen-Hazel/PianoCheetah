@@ -439,7 +439,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
    mo = 3;                             // middle offset from x for fillin
    dh = 10;   if (h < 12)  dh = (h > 2) ? (h-2) : 2;
    if (s->top) {                       // rounded-ish dot aligned to hand
-      ha = trk->ht;
+      ha = (trk->ht < '4') ? 'L' : 'R';
       dw = w - mo*2;
       dx = x;   if      (ha == 'R')  dx += (mo*2);
                 else if (ha != 'L')  dx +=  mo;

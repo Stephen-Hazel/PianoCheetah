@@ -285,12 +285,12 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       _f.trk [e].ht  = '\0';
       _f.trk [e].shh = ! _f.trk [e].shh;
    }
-   else if (ofs == 7) {                // flip lrn  (restore ht if lrn on)
+   else if (ofs == 7) {                // flip lrn  (force oct/ht if lrn on)
       _f.trk [e].shh = false;
       _f.trk [e].ht  = '\0';
       if ((_f.trk [e].lrn = ! _f.trk [e].lrn)) {
-         c = (_f.trk [e].name [1] == 'H') ? _f.trk [e].name [0] : 'x';
-         if ((c == 'L') || (c == 'R'))  _f.trk [e].ht = c;
+         c = _f.trk [e].ht;
+         if (! ((c >= '1') && (c <= '7')))  _f.trk [e].ht = '4';
       }
    }
    ReDo ();
@@ -301,25 +301,12 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
 void Song::HType (char *s)             // \0=HT,RH,LH,x=flip S
 { ubyte e = ChkETrk ();
   char  c;
-  TStr  tn;
 DBG("HType `s t=`d", s, e);
    c = *s;
-   StrCp (tn, _f.trk [e].name);
-   if     ((c == 'L') || (c == 'R')) {
-      if      (*tn == '\0')       StrCp (tn, CC("LH"));
-      else if (! ((tn [1] == 'H') && ((tn [2] == '\0') ||
-                                      (tn [2] == ' '))))
-         {StrCp (& tn [3], tn);   MemCp (tn, CC("LH "), 3);}
-      *tn = c;
-      StrCp (_f.trk [e].name, tn);
-   }
-   else if (c != 'x') {                // '\0'=HT
-      if      (! StrCm (& tn [1], CC("H")))            *tn = '\0';
-      else if (! MemCm (& tn [1], CC("H "), 2))  StrCp (tn, & tn [3]);
-      StrCp (_f.trk [e].name, tn);
-   }
-   else                                // flip show
+   if      (c == 'x')                       // flip show
       c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
+   else if (! ((c >= '1') && (c <= '7')))   // non 1..7
+      c = '\0';
    _f.trk [e].ht = c;
    ReDo ();
 }

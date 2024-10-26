@@ -142,7 +142,7 @@ struct UTrkRow {
 struct UpdLst {
    ubyt2 txH;
    QPixmap *oct, *pnbg, *now, *dot, *fng, *cue, *bug, *lhmx, *fade, *tr;
-   QAction *tbaPoz,     *tbaLrn;
+   QAction *tbaPoz,     *tbaLrn, *tbaTtl;
    QIcon   *tbiPoz [2], *tbiLrn [3];
    QToolButton *tbbEZ;
 // stuff Song sets for gui

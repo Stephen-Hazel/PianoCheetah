@@ -544,7 +544,7 @@ tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"), _pDn, ev->valu&0x7F);
 
    // store our velo in _dn[].velo[]
       if (tr < (ubyte)0x80) {
-        ubyte oct = (_f.trk [tr].ht == 'L') ? 2 : 3;
+        ubyte oct = _f.trk [tr].ht - 1;     // .ht 1 => 0
 TRC("oct=`d", oct);
          _dn [_pDn + ((kind=='n')?1:0)].velo [oct] = ev->valu & 0x7F;
       }

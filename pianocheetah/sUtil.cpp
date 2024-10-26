@@ -529,21 +529,21 @@ DBG("NewDev end");
 
 //______________________________________________________________________________
 void Song::TrkSplt ()
-// just split the one ? track into 1st stab at LH,RH split on 3e
+// just split the one ? track into 1st stab at 3LH,4RH split on 3e
 { ubyte t, t2;
   ubyt4 p, p2;
   TrkEv *e, ev;
    for (t = 0;  t < Up.rTrk;  t++)  if ((! TDrm (t)) && TLrn (t))  break;
-   if (t >= Up.rTrk)  {Hey (CC("pick a track to learn/split"));   return;}
+   if (t >= Up.rTrk)  {Hey (CC("pick a learn track to split"));   return;}
 
-// insert new LH in t+1 and setup all the track junk
-   if (TrkIns (t2 = t+1, CC("LH"), NULL) == MAX_TRK)
+// insert new 3LH in t+1 and setup all the track junk
+   if (TrkIns (t2 = t+1, CC(""), NULL) == MAX_TRK)
                       {Hey (CC("couldn't insert LH track :("));   return;}
-   _f.trk [t ].ht  = 'R';
+   _f.trk [t ].ht  = '4';
    _f.trk [t2].grp = true;
    _f.trk [t2].shh = false;
    _f.trk [t2].lrn = true;
-   _f.trk [t2].ht  = 'L';
+   _f.trk [t2].ht  = '3';
    _f.trk [t2].dev = _f.trk [t].dev;   _f.trk [t2].chn = _f.trk [t].chn;
    _f.trk [t2].snd = _f.trk [t].snd;   _f.trk [t2].drm = _f.trk [t].drm;
    _f.trk [t2].vol = _f.trk [t].vol;   _f.trk [t2].pan = _f.trk [t].pan;

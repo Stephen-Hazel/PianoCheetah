@@ -127,23 +127,23 @@ void Song::DscSave ()                  // put stats into _dsc
 // prac   RH LH HT DRUM REC
    *pr = '\0';
    for (i = 0;  i < Up.rTrk;  i++)
-      if ((! TDrm (i)) && (_f.trk [i].ht == 'L'))
+      if ((! TDrm (i)) && (_f.trk [i].ht < '4'))
          {StrAp (pr, CC("LH "));   break;}
    for (i = 0;  i < Up.rTrk;  i++)
-      if ((! TDrm (i)) && (_f.trk [i].ht == 'R'))
+      if ((! TDrm (i)) && (_f.trk [i].ht > '3'))
          {StrAp (pr, CC("RH "));   break;}
    for (i = 0;  i < Up.rTrk;  i++)
       if  (TDrm (i))
          {StrAp (pr, CC("Drum "));   break;}
    for (i = 0;  i < Up.rTrk;  i++)
-      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht == 'L'))
+      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht < '4'))
          {StrAp (pr, CC("REC_LH "));   break;}
    for (i = 0;  i < Up.rTrk;  i++)
-      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht == 'R'))
+      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht > '3'))
          {StrAp (pr, CC("REC_RH "));   break;}
    for (i = 0;  i < Up.rTrk;  i++)
-      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht != 'R') &&
-                                      (_f.trk [i].ht != 'L'))
+      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht >= '1') &&
+                                      (_f.trk [i].ht <= '7'))
          {StrAp (pr, CC("REC_HT "));   break;}
    for (i = 0;  i < Up.rTrk;  i++)
       if (TLrn (i) && TDrm (i))
@@ -453,7 +453,7 @@ void Song::Load (char *fn)
    if (MemCm (fn, buf, StrLn (buf)))  FnName (fnt, fn);
    else                               StrCp  (fnt, & fn [StrLn (buf)]);
    StrCp (Up.ttl, fnt);   emit sgUpd ("ttl");
-   Gui.SetTtl (StrFmt (buf, "`s - PianoCheetah", fnt));
+// Gui.SetTtl (StrFmt (buf, "`s - PianoCheetah", fnt));
    StrCp (_f.fn, fn);   _f.got = false;
 
    StrAp (fn, CC("/a.song"));
@@ -607,13 +607,10 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
    // set .grp,.shh,.lrn,.ht outa track mode thingy
       StrCp (buf, st [TB_TRK].Get (t,2));                  // track mode col
-      _f.trk [t].grp = (*buf ==    '+') ? true : false;
-      _f.trk [t].shh = StrCh (buf, '#') ? true : false;
-      _f.trk [t].lrn = StrCh (buf, '?') ? true : false;
-      if      (StrSt (buf, CC("LH")))  _f.trk [t].ht = 'L';
-      else if (StrSt (buf, CC("RH")))  _f.trk [t].ht = 'R';
-      else if (StrSt (buf, CC("SH")))  _f.trk [t].ht = 'S';
-      else                             _f.trk [t].ht = '\0';
+      _f.trk [t].grp = (*buf == '+')    ? true : false;
+      _f.trk [t].shh = (buf [1] == '#') ? true : false;
+      _f.trk [t].lrn = (buf [1] == '?') ? true : false;
+      _f.trk [t].ht  =  buf [StrCh (CC("#?"), buf [1]) ? 2 : 1];
    }
    _lrn.chd = false;
    ne = st [TB_LYR].NRow ();
@@ -787,15 +784,14 @@ DBG("fns=`s", fns);
       f.Put (CC("Track:\n"));
       for (t = 0;  t < Up.rTrk;  t++) {
          StrCp (s2, TDrm (t) ? CC("Drum/*") : SndName (t));
-         s3 [1] = *s4 = '\0';
-         *s3 = _f.trk [t].shh ? '#' : '\0';
-         if (TLrn (t))    *s3 = '?';
-         if (_f.trk [t].ht)  StrFmt (s4, "`cH",  _f.trk [t].ht);
-         else                       *s4 = '\0';
+         *s3 = s3 [1] = s4 [1] = '\0';
+         if (_f.trk [t].shh)  *s3 = '#';
+         if (TLrn (t))        *s3 = '?';
+         *s4 = _f.trk [t].ht;
          f.Put (StrFmt (s, "`s  `s  `c`s`s  `s`s\n",
             DevName (t),
             *s2 ? s2 : "Piano/AcousticGrand",
-            _f.trk [t].grp ? '+' : '.', s3, s4,       // s3=mute#/lrn?, s4=ht
+            _f.trk [t].grp ? '+' : '.', s3, s4,
             _f.trk [t].name, _f.trk [t].etc));
       }
 

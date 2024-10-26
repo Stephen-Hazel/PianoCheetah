@@ -147,7 +147,14 @@ char TrPop (char *ls, ubyt2 r, ubyte c)
 {  *ls = '\0';
 TRC("TrPop r=`d c=`d", r, c);
    if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm)) {
-      MemCp (ls, CC("-\0L\0R\0"), 3*2+1);
+      MemCp (ls, CC("-\0"
+                    "4RH\0"
+                    "3LH\0"
+                    "1LH\0"
+                    "2LH\0"
+                    "5RH\0"
+                    "6RH\0"
+                    "7RH\0"), 2+7*4+1);
       return 'l';
    }
    if (c == 2) {
@@ -241,8 +248,8 @@ void PCheetah::Upd (QString upd)
       return;
    }
 
-   if (! StrCm (u, CC("ttl")))
-      Gui.SetTtl (StrFmt (s, "`s - PianoCheetah", Up.ttl));
+   if (! StrCm (u, CC("ttl")))  Up.tbaTtl->setText (Up.ttl);
+//    Gui.SetTtl (StrFmt (s, "`s - PianoCheetah", Up.ttl));
 
    if (! StrCm (u, CC("FLdn"))) {if (FL.pos < FL.lst.Ln-1)
                                               {++FL.pos;   _dFL->ReDo ();}}
@@ -303,14 +310,15 @@ void PCheetah::Upd (QString upd)
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;
+         if ((rp [0][0] == '\0') && Up.trk [i].drm)  rp [0] = CC("drm");
          _tr.Put (rp);
-         if (Cfg.ntCo == 2) {          // color by track
-            if (((rp [0][0] == 'l') || (rp [1][0] == 'S')) &&
+         if (Cfg.ntCo == 2) {          // color by track (if lrn/show non drum)
+            if (((rp [0][0] == 'l') || (rp [1][0] == 's')) &&
                 (! Up.trk [i].drm))
                _tr.SetColor (i, CMap (tc++));
          }
          else {
-            switch (rp [1][0]) {
+            switch (rp [1][1]) {       // color lh/rh
                case 'L':  tc = 0;   break;
                case 'R':  tc = 1;   break;
                default:   tc = 9;
@@ -400,7 +408,8 @@ TRC(" tbar init");
          "the grid that picks which tracks to practice, RH/LH, sound, etc"
                                "`:/tbar/0" "`v\0"
       "configure midi devices" "`:/tbar/1" "`\0"
-      "settings and junk"      "`:/tbar/2" "`\0");
+      "settings and junk"      "`:/tbar/2" "`\0",
+      "tbGlobal");
    connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
    connect (tb.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
    connect (tb.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
@@ -410,30 +419,30 @@ TRC(" tbar init");
       "previous song"       "`:/tbar/song/1" "`z\0"
       "next song"           "`:/tbar/song/2" "`x\0"
       "random song"         "`*??"           "`a\0",
-      "tbSLst");
+      "tbSongList");
    connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::Load);
    connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
    connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
    connect (tb2.Act (3), & QAction::triggered, this, & PCheetah::SongRand);
 
-  CtlTBar tb5 (this,                   // eh, fuck those #s :)
+  CtlTBar tb3 (this,
       "hear / play / practice\n"
          "Click Lrn column of track grid to practice it.\n"
          "Once you have played the song a few times, you can practice loops."
                          "`view-visible" "`l\0"
       "toggle easy mode" "`*ez"          "`e\0",
-      "tbLrnM");
-   Up.tbaLrn = tb5.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
+      "tbLearnMode");
+   Up.tbaLrn = tb3.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
                               Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
                               Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
-   Up.tbbEZ  = tb5.Btn (1);
+   Up.tbbEZ  = tb3.Btn (1);
    Up.tbbEZ->setCheckable (true);
-   connect (tb5.Act (0), & QAction::triggered,
+   connect (tb3.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("learn");});
-   connect (tb5.Act (1), & QAction::triggered,
+   connect (tb3.Act (1), & QAction::triggered,
             this, [this]() {emit sgCmd ("ez");});
 
-  CtlTBar tb3 (this,                   // transport - play/pause/etc
+  CtlTBar tb4 (this,                   // transport - play/pause/etc
       "restart"            "`:/tbar/time/0" "`1\0"
       "previous loop/page" "`:/tbar/time/1" "`Left\0"
       "previous bar"       "`:/tbar/time/2" "`2\0"
@@ -441,31 +450,31 @@ TRC(" tbar init");
       "next bar"           "`:/tbar/time/4" "`3\0"
       "next loop/page"     "`:/tbar/time/5" "`Right\0",
       "tbTime");
-   Up.tbaPoz = tb3.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
+   Up.tbaPoz = tb4.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
                               Up.tbiPoz [1] = new QIcon (":/tbar/time/6");
-   connect (tb3.Act (0), & QAction::triggered,
+   connect (tb4.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar1");});
-   connect (tb3.Act (1), & QAction::triggered,
+   connect (tb4.Act (1), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeHop<");});
-   connect (tb3.Act (2), & QAction::triggered,
+   connect (tb4.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar<");});
-   connect (tb3.Act (3), & QAction::triggered,
+   connect (tb4.Act (3), & QAction::triggered,
             this, [this]() {emit sgCmd ("timePause");});
-   connect (tb3.Act (4), & QAction::triggered,
+   connect (tb4.Act (4), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar>");});
-   connect (tb3.Act (5), & QAction::triggered,
+   connect (tb4.Act (5), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeHop>");});
 
-  CtlTBar tb4 (this,
+  CtlTBar tb5 (this,
       "decrease tempo"           "`:/tbar/tmpo/0" "`F2\0"
       "tempo to 60%=>80%=100%=>" "`:/tbar/tmpo/1" "`t\0"
       "increase tempo"           "`:/tbar/tmpo/2" "`F3\0",
-      "tbTmpo");
-   connect (tb4.Act (0), & QAction::triggered,
+      "tbTempo");
+   connect (tb5.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo<");});
-   connect (tb4.Act (1), & QAction::triggered,
+   connect (tb5.Act (1), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempoHop");});
-   connect (tb4.Act (2), & QAction::triggered,
+   connect (tb5.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo>");});
 
   CtlTBar tb6 (this,
@@ -480,7 +489,7 @@ TRC(" tbar init");
                                     "`:/tbar/trak/6" "`\0"
       "`time offsetting - for { to end => { moves to ^"
                                     "`:/tbar/trak/7" "`\0",
-      "tbTrak");
+      "tbTrack");
    connect (tb6.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd sp");});
    connect (tb6.Act (1), & QAction::triggered,
@@ -497,6 +506,11 @@ TRC(" tbar init");
             this, [this]() {emit sgCmd ("trkEd *");});
    connect (tb6.Act (7), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd -");});
+
+  CtlTBar tb7 (this,
+      "song filename" "`*..." "`\0",
+      "tbSongFile");
+   Up.tbaTtl = tb7.Act (0);
 
 TRC(" lyr,tr,nt init");
   CtlText t (ui->lyr);
