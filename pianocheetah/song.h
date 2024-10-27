@@ -108,7 +108,8 @@ private:
 // sTime.cpp
    TSgRow *TSig  (ubyt4 tm);
    KSgRow *KSig  (ubyt4 tm);
-   char *TmStr   (char *str, ubyt4 tm, ubyt4 *tL8r = NULL, ubyte *subt = NULL);
+   char *TmStr   (char *str, ubyt4 tm, ubyt4 *tL8r = nullptr,
+                                       ubyte *subt = nullptr);
    char *TmSt    (char *str, ubyt4 tm);
    ubyt2 Tm2Bar  (ubyt4 tm);
    bool  Poz     (bool tf, ubyt4 msx = 0);
@@ -132,7 +133,7 @@ private:
       return Up.dvt [Up.dev [_f.trk [t].dev].dvt].Snd (_f.trk [t].snd)->name;
    }
    void  NotesOff ();                  // notes+hold OFF
-   void  PickDev (ubyte tr, char *sndName, char *devName = NULL);
+   void  PickDev (ubyte tr, char *sndName, char *devName = nullptr);
    ubyte OpenDev (char *nm);
    void  ShutDev (ubyte d);
    ubyte PickChn (char *dv);
@@ -153,7 +154,7 @@ private:
 
 // sDump.cpp
    char *LrnS     ();
-   void  DumpEv   (TrkEv *e, ubyte t, ubyt4 p = 1000000, char *pre = NULL);
+   void  DumpEv   (TrkEv *e, ubyte t, ubyt4 p = 1000000, char *pre = nullptr);
    void  DumpTrEv (ubyte t);
    void  DumpDn   ();
    void  DumpRec  ();
@@ -187,7 +188,7 @@ private:
    ubyt2 Nt2X    (ubyte n, ColDef *co, char gr = '\0');
    ubyt2 Dr2X    (ubyte d, ColDef *co);
    ubyt2 CtlX    (ColDef *co);
-   ubyt2 Tm2Y    (ubyt4 t, ColDef *co, BlkDef **bl = NULL);
+   ubyt2 Tm2Y    (ubyt4 t, ColDef *co, BlkDef **bl = nullptr);
    ubyt4 Y2Tm    (ubyt2 y, ColDef *co);
    ubyt4 SilPrv  (ubyt4 tm), SilNxt  (ubyt4 tm);
    ubyt4 NtDnPrv (ubyt4 tm), NtDnNxt (ubyt4 tm);
@@ -206,7 +207,8 @@ private:
    void  NewGrp  (char *grp),  NewSnd (char *snd),  NewDev (char *dev);
    void  TrkSplt ();
    void  TrkDel  (ubyte t);
-   ubyte TrkIns  (ubyte t = MAX_TRK, char *name = NULL, char *snd = NULL);
+   ubyte TrkIns  (ubyte t = MAX_TRK, char *name = nullptr,
+                                     char *snd  = nullptr);
    void  DrMap   (char *d);
    void  TrkEd   (char *op);
    ubyte GetSct  (TxtRow *sct);        // pull sections outa _f.cue[] > sct[64]

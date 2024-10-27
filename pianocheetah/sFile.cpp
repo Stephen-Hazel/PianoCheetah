@@ -610,7 +610,10 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
       _f.trk [t].grp = (*buf == '+')    ? true : false;
       _f.trk [t].shh = (buf [1] == '#') ? true : false;
       _f.trk [t].lrn = (buf [1] == '?') ? true : false;
-      _f.trk [t].ht  =  buf [StrCh (CC("#?"), buf [1]) ? 2 : 1];
+      *buf = buf [StrCh (CC("#?"), buf [1]) ? 2 : 1];
+      if      (CHUP (*buf) == 'L')  *buf = '3';  // ...old school
+      else if (CHUP (*buf) == 'R')  *buf = '4';
+      _f.trk [t].ht = *buf;
    }
    _lrn.chd = false;
    ne = st [TB_LYR].NRow ();
@@ -636,8 +639,10 @@ TRC(" sortin n ins rec trks");
       Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
    if (TrkIns (nt++, CC("rec drum")) == MAX_TRK)
       {TRC("Song::Load  Too many tracks for rec drum");   return;}
+   _f.trk [nt-1].chn = 9;              // only chn matters - drum/not
    if (TrkIns (nt++, CC("rec melo")) == MAX_TRK)
       {TRC("Song::Load  Too many tracks for rec melo");   return;}
+   _f.trk [nt-1].chn = 0;
    CCClean ();
    mint = ReEv (true);
 

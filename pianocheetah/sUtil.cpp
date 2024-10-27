@@ -603,8 +603,9 @@ TRC("TrkIns t=`d/`d nm=`s sn=`s", t, _f.trk.Ln, name?name:"", snd?snd:"");
    if (t < Up.rTrk)  Up.rTrk++;
    if (name)  StrCp (_f.trk [t].name, name);
    _f.trk [t].e   = t ? (_f.trk [t-1].e + _f.trk [t-1].ne) : _f.ev;
-   if (snd)  PickDev (t, *snd ? snd : CC("Piano/AcousticGrand"));
-   else {
+   if (snd != nullptr)  
+      PickDev (t, *snd ? snd : CC("Piano/AcousticGrand"));
+   else if (t+1 < Up.rTrk) {
       _f.trk [t].dev = _f.trk [t+1].dev;   _f.trk [t].chn = _f.trk [t+1].chn;
       _f.trk [t].snd = _f.trk [t+1].snd;   _f.trk [t].drm = _f.trk [t+1].drm;
       _f.trk [t].vol = _f.trk [t+1].vol;   _f.trk [t].pan = _f.trk [t+1].pan;

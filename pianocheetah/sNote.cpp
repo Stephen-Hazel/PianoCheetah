@@ -47,7 +47,7 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
   PagDef *pg = & _pag [pp];
   ColDef  co;
   DownRow *dn;
-//TRC("DrawRec all=`b pp=`d", all, pp);
+TRC("DrawRec all=`b pp=`d", all, pp);
    if (all) {
       for (pMn = pMx = 0, t = Up.rTrk;  t < _f.trk.Ln;  t++) {
          ne = _f.trk [t].ne;
@@ -248,8 +248,8 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
                      }
                      y = Tm2Y (tDn, & co);   h = Tm2Y (tUp, & co) - y;
 //TStr db1,db2,db3;
-//DBG("   a nt=`s tDn=`s tUp=`s y=`d h=`d",
-//MKey2Str(db3,nt), TmSt(db1,ev.time), TmSt(db2,tUp), y, h);
+//DBG("   a nt=`s tDn=`s tUp=`s y=`d h=`d x=`d",
+//MKey2Str(db3,nt), TmSt(db1,ev.time), TmSt(db2,tUp), y, h, x);
                      qc = GRAY (255-((ev.valu & 0x7F) << 1));
                      Up.cnv.RectF (   x+5, y,   W_NT-10, h, qc);
                      if (tDn == ev.time) {       // head
@@ -299,8 +299,8 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
                }
                y = Tm2Y (tDn, & co);   h = Tm2Y (tUp, & co) - y + 1;
 //TStr db1,db2,db3;
-//DBG("   b nt=`s tDn=`s tUp=`s y=`d h=`d",
-//MKey2Str(db3,nt), TmSt(db1,tDn), TmSt(db2,tUp), y, h);
+//DBG("   b nt=`s tDn=`s tUp=`s y=`d h=`d x=`d",
+//MKey2Str(db3,nt), TmSt(db1,tDn), TmSt(db2,tUp), y, h, x);
                qc = GRAY (255 - ((e [on [nt]].valu & 0x7F) << 1));
                Up.cnv.RectF (   x+5, y,   W_NT-10, h, qc);
                if (tDn == e [on [nt]].time) {    // head
