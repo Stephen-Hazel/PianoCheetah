@@ -201,21 +201,23 @@ if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
 void Song::PutNt (ubyte t, TrkEv *e, bool bg)
 { ubyte ctrl = e->ctrl, valu = e->valu, i, dv, ch, dL, cL;
   ubyt4 v, d;
-//DBG("a");
+//DBG("PutNt pDn=`d", _pDn);
    if (! TDrm (t))  ctrl += _f.tran;   // got some live transposin?
 // adjust velo if bg trk, learn mode n ntDn
    if (bg && (PRAC || PLAY) && ENTDN (e)) {
-//DBG("b");
+//DBG(" b");
       if (Up.ez) {
-//DBG("c");
+//DBG(" c");
          for (v = d = i = 0;  i < 7;  i++)  if (_dn [_pDn].velo [i])
             {v += _dn [_pDn].velo [i];   d++;}
-         if (d)  valu = e->valu = 0x80 |
-                                       (v / d + (((v % d) >= (d / 2)) ? 1 : 0));
-TRC("   ezbg valu=128+`d", valu & 0x7F);
+//TStr d9;
+//DBG("   pDnTm=`s v=`d d=`d", TmSt (d9,_dn [_pDn].time), v, d);
+//TODO should i be setting e->valu ???
+         if (d)  valu = 0x80 | (v / d + (((v % d) >= (d / 2)) ? 1 : 0));
+//TRC("   ezbg valu=128+`d", valu & 0x7F);
       }
       else {
-//DBG("d");
+//DBG(" d");
          if (_lrn.veloRec && _lrn.veloSng) {
             if      (_lrn.veloRec > _lrn.veloSng) {
                v =  (_lrn.veloRec - _lrn.veloSng) * (128 - (valu & 0x7F));
@@ -230,29 +232,29 @@ TRC("   ezbg valu=128+`d", valu & 0x7F);
                v = (valu & 0x7F) - v;
             }
             else  v = valu & 0x7F;     // do nothin if exactly =
-TRC("   bg valu=`d vRec=`d vSng=`d v=`d",
-valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
+//TRC("   bg valu=`d vRec=`d vSng=`d v=`d",
+//valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
             if (v < 1) v = 1;   if (v > 127) v = 127;
             valu = 0x80 | (ubyte)v;
          }
       }
    }
-//DBG("e");
+//DBG(" e");
    if ((! bg) && TLrn (t) && (! TDrm (t)) && Up.ez && ENTDN (e) && (! HEAR)) {
-     ubyte oct = _f.trk [t].ht - 1;
+     ubyte oct = _f.trk [t].ht - '1';
       valu = 0x80 | _dn [_pDn].velo [oct];
    }
    if (t >= Up.rTrk)
         {RecDvCh (t, e, & dv, & ch, & dL, & cL);
          if ((cL != 128) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}
    else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
-//DBG("f");
+//DBG(" f");
 
-if (App.trc) {TStr d1,d2;
-StrFmt (d1, "PutNt `s.`d velo=`d", Up.dev [dv].mo->Name (), ch+1, valu&0x7F);
-DumpEv (e, t, _f.trk [t].p, d1);
-DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));
-}
+//if (App.trc) {TStr d1,d2;
+//StrFmt (d1, "PutNt `s.`d velo=`d", Up.dev [dv].mo->Name (), ch+1, valu&0x7F);
+//DumpEv (e, t, _f.trk [t].p, d1);
+//DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));
+//}
    Up.dev [dv].mo->Put (ch, ctrl, valu, e->val2);
 }
 

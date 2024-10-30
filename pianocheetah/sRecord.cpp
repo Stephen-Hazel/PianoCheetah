@@ -544,7 +544,7 @@ tr, (kind=='c')?"current":((kind=='n')?"next":"wrong"), _pDn, ev->valu&0x7F);
 
    // store our velo in _dn[].velo[]
       if (tr < (ubyte)0x80) {
-        ubyte oct = _f.trk [tr].ht - 1;     // .ht 1 => 0
+        ubyte oct = _f.trk [tr].ht - '1';   // .ht '1' => 0
 TRC("oct=`d", oct);
          _dn [_pDn + ((kind=='n')?1:0)].velo [oct] = ev->valu & 0x7F;
       }
@@ -664,26 +664,21 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
 
 // map cc str to pos in _f.ctl[] and fixup ev.ctrl
    if (*cSt)  if (! (ev->ctrl = CCUpd (cSt, t)))      // outa _f.ctl spots?  xit
-                                       {TRC("EvRcrd: a");   return;}
+                   {TRC("EvRcrd: a");   return;}
    if (_lrn.POZ) {
       PozBuf (ev, cSt);                // weee buff/echo rec evs
-      DrawNow ();
-TRC("EvRcrd: b");
-      return;
+      DrawNow ();   TRC("EvRcrd: b");   return;
    }
    if (! _lrn.POZ)  _rNow = ev->time;
    if (PosInZZ (cSt, CC("PBnR\0Vol\0Pan\0"))) {
       CCInit (t, cSt, ev->valu);       // if special bar#1 ctl, upd/ins@tm=0
-      DrawNow ();
-TRC("EvRcrd: c");
-      return;
+      DrawNow ();   TRC("EvRcrd: c");   return;
    }
    Record (ev);                        // ins ev into rec trk
    DrawNow ();
 
-// stamp song as practiced?
    if ((! _prac) && (_f.trk [t].ne >= 60))  {_prac = true;   Pract ();}
-TRC("EvRcrd end");
+TRC("EvRcrd end");                     // stamp song as practiced?
 }
 
 
