@@ -248,8 +248,7 @@ void Song::SetCtl (char *arg)
 TRC("setCtl tr=`d p=`d tm=`d ctl=`s val=`s", tr, p, tm, c, s);
    if (tr < 128) {
       EvDel (tr, p);
-      if (! StrCm (c, CC("KILL")))
-         {_prac = true;   Pract ();   ReDo ();   return;}
+      if (! StrCm (c, CC("KILL")))  {ReDo ();   return;}
    }
    else {                              // need SOME track to put it in...
       if ( (! StrCm (c, CC("ksig"))) ||     // these HAVE to go in drum trak
@@ -277,7 +276,7 @@ TmSt (ts, tm), tr+1, cc, e.valu, e.val2);
    e.time = tm;   e.ctrl = 0x80|cc;
    EvInsT (tr, & e);
    if (MCC [mc].typ == 'x')
-   _prac = true;   Pract ();   ReDo ();
+   ReDo ();
 }
 
 
@@ -491,14 +490,14 @@ void Song::NtHop ()                    // move note time,dur to new key
   ColDef  co;
    MemCp (& co, & pg->col [ac], sizeof (co));
    sy = & co.sym [as];   t = sy->tr;   n = & _f.trk [t].n [sy->nt];
-   e = _f.trk [t].e;                   // n is only ok if NON ez
+   e = _f.trk [t].e;                   // n is only ok if NON ez (! RCRD)
 
 DBG("NtHop pg=`d co=`d sy=`d x2=`d tr=`d", ap, ac, as, x2, t);
    nx  = Nt2X (co.nMn, & co);
    dnt = ((x2 < nx) || (x2 >= CtlX (& co))) ? 0 :
             co.nMn + (x2 - nx) / W_NT; // note to move it to
 DBG("dnt=`s", MKey2Str (s1, dnt));
-   if (Up.ez) {                        // restart eztrack on this note pos
+   if (RCRD) {                         // restart eztrack on this note pos
    // kill any existing .ezpos oct* cues for my oct/track
       StrFmt (s1, ".ezpos `d", (sy->nt / 12)-1);
       for (p = 0;  p < _f.cue.Ln;) {   // kill it if ya got it
@@ -594,7 +593,7 @@ ap, ac, x1, y1, x2, y2, s);
    // find nearest (unbroke) note on any ? trk (by time, then by frq)
    // use THAT dude's trk, dur, n velos for ins
       p1 = NONE;   tr1 = 0;
-      for (tr = 0;  tr < Up.rTrk;  tr++)  if (TLrn (tr))
+      for (tr = 0;  tr < _f.trk.Ln;  tr++)  if (TLrn (tr))
          for (n = _f.trk [tr].n, nn = _f.trk [tr].nn, p = 0;  p < nn;  p++)
                                  if ((n [p].dn != NONE) && (n [p].up != NONE)) {
 //DBG("p=`d/`d  t1=`d nt=`d  tmDn=`d tmUp=`d nt=`d  p1=`d",
@@ -621,8 +620,8 @@ ap, ac, x1, y1, x2, y2, s);
       }
       else {                           // default trk, velos, n dur
          vDn = 100;   vUp = 64;   t2 = t1 + dBt - 1;
-         for (tr = 0;  tr < Up.rTrk;  tr++)  if (TLrn (tr))  break;
-         if (tr >= Up.rTrk)
+         for (tr = 0;  tr < _f.trk.Ln;  tr++)  if (TLrn (tr))  break;
+         if (tr >= _f.trk.Ln)
             {Hey (CC("you need a practice track to add notes on"));   return;}
          tr1 = tr;
       }
@@ -674,7 +673,7 @@ ap, ac, x1, y1, x2, y2, s);
             else if (ht == 'S')  got [2] = true;
          }
       tR = tL = 255;
-      for (tr = 0;  tr < Up.rTrk;  tr++) {
+      for (tr = 0;  tr < _f.trk.Ln;  tr++) {
          ht = _f.trk [tr].ht;   if ((ht < '1') || (ht > '7'))  continue;
          if ((tR == 255) && (ht > '3')) tR = tr;
          if ((tL == 255) && (ht < '4')) tL = tr;
@@ -684,7 +683,7 @@ ap, ac, x1, y1, x2, y2, s);
             {Hey (CC("you need to have RH and LH tracks"));   return;}
       }
       else {
-         if ( got [0] && ((tR == 255) || ((ubyt4)(tR+1) >= Up.rTrk) ||
+         if ( got [0] && ((tR == 255) || ((ubyt4)(tR+1) >= _f.trk.Ln) ||
                           (! _f.trk [tR+1].grp) || TLrn (tR+1)) )
             {Hey (CC("add a RH backing track (+ track) to move notes to"));
              return;}

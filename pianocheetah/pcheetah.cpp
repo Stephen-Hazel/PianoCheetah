@@ -147,14 +147,13 @@ char TrPop (char *ls, ubyt2 r, ubyte c)
 {  *ls = '\0';
 TRC("TrPop r=`d c=`d", r, c);
    if ((c == 1) && (Up.trk [r].lrn [0] == 'l') && (! Up.trk [r].drm)) {
-      MemCp (ls, CC("-\0"
-                    "4RH\0"
+      MemCp (ls, CC("4RH\0"
                     "3LH\0"
                     "1LH\0"
                     "2LH\0"
                     "5RH\0"
                     "6RH\0"
-                    "7RH\0"), 2+7*4+1);
+                    "7RH\0"), 7*4+1);
       return 'l';
    }
    if (c == 2) {
@@ -213,7 +212,7 @@ void PCheetah::TrUpd ()
    Up.eTrk = (ubyte)r;
 TRC("TrUpd r=`d c=`d", r, c);
    switch (c) {
-      case 1:                          // hand type
+      case 1:                          // hand type  (\0,1..7,x)
          emit sgCmd (StrFmt (s, "htype `s", _tr.Get (r, 1)));   break;
       case 2:                          // track name/drum in
          if (Up.trk [r].drm)
@@ -284,7 +283,6 @@ void PCheetah::Upd (QString upd)
                                      *Up.tbiPoz [Up.uPoz ? 1 : 0]);
    if (! StrCm (u, CC("tbLrn")))  Up.tbaLrn->setIcon (
                                      *Up.tbiLrn [PLAY ? 1 : (PRAC ? 2 : 0)]);
-   if (! StrCm (u, CC("tbEZ")))   Up.tbbEZ->setChecked (Up.ez);
    if (! StrCm (u, CC("lyr"))) {
      CtlText t (ui->lyr);
      QColor  fg = t.Fg (), hi = t.Hi ();
@@ -305,7 +303,7 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, CC("trk"))) {
      char *rp [32];
       _tr.Open ();   rp [8] = nullptr;
-      for (ubyte i = 0, tc = 0;  i < Up.rTrk;  i++) {
+      for (ubyte i = 0, tc = 0;  i < Up.trk.Ln;  i++) {
          rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ht;
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
@@ -328,6 +326,7 @@ void PCheetah::Upd (QString upd)
       _tr.Shut ();   _tr.HopTo (Up.eTrk, 0);
    }
 
+   if (! MemCm (u, CC("hey "), 4))   Gui.Hey (& u [4]);
    if (! MemCm (u, CC("die "), 4))  {Gui.Hey (& u [4]);   Gui.Quit ();}
 }
 
@@ -381,17 +380,17 @@ TRC(" song init");
    CInit ();                           // init all them thar colors
    Gui.WinLoad (ui->spl);
    Up.cnv.SetFont ("Noto Sans", 12);   Up.tcnv.SetFont ("Noto Sans", 12);
-   Up.txH  = Up.cnv.FontH ();
-   Up.bug  = new QPixmap (":/bug");    // all dem bitmaps
-   Up.cue  = new QPixmap (":/cue");
-   Up.dot  = new QPixmap (":/dot");
-   Up.fade = new QPixmap (":/fade");
-   Up.fng  = new QPixmap (":/fng");
-   Up.lhmx = new QPixmap (":/lh");
-   Up.now  = new QPixmap (":/now");
-   Up.oct  = new QPixmap (":/oct");
-   Up.pnbg = new QPixmap (":/pnbg");
-   Up.tpm  = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
+   Up.txH   = Up.cnv.FontH ();
+   Up.bug   = new QPixmap (":/bug");   // all dem bitmaps
+   Up.cue   = new QPixmap (":/cue");
+   Up.dot   = new QPixmap (":/dot");
+   Up.fade  = new QPixmap (":/fade");
+   Up.fng   = new QPixmap (":/fng");
+   Up.now   = new QPixmap (":/now");
+   Up.oct   = new QPixmap (":/oct");
+   Up.pnbg  = new QPixmap (":/pnbg");
+   Up.pnbg2 = new QPixmap (":/pnbg2");
+   Up.tpm   = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
 
    _s->moveToThread (& _thrSong);
    connect (this,       & PCheetah::sgCmd,   _s,   & Song::Cmd);
@@ -403,15 +402,11 @@ TRC(" song init");
    setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
 TRC(" tbar init");
   CtlTBar tb (this,                    // top
-      "show / hide track editing\n"
-         "the grid that picks which tracks to practice, RH/LH, sound, etc"
-                               "`:/tbar/0" "`v\0"
-      "configure midi devices" "`:/tbar/1" "`\0"
-      "settings and junk"      "`:/tbar/2" "`\0",
+      "configure midi devices" "`:/tbar/0" "`\0"
+      "settings and junk"      "`:/tbar/1" "`\0",
       "tbGlobal");
-   connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
-   connect (tb.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
-   connect (tb.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
+   connect (tb.Act (0), & QAction::triggered, this, & PCheetah::MCfg);
+   connect (tb.Act (1), & QAction::triggered, this, & PCheetah::GCfg);
 
   CtlTBar tb2 (this,                   // list/prev/next/rand song
       "pick from song list" "`:/tbar/song/0" "`\0"
@@ -428,18 +423,13 @@ TRC(" tbar init");
       "hear / play / practice\n"
          "Click Lrn column of track grid to practice it.\n"
          "Once you have played the song a few times, you can practice loops."
-                         "`view-visible" "`l\0"
-      "toggle easy mode" "`*ez"          "`e\0",
+                         "`view-visible" "`l\0",
       "tbLearnMode");
    Up.tbaLrn = tb3.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
                               Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
                               Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
-   Up.tbbEZ  = tb3.Btn (1);
-   Up.tbbEZ->setCheckable (true);
    connect (tb3.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("learn");});
-   connect (tb3.Act (1), & QAction::triggered,
-            this, [this]() {emit sgCmd ("ez");});
 
   CtlTBar tb4 (this,                   // transport - play/pause/etc
       "restart"            "`:/tbar/time/0" "`1\0"
@@ -507,8 +497,11 @@ TRC(" tbar init");
             this, [this]() {emit sgCmd ("trkEd -");});
 
   CtlTBar tb7 (this,
-      "song filename" "`*..." "`\0",
+      "view - show / hide track editing\n"
+      "the grid that picks which tracks to practice, RH/LH, sounds, etc"
+      "`*..." "`v\0",
       "tbSongFile");
+   connect (tb7.Act (0), & QAction::triggered, this, & PCheetah::Trak);
    Up.tbaTtl = tb7.Act (0);
 
 TRC(" lyr,tr,nt init");

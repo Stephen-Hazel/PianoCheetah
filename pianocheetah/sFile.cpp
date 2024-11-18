@@ -106,10 +106,8 @@ void Song::DscLoad ()                  // parse junk outa _dsc plus info={...}
       if ((i >= -36) && (i <= 36))    _f.tran = (sbyte)i;
    }
    if (DscGet (CC("learn="), s))      Up.lrn  =  *s;
-   if (DscGet (CC("ez="), s))         Up.ez   = (*s == 'Y') ? true : false;
    Cfg.tran = _f.tran;                 // ...sigh
-TRC("DscLoad  tmpo=`d tran=`d lrn=`c ez=`b",
-_f.tmpo, _f.tran, Up.lrn, Up.ez);
+TRC("DscLoad  tmpo=`d tran=`d lrn=`c", _f.tmpo, _f.tran, Up.lrn);
 }
 
 
@@ -121,31 +119,30 @@ void Song::DscSave ()                  // put stats into _dsc
    StrFmt (buf, "tempo=`d",     _f.tmpo);                DscPut (buf);
    StrFmt (buf, "transpose=`d", _f.tran);                DscPut (buf);
    StrFmt (buf, "learn=`c",     Up.lrn);                 DscPut (buf);
-   StrFmt (buf, "ez=`c",        Up.ez?'Y':'N');          DscPut (buf);
 
 // ok, make our summary thingy
 // prac   RH LH HT DRUM REC
    *pr = '\0';
-   for (i = 0;  i < Up.rTrk;  i++)
+   for (i = 0;  i < _f.trk.Ln;  i++)
       if ((! TDrm (i)) && (_f.trk [i].ht < '4'))
          {StrAp (pr, CC("LH "));   break;}
-   for (i = 0;  i < Up.rTrk;  i++)
+   for (i = 0;  i < _f.trk.Ln;  i++)
       if ((! TDrm (i)) && (_f.trk [i].ht > '3'))
          {StrAp (pr, CC("RH "));   break;}
-   for (i = 0;  i < Up.rTrk;  i++)
+   for (i = 0;  i < _f.trk.Ln;  i++)
       if  (TDrm (i))
          {StrAp (pr, CC("Drum "));   break;}
-   for (i = 0;  i < Up.rTrk;  i++)
+   for (i = 0;  i < _f.trk.Ln;  i++)
       if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht < '4'))
          {StrAp (pr, CC("REC_LH "));   break;}
-   for (i = 0;  i < Up.rTrk;  i++)
+   for (i = 0;  i < _f.trk.Ln;  i++)
       if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht > '3'))
          {StrAp (pr, CC("REC_RH "));   break;}
-   for (i = 0;  i < Up.rTrk;  i++)
+   for (i = 0;  i < _f.trk.Ln;  i++)
       if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht >= '1') &&
                                       (_f.trk [i].ht <= '7'))
          {StrAp (pr, CC("REC_HT "));   break;}
-   for (i = 0;  i < Up.rTrk;  i++)
+   for (i = 0;  i < _f.trk.Ln;  i++)
       if (TLrn (i) && TDrm (i))
          {StrAp (pr, CC("REC_DRUM "));   break;}
    if (*pr)
@@ -183,7 +180,7 @@ void Song::DscSave ()                  // put stats into _dsc
    if (_f.tpo.Ln > 3)  StrFmt (& tp [StrLn (tp)], "+`d", _f.tpo.Ln - 3);
    if (_f.tpo.Ln == 0) *tp = '\0';   else StrAp (tp, CC("\n"));
 /* loops  23  bug'd=13
-   fing   29 / ez
+   fing   29
    cue    13 verse=2 chorus=3
    synth  syn rockin88 drum +2
           keys bass guit melo drum   keys: piano organ chromperc synlead
@@ -248,8 +245,8 @@ void Song::DrumExp (bool setBnk)
   ubyt4 e, neX, neT;
   TStr  s, s2;
   TrkEv *ev;
-TRC("DrumExp rTrk=`d setBnk=`b", Up.rTrk, setBnk);
-   for (t = 0;  t < Up.rTrk;) {
+TRC("DrumExp tr.Ln=`d setBnk=`b", _f.trk.Ln, setBnk);
+   for (t = 0;  t < _f.trk.Ln;) {
 TRC(" t=`d", t);
       if (! TDrm (t))  t++;
       else {
@@ -268,10 +265,8 @@ for (e=0; e<nD; e++)TRC("  d[`d]=`d=`s",e,d[e],MDrm2Str(s,d[e]));
               {_f.trk [t].drm  = MDrm (CC("Kick"));   nD = 1;}
          else {
             if (_f.trk.Full (nD-1))  DBG("DrumExp  too many drm trks");
-            _f.trk.Ins (t+1, nD-1);      // scoot postdrum tracks down
-         // adj eTrk, rTrk
+            _f.trk.Ins (t+1, nD-1);    // scoot postdrum tracks down
             if (Up.eTrk > t) Up.eTrk += (nD-1);
-            if (Up.rTrk > t) Up.rTrk += (nD-1);
          // init new _f.trk for extra drums;  set each .e,.ne n new trk[t].ne
             for (x = nD-1;  x;  x--) {
                _f.trk.Cp (t+x, t);
@@ -325,7 +320,7 @@ TRC("   set trk `d snd (syn)=`d", t+i, _f.trk [t+i].snd);
                        MDrm2Str (s2, _f.trk [t+i].drm));
          }
 TRC("  t=`d nTr=`d dev=`d dvt=`d",
-t, Up.rTrk, _f.trk [t].dev, Up.dev [_f.trk [t].dev].dvt);
+t, _f.trk.Ln, _f.trk [t].dev, Up.dev [_f.trk [t].dev].dvt);
          if (_f.trk [t].snd == SND_NONE) {
             _f.trk [t].snd =
                Up.dvt [Up.dev [_f.trk [t].dev].dvt].SndID (CC("Drum/*"));
@@ -349,11 +344,11 @@ ubyte Song::DrumCon ()
   ubyt4 t = 0, tt;
 TRC("DrumCon");
    _f.mapD.Ln = 0;
-   while (t < Up.rTrk)  if (! TDrm ((ubyte)t))  t++;
+   while (t < _f.trk.Ln)  if (! TDrm ((ubyte)t))  t++;
    else {
       nD = 1;
-      while ( (t+nD < Up.rTrk) && (_f.trk [t+nD].dev == _f.trk [t].dev) &&
-                                  TDrm ((ubyte)t+nD) )   nD++;
+      while ( (t+nD < _f.trk.Ln) && (_f.trk [t+nD].dev == _f.trk [t].dev) &&
+                                     TDrm ((ubyte)t+nD) )   nD++;
    // write _f.mapD before we kill the info
       _f.mapD.Ln = nD;
       for (x = 0;  x < nD;  x++) {
@@ -367,8 +362,8 @@ TRC("DrumCon");
          _f.mapD [x].snd = SND_NONE;
       }
    // adj all .trk refs
-      if (Up.eTrk > t) Up.eTrk -= (nD-1);
-      if (Up.rTrk > t) Up.rTrk -= (nD-1);
+      if (Up.eTrk   > t) Up.eTrk   -= (nD-1);
+      if (_f.trk.Ln > t) _f.trk.Ln -= (nD-1);
 
    // glue all the track evs back into 1st drum track re-sort events
       for (tt = t+nD-1; tt > t; tt--)  _f.trk [t].ne += _f.trk [tt].ne;
@@ -395,7 +390,7 @@ void Song::CCClean ()
   ubyte t;
   ubyt4 p, q, k [1024], nk;
   TrkEv *e;
-   for (t = 0;  t < Up.rTrk;  t++)
+   for (t = 0;  t < _f.trk.Ln;  t++)
       for (e = _f.trk [t].e, p = 0;  p < _f.trk [t].ne;  p++)
          if (ECTRL (& e [p])) {
             for (nk = 0, q = p+1;     q < _f.trk [t].ne;  q++) {
@@ -481,7 +476,7 @@ void Song::Load (char *fn)
    DscLoad ();
 
 TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
-   _f.maxEv = st [TB_EVT].NRow () + MAX_RCRD;    // couple extra but wtf :)
+   _f.maxEv = st [TB_EVT].NRow () + MAX_RCRD;    // extra fer editing
    _f.ev = new TrkEv [_f.maxEv];   _f.nEv = 0;
    if (! _f.ev)  {TRC("Song::Load  ev alloc fail");   return;}
 
@@ -607,7 +602,7 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
    // set .grp,.shh,.lrn,.ht outa track mode thingy
       StrCp (buf, st [TB_TRK].Get (t,2));                  // track mode col
-      _f.trk [t].grp = (*buf == '+')    ? true : false;
+      _f.trk [t].grp = (*buf    == '+') ? true : false;
       _f.trk [t].shh = (buf [1] == '#') ? true : false;
       _f.trk [t].lrn = (buf [1] == '?') ? true : false;
       *buf = buf [StrCh (CC("#?"), buf [1]) ? 2 : 1];
@@ -631,18 +626,12 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    }
 
 TRC(" map dev/chn/snd");
-   Up.rTrk = nt;
+   _f.trk.Ln = nt;
    for (t = 0;  t < nt;  t++)  PickDev (t, st [TB_TRK].Get (t, 1),
                                            st [TB_TRK].Get (t, 0));
-TRC(" sortin n ins rec trks");
+TRC(" sortin trks");
    for (t = 0;  t < nt;  t++)   // sort play events
       Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
-   if (TrkIns (nt++, CC("rec drum")) == MAX_TRK)
-      {TRC("Song::Load  Too many tracks for rec drum");   return;}
-   _f.trk [nt-1].chn = 9;              // only chn matters - drum/not
-   if (TrkIns (nt++, CC("rec melo")) == MAX_TRK)
-      {TRC("Song::Load  Too many tracks for rec melo");   return;}
-   _f.trk [nt-1].chn = 0;
    CCClean ();
    mint = ReEv (true);
 
@@ -651,7 +640,8 @@ TRC(" lyr");
    _hLyr = (e >= _f.lyr.Ln) ? 1 : 2;
 
 TRC(" soundbank init");
-   for (dt = MAX_TRK, syn = MAX_DEV, t = 0;  t < Up.rTrk;  t++)  if (TDrm (t)) {
+   for (dt = MAX_TRK, syn = MAX_DEV, t = 0;  t < _f.trk.Ln;  t++)
+                                                                 if (TDrm (t)) {
       dt = t;                          // syn is it's devtype if found
       if (     Up.dev [_f.trk [t].dev].mo->Syn ())
          syn = Up.dev [_f.trk [t].dev].dvt;
@@ -699,10 +689,6 @@ _f.mapD [t].vol, _f.mapD [t].pan, _f.mapD [t].snd);
    DrumExp ();                         // SetBnk happens in DrumExp
    _f.got = true;                      // SetChn happens in TmHop
    ReDo ();
-
-   for (e = 0;  e < _f.cue.Ln;  e++)   // need ta init loops?
-      if (_f.cue [e].tend && (_f.cue [e].s [0] == '['))  break;
-   if (e >= _f.cue.Ln)  LoopInit ();
 
 if (App.trc)  Dump ();
    SetSym ();
@@ -766,8 +752,8 @@ void Song::Save (char rec)
   ubyt4 i, p;
   ubyte d, t, dt, c, pv, oct;
   TrkEv *e;
-TRC("Save rec=`c fn=`s nTrk=`d", rec, _f.fn, Up.rTrk);
-   if (! Up.rTrk)  return;             // no tracks ta save?
+TRC("Save rec=`c fn=`s nTrk=`d", rec, _f.fn, _f.trk.Ln);
+   if (! _f.trk.Ln)  return;           // no tracks ta save?
 
 TRC("actually savin'");
    if (rec == 'a')                     // write a.song w backup
@@ -787,7 +773,7 @@ DBG("fns=`s", fns);
       DscSave ();   f.Put (_f.dsc);
       if (rec == 'r')  {Up.lrn = p;   DscSave ();}
       f.Put (CC("Track:\n"));
-      for (t = 0;  t < Up.rTrk;  t++) {
+      for (t = 0;  t < _f.trk.Ln;  t++) {
          StrCp (s2, TDrm (t) ? CC("Drum/*") : SndName (t));
          *s3 = s3 [1] = s4 [1] = '\0';
          if (_f.trk [t].shh)  *s3 = '#';
@@ -835,7 +821,7 @@ DBG("fns=`s", fns);
          {if (StrCh (CC("*?!"), _f.lyr [i].s [0])) _f.lyr.Del (i);   else i++;}
 
       f.Put (CC("Event:\n"));
-      for (t = 0;  t < Up.rTrk;  t++) {
+      for (t = 0;  t < _f.trk.Ln;  t++) {
          oct = 99;
          if ((rec == 'r') && TLrn (t))  oct = (_f.trk [t].ht == 'L') ? 2 : 3;
          for (p = i = 0, e = _f.trk [t].e;  i < _f.trk [t].ne;  i++) {

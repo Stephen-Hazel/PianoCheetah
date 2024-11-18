@@ -17,6 +17,8 @@
 #define  PRAC  (Up.lrn == LPRAC)
 #define  PLAY  (Up.lrn == LPLAY)
 
+#define  RCRD  (PRAC || PLAY)
+
 extern void   CInit ();
 extern QColor CMap (ubyte n);
 
@@ -65,19 +67,16 @@ public:
 
 
 //______________________________________________________________________________
-struct RecDef  {ubyt4 tm, ms;};        // map o all rec evs
-
+struct RecDef {ubyt4 tm;  ubyte vl;};
 struct LrnDef {
-   char  pLrn, hand;                   // prev lrn mode;  hand: \0=none/L/R/B
-   ubyt4 lpBgn, lpEnd;                 // current loop's bgn,end times
-   bool  POZ,                          // paused?
-         chd;                          // w of cue area
-   ubyte veloSng, veloRec;             // velo scale for ? vs rec
-   ubyt2 toRec [2][256];               // buffer vals to rcrd per ctl post poz
-   RecDef  rec [2][128];               // notes cur down from EvRcrd
-   ubyte    nt    [128];               // track nondrum non? held notes
-   ubyte recLH    [128];               // NtGet finds NtDn lh/rh but needs to
-   bool  nt1;                          // 1st note after hopto?   remem fer NtUp
+   char   pLrn;                        // prev lrn mode
+   ubyt4  lpBgn, lpEnd;                // current loop's bgn,end times
+   bool   POZ,                         // paused?
+          nt1,                         // 1st note after loop HopTo?
+          chd;                         // w of cue area
+   ubyte  hld [7];                     // held note per track
+   RecDef rec [2][128],                // time of rec notes in _dn via NtGet()
+         prec [2][128];
 };
 
 
@@ -85,13 +84,11 @@ struct LrnDef {
 // notation stuph
 struct BlkDef  {ubyt2 bar, y, h;   ubyt4 tMn, tMx;   ubyte sb;};
                                                  // bar's tm block, y scale
-struct SymDef  {ubyte tr;   ubyt4 nt, tm;   // tm only for ez
+struct SymDef  {ubyte tr;   ubyt4 nt, tm;        // tm only for ez
                 bool top, bot, bar;   ubyt2 x, y, w, h;};  // note's symbols
 struct ColDef  {BlkDef *blk;   SymDef *sym;   ubyt4 nBlk,  nSym;
                 ubyte nMn, nMx, nDrm, dMap [128];   ubyt2 x, w, h;};
 struct PagDef  {ColDef *col;   ubyt4 nCol;   ubyt2 w, h;};
-
-struct LHMxRow {ubyt4 tm;  ubyte nt;};      // for LH shading
 
 
 //______________________________________________________________________________
@@ -162,17 +159,11 @@ private:
 
 // sRecord.cpp
    void  Shush   (bool tf);            // flip by volume cc (only) on/off
-   char  DnOK    (char n = '\0');
+   bool  DnOK    (char n = '\0', ubyte *tr = nullptr, MidiEv *ev = nullptr);
    void  CCMap   (char *cSt, char *cMod, ubyte dev, MidiEv *ev);
    bool  CCEd    (char *cSt, char *cMod, ubyte dev, MidiEv *ev);
-   void  CCInit  (ubyte tr, char *cc, ubyte val);
    void  NtGet   (MidiEv *ev);
-   void  SetMSec (ubyt4 p, MidiEv *ev, char dir = 'h');    // here/forward
-   void  RecDvCh (MidiEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL);
-   void  RecDvCh (ubyte ti,
-                   TrkEv *ev, ubyte *d, ubyte *c, ubyte *dL, ubyte *cL);
-   void  PozBuf  (MidiEv *ev, char *cSt);
-   void  PozIns  ();
+   void  SetMSec (ubyt4 p, MidiEv *ev);
    void  Record  (MidiEv *ev);
    void  EvRcrd  (ubyte dev, MidiEv *ev);
 
@@ -194,7 +185,7 @@ private:
    ubyt4 NtDnPrv (ubyt4 tm), NtDnNxt (ubyt4 tm);
    void  ReCtl   ();                   // map all DevTyps w song's _ctl[]s
    void  CtlClean();                   // redo _ctl[] to just used ones sorted
-   ubyte CCUpd   (char *cSt, ubyte t); // get _ctl pos; upd _cch,_ctl,dvt.CCMap
+   ubyte CCUpd   (char *cSt);          // get _ctl pos; upd _cch,_ctl,dvt.CCMap
    void  EvDel   (ubyte t, ubyt4 p, ubyt4 ne = 1);
    bool  EvIns   (ubyte t, ubyt4 p, ubyt4 ne = 1);
    void  EvInsT  (ubyte t, TrkEv  *ev);
@@ -209,6 +200,7 @@ private:
    void  TrkDel  (ubyte t);
    ubyte TrkIns  (ubyte t = MAX_TRK, char *name = nullptr,
                                      char *snd  = nullptr);
+   void  LoopInit ();
    void  DrMap   (char *d);
    void  TrkEd   (char *op);
    ubyte GetSct  (TxtRow *sct);        // pull sections outa _f.cue[] > sct[64]
@@ -234,10 +226,10 @@ private:
 
 // sCmd.cpp
    ubyte ChkETrk ();
-   void  RecWipe (), Msg (char *s), LoopInit (),
+   void  RecWipe (), Msg (char *s),
          EdSong (char ofs), EdTime (char ofs), EdTmpo (char ofs),
-         EdLrn  (char ofs),
-         HType  (char *s);
+                                               EdLrn  (char ofs),
+         ShowAll (), HType  (char c);
 
 // sReDo.cpp
    bool  TSho (ubyte t), TLrn (ubyte t), TDrm (ubyte t);
@@ -267,15 +259,17 @@ private:
 
    void  Init (), Quit ();
    void  Wipe ();
-   void  Hey  (char *msg);
-   void  Die  (char *msg);
+   void  Info (char *msg);             // into lyr area
+   void  Hey  (char *msg);             // pop gui.hey in gui thr
+   void  Die  (char *msg);             // pop gui.hey n croak
 
    Timer               *_timer;
    Arr<MInDef,MAX_DEVI> _mi;
    SongFile             _f;
+   Arr<TrkEv,MAX_RCRD>  _recM;         // rec events - melodic
+   Arr<TrkEv,MAX_RCRD>  _recD;         // rec events - drum
    Arr<ubyt4,128>       _sySn;         // syn's sound bank: just melodic no drum
 
-   bool   _onBt, _prac;                // tL8r is still on beat?
    ubyt4  _tEnd;                       // last time       DID some practice evs?
    ubyt2  _bEnd;                       // last bar
 // _now is curr time if poz'd, else next time Put happens (usually in future)
@@ -291,7 +285,7 @@ private:
 
    Arr<CChRow,MAX_CCH>  _cch;          // ctl chasing
    TrkNt                *_nt;          // size is always same as _f.nEv
-   Arr<DownRow,128*1024> _dn;          // prac/play defs
+   Arr<DownRow,128*1024> _dn;          // notes ta learn
    ubyt4                _pDn;
 
    ubyt4  _pg;   ubyte _tr;   QRect _rc;    // ...notation junk
@@ -299,7 +293,6 @@ private:
    Arr<ColDef,500   >  _col;
    Arr<BlkDef,9999  >  _blk;
    Arr<SymDef,131584>  _sym;
-   Arr<LHMxRow, 16*1024> _lm;          // for LH shading
 
 public slots:
    void Cmd (QString s);               // gui listenin

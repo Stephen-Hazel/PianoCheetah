@@ -141,19 +141,18 @@ struct UTrkRow {
 };
 struct UpdLst {
    ubyt2 txH;
-   QPixmap *oct, *pnbg, *now, *dot, *fng, *cue, *bug, *lhmx, *fade, *tr;
+   QPixmap *oct, *pnbg, *pnbg2, *now, *dot, *fng, *cue, *bug, *fade, *tr;
    QAction *tbaPoz,     *tbaLrn, *tbaTtl;
    QIcon   *tbiPoz [2], *tbiLrn [3];
-   QToolButton *tbbEZ;
 // stuff Song sets for gui
-   bool  ez, uPoz;                     // user said poz, not just learn mode
+   bool  uPoz;                         // user said poz, not just learn mode
    char  lrn;
    TStr  hey, ttl, song, time, bars, tmpo, tsig, lyr;
    ubyte lyrHiB, lyrHiE;
-   Arr<DevTyp,MAX_DEV>  dvt;
+   Arr<DevTyp,MAX_DEV>  dvt;           // for showin gui
    Arr<DevRow,MAX_DEV>  dev;
-   Arr<UTrkRow,MAX_TRK> trk;           // n trk picked for editin
-   ubyte rTrk, eTrk;                   // _f.trk.Ln-2 where rec drm,mel trks are
+   Arr<UTrkRow,MAX_TRK> trk;
+   ubyte    eTrk;                      // edit trk
 // CtlNt's stuff
    QPointF  gp;                        // globalPos() x,y for movin dlgs
    char     ntCur;
@@ -168,8 +167,6 @@ struct UpdLst {
    TStr     d [256][4];
 };
 extern UpdLst Up;                      // what gui needs from song
-
-extern void DumpZ (char const *t, char *z);      // sigh
 
 
 //______________________________________________________________________________

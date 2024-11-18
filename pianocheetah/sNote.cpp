@@ -49,10 +49,9 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
   DownRow *dn;
 TRC("DrawRec all=`b pp=`d", all, pp);
    if (all) {
-      for (pMn = pMx = 0, t = Up.rTrk;  t < _f.trk.Ln;  t++) {
-         ne = _f.trk [t].ne;
-         if (ne && ((t1 = _f.trk [t].e [ne-1].time) > pMx))  pMx = t1;
-      }
+      pMn = pMx = 0;
+      ne = _recM.Ln;   if (ne && ((t1 = _recM [ne-1].time) > pMx))  pMx = t1;
+      ne = _recD.Ln;   if (ne && ((t1 = _recD [ne-1].time) > pMx))  pMx = t1;
    }
    else  {pMn = _pNow-1;   pMx = _rNow;}
 //TStr d1,d2,d3,d4;
@@ -148,9 +147,10 @@ TRC("DrawRec all=`b pp=`d", all, pp);
       }
 
    // draw rec notes - cache noteon stuff, draw upon noteoff or end of loop
-      for (t = Up.rTrk;  t < _f.trk.Ln;  t++) {
-         e = _f.trk [t].e;   ne = _f.trk [t].ne;
-         drm = TDrm (t);
+      for (t = 0;  t < 2;  t++) {
+         e   = t ? (& _recD [0]) : (& _recM [0]);
+         ne  = t ?    _recD.Ln   :    _recM.Ln;
+         drm = t ?          true : false;
          for (nt = 0;  nt < 128;  nt++)   on [nt]    = NONE;
          for (tt = 0;  tt < ncc;  tt++)  {cc [tt].tm = NONE;
                                           cc [tt].vl = cc [tt].df;}
@@ -236,7 +236,10 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                      if (! drm) {
                         if (nt < co.nMn) dnt = co.nMn;     // rec note COULD be
                         if (nt > co.nMx) dnt = co.nMx;     // anywhere, put on
-                        x = Nt2X (dnt, & co, 'g');         // screen
+                        if (KeyCol [dnt%12] == 'w')   // usually
+                           x = Nt2X (dnt, & co) + (24-W_NT) / 2;
+                        else
+                           x = Nt2X (dnt, & co, 'g');
                      }
                      else {
                         for (got = false, dPos = 0;  dPos < co.nDrm;  dPos++) {
@@ -287,7 +290,10 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                if (! drm) {
                   if (nt < co.nMn) dnt = co.nMn;      // rec note COULD be
                   if (nt > co.nMx) dnt = co.nMx;      // anywhere, put on
-                  x = Nt2X (dnt, & co, 'g');          // screen
+                  if (KeyCol [dnt%12] == 'w')
+                     x = Nt2X (dnt, & co) + (24-W_NT) / 2;
+                  else
+                     x = Nt2X (dnt, & co, 'g');
                }
                else {
                   for (got = false, dPos = 0;  dPos < co.nDrm;  dPos++) {
@@ -376,7 +382,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
   TrkNt  *nt;
   QColor  clr, kc;                     // main color, key color
    tr = s->tr;   trk = & _f.trk [tr];   nt = & trk->n [s->nt];   dr = TDrm (tr);
-   n = Up.ez ? ((ubyte)s->nt) : nt->nt;
+   n = RCRD ? ((ubyte)s->nt) : nt->nt;
    nx = Nt2X (co->nMn, co);
    if (dr) {
       switch (MDrm2Grp (trk->din)) {
@@ -392,7 +398,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
       if (Cfg.ntCo == 1)  clr = CRng [(nt->dn == NONE) ? 64 :
                                       (trk->e [nt->dn].valu & 0x7F)];
    }
-   else if (Up.ez)                     // f to purple so it shows better
+   else if (RCRD)                      // f to purple so it shows better
       clr = CScl [(tc = n % 12) == 5 ? 9 : tc];
    else
       switch (Cfg.ntCo) {
@@ -424,7 +430,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
                  Up.cnv.RectF (x, y, w, h, clr);
    if (s->top) {y -= 2;  h += 2;}   if (s->bot) h += 2;    // put em back
 
-   if ((! Up.ez) && (nt->dn != NONE) && (ef = trk->e [nt->dn].val2 & 0x1F))
+   if ((! RCRD) && (nt->dn != NONE) && (ef = trk->e [nt->dn].val2 & 0x1F))
       DrawFng (x + w/2, y, ef);
 
    if (dr) {
@@ -438,7 +444,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
 
    mo = 3;                             // middle offset from x for fillin
    dh = 10;   if (h < 12)  dh = (h > 2) ? (h-2) : 2;
-   if (s->top) {                       // rounded-ish dot aligned to hand
+   if ((! RCRD) && s->top) {           // rounded-ish dot aligned to hand
       ha = (trk->ht < '4') ? 'L' : 'R';
       dw = w - mo*2;
       dx = x;   if      (ha == 'R')  dx += (mo*2);
@@ -448,10 +454,13 @@ void Song::DrawSym (SymDef *s, ColDef *co)
    }
 
    if ((kc == CWHITE) && s->top && (h != s->h)) {
-   // white dudes have tail of only W_NT for true h
+      if (RCRD) {                      // center n slightly thinner in rec
+         x += 7;   w -= 14;
+      }
+      else {                 // white dudes have tail of only W_NT for true h
+         x = Nt2X (n, co, 'g');   w = W_NT;
+      }
       y += 14;   h = s->h - 14;
-      x = Nt2X (n, co, 'g');   w = W_NT;
-
       if (s->bot)  {Up.cnv.RectF (x+1, y+h-2, w-2, 1, clr);
                     Up.cnv.RectF (x+2, y+h-1, w-4, 1, clr);   h -= 2;}
       Up.cnv.RectF (x, y, w, h, clr);
@@ -478,7 +487,7 @@ void Song::DrawPg (ubyt4 pp)
   BlkDef *bl;
 //TRC("DrawPg `d", pp);
 // load constant-ish stuffs
-   trk = & _f.trk [0];   nTrk = Up.rTrk;   tw = 8;   th = Up.txH;
+   trk = & _f.trk [0];   nTrk = _f.trk.Ln;   tw = 8;   th = Up.txH;
    Up.cnv.RectF (0, 0, Up.w, Up.h, CWHITE);     // cls to white
    for (c = 0;  c < pg [pp].nCol;  c++) {
       MemCp (& co, & pg [pp].col [c], sizeof (co));    // load column specs
@@ -525,7 +534,9 @@ void Song::DrawPg (ubyt4 pp)
          Up.cnv.Blt (*Up.oct,  x, 0,                  x1, 0, w, H_KB);
 
       // background stripes down the col
-         Up.cnv.Blt (*Up.pnbg, x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
+         if (RCRD)
+               Up.cnv.Blt (*Up.pnbg2, x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
+         else  Up.cnv.Blt (*Up.pnbg,  x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
 
       // label at b|c borders;  also middle c line unless at left border
          StrFmt (str, "`d", oc-1);
@@ -537,7 +548,7 @@ void Song::DrawPg (ubyt4 pp)
 
       // draw curr keysig;  if in scale, put step color
          w2 = 3;
-         if ((Cfg.ntCo == 0) && (! Up.ez))
+         if ((Cfg.ntCo == 0) && (! RCRD))
             for (x2 = x+wb, n2 = oc*12+nt;  n2 <= oc*12+nd;  n2++, x2 += W_NT)
                if (ksig [n2 % 12] != ' ')
                   Up.cnv.RectF (x2 + w2, 5, W_NT-w2*2, W_NT-w2*2-2,
@@ -699,33 +710,6 @@ void Song::DrawPg (ubyt4 pp)
             y = Tm2Y (_f.chd [p].time, & co);
             Up.cnv.TextVC (qx, y, _f.chd [p].s, sw ? CSclD[0]:CSclD[7]);
          }
-      }
-
-   // draw LH shading
-      t1 = tMn;   nt = 0;              // chase till tMn
-      for (p = 0;  p < _lm.Ln;  p++)  {if (_lm [p].tm > tMn)  break;
-                                       else  nt = _lm [p].nt;}
-   // ok, draw em for our col
-//TStr z1,z2,z3,z4;
-      for (;  (p < _lm.Ln) && (_lm [p].tm < tMx);  p++) {
-//DBG("LH  p=`d .tm=`s .nt=`s   t1=`s nt=`s",
-//p, TmSt(z1,_lm[p].tm), MKey2Str(z2,_lm [p].nt),
-//TmSt(z3,t1), MKey2Str(z4,nt));
-         if ((nt > co.nMn) && (nt <= co.nMx)) {
-            w = Nt2X (nt, & co, 'g') - nx;
-            y = Tm2Y (t1, & co);   y2 = Tm2Y (_lm [p].tm, & co);
-            if (y2 >= co.h)  y2 = co.h-1;
-//DBG("1  x=`d y=`d w=`d h=`d y2=`d", nx, y, w, y2-y,y2);
-            Up.cnv.Blt (*Up.lhmx, nx, y, w, y2-y, 0, 0, 1, 1);
-         }
-         t1 = _lm [p].tm;   nt = _lm [p].nt;
-      }                                // continue last rect
-      if ((t1 < tMx) && (nt > co.nMn) && (nt <= co.nMx)) {
-            w = Nt2X (nt, & co, 'g') - nx;
-            y = Tm2Y (t1, & co);   y2 = Tm2Y (_lm [p].tm, & co);
-            if (y2 >= co.h)  y2 = co.h-1;
-//DBG("2  x=`d y=`d w=`d h=`d y2=`d", nx, y, w, y2-y,y2);
-            Up.cnv.Blt (*Up.lhmx, nx, y, w, y2-y, 0, 0, 1, 1);
       }
 
    // bar #s on top
@@ -910,7 +894,7 @@ void Song::DrawPg (ubyt4 pp)
 //------------------------------------------------------------------------------
 void Song::DrawNow ()
 // refresh rec;  draw now line at right spot, optionally with red,grn dots
-{ ubyte t, tr, mt, nt, f, nn, g;
+{ ubyte t, tr, mt, nt, f, nn;
   ubyt2 nx, nw, cx, ww, x, yNow, yOvr;
   ubyt4 c, tMn, tMx, n, pn, p, pt;
   bool  up;
@@ -959,7 +943,6 @@ void Song::DrawNow ()
       Up.tcnv.SetMode ('t');
       dn = & _dn [_pDn];
       pt = _pDn ? _dn [_pDn-1].time : 0;
-      g = (DnOK () == 'a') ? 2 : 1;    // again gets bigger grn dots
 
       if (co.nDrm) {                   // none of this if we ain't got no drums
       // show "off the chart" drum rec notes on border
@@ -977,12 +960,12 @@ void Song::DrawNow ()
          for (x = cx - co.nDrm*W_NT, mt = 0;  mt < co.nDrm;  mt++) {
             tr = co.dMap [mt];   nt = tk [tr].drm;
             for (np = NULL, nn = 0;  nn < dn->nNt;  nn++)
-               if ( (tk [dn->nt [nn].t].chn == 9) && (dn->nt [nn].nt == nt) )
+               if ( TDrm (dn->nt [nn].t) && (dn->nt [nn].nt == nt) )
                   {np = & dn->nt [nn];   break;}
-            t = 3;                     // default to no dot;  check grn;  red
-            if (np)  {if ((g == 2) || (_lrn.rec [1][nt].tm <= pt))  t = g;}
-            else      if (_lrn.rec [1][nt].tm)  t = 0;
-            if (t < 3)  Up.tcnv.Blt (*Up.dot, x+W_NT/2-8, H_NW-9,
+            t = 2;                     // default to no dot;  check grn,red
+            if (np)  {if (_lrn.rec [1][nt].tm <= pt)  t = 1;}   // grn
+            else      if (_lrn.rec [1][nt].tm)        t = 0;    // red
+            if (t < 2)  Up.tcnv.Blt (*Up.dot, x+W_NT/2-8, H_NW-9,
                                                               t*16, 0,  16, 16);
             x += W_NT;
          }
@@ -998,25 +981,26 @@ void Song::DrawNow ()
 
    // dot melodic notes - just red;  green next
       for (x = 0, nt = co.nMn;  nt <= co.nMx;  nt++, x += W_NT) {
-         for (np = NULL, nn = 0;  nn < dn->nNt;  nn++)
+         for (nn = 0;  nn < 7;  nn++)  if (_lrn.hld [nn] == nt)  break;
+         if (nn < 7)  continue;        // held so no red dot regardless
+
+         for (np = nullptr, nn = 0;  nn < dn->nNt;  nn++)
             if ( (tk [ dn->nt [nn].t].chn != 9) && (dn->nt [nn].nt == nt) )
                {np = & dn->nt [nn];   break;}
-      // red dot if down per .rec[], not in _dn, not held (in .nt[])
-         if (_lrn.rec [0][nt].tm && (! np) && (! (_lrn.nt [nt] & 0x80)) ) {
+      // red dot if down per .rec[], not in _dn
+         if (_lrn.rec [0][nt].tm && (! np)) {
             x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
             if (KeyCol [nt%12] == 'w')    ww = 24/2;
-            Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  0, 0,  16, 16);
+            Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  0*16, 0,  16, 16);
          }
       }
-   // green dots if in _dn, no .rec[] (or again)
+   // green dots if in _dn, no .rec[]
       for (nn = 0;  nn < dn->nNt;  nn++)  if (tk [dn->nt [nn].t].chn != 9) {
          np = & dn->nt [nn];   nt = np->nt;
-         if ( (g == 2) || (_lrn.rec [0][nt].tm <= pt) ) {
+         if (_lrn.rec [0][nt].tm <= pt) {
             x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
             if (KeyCol [nt%12] == 'w')    ww = 24/2;
-            Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  g*16, 0,  16, 16);
-            if ((! Up.ez) && (f = tk [np->t].e [np->p].val2 & 0x1F))
-               DrawFng (x+ww/2, H_NW-8, f, 't');
+            Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  1*16, 0,  16, 16);
          }
       }
    }

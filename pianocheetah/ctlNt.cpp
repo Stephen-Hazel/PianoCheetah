@@ -53,14 +53,13 @@ void CtlNt::paintEvent (QPaintEvent *e)
 {  (void)e;
    if (Up.pm == nullptr)  {DBG("no pm");   return;}
   Canvas c (this);
-//DBG("CtlNt::paintEvent w=`d h=`d  tx=`d ty=`d tw=`d th=`d",
-//Up.w, Up.h, Up.tpos.left(), Up.tpos.top(), Up.tpos.width(), Up.tpos.height());
+DBG("CtlNt::paintEvent w=`d h=`d  tx=`d ty=`d tw=`d th=`d",
+Up.w, Up.h, Up.tpos.left(), Up.tpos.top(), Up.tpos.width(), Up.tpos.height());
    c.Blt (*Up.pm,   0, 0,  0, 0,  Up.w, Up.h);
    c.Blt (*Up.tpm,  Up.tpos.left (),  Up.tpos.top (),  0, 0,
                     Up.tpos.width (), Up.tpos.height ());
+DBG("z");
    if (Up.drag.width ()) {
-//    c.Blt (*Up.lhmx, Up.drag.left  (), Up.drag.top    (),
-//                     Up.drag.width (), Up.drag.height (), 0, 0, 1, 1);
      QPainter *p = c.Painter ();
       p->setCompositionMode (QPainter::RasterOp_SourceXorDestination);
       p->setPen (QColor (0xff, 0xff, 0xff));

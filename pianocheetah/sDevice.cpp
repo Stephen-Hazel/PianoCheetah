@@ -190,7 +190,7 @@ ubyte Song::PickChn (char *dv)
   TStr  cmap;
    nc = StrCm (dv, CC("syn")) ? 16 : 128;
    MemSet (cmap, '.', nc);   cmap [9] = 'x';   cmap [nc] = '\0';
-   for (t = 0;  t < Up.rTrk;  t++)
+   for (t = 0;  t < _f.trk.Ln;  t++)
       if (! StrCm (Up.dev [_f.trk [t].dev].mo->Name (), dv))
                      cmap [_f.trk [t].chn] = 'x';
    for (t = 0;  t < nc;  t++)  if (t != 'x')  break;
@@ -237,7 +237,7 @@ TRC("  i=`d/`d x=`d/2 `s.`s", i, nD, x, dLst [i][0], dLst [i][1]);
          else {                        // melodic need a new chan + snd match x
             nc = StrCm (dv, CC("syn")) ? 16 : 128;
             MemSet (cmap, '.', nc);   cmap [9] = 'x';   cmap [nc] = '\0';
-            for (m = 0;  m < Up.rTrk;  m++)
+            for (m = 0;  m < _f.trk.Ln;  m++)
                if ( (m != tr) && (_f.trk [m].dev < Up.dev.Ln) &&
                     Up.dev [_f.trk [m].dev].mo &&
                     (! StrCm (Up.dev [_f.trk [m].dev].mo->Name (),
@@ -295,7 +295,7 @@ sn->prog,MProg[sn->prog],sn->bank,sn->bnkL);
 
 
 void Song::SetChn ()                   // do progch's for ALL song melo chans
-{  for (ubyte t = 0;  t < Up.rTrk;  t++)  if (! _f.trk [t].grp)  SetChn (t);
+{  for (ubyte t = 0;  t < _f.trk.Ln;  t++)  if (! _f.trk [t].grp)  SetChn (t);
 //TODO now scan to curr time sending prog evs
 }
 
@@ -312,7 +312,7 @@ TRC("  got syn dev=`d", sy);
    if (sy >= Up.dev.Ln)  {SetChn ();   return;}      // got no syn so byeee
    for (s = 0;  s < 256;  s++) snd [s][0] = '\0';
    _sySn.Ln = 0;
-   for (t = 0;  t < Up.rTrk;  t++) {
+   for (t = 0;  t < _f.trk.Ln;  t++) {
       if (! Up.dev [_f.trk [t].dev].mo->Syn ())  continue;
       if (_f.trk [t].chn != 9) {
          if (_f.trk [t].chn > mc)  mc = _f.trk [t].chn;

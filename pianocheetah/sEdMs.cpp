@@ -103,11 +103,11 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
       if ( (! StrCm (CC("tmpo"), cs)) || (! StrCm (CC("ksig"), cs)) ||
                                          (! StrCm (CC("tsig"), cs)) ) {
          cg = true;
-         for (ubyte t = 0;  t < Up.rTrk;  t++)
+         for (ubyte t = 0;  t < _f.trk.Ln;  t++)
             if (TDrm (t))  {td = t;   break;}
       }
-      for (tr = 0;  tr < Up.rTrk;  tr++)  if ( (   cg  && (td == tr)) ||
-                                               ((! cg) &&  TSho (tr)) ) {
+      for (tr = 0;  tr < _f.trk.Ln;  tr++)  if ( (   cg  && (td == tr)) ||
+                                                 ((! cg) &&  TSho (tr)) ) {
          for (e = _f.trk [tr].e, ne = _f.trk [tr].ne,
               Up.pos.p = 0;  Up.pos.p < ne;  Up.pos.p++)
             if (e [Up.pos.p].ctrl == (0x80|Up.pos.ct)) {
@@ -266,7 +266,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
 //DBG("pg=`d co=`d sy=`d", Up.pos.pg, Up.pos.co, Up.pos.sy);
         ubyt4  tm, te;
         TrkEv *ev = nullptr;
-         if (Up.ez) {                  // cuz ez has no actual note
+         if (RCRD) {                   // cuz ez has no actual note
             tm = te =   co.sym [Up.pos.sy].tm;   // SetSym set me
             nt = (ubyte)co.sym [Up.pos.sy].nt;   // not p !
             te += (M_WHOLE/8*3/4);
@@ -288,7 +288,7 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          StrAp (s, StrFmt (s2, " #`d `s`s",
                            tr+1, _f.trk [tr].name,
                                 (_f.trk [tr].ht == 'S')?" show":""));
-         Hey (s);
+         Info (s);
       }
 //DBG(" Up.Pos at=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
       if (Up.pos.at == 'x') {
@@ -312,12 +312,12 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
 DBG("  nope");
             *s = '\0';
          }
-         Hey (s);
+         Info (s);
       }
       if ( (Up.pos.at == 'q') && Up.pos.got &&
            (((Up.pos.str [0] == '(') && (! StrCh (CC("vc"), Up.pos.str [1]))) ||
             (*Up.pos.str == '.')) )
-         Hey (& Up.pos.str [1]);
+         Info (& Up.pos.str [1]);
       return;
    }
    if (! (b & Qt::LeftButton))  return;
@@ -327,7 +327,7 @@ DBG("  nope");
       DragRc ();   Up.pos.y1 = y;   Up.pos.y2 = y + 1;   DragRc ();
       pg = & _pag [Up.pos.pg];
       MemCp (& co, & pg->col [Up.pos.co], sizeof (co));
-      t = Y2Tm (y, & co);   TmSt (s, t);   Hey (s);
+      t = Y2Tm (y, & co);   TmSt (s, t);   Info (s);
    }
    if (Up.pos.drg == 'x')  {
       DragRc ();   Up.pos.y1 = y;   Up.pos.y2 = y + 1;   DragRc ();
@@ -349,7 +349,7 @@ DBG("  nope");
                 else v1 -= (Up.pos.xp - x);}
          StrAp (s2, StrFmt (s, " value=`d", (ct=='s') ? ((sbyt4)v1-64) : v1));
       }
-      Hey (s2);
+      Info (s2);
    }
    if (Up.pos.drg == 'm')
       {DragRc ();   Up.pos.x2 = x;   Up.pos.y2 = y;   DragRc ();}
@@ -378,7 +378,7 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
 
    if ((Up.pos.drg == 'q') || (Up.pos.drg == 'r')) {  // cue
       Up.pos.y2 = Up.pos.y1 = y;
-      Hey (CC(""));
+      Info (CC(""));
       if (Up.pos.got && (ABSL (y - Up.pos.yp) > DRAG)) {
       // move existing cue
          pg = & _pag [Up.pos.pg];
@@ -455,13 +455,13 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
       if (! Up.pos.pPoz) Poz (false);
    }
    if (Up.pos.drg == 'd') {            // [d]ur
-      Up.pos.y2 = y;   if (! Up.ez)  NtDur ();
+      Up.pos.y2 = y;   if (! RCRD)  NtDur ();
       if (! Up.pos.pPoz) Poz (false);
    }
    if (Up.pos.drg == 'n') {            // [n]oteHop
       Up.pos.x1 = x - Up.pos.xo;   Up.pos.y1 = y - Up.pos.yo;
       if (ABSL (x - Up.pos.xp) > DRAG)  NtHop ();
-      else             if (! Up.ez)  PreFng ();
+      else             if (! RCRD)  PreFng ();
       if (! Up.pos.pPoz) Poz (false);
    }
 //DBG("MsUp end");

@@ -438,9 +438,9 @@ TRC(" ftb=`s fte=`s", TmSt (s1, ftb), TmSt (s2, fte));
    }
 
 // get trk pos of our pop_arp track (or drumtrack)
-   for (t = 0;  t < Up.rTrk;  t++)
+   for (t = 0;  t < _f.trk.Ln;  t++)
       if ((! TDrm (t)) && (! StrCm (_f.trk [t].name, CC("pop_arp"))))  break;
-   if (t >= Up.rTrk)  for (t = 0;  t < Up.rTrk;  t++)  if (TDrm (t))  break;
+   if (t >= _f.trk.Ln)  for (t = 0;  t < _f.trk.Ln;  t++)  if (TDrm (t))  break;
 //DBG("pop_arp trk=`d", t);
    if (StrCm (_f.trk [t].name, CC("pop_arp"))) {
    // make the 3 tracks we write to if missin'
@@ -598,7 +598,7 @@ DBG("new: chd='`s' old: s='`s' got=`b", chd, s, got);
 // get each unique time and assoc'd notesets
    while (got) {
       got = dn = false;                // get 1st time of note across melo trks
-      for (   t = 0; t < Up.rTrk; t++)  if ((! TDrm (t)) && TLrn (t))
+      for (   t = 0; t < _f.trk.Ln; t++)  if ((! TDrm (t)) && TLrn (t))
          for (p = tp [t], e = _f.trk [t].e, ne = _f.trk [t].ne;  p < ne;  p++)
             if (! (e [p].ctrl & 0x80)) {
                if      (! got)           {tm = e [p].time;   got = true;}
@@ -606,7 +606,7 @@ DBG("new: chd='`s' old: s='`s' got=`b", chd, s, got);
                break;
             }
       if (got) {                       // build on[] noteset from note evs @ tm
-         for (t = 0; t < Up.rTrk; t++)  if ((! TDrm (t)) && TLrn (t)) {
+         for (t = 0; t < _f.trk.Ln; t++)  if ((! TDrm (t)) && TLrn (t)) {
             for (p = tp [t], e = _f.trk [t].e, ne = _f.trk [t].ne;
                  (p < ne) && (e [p].time <= tm);  p++)
                if (! (e [p].ctrl & 0x80)) {

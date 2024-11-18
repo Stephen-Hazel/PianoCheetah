@@ -1,4 +1,4 @@
-#!/bin/env php
+#!/bin/php
 <?php
 // b - build with flatpak-builder n stuff
 // args:   o   build only - for release to flathub
@@ -36,5 +36,7 @@
    system ("rm -fr _repo");
 
 // cleanup app's .var/app/ dir for full reset
+   system ("/home/sh/.bin/x");         # wipe dbg.txt
+
    if ($arg != 'c')  exit;
    system ("rm -fr ~/.var/app/$app");

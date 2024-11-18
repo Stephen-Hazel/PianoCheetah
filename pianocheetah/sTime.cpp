@@ -101,7 +101,7 @@ ubyte Song::CCValAt (ubyt4 tm, ubyte tr, char *cc)
 { ubyt4  p, ne, maxt = 0;              // max time of (say, vol) cc in trks
   ubyte  c, cid, val, d, t, maxtr = 128;
   TrkEv *e;
-   if (_f.trk [tr].chn == 9)  return StrCm (cc, CC("Vol")) ? 64 : 127;
+   if (TDrm (tr))  return StrCm (cc, CC("Vol")) ? 64 : 127;
 
 // get a cc valu into cid n val
    for (cid = c = 0; c < _f.ctl.Ln; c++)  if (! StrCm (_f.ctl [c].s, cc))
@@ -225,10 +225,9 @@ TRC(" put each ctl");
    _pDn = p;
    for (p = 0;  p < ne;  p++)  for (c = 0;  c < _dn [p].nNt;  c++)
       _dn [p].nt [c].nt &= 0x7F;       // clear all hi bits to unhit
-   MemSet (_lrn.nt,  0, sizeof (_lrn.nt ));
    MemSet (_lrn.rec, 0, sizeof (_lrn.rec));
 TRC(" timerset");                      // unpoz unless uPoz
-   _timer->Set (_pNow = 1 + (_rNow = _now = tm));   _onBt = true;
+   _timer->Set (_pNow = 1 + (_rNow = _now = tm));
    _lrn.POZ = false;   Poz (Up.uPoz);
    Draw ('a');
 TRC(" timerset2");

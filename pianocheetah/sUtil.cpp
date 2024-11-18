@@ -98,7 +98,7 @@ ubyt4 Song::SilPrv (ubyt4 tm)
 
 // keep checkin for ? notes coverin tm n get new min;  check THAT2
    do
-      for (got = false, t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))
+      for (got = false, t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))
          for (e = _f.trk [t].e, p = _f.trk [t].ne;  p;) {
             --p;                    // skip evs till we get a ntUp in p-1
             if (ENTUP (& e [p])) {
@@ -110,7 +110,7 @@ ubyt4 Song::SilPrv (ubyt4 tm)
    while (got);
 
    if (tm == t1) {                     // was in silence already - get 1st NtDn
-      for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))
          for (e = _f.trk [t].e, p = 0;  p < _f.trk [t].ne;  p++)
             if (ENTDN (& e [p]) && (e [p].time >= tm))     // t1 has min so far
                {if (e [p].time <= t1) t1 = e [p].time;   break;}
@@ -135,7 +135,7 @@ ubyt4 Song::SilNxt (ubyt4 tm)
                         t1 = tm;
 // keep checkin for ? notes coverin tm n get new max;  check THAT2
    do
-      for (got = false, t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))
+      for (got = false, t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))
          for (e = _f.trk [t].e, ne = _f.trk [t].ne, p = 0;  p < ne;  p++)
             if (ENTDN (& e [p])) {  // skip evs till we get a ntDn
                if (e [p].time > tm)  break;   // end of the line for this trk
@@ -145,7 +145,7 @@ ubyt4 Song::SilNxt (ubyt4 tm)
    while (got);
 
    if (tm == t1) {                     // was in silence already - get end NtUp
-      for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))
          for (e = _f.trk [t].e, p = _f.trk [t].ne;  p;) {
             p--;
             if (ENTUP (& e [p]) && (e [p].time <= tm))     // t1 has max so far
@@ -217,14 +217,14 @@ TRC("CtlClean end");
 }
 
 
-ubyte Song::CCUpd (char *cSt, ubyte t)
+ubyte Song::CCUpd (char *cSt)
 // got a rec ev w cSt so ( without doin a full ReEv() )
 // lookup _f.ctl pos given ccStr,t;  update _f.ctl,dvt.CCMap,_cch if needed
 { ubyte c, cc;
   ubyt2 ch;
    for (c = 0;  c < _f.ctl.Ln;  c++)  if (! StrCm (_f.ctl [c].s, cSt))  break;
    if (c >= _f.ctl.Ln) {
-TRC("CCUpd  new! cSt=`s t=`d => c=`d", cSt, t, c);
+TRC("CCUpd  new! cSt=`s => c=`d", cSt, c);
       if (_f.ctl.Full ()) {
          StrCp (cSt, CC("."));
 TRC("   out of _f.ctl spots :(");
@@ -239,6 +239,7 @@ TRC("   out of _f.ctl spots :(");
    cc = 0x80 | c;
 
 // ins into _cch[] if dev/chn/ctl is new
+/*TODO RETHINK
    for (ch = 0;  ch < _cch.Ln;  ch++)
       if ( (_cch [ch].dev == _f.trk [t].dev) &&
            (_cch [ch].chn == _f.trk [t].chn) &&
@@ -247,6 +248,7 @@ TRC("   out of _f.ctl spots :(");
       _cch.Ins ();                      _cch [ch].dev = _f.trk [t].dev;
       _cch [ch].chn = _f.trk [t].chn;   _cch [ch].ctl = cc;
    }
+*/
    return cc;
 }
 
@@ -296,7 +298,7 @@ void Song::EvInsT (ubyte t, TrkEv *ev)
    }
    if (EvIns (t, p)) {
       MemCp (& e [p], ev, sizeof (TrkEv));
-      if ((t >= Up.rTrk) && (! (ev->ctrl & 0x0080))) {
+      if ((t >= _f.trk.Ln) && (! (ev->ctrl & 0x0080))) {
          if (ev->valu & 0x80)  {_f.trk [t].nn++;   _f.trk [t].nb++;}
          else                                      _f.trk [t].nb--;
 //DBG("EvInsT1 t=`d nn=`d nb=`d", t, _f.trk [t].nn, _f.trk [t].nb);
@@ -326,7 +328,7 @@ void Song::EvInsT (ubyte t, MidiEv *ev)
 //t, p, tne+1, TmSt (s, ev->time), _f.ctl [ev->ctrl & 0x007F].s, ev->valu);
       e [p].time = ev->time;   e [p].ctrl = (ubyte) ev->ctrl;
       e [p].valu = ev->valu;   e [p].val2 = ev->val2;   e [p].x = 0;
-      if ((t >= Up.rTrk) && (! (ev->ctrl & 0x0080))) {
+      if ((t >= _f.trk.Ln) && (! (ev->ctrl & 0x0080))) {
          if (ev->valu & 0x80)  {_f.trk [t].nn++;   _f.trk [t].nb++;}
          else                                      _f.trk [t].nb--;
 //DBG("EvInsT2 t=`d nn=`d nb=`d", t, _f.trk [t].nn, _f.trk [t].nb);
@@ -465,8 +467,8 @@ DBG(" sNm=`s", sNm);
 
 // t1-t2 covers my group range...
    t1 = t2 = tr;
-   while (                     _f.trk [t1  ].grp)   t1--;
-   while ((t2+1 < Up.rTrk) && (_f.trk [t2+1].grp))  t2++;
+   while (                       _f.trk [t1  ].grp)   t1--;
+   while ((t2+1 < _f.trk.Ln) && (_f.trk [t2+1].grp))  t2++;
 DBG(" tr rng=`d - `d", t1, t2);
 
 // goin to ungrouped?  gotta scoot below old grp
@@ -485,7 +487,7 @@ DBG(" goin to ungrouped");
 
 // will old dev be gonzo?
    NotesOff ();
-   for (got = false, t = 0;  t < Up.rTrk;  t++)  if ((t < t1) || (t > t2))
+   for (got = false, t = 0;  t < _f.trk.Ln;  t++)  if ((t < t1) || (t > t2))
       if (oDv == _f.trk [t1].dev)  got = true;
    if (! got) {
 DBG(" shut old dev");
@@ -533,8 +535,8 @@ void Song::TrkSplt ()
 { ubyte t, t2;
   ubyt4 p, p2;
   TrkEv *e, ev;
-   for (t = 0;  t < Up.rTrk;  t++)  if ((! TDrm (t)) && TLrn (t))  break;
-   if (t >= Up.rTrk)  {Hey (CC("pick a learn track to split"));   return;}
+   for (t = 0;  t < _f.trk.Ln;  t++)  if ((! TDrm (t)) && TLrn (t))  break;
+   if (t >= _f.trk.Ln)  {Hey (CC("pick a learn track to split"));   return;}
 
 // insert new 3LH in t+1 and setup all the track junk
    if (TrkIns (t2 = t+1, CC(""), NULL) == MAX_TRK)
@@ -565,16 +567,16 @@ void Song::TrkDel (ubyte t)
 { ubyte e;
   ubyt4 i;
   bool  got;
-   if (t >= Up.rTrk)  return;          // can't :/
+   if (t >= _f.trk.Ln)  return;        // can't :/
 TRC("TrkDel t=`d", t);
    NotesOff ();
-   if (((ubyte)(t+1) < Up.rTrk) && _f.trk [t+1].grp && (! _f.trk [t].grp)) {
+   if (((ubyte)(t+1) < _f.trk.Ln) && _f.trk [t+1].grp && (! _f.trk [t].grp)) {
       _f.trk [t+1].grp = false;        // re-start group on next track down
       _f.trk [t+1].dev = _f.trk [t].dev;
       _f.trk [t+1].chn = _f.trk [t].chn;
    }
    EvDel (t, 0, _f.trk [t].ne);
-   for (got = false, e = 0;  e < Up.rTrk;  e++)
+   for (got = false, e = 0;  e < _f.trk.Ln;  e++)
       if ((e != t) && (_f.trk [e].dev == _f.trk [t].dev))
          {got = true;   break;}
    if (! got) {
@@ -585,9 +587,9 @@ TRC("TrkDel t=`d", t);
       ShutDev (_f.trk [t].dev);
    }
    _f.trk.Del (t);
-   if (t < Up.rTrk)         Up.rTrk--;      // adj all .trk refs
-   if (Up.eTrk >  t)        Up.eTrk--;
-   if (Up.eTrk >= Up.rTrk)  Up.eTrk--;
+   if (t < _f.trk.Ln)         _f.trk.Ln--;  // adj all .trk refs
+   if (Up.eTrk >  t)          Up.eTrk--;
+   if (Up.eTrk >= _f.trk.Ln)  Up.eTrk--;
 }
 
 
@@ -600,12 +602,12 @@ TRC("TrkIns t=`d/`d nm=`s sn=`s", t, _f.trk.Ln, name?name:"", snd?snd:"");
 
 // init most _f.trk fields to 0;  set .name, .e
    _f.trk.Ins (t);                     // MemSets _f.trk [t] to 0
-   if (t < Up.rTrk)  Up.rTrk++;
+   if (t < _f.trk.Ln)  _f.trk.Ln++;
    if (name)  StrCp (_f.trk [t].name, name);
    _f.trk [t].e   = t ? (_f.trk [t-1].e + _f.trk [t-1].ne) : _f.ev;
-   if (snd != nullptr)  
+   if (snd != nullptr)
       PickDev (t, *snd ? snd : CC("Piano/AcousticGrand"));
-   else if (t+1 < Up.rTrk) {
+   else if (t+1 < _f.trk.Ln) {
       _f.trk [t].dev = _f.trk [t+1].dev;   _f.trk [t].chn = _f.trk [t+1].chn;
       _f.trk [t].snd = _f.trk [t+1].snd;   _f.trk [t].drm = _f.trk [t+1].drm;
       _f.trk [t].vol = _f.trk [t+1].vol;   _f.trk [t].pan = _f.trk [t+1].pan;
@@ -717,7 +719,7 @@ DBG("cb=`s ce=`s cd=`s", TmSt(d1,cb), TmSt(d2,ce), TmSt(d3,cd));
    }
    else if (op == 'd') {
       if (t == tb) {                   // no group or top trk of grp
-         if (te == Up.rTrk-1)  {Hey (CC("already at the bottom"));   return;}
+         if (te == _f.trk.Ln-1)  {Hey (CC("already at the bottom"));   return;}
          dtr = te+1;   ntr = 1;
          while (((ubyt4)(dtr+ntr) < _f.trk.Ln) && _f.trk [dtr+ntr].grp)  ntr++;
          MemCp (tr,                & _f.trk [dtr], sizeof (TrkRow) * ntr);
@@ -726,7 +728,7 @@ DBG("cb=`s ce=`s cd=`s", TmSt(d1,cb), TmSt(d2,ce), TmSt(d3,cd));
          Up.eTrk += ntr;
       }
       else {                           // w/in a group - scoot 1: t<=>t+1
-         if (t  == Up.rTrk-1)  {Hey (CC("already at the bottom"));   return;}
+         if (t  == _f.trk.Ln-1)  {Hey (CC("already at the bottom"));   return;}
          MemCp (tr,             & _f.trk [t+1], sizeof (TrkRow));
          MemCp (& _f.trk [t+1], & _f.trk [t],   sizeof (TrkRow));
          MemCp (& _f.trk [t],   tr,             sizeof (TrkRow));

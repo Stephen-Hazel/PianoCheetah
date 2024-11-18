@@ -41,21 +41,20 @@ TRC("Wipe");
 TRC(" a");
    Save ('a');
    *_f.fn = '\0';
-TRC(" b");
+TRC(" shut dev");
    for (ubyte d = 0;  d < Up.dev.Ln;  d++)  ShutDev (d);
    Up.dev.Ln = 0;                      // should already be 0 after Shuts
-   _prac = false;   _onBt = false;   Up.ez = false;
    _pNow = _rNow = _now = 0;
-TRC(" c");
-   _f.ctl.Ln = _f.trk.Ln = 0;   Up.rTrk = Up.eTrk = 0;
+TRC(" del ctl");
+   _f.ctl.Ln = _f.trk.Ln = 0;   Up.eTrk = 0;
    _f.lyr.Ln = _f.cue.Ln = _f.chd.Ln = _f.bug.Ln = 0;
    _pLyr = _pChd = 0;   _hLyr = 2;
-TRC(" d");
+TRC(" del ev,nt");
+   _recM.Ln = _recD.Ln = 0;
    if (_f.ev)  delete [] _f.ev;
-   _f.nEv = 0;   _f.ev = new TrkEv [_f.maxEv = MAX_RCRD];
+   _f.nEv = _f.maxEv = 0;   _f.ev = nullptr;
    if (_nt)  delete [] _nt;   _nt = nullptr;
-TRC(" e");
-   if (_f.ev == nullptr)  Die (CC("couldn't alloc recording events"));
+TRC(" del sym");
    _cDo.Ln = _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = _f.tpo.Ln = 0;
    *_f.dsc = '\0';
    MemSet (& _lrn, 0, sizeof (_lrn));
@@ -71,17 +70,14 @@ TRC("Wipe end");
 }
 
 
+void Song::Info (char *msg)
+{           TRC("info=`s", msg);   StrCp (Up.hey, msg);   PutLy (); }
+
 void Song::Hey (char *msg)
-{
-TRC("hey=`s", msg);
-   StrCp (Up.hey, msg);   PutLy ();
-}
+{ BStr s;   TRC("hey=`s", msg);   emit sgUpd (StrFmt (s, "hey `s", msg)); }
 
 void Song::Die (char *msg)
-{ TStr s;
-DBG("die=`s", msg);
-   emit sgUpd (StrFmt (s, "die `s", msg));
-}
+{ BStr s;   DBG("die=`s", msg);   emit sgUpd (StrFmt (s, "die `s", msg)); }
 
 
 //______________________________________________________________________________
@@ -103,7 +99,7 @@ void Song::PutTs (ubyte n, ubyte d, ubyte sb)
 
 
 void Song::PutLy ()
-// sorry this code is terrible :(  but kinda necessary :/
+// terrible code alert :(
 // b is hilite start pos.  e is hilite OFF pos (not len)
 { ubyt4 ne, pos, p, b, e, pp, ps, ln, lc;
   char  buf [1000], *pc, nl = 0;
@@ -177,10 +173,9 @@ void Song::PutLy ()
 
 
 void Song::PutCC (ubyte t, TrkEv *e)
-{ ubyte c = e->ctrl & 0x7F, dv, ch, dL, cL = 128;
+{ ubyte c = e->ctrl & 0x7F, dv, ch;
   ubyt2 craw;
    dv = _f.trk[t].dev;   ch = _f.trk[t].chn;
-   if (t >= Up.rTrk)  RecDvCh (t, e, & dv, & ch, & dL, & cL);
 if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
               Up.dev [dv].mo->Name (), ch, TmSt (d2, _timer->Get ()));
               DumpEv (e, t, _f.trk [t].p, d1);}
@@ -190,71 +185,37 @@ if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
       PutTs (e->valu, 1 << (e->val2 & 0x0F), e->val2 >> 4);
    else if (! StrCm (_f.ctl [c].s, CC("KSig")))  ;    // just ignore fer now
    else if (! StrCm (_f.ctl [c].s, CC("Prog")))  SetChn (t);
-   else
-      if ((craw = Up.dvt [Up.dev [dv].dvt].CCMap [c])) {
-         if (ch != 128)  Up.dev [dv].mo->Put (ch, craw, e->valu, e->val2);
-         if (cL != 128)  Up.dev [dL].mo->Put (cL, craw, e->valu, e->val2);
-      }
+   else if ((craw = Up.dvt [Up.dev [dv].dvt].CCMap [c]))
+           Up.dev [dv].mo->Put (ch, craw, e->valu, e->val2);
 }
 
 
 void Song::PutNt (ubyte t, TrkEv *e, bool bg)
-{ ubyte ctrl = e->ctrl, valu = e->valu, i, dv, ch, dL, cL;
+{ ubyte ctrl = e->ctrl, valu = e->valu, i, dv, ch;
   ubyt4 v, d;
-//DBG("PutNt pDn=`d", _pDn);
+TRC("PutNt pDn=`d", _pDn);
    if (! TDrm (t))  ctrl += _f.tran;   // got some live transposin?
-// adjust velo if bg trk, learn mode n ntDn
-   if (bg && (PRAC || PLAY) && ENTDN (e)) {
-//DBG(" b");
-      if (Up.ez) {
-//DBG(" c");
-         for (v = d = i = 0;  i < 7;  i++)  if (_dn [_pDn].velo [i])
-            {v += _dn [_pDn].velo [i];   d++;}
-//TStr d9;
-//DBG("   pDnTm=`s v=`d d=`d", TmSt (d9,_dn [_pDn].time), v, d);
-//TODO should i be setting e->valu ???
-         if (d)  valu = 0x80 | (v / d + (((v % d) >= (d / 2)) ? 1 : 0));
-//TRC("   ezbg valu=128+`d", valu & 0x7F);
-      }
-      else {
-//DBG(" d");
-         if (_lrn.veloRec && _lrn.veloSng) {
-            if      (_lrn.veloRec > _lrn.veloSng) {
-               v =  (_lrn.veloRec - _lrn.veloSng) * (128 - (valu & 0x7F));
-               d = 128 - _lrn.veloSng;
-               if ((v % d) < (d/2)) v /= d;   else {v /= d;  v++;}
-               v = (valu & 0x7F) + v;
-            }
-            else if (_lrn.veloRec < _lrn.veloSng) {
-               v =  (_lrn.veloSng - _lrn.veloRec) *        (valu & 0x7F);
-               d =       _lrn.veloSng;
-               if ((v % d) < (d/2)) v /= d;   else {v /= d;  v++;}
-               v = (valu & 0x7F) - v;
-            }
-            else  v = valu & 0x7F;     // do nothin if exactly =
-//TRC("   bg valu=`d vRec=`d vSng=`d v=`d",
-//valu&0x7F,_lrn.veloRec,_lrn.veloSng,v);
-            if (v < 1) v = 1;   if (v > 127) v = 127;
-            valu = 0x80 | (ubyte)v;
-         }
-      }
+
+// adjust velo of bg trk if learn mode n ntDn
+   if (   bg  && (RCRD) && ENTDN (e)) {
+TRC(" bg");
+      for (v = d = i = 0;  i < 7;  i++)  if (_dn [_pDn].velo [i])
+         {v += _dn [_pDn].velo [i];   d++;}
+TStr db;
+TRC(" pDnTm=`s v=`d d=`d", TmSt (db,_dn [_pDn].time), v, d);
+      if (d)  valu = 0x80 | (v / d + (((v % d) >= (d / 2)) ? 1:0));
    }
-//DBG(" e");
-   if ((! bg) && TLrn (t) && (! TDrm (t)) && Up.ez && ENTDN (e) && (! HEAR)) {
+   if ((! bg) && (RCRD) && ENTDN (e)) {
+TRC(" lrn");
      ubyte oct = _f.trk [t].ht - '1';
       valu = 0x80 | _dn [_pDn].velo [oct];
    }
-   if (t >= Up.rTrk)
-        {RecDvCh (t, e, & dv, & ch, & dL, & cL);
-         if ((cL != 128) && (e->val2 & 0x40))  {dv = dL;   ch = cL;}}
-   else {dv = _f.trk [t].dev;   ch = _f.trk [t].chn;}
-//DBG(" f");
+   dv = _f.trk [t].dev;   ch = _f.trk [t].chn;
+if (App.trc) {TStr d1,d2;
+StrFmt (d1, "PutNt `s.`d velo=`d", Up.dev [dv].mo->Name (), ch+1, valu&0x7F);
+DumpEv (e, t, _f.trk [t].p, d1);
+DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));}
 
-//if (App.trc) {TStr d1,d2;
-//StrFmt (d1, "PutNt `s.`d velo=`d", Up.dev [dv].mo->Name (), ch+1, valu&0x7F);
-//DumpEv (e, t, _f.trk [t].p, d1);
-//DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));
-//}
    Up.dev [dv].mo->Put (ch, ctrl, valu, e->val2);
 }
 
@@ -264,16 +225,17 @@ void Song::Put ()                      // PianoCheetah's heartbeat
 // writes current slice of song (.p .. songtime) to midiouts;  updates screen
 // sets when timer next wakes us up
 { ubyte t, c, dr;
-  bool  lrn, drm, doPoz = false, draw = false;
+  bool  doPoz = false, draw = false;
   ubyt4 tL8r, tL8r2, p, ne, tm, tend;
   TStr  bar, d1, d2;
   TrkEv *e;
-   if (_lrn.POZ || Up.uPoz)  {TRC("Put (naw cuz pozd)");      return;}
+  static bool onBt = true;
+   if (_lrn.POZ || Up.uPoz)  {TRC("Put (naw cuz pozd)");   return;}
                                        // paused or empty?  vamoose...
    if (! _f.got) {
       TmStr (bar, _now, & tL8r);   _timer->SetSig (_now = tL8r);
       StrCp (Up.time, bar);   emit sgUpd ("time");
-                              TRC("Put (naw cuz no song)");   return;
+TRC("Put (naw cuz no song)");   return;
    }
 TRC("Put");
    tend = Bar2Tm (_bEnd+1);            // just listenin? : _tEnd;
@@ -288,7 +250,7 @@ TRC(" end o song");
 
    // get bar.beat str for now n tL8r (default to wakeup on next subbeat)
       TmStr (bar, _now, & tL8r);
-      if (_onBt) {                     // on beat|64th, update time ctrl
+      if (onBt) {                      // on beat|64th, update time ctrl
 TRC(" beat");
          StrFmt (Up.time, "`s`s", _timer->Pause () ? "X" : "", bar);
          emit sgUpd ("time");          // draw bar.beat
@@ -299,11 +261,10 @@ TRC(" bar");                           // on bar (beat 1) => bar# to clipbd?
          }
       }
 
-      _onBt = true;
-
-   // wakeup on fractional beats
+   // wakeup on fractional beats?
       tL8r2 = (_now / LRN_BT) * LRN_BT + LRN_BT;
-      if (tL8r2 < tL8r)  {draw = true;   _onBt = false;   tL8r = tL8r2;}
+      onBt  = true;
+      if (tL8r2 < tL8r)  {draw = true;   onBt = false;   tL8r = tL8r2;}
 
    // hoppin from ] back to paired [ if prac or review of prac
       if ((PRAC || (_lrn.pLrn == LPRAC)) && _lrn.lpEnd &&
@@ -320,8 +281,8 @@ TRC("Put end - eoLoop b `s", LrnS ());
       while ((_pDn+1 < _dn.Ln) && (_now >= _dn [_pDn+1].time))  ++_pDn;
 
    // chek da poz !
-      if (PRAC || PLAY) {
-         if (_now == _dn [_pDn].time)  doPoz = (DnOK () != 'y');
+      if (RCRD) {
+         if (_now == _dn [_pDn].time)  doPoz = ! DnOK ();
          if (_pag.Ln)  draw = true;    // ^ check if we gots ta poz
 
          if (doPoz && (! _lrn.POZ)) {
@@ -329,11 +290,8 @@ TStr t1,t2,t3;
 TRC("   POZ=Y!  _pDn=`d dn.tm=`s _now=`s tmr=`s ms=`d",
 _pDn, TmSt(t1,_dn[_pDn].time), TmSt(t2,_now), TmSt(t3,_timer->Get ()),
 _timer->MS ());
-         // for notes, set bit 7 flag for only notetype (dn/up) to rec w/in poz
-            MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
-            for (dr = 0;  dr < 2;  dr++)  for (c = 0;  c < 128;  c++)
-               if (! _lrn.rec [dr][c].tm)  _lrn.toRec [dr][c] = 0x0080;
             _lrn.POZ = true;
+            MemCp (_lrn.prec, _lrn.rec, sizeof (_lrn.rec));
             _timer->Set (_now);
             Poz (true, 500);           // GUI shows paused, shush after 1/2 sec
             if (draw)  Draw ();
@@ -342,38 +300,25 @@ TRC("Put end - due to poz");
          }
       }
 
-   // plow thru only rec n lrn trks from .p to _now and dump stuff to midiout
-   // no shh,bg tracks till next loop
-TRC(" trk lrn,rec loop:");
-      for (t = 0;  t < _f.trk.Ln;  t++) {
-         lrn = TLrn (t);   if ((! lrn) && (t < Up.rTrk))  continue;
-                                       // lrn==true for lrn trk, false for rec
-         drm = TDrm (t);
-//TRC("  t=`d lrn=`b drm=`b Up.lrn=`s Up.ez=`b", t, lrn, drm, LrnS(), Up.ez);
+   // plow thru only lrn trks from .p to _now and dump stuff to midiout
+   // no bg tracks till next loop
+TRC(" trk lrn loop:");
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t)) {
+TRC("  t=`d Up.lrn=`s", t, LrnS());
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
-            if (ECTRL (& e [p]))       // ctrl:  if rec or ez or hear
-               {if ((! lrn) || Up.ez || HEAR)
-                                           PutCC (t, & e [p]);}
-            else if (! lrn)            // note-rec: off if ez n melo
-               {if (! (Up.ez && (! drm)))  PutNt (t, & e [p]);}
-            else {                     // note-lrn: put n mark for hear/prac
-               if (HEAR || (Up.ez && (! drm)))
-                                           PutNt (t, & e [p]);
-               else if (! drm)  _lrn.nt [e [p].ctrl] = e [p].valu;
-            }
+            if (ECTRL (& e [p]))  PutCC (t, & e [p]);
+            else                  PutNt (t, & e [p]);
          }
          _f.trk [t].p = p;
          if (p < ne)
-            {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   _onBt = false;}}
+            {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   onBt = false;}}
       }
 
    // plow thru bg tracks from .p to _now and dump stuff to midiout
 TRC(" trk non - lrn,rec loop:");
      bool hLrnX = HEAR && (_lrn.pLrn == LPRAC);
-      for (t = 0;  t < Up.rTrk;  t++) {
-         if (TLrn (t))  continue;      // already did
-
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (! TLrn (t)) {
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
          // ctrls ALWAYS go out
@@ -384,7 +329,7 @@ TRC(" trk non - lrn,rec loop:");
          }
          _f.trk [t].p = p;
          if (p < ne)
-            {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   _onBt = false;}}
+            {if ((tm = e [p].time) < tL8r)  {tL8r = tm;   onBt = false;}}
       }
 
    // now plow thru lyrics
@@ -394,7 +339,7 @@ TRC(" trk non - lrn,rec loop:");
             _pLyr = p;   PutLy ();
             if (p < ne)
                {if ((tm = _f.lyr [p].time) < tL8r)
-                   {tL8r = tm;   _onBt = false;}}
+                   {tL8r = tm;   onBt = false;}}
          }
       }
 

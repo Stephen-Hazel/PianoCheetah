@@ -25,8 +25,6 @@ UCmdDef UCmd [] = {
    {"recSave",   "4d",  "s",  "recording",  "save recording"},
    {"recWipe",   "4d#", "w",  "",           "wipe ALL (CAREFUL)"},
    {"learn",     "4e",  "l",  "learn mode", "learn: hear=>play=>practice=>"},
-   {"ez",        "4f",  "e",  "ez mode",    "(toggle)"},
-   {"hand",      "4f#", "h",  "",           "hand: practice LH=>RH=>HT=>"},
    {"color",     "4g",  "c",  "",           "color: scale=>velocity=>track=>"},
    {"hearLoop",  "4g#", "/",  "loop",       "Hear loop notes to learn"},
    {"hearRec",   "4a",  ".",  "",           "Hear your recording"}
@@ -62,11 +60,9 @@ DBG("Cmd='`s'", c);
       case 18:  RecWipe ();  break;         // recWipe
 
       case 19:  EdLrn  (0);  break;         // learn
-      case 20:  EdLrn  (1);  break;         // ez
-      case 21:  EdLrn  (2);  break;         // hand
-      case 22:  EdLrn  (3);  break;         // color
-      case 23:  EdLrn  (4);  break;         // hearLoop
-      case 24:  EdLrn  (5);  break;         // hearRec
+      case 20:  EdLrn  (3);  break;         // color
+      case 21:  EdLrn  (4);  break;         // hearLoop
+      case 22:  EdLrn  (5);  break;         // hearRec
    }
    else if (! StrCm (c, CC("init")))      Init ();
    else if (! StrCm (c, CC("quit")))      Quit ();
@@ -76,25 +72,10 @@ DBG("Cmd='`s'", c);
    else if (! StrCm (c, CC("prac")))      EdLrn (7);
    else if (! StrCm (c, CC("dump")))      Dump (true);
    else if (! StrCm (c, CC("quan")))      {SetDn ('q');   ReDo ();}
+   else if (! StrCm (c, CC("showAll")))   ShowAll ();
    else if (! MemCm (c, CC("tran "), 5))
-      {NotesOff ();   _f.tran  = (sbyte) Str2Int (& c [5]);       DscSave ();}
-   else if (! StrCm (c, CC("showAll"))) {
-     bool  dr, all = true;             // drums or melo, all shown now?
-     ubyte t, nt = Up.rTrk;
-      dr = TDrm (Up.eTrk);
-      for (t = 0;  t < nt;  t++)  if (! _f.trk [t].lrn) {
-         if (dr)  {if (  TDrm (t))  if (_f.trk [t].ht != 'S')
-                                       {all = false;   break;}}
-         else      if (! TDrm (t))  if (_f.trk [t].ht != 'S')
-                                       {all = false;   break;}
-      }
-      for (t = 0;  t < nt;  t++)  if (! _f.trk [t].lrn) {
-         if (dr)  {if (  TDrm (t))  _f.trk [t].ht = all ? '\0' : 'S';}
-         else      if (! TDrm (t))  _f.trk [t].ht = all ? '\0' : 'S';
-      }
-      ReDo ();
-   }
-   else if (! MemCm (c, CC("htype "), 6))  HType  (& c [6]);
+      {NotesOff ();   _f.tran  = (sbyte) Str2Int (& c [5]);   DscSave ();}
+   else if (! MemCm (c, CC("htype "), 6))  HType  (  c [6]);
    else if (! MemCm (c, CC("trk "),   4))
                             {StrCp (_f.trk [Up.eTrk].name, & c [4]);   ReDo ();}
    else if (! MemCm (c, CC("grp "),   4))  NewGrp (& c [4]);
@@ -116,12 +97,11 @@ DBG("Cmd='`s'", c);
 
 //______________________________________________________________________________
 ubyte Song::ChkETrk ()                 // be sure _eTrk is still ok
-{  if (Up.eTrk >= Up.rTrk) Up.eTrk = (ubyte)(Up.rTrk-1);   return Up.eTrk;  }
-
-void Song::RecWipe ()
-{  for (ubyte t = Up.rTrk;  t < _f.trk.Ln;  t++)  EvDel (t, 0, _f.trk [t].ne);
-   ReDo ();
+{  if (Up.eTrk >= _f.trk.Ln)  Up.eTrk = (ubyte)(_f.trk.Ln-1);
+   return Up.eTrk;
 }
+
+void Song::RecWipe ()  {_recM.Ln = _recD.Ln = 0;   ReDo ();}
 
 
 //______________________________________________________________________________
@@ -169,8 +149,8 @@ void Song::EdTime (char ofs)           // edit song time
                                          bar += 8;  break;
    case 6:  if (! PRAC) {              // timeBug
               ubyte t;                 // if no lrn, show message
-               for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))  break;
-               if (t >= Up.rTrk)  {Cmd ("learn");   return;}
+               for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))  break;
+               if (t >= _f.trk.Ln)  {Cmd ("learn");   return;}
 
                Up.lrn = LPRAC;
             }
@@ -221,12 +201,11 @@ ofs, _f.tmpo, FIX1, tt, tp);
 
 //______________________________________________________________________________
 void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
-// 0=learn  1=hand  2=color  3=hearLoop  4=hearRec  5=shh  6=prac
 { ubyte e = ChkETrk (), t;
   char  c;
    if      (ofs == 0) {                // learn - toggle _f.lrn
-      for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))  break;
-      if (t >= Up.rTrk) {
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))  break;
+      if (t >= _f.trk.Ln) {
          Up.lrn = LHEAR;
          Hey (CC("First, pick track(s) to practice - "
                  "click left track icon into a green arrow (practice track)"));
@@ -240,21 +219,6 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       if (PRAC)  {Cmd ("recWipe");   Cmd ("timeBar1");}
       return;
    }
-   else if (ofs == 1)  Up.ez = ! Up.ez;     // ez - toggle
-   else if (ofs == 2) {                // hand type - ? LH,RH,'';  \0 show,''
-      if (! _lrn.hand)
-         {Hey (CC("click tracks' 2nd square into RH,LH"));   return;}
-      if (Up.ez)
-         {Hey (CC("click tracks' 2nd square into RH,LH"));   return;}
-      if      (_lrn.hand == 'B')  c = 'r';       // bump to next b=>r=>l=>b...
-      else if (_lrn.hand == 'R')  c = 'l';
-      else                        c = 'b';
-   // set any non rec *H tracks' .lrn to ? or \0
-      for (t = 0;  t < Up.rTrk;  t++) {
-         if (_f.trk [t].ht == 'L')  _f.trk [t].lrn = ((c == 'l') || (c == 'b'));
-         if (_f.trk [t].ht == 'R')  _f.trk [t].lrn = ((c == 'r') || (c == 'b'));
-      }
-   }
    else if (ofs == 3) {                // color
       if (++Cfg.ntCo == 3)  Cfg.ntCo = 0;   Cfg.Save ();
      TStr s;
@@ -264,11 +228,9 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
          case 1:  StrAp (s, CC("velocity"));   break;
          default: StrAp (s, CC("track"));
       }
-      Hey (s);
+      Info (s);
    }
    else if (ofs == 4) {                // hearLoop (lrn not rec)
-//    if (! PRAC)
-//       {Hey (CC("you need to be in practice mode to hear a loop"));   return;}
       t = Up.lrn;   Cmd ("recWipe");   Cmd ("timeBar1");
       Up.lrn = LHEAR;   _lrn.pLrn = t;   emit sgUpd ("tbLrn");
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
@@ -280,17 +242,19 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       if (_lrn.POZ)  {_lrn.POZ = false;   Poz (false);}
       return;
    }
-   else if (ofs == 6) {                // flip shh (reset lrn,ht on shh true)
+   else if (ofs == 6) {                // flip shh (reset lrn)
       _f.trk [e].lrn = false;
-      _f.trk [e].ht  = '\0';
       _f.trk [e].shh = ! _f.trk [e].shh;
    }
-   else if (ofs == 7) {                // flip lrn  (force oct/ht if lrn on)
+   else if (ofs == 7) {                // flip lrn (force ht/oct if lrn on)
       _f.trk [e].shh = false;
-      _f.trk [e].ht  = '\0';
       if ((_f.trk [e].lrn = ! _f.trk [e].lrn)) {
          c = _f.trk [e].ht;
-         if (! ((c >= '1') && (c <= '7')))  _f.trk [e].ht = '4';
+         if ((c < '1') || (c > '7')) {
+            for (t = 0;  t < _f.trk.Ln;  t++)
+               if ((t != e) && (_f.trk [t].ht == '4'))  break;
+            _f.trk [e].ht = (t < _f.trk.Ln) ? '3' : '4';
+         }
       }
    }
    ReDo ();
@@ -298,15 +262,31 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
 
 
 //______________________________________________________________________________
-void Song::HType (char *s)             // \0=HT,RH,LH,x=flip S
+void Song::HType (char c)              // \0=bg,1..7=lrn,x=flip Show
 { ubyte e = ChkETrk ();
-  char  c;
-DBG("HType `s t=`d", s, e);
-   c = *s;
-   if      (c == 'x')                       // flip show
+TRC("HType `c t=`d", c, e);
+   if      (c == 'x')                  // flip show
       c = (_f.trk [e].ht == 'S') ? '\0' : 'S';
-   else if (! ((c >= '1') && (c <= '7')))   // non 1..7
+   else if ((c < '1') || (c > '7'))    // non 1..7 => \0
       c = '\0';
    _f.trk [e].ht = c;
+   ReDo ();
+}
+
+
+void Song::ShowAll ()
+{ bool  dr, all = true;             // drums or melo, all shown now?
+  ubyte t, nt = _f.trk.Ln;
+   dr = TDrm (Up.eTrk);
+   for (t = 0;  t < nt;  t++)  if (! _f.trk [t].lrn) {
+      if (dr)  {if (  TDrm (t))  if (_f.trk [t].ht != 'S')
+                                    {all = false;   break;}}
+      else      if (! TDrm (t))  if (_f.trk [t].ht != 'S')
+                                    {all = false;   break;}
+   }
+   for (t = 0;  t < nt;  t++)  if (! _f.trk [t].lrn) {
+      if (dr)  {if (  TDrm (t))  _f.trk [t].ht = all ? '\0' : 'S';}
+      else      if (! TDrm (t))  _f.trk [t].ht = all ? '\0' : 'S';
+   }
    ReDo ();
 }

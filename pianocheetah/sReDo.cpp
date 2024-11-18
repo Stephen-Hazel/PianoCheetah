@@ -14,16 +14,22 @@ void Song::ReTrk ()
   TStr  s, g;
   char *sl, *c;
    Up.trk.Ln = 0;
-   for (r = 0;  r < Up.rTrk;  r++) {
+   for (r = 0;  r < _f.trk.Ln;  r++) {
       Up.trk.Ins (r);
       Up.trk [r].dvt = Up.dev [_f.trk [r].dev].dvt;
       Up.trk [r].drm = TDrm (r);
       StrCp (Up.trk [r].lrn, _f.trk [r].shh ? CC("mute")
                           : (_f.trk [r].lrn ? CC("lrn") : CC("")));
-      *s = _f.trk [r].ht;   s [1] = '\0';
-      if (*s && (*s != 'S')) {
-         s [1] = *s;   *s = '*';       // un-icon it
-         StrCp (& s [2], CC((s [1] < '4') ? "LH" : "RH"));
+      *s = _f.trk [r].ht;
+      if (_f.trk [r].lrn) {
+         if ((*s >= '1') && (*s <= '7')) {
+            s[1] = *s;   *s = '*';     // un-icon it
+            StrCp (& s [2], CC((s [1] < '4') ? "LH" : "RH"));
+         }
+         else  *s = '\0';
+      }
+      else {
+         if (*s == 'S') s [1] = '\0';   else *s = '\0';
       }
       StrCp (Up.trk [r].ht, s);
       StrCp (Up.trk [r].name, _f.trk [r].name);
@@ -72,7 +78,7 @@ TRC("ReEv  rebuild _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch");
    CtlClean ();
    _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = 0;
    if (tpo)  _f.tpo.Ln = 0;
-   for (t = 0;  t < Up.rTrk;  t++) {
+   for (t = 0;  t < _f.trk.Ln;  t++) {
       for (d = _f.trk [t].dev, c = _f.trk [t].chn, ev = _f.trk [t].e,
            e = 0;  e < _f.trk [t].ne;  e++) {
          if ((tc = ev [e].ctrl) & 0x80) {
@@ -119,14 +125,14 @@ TRC(" sort tpo,tSig,kSig by time");
    Sort (_f.kSg.Ptr (), _f.kSg.Ln, _f.kSg.Siz (), SigCmp);
 TRC(" tpo.Ln=`d", _f.tpo.Ln);
    if (tpo && (! _f.tpo.Ln))           // every song needs tempo to keep edits
-      for (t = 0;  t < Up.rTrk;  t++)  if (TDrm (t)) {
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (TDrm (t)) {
 TRC("    empty so ins a 120");
          _f.tpo.Ins (0);
          _f.tpo [0].time = 0;
          _f.tpo [0].val  = 120;
          EvIns (t, 0);
          _f.trk [t].e [0].time = 0;
-         _f.trk [t].e [0].ctrl = CCUpd (CC("tmpo"), t);
+         _f.trk [t].e [0].ctrl = CCUpd (CC("tmpo"));
          _f.trk [t].e [0].valu = 120;
          _f.trk [t].e [0].val2 = 0;
          _f.trk [t].e [0].x    = 0;
@@ -163,8 +169,8 @@ TRC("ReEv end mint=`d", mint);
 
 
 //______________________________________________________________________________
-void Song::SetDn (char qu)             // DlgCfg quantize button ONLY allows it
-// calc notesets (by time, all the ntDns across tracks)   trk.e[] => _dn[]
+void Song::SetDn (char qu)             // qu from DlgCfg quantize button ONLY
+// calc notesets by time - all ntDns across lrn tracks => _dn[]
 { ubyte t, c, d, nn, x, pf, nt, nmin, nmax, pnt, f;
   ubyt2                         nsum, ntr,  pntr;
   ubyt4 p, q, tpos [128], tm, ptm, dp, w;
@@ -182,7 +188,7 @@ TRC("SetDn qu=`c", qu);
    for (got = true;  got;) {
       got = false;
    // get tm - min time of a NtDn across all ? trks
-      for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t))
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))
          for (p = tpos [t], e = _f.trk [t].e, ne = _f.trk [t].ne;  p < ne;  p++)
             if (ENTDN (& e [p])) {
                if      (! got)           {tm = e [p].time;   got = true;}
@@ -192,7 +198,7 @@ TRC("SetDn qu=`c", qu);
       if (got) {
       // build on[] noteset from noteDn evs @ 1st time
          MemSet (on, 0, sizeof (on));  // start fresh - notes all off
-         for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t)) {
+         for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t)) {
             if (qu == 'q') {           // ARE mini quantizing to 64th note
                for (p = tpos [t], e = _f.trk [t].e, ne = _f.trk [t].ne;
                     (p < ne) && (e [p].time < tm + 7);  p++)    // bouta 128th
@@ -251,8 +257,8 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
       }
    }
 
-// ez - max o one note o five per dn time
-   if (Up.ez)  for (t = 0;  t < Up.rTrk;  t++)  if (TLrn (t)) {
+// max o one note o five per dn time
+   for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t)) {
       k [0] = _f.trk [t].ht;   k [2] = '\0';     // oct
       ht = (*k < '4') ? 'L' : 'R';               // ht L/R
 
@@ -372,9 +378,9 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
 
 // re-sort (ta be safe) if quant happened
    if (didq) {
-      for (t = 0;  t < Up.rTrk;  t++)  if (qd [t])
+      for (t = 0;  t < _f.trk.Ln;  t++)  if (qd [t])
          Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
-//    for (ubyte tx = 0;  tx < Up.rTrk;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
+//    for (ubyte tx = 0;  tx < _f.trk.Ln;  tx++)  if (TLrn (tx))  DumpTrEv (tx);
    }
 TRC("SetDn end");
 }
@@ -510,11 +516,11 @@ TRC("SetNt");
    ne = 0;
 
 // will never use a full ne, but whatev
-   for (t = 0;  t < Up.rTrk;  t++)
+   for (t = 0;  t < _f.trk.Ln;  t++)
       {_f.trk [t].nn = _f.trk [t].nb = 0;   ne += _f.trk [t].ne;}
    _nt = new TrkNt [ne];   MemSet (_nt, 0, sizeof (TrkNt) * ne);
 
-   for (nn = 0, t = 0;  t < Up.rTrk;  t++) {
+   for (nn = 0, t = 0;  t < _f.trk.Ln;  t++) {
       _f.trk [t].n = & _nt [n1 = nn];
 //DBG("trk=`d nn=`d", t, nn);
       for (nt = 0;  nt < 128;  nt++)  ov [nt][0] = ov [nt][1] = NONE;
@@ -579,90 +585,6 @@ TmSt (s1, e [p].time), MKey2Str (s2, e [p].ctrl), t);
          }
       }
    }
-
-// ok, if both hands get LH max from lrn,ht=L trks to show split point btw LH,RH
-  ubyt4 m, m1, m2;
-  ubyte unt;
-  bool  un;
-//TStr  db1,db2,db3,db4,db5,db6,db7;
-   _lm.Ln = 1;   _lm [0].tm = 0;   _lm [0].nt = 0;
-   if (Up.ez || (_lrn.hand != 'B'))  _lm.Ln = 0;
-   else
-      for (t = 0;  t < Up.rTrk;  t++)
-         if (TLrn (t) && (_f.trk [t].ht < '4'))
-                                        for (n = 0;  n < _f.trk [t].nn;  n++) {
-     TrkNt *tn = & _f.trk [t].n [n];
-      if (tn->ov)  continue;           // underneath one takes care of me
-//DBG("nt=`s tm=`s te=`s",
-//MKey2Str(db1,tn->nt), TmSt(db2,tn->tm), TmSt(db3,tn->te));
-//DBG("{ _lm[] so far");
-//for (m = 0;  m < _lm.Ln;  m++)
-//DBG("_lm[`d].tm=`s nt=`s", m, TmSt(db1,_lm[m].tm), MKey2Str(db2,_lm[m].nt));
-//DBG("}");
-   // m2 = pos in _lm of max nt at or before tn->te
-      for (m = 0;  m < _lm.Ln;  m++)  {if (_lm [m].tm <= tn->te)  m2 = m;
-                                       else                       break;}
-      unt = _lm [m2].nt;   un = false;
-//DBG("  m2=`d uTm=`s uNt=`s", m2, TmSt(db2,_lm[m2].tm), MKey2Str(db1,unt));
-
-   // m1 = pos in _lm of where we ins/upd for ntDn
-      for (m = 0;  m < _lm.Ln;  m++)   if (_lm [m].tm >= tn->tm)  break;
-      m1 = m;
-//DBG("  m1=`d", m1);
-
-   // do 1st dn (if max-er)
-      if ((m1 >= _lm.Ln) || ((tn->tm != _lm [m1].tm) &&
-                             (tn->nt >  _lm [m1-1].nt))) {
-//DBG("  ins new max - m1=`d", m1);
-         _lm.Ins (m1);                 // ins max-er
-         _lm [m1].tm = tn->tm;         _lm [m1].nt = tn->nt;   un = true;
-      }                                // upd max-er
-      else if ((tn->nt > _lm [m1].nt) && (tn->te >= _lm [m1].tm))
-                                      {_lm [m1].nt = tn->nt;   un = true;}
-
-   // and on the way down to te, upd max nt if max
-      for (m = m1+1;  (m < _lm.Ln) && (_lm [m].tm < tn->te);  m++)
-         if (tn->nt > _lm [m].nt)     {_lm [m ].nt = tn->nt;   un = true;}
-// will need to RecDelhere sometimes when 2 same _lm in a row
-
-   // restore min nt at te
-      if (un) {
-         if ((m >= _lm.Ln) || (tn->te != _lm [m].tm)) {
-//DBG("  ins restore min - m=`d", m);
-            _lm.Ins (m);
-            _lm [m].tm = tn->te;   _lm [m].nt = unt;
-         }
-         else _lm [m].nt = unt;
-      }
-   }
-//DBG("_lm[] pre-smooth");
-//for (m = 0;  m < _lm.Ln;  m++)
-//DBG("_lm[`d].tm=`s nt=`s", m, TmSt(db1,_lm[m].tm), MKey2Str(db2,_lm[m].nt));
-// smooth it
-   for (m = 0;  m < _lm.Ln;) {
-      if ( (m+1 < _lm.Ln) && ((_lm [m+1].tm - _lm [m].tm) < (M_WHOLE/8)) &&
-           (_lm [m].nt == 0) )
-            _lm.Del (m);
-      else  m++;
-   }
-//DBG("_lm[] post-smooth");
-//for (m = 0;  m < _lm.Ln;  m++)
-//DBG("_lm[`d].tm=`s nt=`s", m, TmSt(db1,_lm[m].tm), MKey2Str(db2,_lm[m].nt));
-// DBG("tr# nt# note  dnTime upTime  dnVelo upVelo  dnEv upEv");
-// for (t = 0;  t < Up.rTrk;  t++)  for (n = 0;  n < _f.trk [t].nn;  n++) {
-//    StrCp (db4, "");   StrFmt (db5, "NONE");
-//    StrCp (db6, "");   StrFmt (db7, "NONE");
-//    if (_f.trk [t].n [n].dn != NONE)
-//       {StrFmt (db4, "`d", _f.trk [t].e [_f.trk [t].n [n].dn].valu & 0x7F);
-//        StrFmt (db6, "`d",               _f.trk [t].n [n].dn);}
-//    if (_f.trk [t].n [n].up != NONE)
-//       {StrFmt (db5, "`d", _f.trk [t].e [_f.trk [t].n [n].up].valu & 0x7F);
-//        StrFmt (db7, "`d",               _f.trk [t].n [n].up);}
-//    DBG("`d `d `s  `s `s  `s `s  `s `s",
-//         t, n, MKey2Str (db1, _f.trk [t].n [n].nt),
-//         TmSt (db2, _f.trk [t].n [n].tm), TmSt (db3, _f.trk [t].n [n].te),
-//         db4, db5, db6, db7);
-// }
 TRC("SetNt end");
 }
 
@@ -692,7 +614,7 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
 // mindur of fully contained notes (of shown tracks)
 // if doin subbt n NtDn in bar, set got[subbt]
    mt = true;   md = btdur;
-   for (t = 0;  t < Up.rTrk;  t++)  if (TSho (t))
+   for (t = 0;  t < _f.trk.Ln;  t++)  if (TSho (t))
       for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn;  p++)
          if ((n [p].tm >= tb) && (n [p].tm < te)) {
             if ((n [p].tm - tb) >= sbdur/2)  mt = false;   // NOPE !
@@ -838,17 +760,17 @@ TRC("_col full prob cuz w,h");
          }
          b++;                          // on to the next bar
 
-      // init width parts of col based on sym[]s we'll have, ez, n ntPoss
+      // init width parts of col based on sym[]s we'll have, n ntPoss
          nd = nMx = 0;   nMn = 127;
          tb = Bar2Tm (_blk [cb1].bar);   te = Bar2Tm (_blk [nb].bar+1);
 
-         for (t = 0;  t < Up.rTrk;  t++)  if (TSho (t)) {
+         for (t = 0;  t < _f.trk.Ln;  t++)  if (TSho (t)) {
             if      (TDrm (t)) {
                for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn;  p++)
                   if ((n [p].te >= tb) && (n [p].tm < te))
                      {dmap [nd++] = t;   break;}      // one'll do it
             }
-            else if (Up.ez) {
+            else if (RCRD) {
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
                   ntb = dr->time;
                   for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t)
@@ -890,7 +812,7 @@ TRC("_col full prob cuz w,h");
       // order by reversed track so lead overdraws bass,
       // white then black so black overdraws,etc
          dpos = nd;
-         for (t = (ubyte)Up.rTrk;  t--;)  if (TSho (t)) {
+         for (t = (ubyte)_f.trk.Ln;  t--;)  if (TSho (t)) {
             drm = TDrm (t);
             if (drm) {
                for (mt = true, td = 0;  td < nd;  td++) if (dmap [td] == t)
@@ -898,7 +820,7 @@ TRC("_col full prob cuz w,h");
                if (mt)  continue;      // empty of notes - neeext
                dpos--;                 // bump dpos
             }
-            if (Up.ez && (! drm)) {    // in ez, syms come from _dn notes
+            if (RCRD && (! drm)) {     // in ez, syms come from _dn notes
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
                   for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t) {
                      ntb = dr->time;
@@ -1081,24 +1003,11 @@ TRC("ReDo");
    NotesOff ();
    if ((! Up.uPoz) && _timer->Pause ())  Poz (false);
 TRC(" clear stuph");
-   MemSet (_lrn.rec,   0, sizeof (_lrn.rec));
-   MemSet (_lrn.toRec, 0, sizeof (_lrn.toRec));
-// where are our hands - always ht(\0) unless got BOTH r,l
-   for (_lrn.hand = ch = '\0', t = 0;  (ch != 'b') && (t < Up.rTrk);  t++) {
-      if (_f.trk [t].ht < '4')  ch = (ch == 'r') ? 'b' : 'l';
-      if (_f.trk [t].ht > '3')  ch = (ch == 'l') ? 'b' : 'r';
-   }                                   // set Cfg.hand based on what's ?d
-   if (ch == 'b')  for (t = 0;  (_lrn.hand != 'B') && (t < Up.rTrk);  t++)
-      if (TLrn (t)) {
-         if (_f.trk [t].ht < '4')  _lrn.hand = (_lrn.hand == 'R') ? 'B' : 'L';
-         if (_f.trk [t].ht > '3')  _lrn.hand = (_lrn.hand == 'L') ? 'B' : 'R';
-      }
+   MemSet (_lrn.rec, 0, sizeof (_lrn.rec));
    for (t = 0;  t < _f.ctl.Ln;  t++)   // show tempo ctl if we're in prac
-      if (! StrCm (_f.ctl [t].s, CC("Tmpo")))
-         _f.ctl [t].sho = (bool)(PRAC);
-TRC(" set icos  hand=`c", _lrn.hand);
-   emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");   emit sgUpd ("tbEZ");
+      if (! StrCm (_f.ctl [t].s, CC("Tmpo")))  _f.ctl [t].sho = (bool)(PRAC);
 TRC(" ReEv SetDn SetNt SetLp TmHop SetSym Draw ReTrk DscSave :/");
+   emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
    ReEv ();   SetDn ();   SetNt ();   SetLp ('.');   TmHop (_now);
    _pg = _tr = 0;   SetSym ();   Draw ('a');   ReTrk ();   DscSave ();
 TRC("ReDo end");

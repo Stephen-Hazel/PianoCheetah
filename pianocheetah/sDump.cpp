@@ -17,14 +17,6 @@ char *Song::LrnS ()
 }
 
 
-void DumpZ (char const *t, char *z)
-{ char *s;
-  ubyt2 c = 0;
-   DBG("`s", t);
-   for (s = z;  *s;  s = & s [StrLn (s)+1])  DBG("`d: `s", c++, s);
-}
-
-
 void Song::DumpEv (TrkEv *e, ubyte t, ubyt4 p, char *pre)
 { TStr  o, s, ts;
   ubyte v;
@@ -56,7 +48,7 @@ void Song::DumpTrEv (ubyte t)
 void Song::DumpDn ()
 { TStr d1;
   ulong p;
-   DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p  /  ezvelo");
+   DBG("_dn p tm msec tmpo tmpoAct  /  nt trk p  /  velo");
    for (p = 0;  p < _dn.Ln;  p++) {
       DBG("`d `s `d `d `d",
           p, TmSt (d1,_dn [p].time), _dn [p].msec, _dn [p].tmpo,
@@ -75,10 +67,12 @@ void Song::DumpDn ()
 
 
 void Song::DumpRec ()
-{  for (ubyte t = Up.rTrk;  t < _f.trk.Ln;  t++) {
-     TrkEv *ev = _f.trk [t].e;
-      for (ubyt4 e = 0;  e < _f.trk [t].ne;  e++, ev++)  DumpEv (ev, t, e);
-   }
+{ TrkEv *ev;
+  ubyt4  e;
+   for (e = 0, ev = & _recM [0];  e < _recM.Ln;  e++, ev++)
+      DumpEv (ev, (ubyte)98, e);
+   for (e = 0, ev = & _recD [0];  e < _recD.Ln;  e++, ev++)
+      DumpEv (ev, (ubyte)99, e);
 }
 
 
@@ -92,20 +86,20 @@ void Song::Dump (bool e2)
 DBG("DUMP");
    Sy.Dump ();
    DBG(
-      "bEnd=`d tEnd=`s rTrk=`d eTrk=`d eOn=`b pLyr=`d\n"
-      "onBt=`b now=`s pDn=`d/`s\n"
+      "bEnd=`d tEnd=`s tr.Ln=`d eTrk=`d eOn=`b pLyr=`d\n"
+      "now=`s pDn=`d/`s\n"
       "dn.Ln=`d nEv=`d maxEv=`d\n"
       "Cfg_cmdKey=`d ntCo=`d barCl=`b\n"
-      "SnF_tmpo=`d tran=`d `s ez=`b hand=`c\n"
+      "SnF_tmpo=`d tran=`d `s\n"
       "POZ=`b uPoz=`b\n"
-      "lrn: lpBgn=`s lpEnd=`s pg=`d veloSng=`d veloRec=`d",
-      _bEnd, TmSt(t1,_tEnd), Up.rTrk, Up.eTrk, _eOn, _pLyr,
-      _onBt, TmSt(t2,_now), _pDn, TmSt(t3,_dn[_pDn].time),
+      "lrn: lpBgn=`s lpEnd=`s pg=`d",
+      _bEnd, TmSt(t1,_tEnd), _f.trk.Ln, Up.eTrk, _eOn, _pLyr,
+      TmSt(t2,_now), _pDn, TmSt(t3,_dn[_pDn].time),
       _dn.Ln, _f.nEv, _f.maxEv,
       Cfg.cmdKey, Cfg.ntCo, Cfg.barCl,
-      _f.tmpo, _f.tran, LrnS (), Up.ez, _lrn.hand?_lrn.hand:' ',
+      _f.tmpo, _f.tran, LrnS (),
       _lrn.POZ, Up.uPoz,
-      TmSt(t1,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd), _pg, _lrn.veloSng, _lrn.veloRec
+      TmSt(t1,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd), _pg
    );
 
 /* DBG("mi name.type");
@@ -240,5 +234,6 @@ DBG("DUMP");
    }
 */
 //if (Sy != nullptr)  Sy->Dump ();
+   DumpRec ();
 DBG("DUMP end");
 }
