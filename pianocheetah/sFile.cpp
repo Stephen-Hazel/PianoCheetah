@@ -180,7 +180,6 @@ void Song::DscSave ()                  // put stats into _dsc
    if (_f.tpo.Ln > 3)  StrFmt (& tp [StrLn (tp)], "+`d", _f.tpo.Ln - 3);
    if (_f.tpo.Ln == 0) *tp = '\0';   else StrAp (tp, CC("\n"));
 /* loops  23  bug'd=13
-   fing   29
    cue    13 verse=2 chorus=3
    synth  syn rockin88 drum +2
           keys bass guit melo drum   keys: piano organ chromperc synlead
@@ -586,8 +585,6 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
          e2->ctrl = i;
          e2->valu = (ubyte)Str2Int (p, & p) | ((ud == '_') ? 0x80 : 0);
          e2->val2 = (ud == '~') ? 0x80 : 0;
-         if (*p == '@')  for (i = 0;  i < BITS (MFing);  i++)
-            if (! StrCm (MFing [i], p+1))  {e2->val2 = ++i;   break;}
       }
       e2++;
    }
@@ -862,8 +859,6 @@ DBG("fns=`s", fns);
                   TDrm (t) ? MDrm2Str (s2, c) : MKey2Str (s2, c),
                   EUP (& e [i]) ? '^' : (EDN (& e [i]) ? '_' : '~'),
                   e [i].valu & 0x7F);
-               if ((c = (e [i].val2 & 0x1F)))  {StrAp (s, CC("@"));
-                                                StrAp (s, MFing [c-1]);}
                f.Put (s);
                if ((oct < 99) && EDOWN (& e [i]))   e [i].valu = pv;
             }                                         // restore

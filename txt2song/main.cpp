@@ -94,7 +94,7 @@ char *DoNote (char *b, ubyte l)
 // handle each note in the cluster:
 //   check for velocity,  check fer DrumSym,  else do [Octave]Step[ShFlNat].
 //   save if non velocity.  eat spaces.
-{ char *p, shrp, fing [3];
+{ char *p, shrp;
   bool  got, nt;
   ubyte len, step, f, chd [4], nChd, i, rollOfs = 0;
    while (l && (*b == ' '))  {b++; l--;}
@@ -152,23 +152,6 @@ char *DoNote (char *b, ubyte l)
          E [NE+1].ctrl = step;  E [NE+1].valu =      Velo;  E [NE+1].val2 = 0;
          if (l && (*b == '!'))  {b++; l--;  E [NE+0].valu = 0xFF;
                                             E [NE+1].valu = 0x7F;}
-         if (l && (*b == '['))  {      // fingering
-            b++;  l--;  if (l == 0)    Die (CC("Missin fingering"));
-            fing[0] = *b;
-            b++;  l--;  if (l == 0)    Die (CC("Missin fingering"));
-            if (*b == ']')    fing[1] = '\0';
-            else {
-               fing[1] = *b;  fing[2] = '\0';
-               b++;  l--;
-               if ((l == 0) || (*b != ']'))
-                                       Die (CC("Missin ]"));
-            }
-            b++;  l--;
-            for (f = 0;  f < BITS (MFing);  f++)
-               if (StrCm (MFing [f], fing) == 0)  break;
-            if (f >= BITS (MFing))     Die (CC("Inval fingering"));
-            E [NE+0].val2 = f+1;
-         }
          NE += 2;
          if (l && (*b == '+')) {       // CHORD !
             b++;   l--;                // default to major, n setup for dom7
@@ -559,8 +542,6 @@ TRC("NSct=`d", NSct);
                                                     : MKey2Str (s, c),
                   (e->valu & 0x0080) ? ((e->val2 & 0x80) ? '~' : '_')
                                      : '^',  e->valu & 0x007F));
-               if ((c = (e->val2 & 0x1F)))
-                  f.Put (StrFmt (SB, "@`s", MFing [c-1]));
             }
             f.Put (CC("\n"));
          }

@@ -265,7 +265,7 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, CC("dTpo")))   _dTpo->Open ();
    if (! StrCm (u, CC("dTSg")))   _dTSg->Open ();
    if (! StrCm (u, CC("dKSg")))   _dKSg->Open ();
-   if (! StrCm (u, CC("dFng")))   _dFng->Open ();
+   if (! StrCm (u, CC("dQua")))   _dQua->Open ();
    if (! StrCm (u, CC("dMov")))   _dMov->Open ();
 
    if (! StrCm (u, CC("time"))) {
@@ -361,7 +361,7 @@ TRC("Init");
    _dFL  = nullptr;   _dCfg = nullptr;   _dTDr = nullptr;
    _dCue = nullptr;   _dChd = nullptr;   _dCtl = nullptr;
    _dTpo = nullptr;   _dTSg = nullptr;   _dKSg = nullptr;
-   _dFng = nullptr;   _dMov = nullptr;   _dHlp = nullptr;
+   _dQua = nullptr;   _dMov = nullptr;   _dHlp = nullptr;
 
    App.Path (fn, 'd');   StrAp (fn, CC("/device/device.txt"));
    if (! f.Size (fn))  return MCfg ();      // ain't no point in goin on
@@ -385,7 +385,6 @@ TRC(" song init");
    Up.cue   = new QPixmap (":/cue");
    Up.dot   = new QPixmap (":/dot");
    Up.fade  = new QPixmap (":/fade");
-   Up.fng   = new QPixmap (":/fng");
    Up.now   = new QPixmap (":/now");
    Up.oct   = new QPixmap (":/oct");
    Up.pnbg  = new QPixmap (":/pnbg");
@@ -540,7 +539,7 @@ TRC(" dlg init");
    _dTpo = new DlgTpo (this);   _dTpo->Init ();
    _dTSg = new DlgTSg (this);   _dTSg->Init ();
    _dKSg = new DlgKSg (this);   _dKSg->Init ();
-   _dFng = new DlgFng (this);   _dFng->Init ();
+   _dQua = new DlgQua (this);   _dQua->Init ();
    _dMov = new DlgMov (this);   _dMov->Init ();
    _dHlp = new DlgHlp (this);   _dHlp->Init ();
    connect (_dCfg, & DlgCfg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
@@ -550,7 +549,7 @@ TRC(" dlg init");
    connect (_dTpo, & DlgTpo::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dTSg, & DlgTSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dKSg, & DlgKSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
-   connect (_dFng, & DlgFng::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dQua, & DlgQua::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dFL,  & QDialog::accepted, this, & PCheetah::LoadGo);
    connect (_dFL,  & QDialog::rejected, this, & PCheetah::Quit);
    connect (_dCtl, & QDialog::accepted, this, [this]() {emit sgCmd ("ctl");});
@@ -581,11 +580,11 @@ TRC("  win,dlg save");
       _dFL->Quit ();    _dCfg->Quit ();   _dTDr->Quit ();
       _dCue->Quit ();   _dChd->Quit ();   _dCtl->Quit ();
       _dTpo->Quit ();   _dTSg->Quit ();   _dKSg->Quit ();
-      _dFng->Quit ();   _dMov->Quit ();   _dHlp->Quit ();
+      _dQua->Quit ();   _dMov->Quit ();   _dHlp->Quit ();
       delete _dFL;    delete _dCfg;   delete _dTDr;
       delete _dCue;   delete _dChd;   delete _dCtl;
       delete _dTpo;   delete _dTSg;   delete _dKSg;
-      delete _dFng;   delete _dMov;   delete _dHlp;
+      delete _dQua;   delete _dMov;   delete _dHlp;
    }
    if (_s != nullptr) {
 TRC("  thrEnd");

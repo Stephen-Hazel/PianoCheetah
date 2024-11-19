@@ -338,11 +338,6 @@ TRC("{ Song::BufTrk");
          PutStat (st|chn);
          PutByt (c);
          PutByt (e->valu & 0x7F);
-         if ((st == M_NOTE) && e->val2) {   // got fingering?
-            StrFmt (buf, "ditty_fing=`s,`s",
-                     MFing [e->val2-1], MKey2Str (ts, e->ctrl));
-            PutTime (tm);   PutMeta (0x7F, StrLn (buf));   PutStr (buf);
-         }
       }
       else {                           // gotta controller
          c &= 0x7F;

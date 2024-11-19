@@ -5,7 +5,6 @@
         <file>cue.png</file>
         <file>dot.png</file>
         <file>fade.png</file>
-        <file>fng.png</file>
         <file>now.png</file>       
         <file>oct.png</file>
         <file>pnbg.png</file>
@@ -58,15 +57,6 @@
         <file>tbar/cue/c3.png</file>
         <file>tbar/cue/c4.png</file>
         <file>tbar/cue/c5.png</file>
-        <file>tbar/fng/0.png</file>
-        <file>tbar/fng/1.png</file>
-        <file>tbar/fng/2.png</file>
-        <file>tbar/fng/l0.png</file>
-        <file>tbar/fng/l1.png</file>
-        <file>tbar/fng/l2.png</file>
-        <file>tbar/fng/l3.png</file>
-        <file>tbar/fng/l4.png</file>
-        <file>tbar/fng/l5.png</file>
         <file>tbar/chd/0.png</file>
         <file>tbar/chd/1.png</file>
         <file>tbar/chd/2.png</file>

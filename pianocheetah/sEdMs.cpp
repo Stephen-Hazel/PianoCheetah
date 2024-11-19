@@ -221,8 +221,8 @@ void Song::MsDn (Qt::MouseButton b, sbyt2 x, sbyt2 y)
                           Up.pos.y1 = it->y;        Up.pos.y2 = y;
       DragRc ();   return;
    }
-   if (Up.pos.at == 'f') {             // hop a note else fingering dlg
-      Up.pos.drg = 'n';
+   if (Up.pos.at == 'f') {             // hop a note else quant dlg
+      Up.pos.drg = 'n';                // (used to be fingering sigh)
       Up.pos.xp = x;   Up.pos.xo = x - (nx + it->x);
                        Up.pos.x1 = x - Up.pos.xo;
                        Up.pos.x2 = Up.pos.x1 + W_NT;
@@ -461,7 +461,7 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
    if (Up.pos.drg == 'n') {            // [n]oteHop
       Up.pos.x1 = x - Up.pos.xo;   Up.pos.y1 = y - Up.pos.yo;
       if (ABSL (x - Up.pos.xp) > DRAG)  NtHop ();
-      else             if (! RCRD)  PreFng ();
+      else             if (! RCRD)  PreQua ();
       if (! Up.pos.pPoz) Poz (false);
    }
 //DBG("MsUp end");

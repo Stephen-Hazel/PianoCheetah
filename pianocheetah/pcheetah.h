@@ -8,7 +8,7 @@
 #include "ui_dlgfl.h"
 #include "ui_dlgtdr.h"
 #include "ui_dlgcue.h"
-#include "ui_dlgfng.h"
+#include "ui_dlgqua.h"
 #include "ui_dlgchd.h"
 #include "ui_dlgctl.h"
 #include "ui_dlgtpo.h"
@@ -139,30 +139,30 @@ private:
 
 //______________________________________________________________________________
 QT_BEGIN_NAMESPACE
-namespace Ui { class DlgFng; }
+namespace Ui { class DlgQua; }
 QT_END_NAMESPACE
 
-class DlgFng: public QDialog {
+class DlgQua: public QDialog {
    Q_OBJECT
 
 public:
-   explicit DlgFng (QWidget *parent = nullptr)
+   explicit DlgQua (QWidget *parent = nullptr)
    : QDialog (parent)
-   {  ui = new Ui::DlgFng;   ui->setupUi (this);  }
-  ~DlgFng ()         {delete ui;}
+   {  ui = new Ui::DlgQua;   ui->setupUi (this);  }
+  ~DlgQua ()         {delete ui;}
 
    void Init (), Quit (), Open (), Shut ();
    void closeEvent (QCloseEvent *e)  {(void)e;   Shut ();}
 
 public slots:
-   void Set (ubyte f);
+   void Set (char f);
 
 signals:
    void sgCmd (char *s);
 
 private:
    TStr _s;
-   Ui::DlgFng *ui;
+   Ui::DlgQua *ui;
 };
 
 
@@ -375,7 +375,7 @@ private:
    DlgCfg      *_dCfg;
    DlgTDr      *_dTDr;
    DlgCue      *_dCue;
-   DlgFng      *_dFng;
+   DlgQua      *_dQua;
    DlgChd      *_dChd;
    DlgCtl      *_dCtl;
    DlgTpo      *_dTpo;

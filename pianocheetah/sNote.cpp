@@ -345,33 +345,6 @@ TRC("DrawRec all=`b pp=`d", all, pp);
 
 
 //------------------------------------------------------------------------------
-void Song::DrawFng (ubyt2 x, ubyt2 y, ubyte f, char tc)
-{ ubyt2 wc [11] = {14, 16, 16, 16, 15,   15, 15, 20, 20, 26, 11},
-           /* 0-13=14 14-29=16 30-45=16 46-61=16 62-76=15
-              77-91=15 92-106=15 107-126=20 127-146=20 147-172=26 173-183=11 */
-        o, w, o2, w2, h = Up.fng->height ();
-  ubyte i, e, e2;
-  Canvas *c;
-   c = (tc == 't') ? (& Up.tcnv) : (& Up.cnv);
-   y -= (h+1);
-   if      (f <=  5)  e = f - 1;
-   else if (f >= 26)  e = f - 26 + 5;
-   else {
-      e  = (f-6) / 4;
-      w  = wc [e];    for (o  = 0, i = 0;  i < e;   i++)  o  += wc [i];
-      e2 = (f-6) % 4;   if (e2 >= e)  e2++;
-      w2 = wc [e2];   for (o2 = 0, i = 0;  i < e2;  i++)  o2 += wc [i];
-      x -= ((w+w2)/2);
-//DBG("f=`d e=`d e2=`d", f, e, e2);
-      c->Blt (*Up.fng, x,   y,  o,  0, w,  h);
-      c->Blt (*Up.fng, x+w, y,  o2, 0, w2, h);
-      return;
-   }
-   w = wc [e];   for (o = 0, i = 0;  i < e;  i++)  o += wc [i];
-   x -= (w/2);   c->Blt (*Up.fng, x, y,  o, 0,  w, h);
-}
-
-
 void Song::DrawSym (SymDef *s, ColDef *co)
 // draw round rect w scale/velo color, fill with drum=blu,white/black + scc
 { ubyte tr, t, tc, key, ef, n;
@@ -429,9 +402,6 @@ void Song::DrawSym (SymDef *s, ColDef *co)
                  Up.cnv.RectF (x+2, y+h-1, w-4, 1, clr);             h -= 2;}
                  Up.cnv.RectF (x, y, w, h, clr);
    if (s->top) {y -= 2;  h += 2;}   if (s->bot) h += 2;    // put em back
-
-   if ((! RCRD) && (nt->dn != NONE) && (ef = trk->e [nt->dn].val2 & 0x1F))
-      DrawFng (x + w/2, y, ef);
 
    if (dr) {
       if (h != s->h) {                 // room for butt?

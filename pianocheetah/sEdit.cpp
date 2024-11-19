@@ -308,9 +308,9 @@ DBG("TxtIns tm=`s, s1=`s", TmSt(ts,tm), s1);
 
 
 //______________________________________________________________________________
-void Song::PreFng ()
+void Song::PreQua ()
 {
-DBG("PreFng");
+DBG("PreQua");
   PagDef *pg = & _pag [Up.pos.pg];
   ColDef  co;
    MemCp (& co, & pg->col [Up.pos.co], sizeof (co));  // load column
@@ -334,32 +334,30 @@ DBG("PreFng");
    tm = nt->tm;
    for (dp = 0;  dp < _dn.Ln;  dp++)  if (_dn [dp].time == tm)  break;
 
-// pass st, t, it->nt;  dlg sends on t,nt,fng
+// pass st, t, it->nt;  dlg sends on t,nt,qua
    StrCp (Up.pos.str, st);   Up.pos.tr = t;   Up.pos.p = it->nt;
    StrCp (Up.pos.stp, TmSt (s1,  dp           ? _dn [dp-1].time :  0));
    StrCp (Up.pos.stn, TmSt (s1, (dp+1<_dn.Ln) ? _dn [dp+1].time : tm));
-   emit sgUpd ("dFng");
+   emit sgUpd ("dQua");
 }
 
 
-void Song::Fng (char *tnf)           // set fingering, handswap, or del
-{ ubyte t, tc;
+void Song::Qua (char *tnq)             // set quantize
+{ ubyte t;
   ubyt4 n, p, ne;
-  ubyte f;
-  char *s, h;
-  bool  ok;
+  char *s, q;
   TrkNt *nt;
   TrkEv  dn, up, *e;
-DBG("Fng `s", tnf);
-   t  = (ubyte) Str2Int (tnf, & s);
+DBG("Qua `s", tnq);
+   t  = (ubyte) Str2Int (tnq, & s);
    n  =         Str2Int (s,   & s);
-   f  = (ubyte) Str2Int (s);
-DBG("Fng `d `d `d", t, n, f);
+   q  = s [1];
+DBG("Qua t=`d n=`d q=`c", t, n, q);
 //Dump (true);
    nt = & _f.trk [t].n [n];
    if (nt->dn != NONE)  MemCp (& dn, & _f.trk [t].e [nt->dn], sizeof (dn));
    if (nt->up != NONE)  MemCp (& up, & _f.trk [t].e [nt->up], sizeof (up));
-DBG("t=`d n=`d/`d f=`d dn=`d up=`d", t, n, _f.trk [t].nn, f, nt->dn, nt->up);
+DBG("t=`d n=`d/`d dn=`d up=`d", t, n, _f.trk [t].nn, nt->dn, nt->up);
    if (nt->dn == NONE) {
       MemCp (& dn, & up, sizeof (dn));   dn.time = (up.time >(M_WHOLE/32-1)) ?
                                                    (up.time -(M_WHOLE/32-1)):0;
@@ -371,60 +369,14 @@ TRC("made ntDn");
                                          up.valu = 64;
 TRC("made ntUp");
    }
-   if ((f == 95) || (f == 96)) {       // quantize prev/next
-      if ((p = nt->dn) == NONE) {
-         e = _f.trk [t].e;   ne = _f.trk [t].ne;
-         for (p = 0;  (p < ne) && (dn.time >= e [p].time);  p++)  ;
-         EvIns (t, p);   MemCp (& e [p], & dn, sizeof (dn));
-      }
-      _f.trk [t].e [p].time = Str2Tm ((f == 95) ? Up.pos.stp : Up.pos.stn);
-//TOOD check dur :/
-      ReDo ();
-      return;
-   }
-   if (f == 99) {                      // stomp every finger
-      for (t = 0;  t < _f.trk.Ln;  t++)
-         for (e = _f.trk [t].e, ne = _f.trk [t].ne, p = 0;  p < ne;  p++)
-            if (! (e [p].ctrl & 0x80))  e [p].val2 = e [p].val2 & 0x80;
-      ReDo ();
-      return;
-   }
-   if (f == 97) {                      // gotta find dst trk for hand swap
-      for (ok = false, h = (_f.trk [t].ht < '4') ? 'L':'R',
-           tc = 0;  tc < _f.trk.Ln;  tc++) {
-         if ((h == 'R') && (_f.trk [tc].ht < '4'))  {ok = true;   break;}
-         if ((h == 'L') && (_f.trk [tc].ht > '3'))  {ok = true;   break;}
-      }
-      if (! ok)  {Hey (CC("can't find track for other hand"));   return;}
-TRC("dst trk=`d", tc);
-   }
-   if (f >= 97) {                      // delete or swap track
-      if (nt->up != NONE)  EvDel (t, nt->up);    // del up 1st so dn stays
-      if (nt->dn != NONE)  EvDel (t, nt->dn);    // in same pos
-      if (f == 98)  {ReDo ();   return;}         // that's it for del
-
-      e = _f.trk [tc].e;   ne = _f.trk [tc].ne;
+// quantize prev/next
+   if ((p = nt->dn) == NONE) {
+      e = _f.trk [t].e;   ne = _f.trk [t].ne;
       for (p = 0;  (p < ne) && (dn.time >= e [p].time);  p++)  ;
-//TStr d1;
-//DBG("dn ins at p=`d/`d tm=`s", p, ne, TmSt(d1,dn.time));
-      EvIns (tc, p);   MemCp (& e [p], & dn, sizeof (dn));
-
-      e = _f.trk [tc].e;   ne = _f.trk [tc].ne;  // reset after 1st ins :/
-      for (;       (p < ne) && (up.time >= e [p].time);  p++)  ;
-//DBG("up ins at p=`d/`d tm=`s", p, ne, TmSt(d1,up.time));
-      EvIns (tc, p);   MemCp (& e [p], & up, sizeof (up));
-//Dump (true);
+      EvIns (t, p);   MemCp (& e [p], & dn, sizeof (dn));
    }
-   else {                              // fng update (but gotta ins if dn broke)
-      if ((p = nt->dn) == NONE) {
-         e = _f.trk [t].e;   ne = _f.trk [t].ne;
-         for (p = 0;  (p < ne) && (dn.time >= e [p].time);  p++)  ;
-         EvIns (t, p);   MemCp (& e [p], & dn, sizeof (dn));
-      }
-      _f.trk [t].e [p].val2 &= 0xC0;
-DBG("fng=`d", f);
-      _f.trk [t].e [p].val2 |= f;
-   }
+   _f.trk [t].e [p].time = Str2Tm ((q == 'p') ? Up.pos.stp : Up.pos.stn);
+//TOOD check dur :/
    ReDo ();
 }
 

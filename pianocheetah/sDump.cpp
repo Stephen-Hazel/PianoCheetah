@@ -30,8 +30,6 @@ void Song::DumpEv (TrkEv *e, ubyte t, ubyt4 p, char *pre)
       StrFmt (&o[StrLn(o)], "`s`c`d",
          TDrm (t) ? MDrm2Str (s, e->ctrl) : MKey2Str (s, e->ctrl),
          EUP (e) ? '^' : (EDN (e) ? '_' : '~'),  e->valu & 0x007F);
-      if ((v = (e->val2 & 0x1F)))
-         {StrAp (o, CC("@"));   StrAp (o, MFing [v-1]);}
    }
    DBG(o);
 }

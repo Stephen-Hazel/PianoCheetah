@@ -213,8 +213,8 @@ private:
    void  Ctl     ();
    void  ShoCtl  (char *ctl, bool sho);
    void  SetCtl  (char *arg);
-   void  PreFng  ();
-   void  Fng     (char *tnf);
+   void  PreQua  ();
+   void  Qua     (char *tnf);
    void  NtDur   ();
    void  NtHop   ();
    void  Mov     ();
@@ -244,7 +244,6 @@ private:
 
 // sNote.cpp
    ubyte DrawRec (bool all, ubyt4 pp);
-   void  DrawFng (ubyt2 x, ubyt2 , ubyte f, char tc = '\0');
    void  DrawSym (SymDef *s, ColDef *co);
    void  DrawPg  (ubyt4 pp);
    void  DrawNow ();

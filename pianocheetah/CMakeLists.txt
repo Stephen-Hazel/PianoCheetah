@@ -56,7 +56,7 @@ set(PROJECT_SOURCES
       rc/dlgctl.ui
       rc/dlgcue.ui
       rc/dlgfl.ui
-      rc/dlgfng.ui
+      rc/dlgqua.ui
       rc/dlghlp.ui
       rc/dlgksg.ui
       rc/dlgmov.ui

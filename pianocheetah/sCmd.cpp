@@ -88,7 +88,7 @@ DBG("Cmd='`s'", c);
    else if (! MemCm (c, CC("ctl"),    3))  Ctl    ();
    else if (! MemCm (c, CC("cue "),   4))  Cue    (& c [4]);
    else if (! MemCm (c, CC("chd "),   4))  Chd    (& c [4]);
-   else if (! MemCm (c, CC("fng "),   4))  Fng    (& c [4]);
+   else if (! MemCm (c, CC("qua "),   4))  Qua    (& c [4]);
    else if (! MemCm (c, CC("setCtl "),7))  SetCtl (& c [7]);
    else if (! StrCm (c, CC("mov")))        Mov    ();
    Put ();
