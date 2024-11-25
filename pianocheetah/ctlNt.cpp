@@ -58,7 +58,6 @@ Up.w, Up.h, Up.tpos.left(), Up.tpos.top(), Up.tpos.width(), Up.tpos.height());
    c.Blt (*Up.pm,   0, 0,  0, 0,  Up.w, Up.h);
    c.Blt (*Up.tpm,  Up.tpos.left (),  Up.tpos.top (),  0, 0,
                     Up.tpos.width (), Up.tpos.height ());
-DBG("z");
    if (Up.drag.width ()) {
      QPainter *p = c.Painter ();
       p->setCompositionMode (QPainter::RasterOp_SourceXorDestination);

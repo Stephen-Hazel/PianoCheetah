@@ -13,10 +13,11 @@
 const ubyt4 LRN_BT = M_WHOLE/64;       // wakeup slice for Put
 const ubyt4 NONE   = 0x7FFFFFFF;       // time of this means "no time"
                                        // .p of this means "no event/note"
-const ubyt2 W_Q  = 24;                 // w of cue area (not incl chord w)
-const ubyt2 W_NT = 14;                 // w of black/drum note  white=24  th=20
-const ubyt2 H_NW = 24;                 // h of now line
-const ubyt2 H_T  = H_NW+8;             // h of tmp cnv for bg behind now
+const ubyt2 W_Q   = 24;                // w of cue area (not incl chord w)
+const ubyt2 W_NT  = 14;                // w of black/drum note  th(text h)=20
+const ubyt2 W_NTW = 24;                // w of white note
+const ubyt2 H_NW  = 24;                // h of now line
+const ubyt2 H_T   = H_NW+8;            // h of tmp cnv for bg behind now
                                        // plus half dots below it
 const ubyt2 H_KB = 47;                 // h for keys (oct.bmp)
 

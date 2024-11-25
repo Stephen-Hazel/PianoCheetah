@@ -3,11 +3,11 @@
 #include "song.h"
 
 
-bool Song::TDrm (ubyte t)  {return (_f.trk [t].chn == 9)  ? true : false;}
-bool Song::TLrn (ubyte t)  {return  _f.trk [t].lrn;}
-bool Song::TSho (ubyte t)  {return (TLrn (t) || (_f.trk [t].ht == 'S'))
-                                                          ? true : false;}
-
+bool Song::TDrm (ubyte t)  {return (_f.trk [t].chn == 9) ? true:false;}
+bool Song::TLrn (ubyte t)  {return _f.trk [t].lrn        ? true:false;}
+bool Song::TSho (ubyte t)  {return (TLrn (t) ||
+                                    ((! RCRD) && (_f.trk [t].ht == 'S')))
+                                                         ? true:false;}
 void Song::ReTrk ()
 // give gui what it needs in Up.trk
 { ubyte r;
@@ -590,7 +590,9 @@ TRC("SetNt end");
 
 
 void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
-// return h n subbeat of bar
+// return h n subbeat of bar - by goin thru all shown tr's .n[]
+// ntdn times at small divs force those.  else less divs (subbeats)
+// can use .n[] even for ez mode cuz same ntdn TIMES
 { bool  mt, got [9];
   ubyt4 md, tb, te, nn, p, btdur, sbdur, t1, st [9];
   ubyte sub, t, s;
@@ -703,16 +705,18 @@ void Song::BarH (ubyt2 *h, ubyte *sb, ubyt2 bar)
 void Song::SetSym ()
 // ok, now paginate it all up given our CtlNt's w,h and all them thar notes
 // Draw calls us, not ReDo;  depends on SetDn(_dn[]) n SetNt(trk[].n) tho
-{ ubyte nw, ww, nMn, nMx, nd, dmap [128], dpos, td, t, st, bl, sb, i, j, nt;
-  ubyt2 W, H, x, xo, w, th, ch, b, dx, cw, y1, y2, h;
+{ ubyte nw, ww, nMn, nMx, nd, dmap [128], dpos, td, t, st, bl, sb, i, j, nt,
+             o, oMn [7], oMx [7];
+  ubyt2 W, H, x, xo, w, th, ch, b, dx, cw, y1, y2, h, oX [7];
   ubyt4 np, nc, nb, ns, p, q, nn, pc1, cb1, cs1, tb, te, ntb, nte, sn, d, e;
   bool  drm, mt, got;
+  TStr  smn, smx;
   TrkNt   *n;
   DownRow *dr;
 TStr ts1, ts2;
    W = Up.w;   H = Up.h;
 TRC("SetSym w=`d h=`d", W, H);
-   nw = W_NT;   ww = 24;   th = Up.txH;     // dem consts
+   nw = W_NT;   ww = W_NTW;   th = Up.txH;  // dem consts
    for (cw = 0, p = 0;  p < _f.ctl.Ln;  p++)  if (_f.ctl [p].sho)  cw += th;
    _pag.Ln = _col.Ln = _blk.Ln = _sym.Ln = 0;
    for (b = 1;  b <= _bEnd;) {
@@ -722,7 +726,7 @@ TRC("SetSym end - w,h too small");
       }
       np = _pag.Ins ();                // init pag[np]
       _pag [np].col = & _col [pc1 = _col.Ln];
-//DBG("b=`d/`d np=`d pc1=`d W=`d H=`d", b, _bEnd, np, pc1, W, H);
+DBG("b=`d/`d np=`d pc1=`d W=`d H=`d", b, _bEnd, np, pc1, W, H);
       _pag [np].nCol = 0;
       _pag [np].w = _pag [np].h = 0;
       do {
@@ -733,7 +737,7 @@ TRC("_col full prob cuz w,h");
          nc = _col.Ins ();             // init col[nc]
          _col [nc].blk = & _blk [cb1 = _blk.Ln];   _col [nc].nBlk = 0;
          _col [nc].sym = & _sym [cs1 = _sym.Ln];   _col [nc].nSym = 0;
-//DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
+DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
          _col [nc].x   = _pag [np].w;  // remem 1st blk,sym of col
          ch = H_KB;
 
@@ -744,8 +748,8 @@ TRC("_col full prob cuz w,h");
                                _blk [nb].tMx = Bar2Tm (b+1);
          _blk [nb].y   = ch;   _blk [nb].h   = h;   ch += h;
          _blk [nb].sb  = sb;
-//DBG("  nb(1)=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
-//nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
+DBG("  nb(1)=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
+nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          while (b+1 <= _bEnd) {        // there has to BE another bar
             BarH (& h, & sb, b+1);
             if ((ch + h) > H)  break;  // won't fit, col complete, outa herez
@@ -755,57 +759,82 @@ TRC("_col full prob cuz w,h");
                                    _blk [nb].tMx = Bar2Tm (b+1);
             _blk [nb].y   = ch;    _blk [nb].h   = h;   ch += h;
             _blk [nb].sb  = sb;
-//DBG("  nb=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
-//nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
+DBG("  nb=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
+nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          }
          b++;                          // on to the next bar
 
       // init width parts of col based on sym[]s we'll have, n ntPoss
-         nd = nMx = 0;   nMn = 127;
+         nMn = 127;   nd = nMx = 0;
+         for (o = 0;  o < 7;  o++)  {oMn [o] = 127;   oMx [o] = 0;}
          tb = Bar2Tm (_blk [cb1].bar);   te = Bar2Tm (_blk [nb].bar+1);
 
          for (t = 0;  t < _f.trk.Ln;  t++)  if (TSho (t)) {
             if      (TDrm (t)) {
-               for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn;  p++)
-                  if ((n [p].te >= tb) && (n [p].tm < te))
-                     {dmap [nd++] = t;   break;}      // one'll do it
+               for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn; p++) {
+                  if (n [p].te <  tb)  continue;
+                  if (n [p].tm >= te)  break;
+                  dmap [nd++] = t;   break; // one'll do it
+               }
             }
             else if (RCRD) {
                for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
                   ntb = dr->time;
-                  for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t)
-                     if ((ntb >= tb) && (ntb < te)) {
-                        if (dr->nt [i].nt < nMn)  nMn = dr->nt [i].nt;
-                        if (dr->nt [i].nt > nMx)  nMx = dr->nt [i].nt;
-                     }
+                  if (ntb <  tb)  continue;
+                  if (ntb >= te)  break;
+                  for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t) {
+                     nt = dr->nt [i].nt;   o = nt/12 - 2;
+                     if (nt < oMn [o])  oMn [o] = nt;
+                     if (nt > oMx [o])  oMx [o] = nt;
+                     if (nt < nMn)      nMn     = nt;
+                     if (nt > nMx)      nMx     = nt;
+                  }
                }
             }
             else
-               for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn;  p++)
-                  if ((n [p].te >= tb) && (n [p].tm < te)) {
-                     if (n [p].nt < nMn)  nMn = n [p].nt;
-                     if (n [p].nt > nMx)  nMx = n [p].nt;
-                  }
+               for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn; p++) {
+                  if (n [p].te <  tb)  continue;
+                  if (n [p].tm >= te)  break;
+                  if (n [p].nt < nMn)  nMn = n [p].nt;
+                  if (n [p].nt > nMx)  nMx = n [p].nt;
+               }
          }
 
-      // always want SOME notes in col (if none, use 4c,c#,d;  if 1, use nMn+2)
+      // always want SOME notes in col (if none, use 4c-d;  if 1, use nMn+2)
          if      (! nMx)       {nMn = MKey (CC("4c"));   nMx = MKey (CC("4d"));}
          else if (nMx-nMn < 2)  nMx = nMn + 2;
-         dx = (nMx-nMn+1) * nw;        // melo nt w - used by drum sym .x later
 
-      // if nMn or nMx are white, gotta give extra w sigh
-         xo = 0;
-         if (KeyCol [nMn%12] == 'w')  dx += (xo = WXOfs [nMn%12] * W_NT / 12);
-         if (KeyCol [nMx%12] == 'w')  dx += (24 - W_NT -
-                                                  WXOfs [nMx%12] * W_NT / 12);
-         _col [nc].nMn  = nMn;
-         _col [nc].nMx  = nMx;
-         _col [nc].nDrm = nd;
-         MemCp (_col [nc].dMap, dmap, 128);
-         _col [nc].w    = 8 + (_lrn.chd?th:0) + W_Q + dx + nd*nw + cw;
-         _col [nc].h    = ch;          // borders,chd,cue,meloNt,drumNt,ctrl
-//DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d",
-//nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,_col[nc].w,_col[nc].h);
+         xo = dx = 0;                  // x offset (left white bump), drum x
+         if (RCRD) {
+            for (o = 0;  o < 7;  o++) {
+               oX [o] = dx;
+               if (oMx [o])  for (nt = oMn [o];  nt <= oMx [o];  nt++)
+                  if (KeyCol [nt%12] == 'w')  dx += ww;
+            }
+for(o=0;o<7;o++)DBG("   oc=`d nMn=`s nMx=`s x=`d",
+o+1,MKey2Str(ts1,oMn[o]),MKey2Str(ts2,oMx[o]),oX[o]);
+         }
+         else {
+         // if nMn or nMx are white, gotta give extra w (white bump)
+            dx = (nMx-nMn+1) * nw;     // melo nt w - used by drum sym .x later
+            if (KeyCol [nMn%12] == 'w')  dx += (xo = WXOfs [nMn%12] * nw/12);
+            if (KeyCol [nMx%12] == 'w')  dx += (ww - nw -
+                                                     WXOfs [nMx%12] * nw/12);
+         }
+         _col [nc].nMn  = nMn;   MemCp (_col [nc].oMn, oMn, sizeof (oMn));
+         _col [nc].nMx  = nMx;   MemCp (_col [nc].oMx, oMx, sizeof (oMx));
+                                 MemCp (_col [nc].oX,  oX,  sizeof (oX));
+         _col [nc].nDrm = nd;    MemCp (_col [nc].dMap, dmap, 128);
+      // left border, chd, cue (xo within syms' x)
+         _col [nc].nx   =  _col [nc].x + 4 + (_lrn.chd?th:0) + W_Q;
+      // plus note w (incl left and right white bumps)
+         _col [nc].dx   =  _col [nc].nx + dx;
+      // plus drum w + ctrl w + right border
+         _col [nc].w    = (_col [nc].dx + nd*nw + cw + 4) - _col [nc].x;
+         _col [nc].h    = ch;
+DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d nx=`d dx=`d",
+nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,
+_col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx);
 
       // build sym[]s for col calcin w=b,w,clip n nt,trk overlaps
       // sym.x is an offset from col's nx
@@ -878,14 +907,16 @@ TRC("_col full prob cuz w,h");
                      }
                      if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
 
-                  // always white
-                     x = xo + (nt - nMn) * nw;   w = ww;
-                     x -= (WXOfs [nt % 12] * nw / 12);
+                     o = nt/12 - 2;    // always white within a "short" oct
+                     MKey2Str (smn, oMn [o]);
+                     MKey2Str (smx, nt);
+                     x = oX [o] + (smx[1] - smn[1]) * ww;   w = ww;
+DBG("      oct=`d oX=`d smn=`s smx=`s",o+1,oX[o],smn,smx);
                      _sym [ns].x = x;   _sym [ns].w = w;
-//DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
-//ns,_sym[ns].tr, MKey2Str(ts1,nt),
-//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
-//ntb,TmSt(ts2,ntb));
+DBG("   DN ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
+ns,_sym[ns].tr, MKey2Str(ts1,nt),
+_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
+ntb,TmSt(ts2,ntb));
                      _col [nc].nSym++;
                   }
                }
@@ -961,9 +992,9 @@ TRC("_col full prob cuz w,h");
                         if (n [p].ov && (_sym [ns].w >= 9))
                            {_sym [ns].x += 3;   _sym [ns].w -= 3;}
                      }
-//DBG("   ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
-//ns,_sym[ns].tr, MKey2Str(ts1,n [_sym[ns].nt].nt),
-//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
+DBG("   NT ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
+ns,_sym[ns].tr, MKey2Str(ts1,n [_sym[ns].nt].nt),
+_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
                      _col [nc].nSym++;
                   }
          }
@@ -973,7 +1004,7 @@ TRC("_col full prob cuz w,h");
          _pag [np].w += _col [nc].w;   _pag [np].nCol++;   nc++;
 
       } while ((b <= _bEnd) && (_pag [np].w < W));
-//DBG(" lpEnd b=`d nc=`d", b, nc);
+DBG(" lpEnd b=`d nc=`d", b, nc);
 
    // last col will usually go over, but always keep one of em
       if ((_pag [np].nCol > 1) && (_pag [np].w > W)) {     // reset to lop off
@@ -987,7 +1018,7 @@ TRC("_col full prob cuz w,h");
          _blk.Ln -= _col [nc].nBlk;
          _sym.Ln -= _col [nc].nSym;
          _col.Ln--;
-//DBG("b=`d/`d bLn=`d sLn=`d cLn=`d", b, _bEnd, _blk.Ln, _sym.Ln, _col.Ln);
+DBG("b=`d/`d bLn=`d sLn=`d cLn=`d", b, _bEnd, _blk.Ln, _sym.Ln, _col.Ln);
       }
    }
 TRC("SetSym end");

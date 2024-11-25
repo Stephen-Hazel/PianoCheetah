@@ -90,7 +90,7 @@ TRC("DrawRec all=`b pp=`d", all, pp);
       if (tMx <= pMn)  continue;       // NEXT !
       if (tMn >= pMx)  break;          // we're done
 
-      nx = Nt2X (co.nMn, & co);   cx = CtlX (& co);
+      nx = co.nx;   cx = co.dx + co.nDrm*W_NT;
 //DBG(" col=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d nx=`d cx=`d",
 //c,TmSt(d1,tMn),TmSt(d2,tMx),
 //MKey2Str(d3,co.nMn),MKey2Str(d4,co.nMx),co.w,co.h,co.x, nx,cx);
@@ -237,7 +237,7 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                         if (nt < co.nMn) dnt = co.nMn;     // rec note COULD be
                         if (nt > co.nMx) dnt = co.nMx;     // anywhere, put on
                         if (KeyCol [dnt%12] == 'w')   // usually
-                           x = Nt2X (dnt, & co) + (24-W_NT) / 2;
+                           x = Nt2X (dnt, & co) + (W_NTW-W_NT) / 2;
                         else
                            x = Nt2X (dnt, & co, 'g');
                      }
@@ -291,7 +291,7 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                   if (nt < co.nMn) dnt = co.nMn;      // rec note COULD be
                   if (nt > co.nMx) dnt = co.nMx;      // anywhere, put on
                   if (KeyCol [dnt%12] == 'w')
-                     x = Nt2X (dnt, & co) + (24-W_NT) / 2;
+                     x = Nt2X (dnt, & co) + (W_NTW-W_NT) / 2;
                   else
                      x = Nt2X (dnt, & co, 'g');
                }
@@ -350,13 +350,12 @@ void Song::DrawSym (SymDef *s, ColDef *co)
 { ubyte tr, t, tc, key, ef, n;
   bool  dr;
   char  ha;
-  ubyt2 nx, mo, x, y, w, h, dx, dw, dh;
+  ubyt2 mo, x, y, w, h, dx, dw, dh;
   TrkRow *trk;
   TrkNt  *nt;
-  QColor  clr, kc;                     // main color, key color
+  QColor  clr, kc;                     // main color, key color (white/black)
    tr = s->tr;   trk = & _f.trk [tr];   nt = & trk->n [s->nt];   dr = TDrm (tr);
    n = RCRD ? ((ubyte)s->nt) : nt->nt;
-   nx = Nt2X (co->nMn, co);
    if (dr) {
       switch (MDrm2Grp (trk->din)) {
          case 0:  clr = CSclD [ 0];   break;     // kick red
@@ -387,7 +386,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
             clr = CScl [((n % 12) + 12 - key) % 12];
       }
    kc = (dr || (KeyCol [n%12] == 'w')) ? CWHITE : CBLACK;
-   x = nx + s->x;   y = s->y;   w = s->w;   h = s->h;
+   x = co->nx + s->x;   y = s->y;   w = s->w;   h = s->h;
                                        // white dudes: big head, little butt
    if (kc == CWHITE) {
       if (s->top)  {if (h >= 18)  h = 16;}
@@ -440,12 +439,12 @@ void Song::DrawSym (SymDef *s, ColDef *co)
 
 void Song::DrawPg (ubyt4 pp)
 // draw pg's cols' bg n lrn chd,cue,etc
-{ ubyte nd, nt, n2, oc, t, td, c, cc, ct, sb, key, ksig [12], cno, tn, bt;
+{ ubyte nd, nm, nt, n2, oc, t, td, c, cc, ct, sb, key, ksig [12], cno, tn, bt;
   sbyte hit;
   char  vt;
   ubyt2 vl, df, tw, th, qx, qw, nx, wb, nw, cx, x, w, y, x1, x2, y2, w2,
         tpMn, tpMx;
-  TStr  cs, str;
+  TStr  cs, str, snm, snt;
   ubyt4 nTrk, tMn, tMx, p, q, ne, t1, t2, ts, lt;
   bool  ccg, bug = false;
   KSgRow *ks;
@@ -462,8 +461,10 @@ void Song::DrawPg (ubyt4 pp)
    for (c = 0;  c < pg [pp].nCol;  c++) {
       MemCp (& co, & pg [pp].col [c], sizeof (co));    // load column specs
       tMn = co.blk [0].tMn;   tMx = co.blk [co.nBlk-1].tMx;
-      qw = (_lrn.chd?th:0) + W_Q;   wb = 0;
-      qx = co.x + 4;   nx = qx + qw;   cx = CtlX (& co);   nw = cx - nx;
+      qw = (_lrn.chd?th:0) + W_Q;
+      qx = co.x + 4;   nx = co.nx;   cx = co.dx + co.nDrm*W_NT;
+      wb = 0;                          // whitebump on left for non ez
+      nw = cx - nx;                    // w of melo+drum nts
 
    // non-last column border vline w rounded ends
       if (c < pg [pp].nCol-1) {
@@ -475,85 +476,108 @@ void Song::DrawPg (ubyt4 pp)
          Up.cnv.RectF (co.x+co.w-7, co.h-2, 4, 1, CBLACK);
          Up.cnv.RectF (co.x+co.w-8, co.h-1, 4, 1, CBLACK);
       }
-//TStr s1,s2,s3,s4;
-//DBG("c=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d "
-//"qx=`d nx=`d cx=`d qw=`d nw=`d",
-//c,TmSt(s1,tMn),TmSt(s2,tMx),
-//MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
+TStr s1,s2,s3,s4;
+DBG("c=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d "
+"qx=`d nx=`d cx=`d qw=`d nw=`d",
+c,TmSt(s1,tMn),TmSt(s2,tMx),
+MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
 
    // draw bg horiz rect (white&black keyboard);  label octaves at b|c
       Up.cnv.SetFg (CBLACK);
 
-   // prep ksig biz
-      key = (ks = KSig (tMn))->key;   MemSet (ksig, 0, sizeof (ksig));
-      if (ks->min)
-           {MemCp (& ksig [key], CC("0 12 3 45 6 "),   12-key      );
-            MemCp (  ksig,       CC("0 12 3 45 6 ") + (12-key), key);}
-      else {MemCp (& ksig [key], CC("0 1 23 4 5 6"),   12-key      );
-            MemCp (  ksig,       CC("0 1 23 4 5 6") + (12-key), key);}
-      for (x = nx, oc = co.nMn/12;  oc <= co.nMx/12;  oc++, x += w) {
-         nt =  0;   if (oc == co.nMn/12)  nt = co.nMn%12;
-         nd = 11;   if (oc == co.nMx/12)  nd = co.nMx%12;
-         x1 = nt*W_NT;   w = W_NT*(nd-nt+1);
-      // got leftmost whiteBump?
-         if (nt && (KeyCol [nt] == 'w'))  {wb = WXOfs [nt] * W_NT/12;
-                                           x1 -= wb;   w += wb;}
-//DBG(" oct x=`d nt=`d nd=`d w=`d x1=`d wb=`d", x, nt, nd, w, x1, wb);
+      if (RCRD) {                      // WAYY diff
+         for (x = nx, oc = 0;  oc < 7;  oc++, x += w) {
+            w = 0;   if (! co.oMx [oc])  continue;
 
-      // keyboard oct at top of col
-         Up.cnv.Blt (*Up.oct,  x, 0,                  x1, 0, w, H_KB);
+            MKey2Str (snm, nm = co.oMn [oc]);
+            MKey2Str (snt, nt = co.oMx [oc]);
 
-      // background stripes down the col
-         if (RCRD)
-               Up.cnv.Blt (*Up.pnbg2, x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
-         else  Up.cnv.Blt (*Up.pnbg,  x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
+         // keyboard oct at top of col
+            x1 = (snm[1]-'c')*W_NTW;   w = W_NTW*(snt[1]-snm[1]+1);
+DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
+            Up.cnv.Blt (*Up.oct,   x, 0,                  x1, 0, w, H_KB);
 
-      // label at b|c borders;  also middle c line unless at left border
-         StrFmt (str, "`d", oc-1);
-         if (nt ==  0) {Up.cnv.Text (x+2,      13, str);
-                        if ((oc == 5) && (x != nx))
-                           Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
-                       }
-         if (nd == 11)  Up.cnv.Text (x+w-tw-3, 13, str);
+         // background stripes down the col
+            Up.cnv.Blt (*Up.pnbg2, x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
 
-      // draw curr keysig;  if in scale, put step color
-         w2 = 3;
-         if ((Cfg.ntCo == 0) && (! RCRD))
-            for (x2 = x+wb, n2 = oc*12+nt;  n2 <= oc*12+nd;  n2++, x2 += W_NT)
-               if (ksig [n2 % 12] != ' ')
-                  Up.cnv.RectF (x2 + w2, 5, W_NT-w2*2, W_NT-w2*2-2,
-                                           CSclD [((n2 % 12) + 12 - key) % 12]);
-         wb = 0;
-      }
-      for (nt = co.nMn;;  nt++) {   // 1st w from left non B,C
-         nd = nt % 12;
-         if (nt >= co.nMx)  break;
-         if (KeyCol [nd] == 'w') {
-            if (nd && (nd != 11))
-               {StrFmt (str, "`d", nt/12-1);
-                Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 13, str);}
-            break;
+         // oct label at left, left div line unless 1st
+            StrFmt (str, "`d", oc+1);
+            Up.cnv.Text (x+2,      15+th, str);
+            Up.cnv.Text (x+w-tw-3, 15+th, str);
+            if (x > nx)  Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
          }
       }
-      for (nt = co.nMx;;  nt--) {   // 1st w from right non B,C
-         nd = nt % 12;
-         if (nt <= co.nMn)  break;
-         if (KeyCol [nd] == 'w') {
-            if (nd && (nd != 11))
-               {StrFmt (str, "`d", nt/12-1);
-                Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 13, str);}
-            break;
+      else {
+      // prep ksig biz
+         key = (ks = KSig (tMn))->key;   MemSet (ksig, 0, sizeof (ksig));
+         if (ks->min)
+              {MemCp (& ksig [key], CC("0 12 3 45 6 "),   12-key      );
+               MemCp (  ksig,       CC("0 12 3 45 6 ") + (12-key), key);}
+         else {MemCp (& ksig [key], CC("0 1 23 4 5 6"),   12-key      );
+               MemCp (  ksig,       CC("0 1 23 4 5 6") + (12-key), key);}
+         for (x = nx, oc = co.nMn/12;  oc <= co.nMx/12;  oc++, x += w) {
+            nt =  0;   if (oc == co.nMn/12)  nt = co.nMn%12;
+            nd = 11;   if (oc == co.nMx/12)  nd = co.nMx%12;
+            x1 = nt*W_NT;   w = W_NT*(nd-nt+1);
+         // got leftmost whiteBump?
+            if (nt && (KeyCol [nt] == 'w'))  {wb = WXOfs [nt] * W_NT/12;
+                                              x1 -= wb;   w += wb;}
+//DBG(" oct x=`d nt=`d nd=`d w=`d x1=`d wb=`d", x, nt, nd, w, x1, wb);
+
+         // keyboard oct at top of col
+            Up.cnv.Blt (*Up.oct,  x, 0,                  x1, 0, w, H_KB);
+
+         // background stripes down the col
+            Up.cnv.Blt (*Up.pnbg, x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
+
+         // label at b|c borders;  also middle c line unless at left border
+            StrFmt (str, "`d", oc-1);
+            if (nt ==  0) {Up.cnv.Text (x+2,      13, str);
+                           if ((oc == 5) && (x != nx))
+                              Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
+                          }
+            if (nd == 11)  Up.cnv.Text (x+w-tw-3, 13, str);
+
+         // draw curr keysig;  if in scale, put step color
+            w2 = 3;
+            if ((Cfg.ntCo == 0) && (! RCRD))
+               for (x2 = x+wb, n2 = oc*12+nt;  n2 <= oc*12+nd;
+                                               n2++, x2 += W_NT)
+                  if (ksig [n2 % 12] != ' ')
+                     Up.cnv.RectF (x2 + w2, 5, W_NT-w2*2, W_NT-w2*2-2,
+                                           CSclD [((n2 % 12) + 12 - key) % 12]);
+            wb = 0;
+         }
+         for (nt = co.nMn;;  nt++) {   // 1st w from left non B,C
+            nd = nt % 12;
+            if (nt >= co.nMx)  break;
+            if (KeyCol [nd] == 'w') {
+               if (nd && (nd != 11))
+                  {StrFmt (str, "`d", nt/12-1);
+                   Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 13, str);}
+               break;
+            }
+         }
+         for (nt = co.nMx;;  nt--) {   // 1st w from right non B,C
+            nd = nt % 12;
+            if (nt <= co.nMn)  break;
+            if (KeyCol [nd] == 'w') {
+               if (nd && (nd != 11))
+                  {StrFmt (str, "`d", nt/12-1);
+                   Up.cnv.Text (Nt2X (nt, & co, 'g')+2, 13, str);}
+               break;
+            }
          }
       }
    //__________________________________
    // vert line per drum(top),ctl(base) - skip 1st ctl's line
-      for (x = cx - co.nDrm*W_NT, t = 0;  t < co.nDrm;  t++)
+      for (x = co.dx, t = 0;  t < co.nDrm;  t++)
          {x += W_NT;   Up.cnv.RectF (x-1, 0, 1, co.h, CBBg);}
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho)
          {if (x > cx) Up.cnv.RectF (x, 0, 1, co.h, CBBg);   x += th;}
 
    // draw bars/beats/subbeats background lines - 1st time is beat just b4 tMn
-      for (tn= bt = 0, t1 = tMn;  t1 < tMx;  t1 = t2, bt++) {
+      for (tn = bt = 0, t1 = tMn;  t1 < tMx;  t1 = t2, bt++) {
          y = Tm2Y (t1, & co, & bl);   sb = bl->sb;
         char *bp;
          TmStr (str, t1, & t2);   bp = 1 + StrCh (str, '.');
@@ -960,7 +984,7 @@ void Song::DrawNow ()
       // red dot if down per .rec[], not in _dn
          if (_lrn.rec [0][nt].tm && (! np)) {
             x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
-            if (KeyCol [nt%12] == 'w')    ww = 24/2;
+            if (KeyCol [nt%12] == 'w')    ww = W_NTW/2;
             Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  0*16, 0,  16, 16);
          }
       }
@@ -969,7 +993,7 @@ void Song::DrawNow ()
          np = & dn->nt [nn];   nt = np->nt;
          if (_lrn.rec [0][nt].tm <= pt) {
             x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
-            if (KeyCol [nt%12] == 'w')    ww = 24/2;
+            if (KeyCol [nt%12] == 'w')    ww = W_NTW/2;
             Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  1*16, 0,  16, 16);
          }
       }

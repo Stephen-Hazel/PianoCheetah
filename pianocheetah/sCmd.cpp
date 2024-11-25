@@ -249,11 +249,14 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
    else if (ofs == 7) {                // flip lrn (force ht/oct if lrn on)
       _f.trk [e].shh = false;
       if ((_f.trk [e].lrn = ! _f.trk [e].lrn)) {
-         c = _f.trk [e].ht;
-         if ((c < '1') || (c > '7')) {
-            for (t = 0;  t < _f.trk.Ln;  t++)
-               if ((t != e) && (_f.trk [t].ht == '4'))  break;
-            _f.trk [e].ht = (t < _f.trk.Ln) ? '3' : '4';
+         if (TDrm (e))  _f.trk [e].ht = '\0';
+         else {
+            c = _f.trk [e].ht;
+            if ((c < '1') || (c > '7')) {
+               for (t = 0;  t < _f.trk.Ln;  t++)
+                  if ((t != e) && (_f.trk [t].ht == '4'))  break;
+               _f.trk [e].ht = (t < _f.trk.Ln) ? '3' : '4';
+            }
          }
       }
    }

@@ -400,37 +400,45 @@ TRC(" song init");
 
    setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
 TRC(" tbar init");
-  CtlTBar tb (this,                    // top
+  CtlTBar tb (this,
+      "view - show / hide track editing\n"
+      "the grid that picks which tracks to practice, RH/LH, sounds, etc"
+      "`*..." "`v\0",
+      "tbSongFile");
+   connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
+   Up.tbaTtl = tb.Act (0);
+
+  CtlTBar tb2 (this,                    // top
       "configure midi devices" "`:/tbar/0" "`\0"
       "settings and junk"      "`:/tbar/1" "`\0",
       "tbGlobal");
-   connect (tb.Act (0), & QAction::triggered, this, & PCheetah::MCfg);
-   connect (tb.Act (1), & QAction::triggered, this, & PCheetah::GCfg);
+   connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::MCfg);
+   connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::GCfg);
 
-  CtlTBar tb2 (this,                   // list/prev/next/rand song
+  CtlTBar tb3 (this,                   // list/prev/next/rand song
       "pick from song list" "`:/tbar/song/0" "`\0"
       "previous song"       "`:/tbar/song/1" "`z\0"
       "next song"           "`:/tbar/song/2" "`x\0"
       "random song"         "`*??"           "`a\0",
       "tbSongList");
-   connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::Load);
-   connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
-   connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
-   connect (tb2.Act (3), & QAction::triggered, this, & PCheetah::SongRand);
+   connect (tb3.Act (0), & QAction::triggered, this, & PCheetah::Load);
+   connect (tb3.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
+   connect (tb3.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
+   connect (tb3.Act (3), & QAction::triggered, this, & PCheetah::SongRand);
 
-  CtlTBar tb3 (this,
+  CtlTBar tb4 (this,
       "hear / play / practice\n"
          "Click Lrn column of track grid to practice it.\n"
          "Once you have played the song a few times, you can practice loops."
                          "`view-visible" "`l\0",
       "tbLearnMode");
-   Up.tbaLrn = tb3.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
+   Up.tbaLrn = tb4.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
                               Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
                               Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
-   connect (tb3.Act (0), & QAction::triggered,
+   connect (tb4.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("learn");});
 
-  CtlTBar tb4 (this,                   // transport - play/pause/etc
+  CtlTBar tb5 (this,                   // transport - play/pause/etc
       "restart"            "`:/tbar/time/0" "`1\0"
       "previous loop/page" "`:/tbar/time/1" "`Left\0"
       "previous bar"       "`:/tbar/time/2" "`2\0"
@@ -438,34 +446,34 @@ TRC(" tbar init");
       "next bar"           "`:/tbar/time/4" "`3\0"
       "next loop/page"     "`:/tbar/time/5" "`Right\0",
       "tbTime");
-   Up.tbaPoz = tb4.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
+   Up.tbaPoz = tb5.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
                               Up.tbiPoz [1] = new QIcon (":/tbar/time/6");
-   connect (tb4.Act (0), & QAction::triggered,
+   connect (tb5.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar1");});
-   connect (tb4.Act (1), & QAction::triggered,
+   connect (tb5.Act (1), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeHop<");});
-   connect (tb4.Act (2), & QAction::triggered,
+   connect (tb5.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar<");});
-   connect (tb4.Act (3), & QAction::triggered,
+   connect (tb5.Act (3), & QAction::triggered,
             this, [this]() {emit sgCmd ("timePause");});
-   connect (tb4.Act (4), & QAction::triggered,
+   connect (tb5.Act (4), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar>");});
-   connect (tb4.Act (5), & QAction::triggered,
+   connect (tb5.Act (5), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeHop>");});
 
-  CtlTBar tb5 (this,
+  CtlTBar tb6 (this,
       "decrease tempo"           "`:/tbar/tmpo/0" "`F2\0"
       "tempo to 60%=>80%=100%=>" "`:/tbar/tmpo/1" "`t\0"
       "increase tempo"           "`:/tbar/tmpo/2" "`F3\0",
       "tbTempo");
-   connect (tb5.Act (0), & QAction::triggered,
+   connect (tb6.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo<");});
-   connect (tb5.Act (1), & QAction::triggered,
+   connect (tb6.Act (1), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempoHop");});
-   connect (tb5.Act (2), & QAction::triggered,
+   connect (tb6.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo>");});
 
-  CtlTBar tb6 (this,
+  CtlTBar tb7 (this,
       "`split the learn track (3E and below) into new LH track"
                                     "`:/tbar/trak/0" "`\0"
       "`make drum track from clips" "`:/tbar/trak/1" "`\0"
@@ -478,30 +486,22 @@ TRC(" tbar init");
       "`time offsetting - for { to end => { moves to ^"
                                     "`:/tbar/trak/7" "`\0",
       "tbTrack");
-   connect (tb6.Act (0), & QAction::triggered,
+   connect (tb7.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd sp");});
-   connect (tb6.Act (1), & QAction::triggered,
+   connect (tb7.Act (1), & QAction::triggered,
             this, [this]() {emit sgCmd ("preTDr");});
-   connect (tb6.Act (2), & QAction::triggered,
+   connect (tb7.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd +");});
-   connect (tb6.Act (3), & QAction::triggered,
+   connect (tb7.Act (3), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd x");});
-   connect (tb6.Act (4), & QAction::triggered,
+   connect (tb7.Act (4), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd u");});
-   connect (tb6.Act (5), & QAction::triggered,
+   connect (tb7.Act (5), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd d");});
-   connect (tb6.Act (6), & QAction::triggered,
+   connect (tb7.Act (6), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd *");});
-   connect (tb6.Act (7), & QAction::triggered,
+   connect (tb7.Act (7), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd -");});
-
-  CtlTBar tb7 (this,
-      "view - show / hide track editing\n"
-      "the grid that picks which tracks to practice, RH/LH, sounds, etc"
-      "`*..." "`v\0",
-      "tbSongFile");
-   connect (tb7.Act (0), & QAction::triggered, this, & PCheetah::Trak);
-   Up.tbaTtl = tb7.Act (0);
 
 TRC(" lyr,tr,nt init");
   CtlText t (ui->lyr);

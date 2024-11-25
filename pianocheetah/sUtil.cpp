@@ -6,25 +6,27 @@ char  KeyCol [13] = "wbwbwwbwbwbw";
 ubyte WXOfs  [12] = {0, 99, 4, 99, 8, 0, 99, 3, 99, 6, 99, 9};
 
 ubyt2 Song::Nt2X (ubyte n, ColDef *co, char gr)
+// RCRD is ez n special
 // nx is W_NT grid start - offset past border, optional chord, cue, whiteBump
 // bump by W_NT*(this note-colMin note)
 // then normally offset by whiteBump of n unless gr[id] = white tail x
-{ ubyte m = co->nMn;
+{ ubyte m = co->nMn, oc;
   ubyt2 nx;
-   nx = co->x + 4 + (_lrn.chd ? Up.txH : 0) + W_Q +
-        ((KeyCol [m % 12] == 'w') ? (WXOfs [m % 12] * W_NT / 12) : 0);
+  TStr  sn, sx;
+   nx = co->nx;
+   if (RCRD) {
+      oc = n/12 - 2;
+      MKey2Str (sn, co->oMn [oc]);   MKey2Str (sx, n);
+      return nx + co->oX [oc] + (sx[1]-sn[1]) * W_NTW;
+   }
+   nx += ((KeyCol [m % 12] == 'w') ? (WXOfs [m % 12] * W_NT / 12) : 0);
    nx += (W_NT * (n - m));
    if (! gr)  if (KeyCol [n % 12] == 'w')  nx -= (WXOfs [n % 12] * W_NT / 12);
    return nx;
 }
 
-ubyt2 Song::Dr2X (ubyte d, ColDef *co)
-{ ubyt2 dx;                            // start past any nMx whiteBump
-   dx = Nt2X (co->nMx, co) + ((KeyCol [co->nMx % 12] == 'w') ? 24 : W_NT);
-   return dx + d * W_NT;               // then offset by drum pos
-}
-
-ubyt2 Song::CtlX (ColDef *co)  {return Dr2X (co->nDrm, co);}
+ubyt2 Song::Dr2X (ubyte d, ColDef *co)  {return co->x + co->dx + d*W_NT;}
+ubyt2 Song::CtlX (ColDef *co)           {return Dr2X (co->nDrm, co);}
 
 
 ubyt2 Song::Tm2Y (ubyt4 t, ColDef *co, BlkDef **bl)
@@ -602,7 +604,6 @@ TRC("TrkIns t=`d/`d nm=`s sn=`s", t, _f.trk.Ln, name?name:"", snd?snd:"");
 
 // init most _f.trk fields to 0;  set .name, .e
    _f.trk.Ins (t);                     // MemSets _f.trk [t] to 0
-   if (t < _f.trk.Ln)  _f.trk.Ln++;
    if (name)  StrCp (_f.trk [t].name, name);
    _f.trk [t].e   = t ? (_f.trk [t-1].e + _f.trk [t-1].ne) : _f.ev;
    if (snd != nullptr)
