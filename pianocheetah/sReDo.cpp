@@ -258,7 +258,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
    }
 
 // max o one note o five per dn time
-   for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t)) {
+   for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t) && (! TDrm (t))) {
       k [0] = _f.trk [t].ht;   k [2] = '\0';     // oct
       ht = (*k < '4') ? 'L' : 'R';               // ht L/R
 
@@ -284,9 +284,9 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
             else if (ntr < pntr)  ch = '<';
             else                  ch = '=';
             xx [dp].dir = fst ? '=' : ch;
-//TStr xd;
-//DBG("tr=`d `s dp=`d nn=`d nsum=`d nt=`d ntr=`d pnt=`d pntr=`d ch=`c",
-//t, TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntr, pnt, pntr, xx [dp].dir);
+TStr xd;
+DBG("tr=`d `s dp=`d nn=`d nsum=`d nt=`d ntr=`d pnt=`d pntr=`d ch=`c",
+t, TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntr, pnt, pntr, xx [dp].dir);
             fst = false;
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
@@ -311,8 +311,8 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                                          if (_dn [dp].time == _f.cue [p].time) {
             xx [dp].dir = '!';
             xx [dp].key = _f.cue [p].s [8];
-//DBG("xx[`d].key=`c s=`s (.pos=`d)",
-//dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
+DBG("xx[`d].key=`c s=`s (.pos=`d)",
+dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
          }
       pf = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {

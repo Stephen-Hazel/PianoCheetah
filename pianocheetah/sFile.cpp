@@ -339,15 +339,14 @@ TRC("DrumExp end");
 ubyte Song::DrumCon ()
 // build _f.mapD for caller n
 // join all individual drum tracks back into ONE DrumTrack per dev
-{ ubyte nD, x, otr = MAX_TRK;
-  ubyt4 t = 0, tt;
+{ ubyte t, nD, x, otr = MAX_TRK;
 TRC("DrumCon");
    _f.mapD.Ln = 0;
-   while (t < _f.trk.Ln)  if (! TDrm ((ubyte)t))  t++;
-   else {
+   for (t = 0;  t < _f.trk.Ln;  t++)  if (TDrm (t)) {
       nD = 1;
-      while ( (t+nD < _f.trk.Ln) && (_f.trk [t+nD].dev == _f.trk [t].dev) &&
-                                     TDrm ((ubyte)t+nD) )   nD++;
+      while ( (t+nD < _f.trk.Ln) && TDrm ((ubyte)t+nD) &&
+              (_f.trk [t+nD].dev == _f.trk [t].dev) )  nD++;
+TRC("   dTr=`d nD=`d", t, nD);
    // write _f.mapD before we kill the info
       _f.mapD.Ln = nD;
       for (x = 0;  x < nD;  x++) {
@@ -360,21 +359,18 @@ TRC("DrumCon");
          _f.mapD [x].pan = 64;
          _f.mapD [x].snd = SND_NONE;
       }
-   // adj all .trk refs
-      if (Up.eTrk   > t) Up.eTrk   -= (nD-1);
-      if (_f.trk.Ln > t) _f.trk.Ln -= (nD-1);
+      if (Up.eTrk > t)  Up.eTrk -= (nD-1);  // adj .trk ref
 
-   // glue all the track evs back into 1st drum track re-sort events
-      for (tt = t+nD-1; tt > t; tt--)  _f.trk [t].ne += _f.trk [tt].ne;
+   // glue all the track evs back into 1st drum track n re-sort events
+      for (x = t+nD-1;  x > t;  x--)  _f.trk [t].ne += _f.trk [x].ne;
       Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
 
    // toss sub trks, clear out trk
       _f.trk.Del (t+1, nD-1);
       StrCp (_f.trk [t].name, CC("DrumTrack"));   _f.trk [t].drm = PRG_NONE;
-      otr = (ubyte)t;
-      t++;
+      otr = t;
    }
-TRC("DrumCon end");
+TRC("DrumCon end otr=`d", otr);
    return otr;
 }
 
@@ -754,7 +750,8 @@ TRC("Save rec=`c fn=`s nTrk=`d", rec, _f.fn, _f.trk.Ln);
 
 TRC("actually savin'");
    if (rec == 'a')                     // write a.song w backup
-        {Cmd ("recWipe");   StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));}
+        {_recM.Ln = _recD.Ln = 0;
+         StrCp (fns, _f.fn);   StrAp (fns, CC("/a.song"));}
    else {                              // d_done/yyyymmdd_hhmm_songTitle
       TmpoPik ('r');
       Now (s);   s [13] = '\0';                  // kill secs n on

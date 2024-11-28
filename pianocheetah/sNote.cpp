@@ -897,14 +897,14 @@ void Song::DrawNow ()
   ColDef   co;
   NtDef   *np;
   TrkRow  *tk = & _f.trk [0];
-//TRC("DrawNow _pg=`d", _pg);
+TRC("DrawNow _pg=`d", _pg);
    if (! (p = _pg))  return;           // don't know pg at the moment :/
 
    Up.cnv.bgn (Up.pm);   Up.tcnv.bgn (Up.tpm);   // need pm too for DrawRec
    p--;   pn = _pNow;   n = _rNow;
-//TStr d1,d2;
-//DBG("DrawNow pg=`d pNow=`s rNow=`s",
-//p, TmSt (d1,pn), TmSt (d2,n));
+TStr d1,d2;
+DBG("DrawNow pg=`d pNow=`s rNow=`s",
+p, TmSt (d1,pn), TmSt (d2,n));
    if (pn)  DrawRec (false, p);        // pm gets JUST new rec nts
 
    for (c = 0;  c < pg [p].nCol;  c++) {         // find our col
@@ -920,7 +920,9 @@ void Song::DrawNow ()
    yNow = Tm2Y (n, & co);              // REAL y
    yOvr = yNow - (H_NW-1);             // y of bmp overlay
    nx = Nt2X (co.nMn, & co);   cx = CtlX (& co);   nw = cx - nx;
+DBG("c=`d nx=`d cx=`d   nx=`d dx=`d", c, nx, cx, co.nx, co.dx);
    nx -= co.x;   cx -= co.x;           // 0 is offset WITHIN the col HERE !!
+DBG("   nx2=`d cx2=`d", nx, cx);
 
 // bg bits => tCnv
    Up.tcnv.Blt (*Up.pm, 0, 0,  co.x, yOvr,  co.w, H_T);
@@ -929,10 +931,10 @@ void Song::DrawNow ()
    Up.tcnv.Blt (*Up.now,  nx, 0, nw, H_NW, 0, 0,
                                            Up.now->width (), Up.now->height ());
    if (_lrn.POZ) {
-//TStr d1,d2,d3;
-//DBG("DOTS poz=`b Cfg.lrn=`d pg=`d pNow=`s rNow=`s tmr=`s",
-//_lrn.POZ, Cfg.lrn, p, TmSt (d1,pn), TmSt (d2,n),
-//TmSt (d3,_timer->Get ()));
+TStr d1,d2,d3;
+DBG("DOTS poz=`b lrn=`d pg=`d pNow=`s rNow=`s tmr=`s",
+_lrn.POZ, Up.lrn, p, TmSt (d1,pn), TmSt (d2,n),
+TmSt (d3,_timer->Get ()));
    // if poz'd, draw dots n no x,o in those lrns
       Up.tcnv.SetMode ('t');
       dn = & _dn [_pDn];
@@ -961,6 +963,8 @@ void Song::DrawNow ()
             else      if (_lrn.rec [1][nt].tm)        t = 0;    // red
             if (t < 2)  Up.tcnv.Blt (*Up.dot, x+W_NT/2-8, H_NW-9,
                                                               t*16, 0,  16, 16);
+DBG("DRDOT tr=`d nt=`d nn=`d t=`d x=`d np?=`b",
+tr, nt, nn, t, x, (np!=nullptr)?true:false);
             x += W_NT;
          }
       }
