@@ -361,11 +361,11 @@ void Song::DrawSym (SymDef *s, ColDef *co)
          case 0:  clr = CSclD [ 0];   break;     // kick red
          case 1:  clr = CSclD [ 4];   break;     // snar green
          case 2:  clr = CSclD [ 7];   break;     // hhat blue
-         case 3:  clr = CSclD [ 1];   break;     // cymb orange
+         case 3:  clr = CSclD [ 6];   break;     // cymb cyan
          case 4:  clr = CSclD [ 2];   break;     // toms yellow
-         case 5:  clr = CSclD [ 9];   break;     // misc purple
-         case 6:  clr = CSclD [11];   break;     // latn magenta
-         default: clr = CSclD [ 6];   break;     // x    cyan
+         case 5:  clr = CSclD [ 9];   break;     // latn purple
+         case 6:  clr = CSclD [ 1];   break;     // misc orange
+         default: clr = CSclD [11];   break;     // x    magenta
       }                                // oops doin velocity
       if (Cfg.ntCo == 1)  clr = CRng [(nt->dn == NONE) ? 64 :
                                       (trk->e [nt->dn].valu & 0x7F)];

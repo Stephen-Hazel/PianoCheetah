@@ -69,7 +69,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget2">
       <layout class="QVBoxLayout" name="vl2">
        <item>
         <widget class="QTextEdit" name="etc">
