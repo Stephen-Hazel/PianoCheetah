@@ -36,7 +36,7 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
    MemCp (& co, & pg->col [c], sizeof (co));     // load column
    if ( (y > co.h) || (x >= (co.x+co.w-4)) || (x < (co.x+4)) )
       return Up.pos.at;                // outa col or in border - we got nothin
-   nx = Nt2X (co.nMn, & co);   cx = CtlX (& co);
+   nx = co.nx;   cx = co.cx;
 
    Up.pos.pg = p;   Up.pos.co = c;
    Up.pos.tm = Y2Tm (y, & co);   tm1 = Y2Tm (y-2, & co);
@@ -182,7 +182,7 @@ void Song::MsDn (Qt::MouseButton b, sbyt2 x, sbyt2 y)
 
    pg = & _pag [Up.pos.pg];
    MemCp (& co, & pg->col [Up.pos.co], sizeof (co));  // load column
-   nx = Nt2X (co.nMn, & co);
+   nx = co.nx;
    Up.pos.pPoz = Poz (true);   NotesOff ();
 
    if (Up.pos.at == 'k') {             // keyboard area - ctl[].sho editin
@@ -340,7 +340,7 @@ DBG("  nope");
       ct = (t >= NMCC) ? 'u' : MCC [t].typ;
       if (ct != 'x') {
          if (Up.pos.got)  v1 = _f.trk [Up.pos.tr].e [Up.pos.p].valu;  // init v1
-         else            {cx = CtlX (& co) + th * Up.pos.cp;
+         else            {cx = co.cx + th  *  Up.pos.cp;
                           v1 = (ubyte)(127 * (Up.pos.xp - cx) / (th-1));}
          if (x >= Up.pos.xp)                                   // offset by xpos
                {if ((x - Up.pos.xp) >= (127-v1))  v1  = 127;
@@ -432,7 +432,7 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
       }
       else {
          if (e)  v1 = e->valu;         // init v1
-         else   {cx = CtlX (& co) + th * Up.pos.cp;
+         else   {cx = co.cx + th  *  Up.pos.cp;
                  v1 = (ubyte)(127 * (Up.pos.xp - cx) / (th-1));}
          if (x >= Up.pos.xp)           // offset by xpos
                {if ((x - Up.pos.xp) >= (127-v1))  v1  = 127;

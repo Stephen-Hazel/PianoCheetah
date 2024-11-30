@@ -401,17 +401,17 @@ TRC(" song init");
    setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
 TRC(" tbar init");
   CtlTBar tb (this,
-      "view - show / hide track editing\n"
-      "the grid that picks which tracks to practice, RH/LH, sounds, etc"
+      "show / hide track editing\n"
+      "(grid that picks which tracks to practice, RH/LH, sounds, etc)"
       "`*..." "`v\0",
-      "tbSongFile");
+      "View");
    connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
    Up.tbaTtl = tb.Act (0);
 
   CtlTBar tb2 (this,                    // top
       "configure midi devices" "`:/tbar/0" "`\0"
       "settings and junk"      "`:/tbar/1" "`\0",
-      "tbGlobal");
+      "Config");
    connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::MCfg);
    connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::GCfg);
 
@@ -420,7 +420,7 @@ TRC(" tbar init");
       "previous song"       "`:/tbar/song/1" "`z\0"
       "next song"           "`:/tbar/song/2" "`x\0"
       "random song"         "`*??"           "`a\0",
-      "tbSongList");
+      "SongList");
    connect (tb3.Act (0), & QAction::triggered, this, & PCheetah::Load);
    connect (tb3.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
    connect (tb3.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
@@ -431,7 +431,7 @@ TRC(" tbar init");
          "Click Lrn column of track grid to practice it.\n"
          "Once you have played the song a few times, you can practice loops."
                          "`view-visible" "`l\0",
-      "tbLearnMode");
+      "LearnMode");
    Up.tbaLrn = tb4.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
                               Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
                               Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
@@ -445,7 +445,7 @@ TRC(" tbar init");
       "play / pause"       "`:/tbar/time/3" "`Space\0"
       "next bar"           "`:/tbar/time/4" "`3\0"
       "next loop/page"     "`:/tbar/time/5" "`Right\0",
-      "tbTime");
+      "Time");
    Up.tbaPoz = tb5.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
                               Up.tbiPoz [1] = new QIcon (":/tbar/time/6");
    connect (tb5.Act (0), & QAction::triggered,
@@ -465,7 +465,7 @@ TRC(" tbar init");
       "decrease tempo"           "`:/tbar/tmpo/0" "`F2\0"
       "tempo to 60%=>80%=100%=>" "`:/tbar/tmpo/1" "`t\0"
       "increase tempo"           "`:/tbar/tmpo/2" "`F3\0",
-      "tbTempo");
+      "Tempo");
    connect (tb6.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo<");});
    connect (tb6.Act (1), & QAction::triggered,
@@ -485,7 +485,7 @@ TRC(" tbar init");
                                     "`:/tbar/trak/6" "`\0"
       "`time offsetting - for { to end => { moves to ^"
                                     "`:/tbar/trak/7" "`\0",
-      "tbTrack");
+      "EditTrack");
    connect (tb7.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd sp");});
    connect (tb7.Act (1), & QAction::triggered,

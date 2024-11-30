@@ -445,8 +445,8 @@ void Song::NtHop ()                    // move note time,dur to new key
    e = _f.trk [t].e;                   // n is only ok if NON ez (! RCRD)
 
 DBG("NtHop pg=`d co=`d sy=`d x2=`d tr=`d", ap, ac, as, x2, t);
-   nx  = Nt2X (co.nMn, & co);
-   dnt = ((x2 < nx) || (x2 >= CtlX (& co))) ? 0 :
+   nx  = co.nx;
+   dnt = ((x2 < nx) || (x2 >= co.cx)) ? 0 :
             co.nMn + (x2 - nx) / W_NT; // note to move it to
 DBG("dnt=`s", MKey2Str (s1, dnt));
    if (RCRD) {                         // restart eztrack on this note pos
@@ -528,7 +528,7 @@ ap, ac, x1, y1, x2, y2, s);
   PagDef *pg = & _pag [ap];
   ColDef  co;
    MemCp (& co, & pg->col [ac], sizeof (co));
-   nx = Nt2X (co.nMn, & co);
+   nx = co.nx;
    if (*s == '\0') {                   // just gonna ins a note
       if (x1 >= Nt2X (co.nMx+1, & co))
          {Hey (CC("sorry, can't do drums yet"));   return;}
@@ -603,7 +603,7 @@ ap, ac, x1, y1, x2, y2, s);
 // ok, hunt em down n kill/move each dude
    if (x2 < x1)  {tp = x1;   x1 = x2;   x2 = tp;}
    if (y2 < y1)  {tp = y1;   y1 = y2;   y2 = tp;}
-  ubyt2 dx = Nt2X (co.nMx+1, & co);
+  ubyt2 dx = co.dx;
    if (x1 >= dx)  {Hey (CC("sorry, can't do drums yet :("));   return;}
 
    if (x2 >= dx)  x2 = dx-1;

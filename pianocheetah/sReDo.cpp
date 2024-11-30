@@ -825,12 +825,13 @@ o+1,MKey2Str(ts1,oMn[o]),MKey2Str(ts2,oMx[o]),oX[o]);
          _col [nc].nMx  = nMx;   MemCp (_col [nc].oMx, oMx, sizeof (oMx));
                                  MemCp (_col [nc].oX,  oX,  sizeof (oX));
          _col [nc].nDrm = nd;    MemCp (_col [nc].dMap, dmap, 128);
-      // left border, chd, cue (xo within syms' x)
+      // left border, chd, cue (NOT left whitebump) (xo within syms' x)
          _col [nc].nx   =  _col [nc].x + 4 + (_lrn.chd?th:0) + W_Q;
       // plus note w (incl left and right white bumps)
          _col [nc].dx   =  _col [nc].nx + dx;
+         _col [nc].cx   =  _col [nc].dx + nd * nw;
       // plus drum w + ctrl w + right border
-         _col [nc].w    = (_col [nc].dx + nd*nw + cw + 4) - _col [nc].x;
+         _col [nc].w    = (_col [nc].cx + cw + 4) - _col [nc].x;
          _col [nc].h    = ch;
 DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d nx=`d dx=`d",
 nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,
@@ -907,16 +908,16 @@ _col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx);
                      }
                      if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
 
-                     o = nt/12 - 2;    // always white within a "short" oct
+                     o = nt/12 - 2;    // always white within a (short) oct
                      MKey2Str (smn, oMn [o]);
                      MKey2Str (smx, nt);
                      x = oX [o] + (smx[1] - smn[1]) * ww;   w = ww;
-DBG("      oct=`d oX=`d smn=`s smx=`s",o+1,oX[o],smn,smx);
+//DBG("      oct=`d oX=`d smn=`s smx=`s",o+1,oX[o],smn,smx);
                      _sym [ns].x = x;   _sym [ns].w = w;
-DBG("   DN ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
-ns,_sym[ns].tr, MKey2Str(ts1,nt),
-_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
-ntb,TmSt(ts2,ntb));
+//DBG("   DN ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
+//ns,_sym[ns].tr, MKey2Str(ts1,nt),
+//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
+//ntb,TmSt(ts2,ntb));
                      _col [nc].nSym++;
                   }
                }
@@ -992,9 +993,9 @@ ntb,TmSt(ts2,ntb));
                         if (n [p].ov && (_sym [ns].w >= 9))
                            {_sym [ns].x += 3;   _sym [ns].w -= 3;}
                      }
-DBG("   NT ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
-ns,_sym[ns].tr, MKey2Str(ts1,n [_sym[ns].nt].nt),
-_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
+//DBG("   NT ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b",
+//ns,_sym[ns].tr, MKey2Str(ts1,n [_sym[ns].nt].nt),
+//_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
                      _col [nc].nSym++;
                   }
          }

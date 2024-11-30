@@ -233,7 +233,15 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                      if (tUp >  pMx)  tUp = pMx;
                      if (tUp >= tMx)  tUp = tMx-1;
                      dnt = nt;
-                     if (! drm) {
+                     if (drm) {
+                        for (got = false, dPos = 0;  dPos < co.nDrm;  dPos++) {
+                           tt = co.dMap [dPos];
+                           if (_f.trk [tt].drm == nt) {got = true;   break;}
+                        }
+                        x = co.dx + dPos*W_NT;
+                        if (! got)  x -= W_NT/2;      // unmapped one
+                     }
+                     else {
                         if (nt < co.nMn) dnt = co.nMn;     // rec note COULD be
                         if (nt > co.nMx) dnt = co.nMx;     // anywhere, put on
                         if (KeyCol [dnt%12] == 'w')   // usually
@@ -241,21 +249,14 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                         else
                            x = Nt2X (dnt, & co, 'g');
                      }
-                     else {
-                        for (got = false, dPos = 0;  dPos < co.nDrm;  dPos++) {
-                           tt = co.dMap [dPos];
-                           if (_f.trk [tt].drm == nt) {got = true;   break;}
-                        }
-                        if (! got)  dPos = 1;    // rec'd - put weird ones in
-                        x = Dr2X (dPos, & co);   // leftmost spot
-                     }
                      y = Tm2Y (tDn, & co);   h = Tm2Y (tUp, & co) - y;
 //TStr db1,db2,db3;
 //DBG("   a nt=`s tDn=`s tUp=`s y=`d h=`d x=`d",
 //MKey2Str(db3,nt), TmSt(db1,ev.time), TmSt(db2,tUp), y, h, x);
                      qc = GRAY (255-((ev.valu & 0x7F) << 1));
+//                   qc = CRng [ev.valu & 0x7F];      // velo => color
                      Up.cnv.RectF (   x+5, y,   W_NT-10, h, qc);
-                     if (tDn == ev.time) {       // head
+                     if (tDn == ev.time) {            // head
                         Up.cnv.RectF (x+0, y,   W_NT-0,  1, qc);
                         Up.cnv.RectF (x+2, y+1, W_NT-4,  1, qc);
                         Up.cnv.RectF (x+4, y+2, W_NT-8,  1, qc);
@@ -287,21 +288,21 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                if (tUp >  pMx)  tUp = pMx;
                if (tUp >= tMx)  tUp = tMx-1;
                dnt = nt;
-               if (! drm) {
+               if (drm) {
+                  for (got = false, dPos = 0;  dPos < co.nDrm;  dPos++) {
+                     tt = co.dMap [dPos];
+                     if (_f.trk [tt].drm == nt)  {got = true;   break;}
+                  }
+                  x = co.dx + dPos*W_NT;
+                  if (! got)  x -= W_NT/2;  // unmapped one
+               }
+               else {
                   if (nt < co.nMn) dnt = co.nMn;      // rec note COULD be
                   if (nt > co.nMx) dnt = co.nMx;      // anywhere, put on
                   if (KeyCol [dnt%12] == 'w')
                      x = Nt2X (dnt, & co) + (W_NTW-W_NT) / 2;
                   else
                      x = Nt2X (dnt, & co, 'g');
-               }
-               else {
-                  for (got = false, dPos = 0;  dPos < co.nDrm;  dPos++) {
-                     tt = co.dMap [dPos];
-                     if (_f.trk [tt].drm == nt)  {got = true;   break;}
-                  }
-                  if (! got)  dPos = 1;
-                  x = Dr2X (dPos, & co);
                }
                y = Tm2Y (tDn, & co);   h = Tm2Y (tUp, & co) - y + 1;
 //TStr db1,db2,db3;
@@ -506,6 +507,8 @@ DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
             Up.cnv.Text (x+w-tw-3, 15+th, str);
             if (x > nx)  Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
          }
+         if ((x > nx) && co.nDrm)      // red vert line btw melo n drum
+                         Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
       }
       else {
       // prep ksig biz
@@ -571,10 +574,12 @@ DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
       }
    //__________________________________
    // vert line per drum(top),ctl(base) - skip 1st ctl's line
+      if ((x > nx) && co.nDrm)         // red vert line btw melo n drum
+                       Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
       for (x = co.dx, t = 0;  t < co.nDrm;  t++)
-         {x += W_NT;   Up.cnv.RectF (x-1, 0, 1, co.h, CBBg);}
+         {x += W_NT;   Up.cnv.RectF (x-1,  0, 1, co.h,      CBBg);}
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho)
-         {if (x > cx) Up.cnv.RectF (x, 0, 1, co.h, CBBg);   x += th;}
+         {if (x > cx) Up.cnv.RectF  (x,    0, 1, co.h,      CBBg);   x += th;}
 
    // draw bars/beats/subbeats background lines - 1st time is beat just b4 tMn
       for (tn = bt = 0, t1 = tMn;  t1 < tMx;  t1 = t2, bt++) {
@@ -889,7 +894,7 @@ DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
 void Song::DrawNow ()
 // refresh rec;  draw now line at right spot, optionally with red,grn dots
 { ubyte t, tr, mt, nt, f, nn;
-  ubyt2 nx, nw, cx, ww, x, yNow, yOvr;
+  ubyt2 nx, nw, dx, ww, x, yNow, yOvr;
   ubyt4 c, tMn, tMx, n, pn, p, pt;
   bool  up;
   DownRow *dn;
@@ -919,10 +924,10 @@ p, TmSt (d1,pn), TmSt (d2,n));
    MemCp (& co, & pg [p].col [c], sizeof (co));  // load column specs
    yNow = Tm2Y (n, & co);              // REAL y
    yOvr = yNow - (H_NW-1);             // y of bmp overlay
-   nx = Nt2X (co.nMn, & co);   cx = CtlX (& co);   nw = cx - nx;
-DBG("c=`d nx=`d cx=`d   nx=`d dx=`d", c, nx, cx, co.nx, co.dx);
-   nx -= co.x;   cx -= co.x;           // 0 is offset WITHIN the col HERE !!
-DBG("   nx2=`d cx2=`d", nx, cx);
+   nx = co.nx;   dx = co.dx;   nw = co.cx - nx;  // nw is w of melo+drum nts
+DBG("c=`d nx=`d dx=`d", c, nx, dx, nw);
+   nx -= co.x;   dx -= co.x;           // 0 is offset WITHIN the col HERE !!
+DBG(" ofs nx=`d dx=`d", nx, dx);
 
 // bg bits => tCnv
    Up.tcnv.Blt (*Up.pm, 0, 0,  co.x, yOvr,  co.w, H_T);
@@ -950,10 +955,10 @@ TmSt (d3,_timer->Get ()));
                }
                if (mt >= co.nDrm)  {up = false;   break;}
             }
-         if (! up)  Up.tcnv.Blt (*Up.dot, cx - co.nDrm*W_NT, H_NW-9,
-                                                                 5, 0,  11, 16);
+         if (! up)
+            Up.tcnv.Blt    (*Up.dot, dx,         H_NW-9, 5,    0,  11, 16);
       // dot drums notes
-         for (x = cx - co.nDrm*W_NT, mt = 0;  mt < co.nDrm;  mt++) {
+         for (x = dx, mt = 0;  mt < co.nDrm;  mt++) {
             tr = co.dMap [mt];   nt = tk [tr].drm;
             for (np = NULL, nn = 0;  nn < dn->nNt;  nn++)
                if ( TDrm (dn->nt [nn].t) && (dn->nt [nn].nt == nt) )
@@ -961,9 +966,9 @@ TmSt (d3,_timer->Get ()));
             t = 2;                     // default to no dot;  check grn,red
             if (np)  {if (_lrn.rec [1][nt].tm <= pt)  t = 1;}   // grn
             else      if (_lrn.rec [1][nt].tm)        t = 0;    // red
-            if (t < 2)  Up.tcnv.Blt (*Up.dot, x+W_NT/2-8, H_NW-9,
-                                                              t*16, 0,  16, 16);
-DBG("DRDOT tr=`d nt=`d nn=`d t=`d x=`d np?=`b",
+            if (t < 2)
+               Up.tcnv.Blt (*Up.dot, x+W_NT/2-8, H_NW-9, t*16, 0,  16, 16);
+if(t<2)DBG("DRDOT tr=`d nt=`d nn=`d t=`d x=`d np?=`b",
 tr, nt, nn, t, x, (np!=nullptr)?true:false);
             x += W_NT;
          }
@@ -975,7 +980,7 @@ tr, nt, nn, t, x, (np!=nullptr)?true:false);
       if (! up)  Up.tcnv.Blt (*Up.dot, nx,    H_NW-9,  5, 0,  11, 16);
       for (up = true, nt = co.nMx+1;  nt <= MKey (CC("8c"));  nt++)
          if (_lrn.rec [0][nt].tm)  {up = false;   break;}
-      if (! up)  Up.tcnv.Blt (*Up.dot, cx-11, H_NW-9,  0, 0,  11, 16);
+      if (! up)  Up.tcnv.Blt (*Up.dot, dx-11, H_NW-9,  0, 0,  11, 16);
 
    // dot melodic notes - just red;  green next
       for (x = 0, nt = co.nMn;  nt <= co.nMx;  nt++, x += W_NT) {
@@ -989,6 +994,7 @@ tr, nt, nn, t, x, (np!=nullptr)?true:false);
          if (_lrn.rec [0][nt].tm && (! np)) {
             x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
             if (KeyCol [nt%12] == 'w')    ww = W_NTW/2;
+DBG("NTDOT red nt=`d x=`d, w=`d", nt, x, ww);
             Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  0*16, 0,  16, 16);
          }
       }
@@ -998,6 +1004,7 @@ tr, nt, nn, t, x, (np!=nullptr)?true:false);
          if (_lrn.rec [0][nt].tm <= pt) {
             x = Nt2X (nt, & co) - co.x;   ww = W_NT/2;
             if (KeyCol [nt%12] == 'w')    ww = W_NTW/2;
+DBG("NTDOT grn nt=`d x=`d w=`d", nt, x, ww);
             Up.tcnv.Blt (*Up.dot, x+ww-8, H_NW-9,  1*16, 0,  16, 16);
          }
       }

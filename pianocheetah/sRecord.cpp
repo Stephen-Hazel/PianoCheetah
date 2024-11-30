@@ -312,11 +312,14 @@ TRC("   UNPOZ cuz done w down");
          }
       }
    }
-   else if ((! _lrn.POZ) && DnOK ('n', & tr, ev)) {   // ding ding ding
-      SetMSec (++pd, ev);                             // BOING !!
+   else if (! _lrn.POZ) {
+      pd++;
+      if (DnOK ('n', & tr, ev)) {   // ding ding ding
+         SetMSec (pd, ev);                             // BOING !!
 TRC("   hard BOING forward");
-      ev->time = dnTm = _dn [pd].time;
-      _timer->SetSig (dnTm);   _timer->Set (dnTm);
+         ev->time = dnTm = _dn [pd].time;
+         _timer->SetSig (dnTm);   _timer->Set (dnTm);
+      }
    }
 TRC("   lrnTrk=`d pDn=`d", tr, pd);
 
