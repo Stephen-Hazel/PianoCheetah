@@ -140,7 +140,6 @@ private:
 // sFile.cpp
    bool  DscGet  (char *key, char *val);
    void  DscPut  (char *repl);
-   void  Pract   ();
    void  DscInit (), DscLoad (), DscSave ();
    ubyte DrumCon ();                   // outputs _mapD
    void  DrumExp (bool setBnk = true);    // usin _mapD
@@ -267,7 +266,7 @@ private:
    Arr<TrkEv,MAX_RCRD>  _recD;         // rec events - drum
    Arr<ubyt4,128>       _sySn;         // syn's sound bank: just melodic no drum
 
-   ubyt4  _tEnd;                       // last time       DID some practice evs?
+   ubyt4  _tEnd;                       // last time
    ubyt2  _bEnd;                       // last bar
 // _now is curr time if poz'd, else next time Put happens (usually in future)
 // _pNow to _rNow is timeframe for DrawNowP to update

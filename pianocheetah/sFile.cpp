@@ -55,41 +55,6 @@ void Song::DscPut (char *repl)
 }
 
 
-void Song::Pract ()
-// update _f.dsc w pract line for today:  pract yyyymm .. dd
-{ char *p;                             // (too tricky for DscPut)
-  TStr  day, mo, chk;
-  ubyt4 ln, pLn;
-//DBG("pract _f.dsc=...\n`s", _f.dsc);
-   Now (day);   StrCp (mo, day);   mo [6] = '\0';
-                day [5] = ' ';   day [8] = '\0';      // use & day [5] for " dd"
-   StrFmt (chk, "pract `s", mo);
-   if ((p = StrSt (_f.dsc, chk))) {
-   // if got pract yyyymm and it doesn't end w dd, stick (spc)dd in
-      if ( (p = StrSt (p, CC("\n"))) && MemCm (p-2, & day [6], 2) ) {
-         if (StrLn (_f.dsc)+4 > sizeof (_f.dsc))
-            DBG("Pract  _f.dsc outa room");
-         StrCp (p+3, p);   MemCp (p, & day [5], 3);
-      }
-   }
-   else {
-   // insert new pract yyyymm dd\n
-      StrAp (chk, & day [5]);   StrAp (chk, CC("\n"));
-   // search through lines (split on \n) looking for pract* and notes*
-      ln = 0;   pLn = 0;
-      do
-         if (! MemCm (& _f.dsc [pLn], CC("pract "), 6))  break;
-      while ((pLn = LinePos (_f.dsc, ++ln)));
-      if (StrLn (_f.dsc) + StrLn (chk) + 1 > sizeof (_f.dsc))
-         DBG("Pract  _f.dsc outa room");
-   // right before 1st pract* line;  else ins at start
-      StrCp (& _f.dsc [pLn + StrLn (chk)], & _f.dsc [pLn]);
-      MemCp (& _f.dsc [pLn], chk, StrLn (chk));
-   }
-//DBG("   => _f.dsc=...\n`s", _f.dsc);
-}
-
-
 void Song::DscInit ()                  // init w defaults
 {  _f.tmpo = FIX1;   _f.tran = 0;   Up.lrn = LHEAR;
 //DBG("DscInit");

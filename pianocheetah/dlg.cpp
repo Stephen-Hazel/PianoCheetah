@@ -513,7 +513,6 @@ void DlgFL::Pik ()
   TStr  fn, s, dt;
   BStr  buf, etc;
   ubyt4 r, i, d;
-  bool  in = false;
   StrArr tb (CC("FLstEtc"), 16000, 6000*sizeof(TStr));
    if ((p = _t.CurRow ()) >= 0)  FL.pos = p;
    FL.ext = false;
@@ -536,41 +535,13 @@ void DlgFL::Pik ()
          }
       }
    }
-   if (d)  StrAp (buf, CC("---------------------------------------\n"));
    for (d = r = 0; r < tb.NRow (); r++) {
       StrCp (s, tb.Get (r));
       if ((! MemCm (s, CC("DrumMap:"), 8)) ||
           (! MemCm (s, CC("Track:"), 6)))  break;
-      if  (! MemCm (s, CC("notes "), 6))
-         {d = 1;   StrAp (buf, & s [6]);   StrAp (buf, CC("\n"));}
-   }
-   if (d)  StrAp (buf, CC("---------------------------------------\n"));
-   for (r = 0; r < tb.NRow (); r++) {
-      StrCp (s, tb.Get (r));
-      if ((! MemCm (s, CC("DrumMap:"), 8)) ||
-          (! MemCm (s, CC("Track:"), 6)))  break;
-      if             (! StrSt (s, CC("={")))     in = true;
-      else if (in && (! MemCm (s, CC("}"), 1)))  in = false;
-      else if (in || (! MemCm (s, CC("pract "), 6)))  ;
-      else  {StrAp (buf, s);   StrAp (buf, CC("\n"));}     // append to etc
-   }
-   for (d = r = 0; r < tb.NRow (); r++) {
-      StrCp (s, tb.Get (r));
-      if ((! MemCm (s, CC("DrumMap:"), 8)) ||
-          (! MemCm (s, CC("Track:"), 6)))  break;
-      if  (! MemCm (s, CC("pract "),   6)) {
-         if (d == 0) {
-            d = 1;
-            StrAp (buf, CC("days practiced...\n"));
-            StrAp (buf, CC("                 1111111111222222222233\n"));
-            StrAp (buf, CC("yyyymm  1234567890123456789012345678901\n"));
-         }
-         MemCp  (dt,  & s [6], 6);   dt [6] = '\0';
-         MemSet (etc, '.', 31);    etc [31] = '\0';
-         for (i = 13;  i < StrLn (s);  i += 3)
-            {d = Str2Int (& s [i]);   if (d && (d < 32))  etc [d-1] = '*';}
-         StrAp (buf, dt);   StrAp (buf, CC("  "));   StrAp (buf, etc);
-                                                     StrAp (buf, CC("\n"));
+      if  (! MemCm (s, CC("notes "), 6)) {
+         d = 1;   StrAp (buf, CC("\n"));   StrAp (buf, & s [6]);
+                  StrAp (buf, CC("\n"));
       }
    }
   CtlText e (ui->etc);   e.Clr ();   e.Add (buf);
