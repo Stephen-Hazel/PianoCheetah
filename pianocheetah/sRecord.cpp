@@ -324,9 +324,9 @@ TRC("   hard BOING forward");
 TRC("   lrnTrk=`d pDn=`d", tr, pd);
 
    if (tr != 0x80) {                   // store our velo in _dn[].velo[]
-      oct = _f.trk [tr].ht - '1';      // .ht '1' => 0
-      _dn [pd].velo [oct] = ev->valu & 0x7F;
-TRC("   oct=`d", oct+1);
+      oct = TDrm (tr) ? 0 : (_f.trk [tr].ht - '0');
+      _dn [pd].velo [oct] = ev->valu & 0x7F;     // .ht '1' => 1 (0 for drum)
+TRC("   oct=`d", oct);
    }
 
    _rNow = ev->time;

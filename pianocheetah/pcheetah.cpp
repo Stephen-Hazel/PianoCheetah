@@ -201,7 +201,6 @@ TRC("TrClkR r=`d c=`d", r, c);
    Up.eTrk = (ubyte)r;
    if      (c == 0)  emit sgCmd ("mute");
    else if (c == 1)  emit sgCmd ("showAll");
-   else if (c == 7)  emit sgCmd ("recWipe");
 }
 
 
@@ -301,14 +300,18 @@ void PCheetah::Upd (QString upd)
    }
 
    if (! StrCm (u, CC("trk"))) {
+DBG("trk bgn");
      char *rp [32];
-      _tr.Open ();   rp [8] = nullptr;
+     BStr  tip;
+      _tr.Open ();   rp [6] = nullptr;
       for (ubyte i = 0, tc = 0;  i < Up.trk.Ln;  i++) {
          rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ht;
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
-         rp [6] = Up.trk [i].notes;    rp [7] = Up.trk [i].ctrls;
-         _tr.Put (rp);
+         StrFmt (tip, "#`d notes=`s ctrls=`s",
+                 i+1, Up.trk [i].notes, Up.trk [i].ctrls);
+DBG("tip=`s", tip);
+         _tr.Put (rp, tip);
          if (Cfg.ntCo == 2) {          // color by track (if lrn/show non drum)
             if (((rp [0][0] == 'l') || (rp [1][0] == 's')) &&
                 (! Up.trk [i].drm))
@@ -324,6 +327,7 @@ void PCheetah::Upd (QString upd)
          }
       }
       _tr.Shut ();   _tr.HopTo (Up.eTrk, 0);
+DBG("trk end");
    }
 
    if (! MemCm (u, CC("hey "), 4))   Gui.Hey (& u [4]);
@@ -511,9 +515,7 @@ TRC(" lyr,tr,nt init");
       "_Track\0"
       "_SnGrp\0"
       "_Sound\0"
-      "_Dev.Chan\0"
-      ">Notes\0"
-      ">Ctrls\0", TrPop);
+      "_Dev.Ch\0", TrPop);
    _tr.SetRowH (Gui.FontH ()+1);
 
    ui->tr->setContextMenuPolicy (Qt::CustomContextMenu);

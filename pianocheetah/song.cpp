@@ -197,15 +197,15 @@ TRC("PutNt tr=`d bg=`b pDn=`d", t, bg, _pDn);
    if (! TDrm (t))  ctrl += _f.tran;   // got some live transposin?
 
 // adjust velo of bg trk if learn mode n ntDn
-   if (   bg  && RCRD && ENTDN (e)) {
-      for (v = d = i = 0;  i < 7;  i++)  if (_dn [_pDn].velo [i])
+   if (   bg  && SHRCRD && ENTDN (e)) {
+      for (v = d = i = 0;  i < 8;  i++)  if (_dn [_pDn].velo [i])
          {v += _dn [_pDn].velo [i];   d++;}
 //TStr db;
 //TRC(" pDnTm=`s v=`d d=`d", TmSt (db,_dn [_pDn].time), v, d);
       if (d)  valu = 0x80 | (v / d + (((v % d) >= (d / 2)) ? 1:0));
    }
-   if ((! bg) && RCRD && ENTDN (e)) {
-     ubyte oct = _f.trk [t].ht - '1';
+   if ((! bg) && SHRCRD && ENTDN (e)) {
+     ubyte oct = TDrm (t) ? 0 : (_f.trk [t].ht - '0');
       valu = 0x80 | _dn [_pDn].velo [oct];
    }
    dv = _f.trk [t].dev;   ch = _f.trk [t].chn;

@@ -14,7 +14,7 @@ ubyt2 Song::Nt2X (ubyte n, ColDef *co, char gr)
   ubyt2 nx, xo;
   TStr  sn, sx;
    nx = co->nx;
-   if (RCRD) {
+   if (SHRCRD) {
       oc = n/12 - 2;   ky = n%12;
       xo = W_NTW / 2;                  // default to not right
       if ( (n >= co->oMn [oc]) &&

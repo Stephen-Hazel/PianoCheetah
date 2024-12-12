@@ -54,9 +54,9 @@ TRC("DrawRec all=`b pp=`d", all, pp);
       ne = _recD.Ln;   if (ne && ((t1 = _recD [ne-1].time) > pMx))  pMx = t1;
    }
    else  {pMn = _pNow-1;   pMx = _rNow;}
-//TStr d1,d2,d3,d4;
-//DBG(" pMn=`s pMx=`s  pNow=`s",
-//TmSt(d1,pMn), TmSt(d2,pMx), TmSt(d3,_pNow));
+TStr d1,d2,d3,d4;
+DBG(" pMn=`s pMx=`s  pNow=`s",
+TmSt(d1,pMn), TmSt(d2,pMx), TmSt(d3,_pNow));
 
 // init ctl arr cc[] w ctrl id,type,default value from _f.ctl[],cc.txt
    tp = 0;                             // default to no tempo
@@ -250,9 +250,9 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                            x = Nt2X (dnt, & co, 'g');
                      }
                      y = Tm2Y (tDn, & co);   h = Tm2Y (tUp, & co) - y;
-//TStr db1,db2,db3;
-//DBG("   a nt=`s tDn=`s tUp=`s y=`d h=`d x=`d",
-//MKey2Str(db3,nt), TmSt(db1,ev.time), TmSt(db2,tUp), y, h, x);
+TStr db1,db2,db3;
+DBG("   a nt=`s tDn=`s tUp=`s y=`d h=`d x=`d",
+MKey2Str(db3,nt), TmSt(db1,ev.time), TmSt(db2,tUp), y, h, x);
                      qc = GRAY (255-((ev.valu & 0x7F) << 1));
 //                   qc = CRng [ev.valu & 0x7F];      // velo => color
                      Up.cnv.RectF (   x+5, y,   W_NT-10, h, qc);
@@ -268,8 +268,8 @@ TRC("DrawRec all=`b pp=`d", all, pp);
             }
          }
          for (nt = 0;  nt < 128;  nt++)  if (on [nt] != NONE) {
-//TStr db1;
-//DBG("   dnOnly nt=`s", MKey2Str (db1, nt));
+TStr db1;
+DBG("   dnOnly nt=`s", MKey2Str (db1, nt));
          // for rec trk, we MIGHT have a NtDn with no up RECORDED yet
             tDn = e [on [nt]].time;   tUp = NONE;
             for (p = on [nt] + 1;  p < ne;  p++)  if (e [p].ctrl == nt)
@@ -305,9 +305,9 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                      x = Nt2X (dnt, & co, 'g');
                }
                y = Tm2Y (tDn, & co);   h = Tm2Y (tUp, & co) - y + 1;
-//TStr db1,db2,db3;
-//DBG("   b nt=`s tDn=`s tUp=`s y=`d h=`d x=`d",
-//MKey2Str(db3,nt), TmSt(db1,tDn), TmSt(db2,tUp), y, h, x);
+TStr db1,db2,db3;
+DBG("   b nt=`s tDn=`s tUp=`s y=`d h=`d x=`d",
+MKey2Str(db3,nt), TmSt(db1,tDn), TmSt(db2,tUp), y, h, x);
                qc = GRAY (255 - ((e [on [nt]].valu & 0x7F) << 1));
                Up.cnv.RectF (   x+5, y,   W_NT-10, h, qc);
                if (tDn == e [on [nt]].time) {    // head
@@ -356,7 +356,9 @@ void Song::DrawSym (SymDef *s, ColDef *co)
   TrkNt  *nt;
   QColor  clr, kc;                     // main color, key color (white/black)
    tr = s->tr;   trk = & _f.trk [tr];   nt = & trk->n [s->nt];   dr = TDrm (tr);
-   n = RCRD ? ((ubyte)s->nt) : nt->nt;
+   n = SHRCRD ? ((ubyte)s->nt) : nt->nt;
+
+// first get the color - clr is main color, kc is white/black
    if (dr) {
       switch (MDrm2Grp (trk->din)) {
          case 0:  clr = CSclD [ 0];   break;     // kick red
@@ -371,8 +373,8 @@ void Song::DrawSym (SymDef *s, ColDef *co)
       if (Cfg.ntCo == 1)  clr = CRng [(nt->dn == NONE) ? 64 :
                                       (trk->e [nt->dn].valu & 0x7F)];
    }
-   else if (RCRD)                      // f to purple so it shows better
-      clr = CScl [(tc = n % 12) == 5 ? 9 : tc];
+   else if (SHRCRD)                    // f to purple so it shows better
+      clr = CScl [((tc = n % 12) == 5) ? 9 : tc];
    else
       switch (Cfg.ntCo) {
          case 2:                       // track
@@ -387,9 +389,11 @@ void Song::DrawSym (SymDef *s, ColDef *co)
             clr = CScl [((n % 12) + 12 - key) % 12];
       }
    kc = (dr || (KeyCol [n%12] == 'w')) ? CWHITE : CBLACK;
+
+// now x,y etc
    x = co->nx + s->x;   y = s->y;   w = s->w;   h = s->h;
-                                       // white dudes: big head, little butt
-   if (kc == CWHITE) {
+
+   if (kc == CWHITE) {                 // white dudes: big head, little butt
       if (s->top)  {if (h >= 18)  h = 16;}
       else         {x = Nt2X (n, co, 'g');   w = W_NT;}
    }
@@ -414,7 +418,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
 
    mo = 3;                             // middle offset from x for fillin
    dh = 10;   if (h < 12)  dh = (h > 2) ? (h-2) : 2;
-   if ((! RCRD) && s->top) {           // rounded-ish dot aligned to hand
+   if ((! SHRCRD) && s->top) {         // rounded-ish dot aligned to hand
       ha = (trk->ht < '4') ? 'L' : 'R';
       dw = w - mo*2;
       dx = x;   if      (ha == 'R')  dx += (mo*2);
@@ -424,7 +428,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
    }
 
    if ((kc == CWHITE) && s->top && (h != s->h)) {
-      if (RCRD) {                      // center n slightly thinner in rec
+      if (SHRCRD) {                    // center n slightly thinner in rec
          x += 7;   w -= 14;
       }
       else {                 // white dudes have tail of only W_NT for true h
@@ -486,10 +490,12 @@ MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
    // draw bg horiz rect (white&black keyboard);  label octaves at b|c
       Up.cnv.SetFg (CBLACK);
 
-      if (RCRD) {                      // WAYY diff
+      if (SHRCRD) {                    // WAYY diff
          for (x = nx, oc = 0;  oc < 7;  oc++, x += w) {
             w = 0;   if (! co.oMx [oc])  continue;
 
+            if (x > nx)  {Up.cnv.RectF (x, 0, 2, co.h, CBLACK);
+                          x += 2;}
             MKey2Str (snm, nm = co.oMn [oc]);
             MKey2Str (snt, nt = co.oMx [oc]);
 
@@ -505,10 +511,9 @@ DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
             StrFmt (str, "`d", oc+1);
             Up.cnv.Text (x+2,      15+th, str);
             Up.cnv.Text (x+w-tw-3, 15+th, str);
-            if (x > nx)  Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
          }
          if ((x > nx) && co.nDrm)      // red vert line btw melo n drum
-                         Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
+                          Up.cnv.RectF (x, 0, 2, co.h, CBLACK);
       }
       else {
       // prep ksig biz
@@ -522,9 +527,12 @@ DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
             nt =  0;   if (oc == co.nMn/12)  nt = co.nMn%12;
             nd = 11;   if (oc == co.nMx/12)  nd = co.nMx%12;
             x1 = nt*W_NT;   w = W_NT*(nd-nt+1);
-         // got leftmost whiteBump?
-            if (nt && (KeyCol [nt] == 'w'))  {wb = WXOfs [nt] * W_NT/12;
-                                              x1 -= wb;   w += wb;}
+         // got leftmost or rightmost whiteBump?
+            if ((nt !=  0) && (KeyCol [nt] == 'w'))
+               {wb = WXOfs [nt] * W_NT/12;   x1 -= wb;   w += wb;}
+            if ((nd != 11) && (KeyCol [nd] == 'w'))
+               {wb = W_NTW - W_NT -
+                     WXOfs [nd] * W_NT/12;               w += wb;}
 //DBG(" oct x=`d nt=`d nd=`d w=`d x1=`d wb=`d", x, nt, nd, w, x1, wb);
 
          // keyboard oct at top of col
@@ -543,7 +551,7 @@ DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
 
          // draw curr keysig;  if in scale, put step color
             w2 = 3;
-            if ((Cfg.ntCo == 0) && (! RCRD))
+            if ((Cfg.ntCo == 0) && (! SHRCRD))
                for (x2 = x+wb, n2 = oc*12+nt;  n2 <= oc*12+nd;
                                                n2++, x2 += W_NT)
                   if (ksig [n2 % 12] != ' ')
@@ -574,12 +582,10 @@ DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
       }
    //__________________________________
    // vert line per drum(top),ctl(base) - skip 1st ctl's line
-      if ((x > nx) && co.nDrm)         // red vert line btw melo n drum
-                       Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
       for (x = co.dx, t = 0;  t < co.nDrm;  t++)
-         {x += W_NT;   Up.cnv.RectF (x-1,  0, 1, co.h,      CBBg);}
+         {x += W_NT;   Up.cnv.RectF (x-1, 0, 1, co.h, CBBg);}
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho)
-         {if (x > cx) Up.cnv.RectF  (x,    0, 1, co.h,      CBBg);   x += th;}
+         {if (x > cx) Up.cnv.RectF  (x,   0, 1, co.h, CBBg);   x += th;}
 
    // draw bars/beats/subbeats background lines - 1st time is beat just b4 tMn
       for (tn = bt = 0, t1 = tMn;  t1 < tMx;  t1 = t2, bt++) {

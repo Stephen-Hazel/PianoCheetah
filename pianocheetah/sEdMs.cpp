@@ -23,7 +23,7 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
 // at x:      ct
 // at f,d:    sy
 { ubyt4 c, p, ne, tm1, tm2;
-  ubyt2 nx, cx, th = Up.txH;
+  ubyt2 nx, dx, cx, th = Up.txH;
   PagDef *pg;
   ColDef  co;
    Up.pos.at = Up.pos.got = '\0';   if (! (p = _pg))  return Up.pos.at;
@@ -36,7 +36,7 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
    MemCp (& co, & pg->col [c], sizeof (co));     // load column
    if ( (y > co.h) || (x >= (co.x+co.w-4)) || (x < (co.x+4)) )
       return Up.pos.at;                // outa col or in border - we got nothin
-   nx = co.nx;   cx = co.cx;
+   nx = co.nx;   dx = co.dx;   cx = co.cx;
 
    Up.pos.pg = p;   Up.pos.co = c;
    Up.pos.tm = Y2Tm (y, & co);   tm1 = Y2Tm (y-2, & co);
@@ -284,10 +284,9 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          StrAp (s, ev ? StrFmt (s2, "_`d ", ev->valu & 0x007F) : CC(" "));
          if (! dr)  {StrAp (s, SndName (tr));   StrAp (s, CC(" "));}
          StrAp (s, DevName (tr));
-         if (! dr)  StrAp (s, StrFmt (s2, ".`d", _f.trk [tr].chn+1));
-         StrAp (s, StrFmt (s2, " #`d `s`s",
-                           tr+1, _f.trk [tr].name,
-                                (_f.trk [tr].ht == 'S')?" show":""));
+         if (! dr)  StrAp (s, StrFmt (s2, ".`d #`d `s",
+                           _f.trk [tr].chn+1, tr+1, _f.trk [tr].name));
+         if (_f.trk [tr].ht == 'S')  StrAp (s, CC(" show"));
          Info (s);
       }
 //DBG(" Up.Pos at=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);

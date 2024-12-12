@@ -6,7 +6,7 @@
 bool Song::TDrm (ubyte t)  {return (_f.trk [t].chn == 9) ? true:false;}
 bool Song::TLrn (ubyte t)  {return _f.trk [t].lrn        ? true:false;}
 bool Song::TSho (ubyte t)  {return (TLrn (t) ||
-                                    ((! RCRD) && (_f.trk [t].ht == 'S')))
+                                    ((! SHRCRD) && (_f.trk [t].ht == 'S')))
                                                          ? true:false;}
 void Song::ReTrk ()
 // give gui what it needs in Up.trk
@@ -169,13 +169,22 @@ TRC("ReEv end mint=`d", mint);
 
 
 //______________________________________________________________________________
+static int DrCmp (void *p1, void *p2)
+{ ubyte n1 = *((ubyte *)p1), n2 = *((ubyte *)p2);
+  int   c1, c2;
+   for (c1 = 0;  c1 < NMDrum;  c1++)  if (n1 == MKey (MDrum [c1].key))  break;
+   for (c2 = 0;  c2 < NMDrum;  c2++)  if (n2 == MKey (MDrum [c2].key))  break;
+   if ((c1 < NMDrum) && (c2 < NMDrum))  return c1 - c2;
+   return n1 - n2;
+}
+
 void Song::SetDn (char qu)             // qu from DlgCfg quantize button ONLY
 // calc notesets by time - all ntDns across lrn tracks => _dn[]
 { ubyte t, c, d, nn, x, pf, nt, nmin, nmax, pnt, f;
-  ubyt2                         nsum, ntr,  pntr;
+  ubyt2                         nsum, ntrm, pntrm;
   ubyt4 p, q, tpos [128], tm, ptm, dp, w;
   bool  got, qd [MAX_TRK], didq, fst;
-  char  ht, ch;
+  char  oc, ht, ch;
   TrkEv *e;
   ubyt4 ne;
   TStr  k, st;
@@ -256,54 +265,87 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          _dn [dp].nNt = nn;   _dn.Ln++;
       }
    }
+// OK!  we have all real notes by dnTime/trk/nt
+// now loop thru each oct/ht we got and make ONE ez note per dn per oct/ht
+// drum oct/ht is 0, oct1=>1 .. 7=>7
 
-// max o one note o five per dn time
-   for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t) && (! TDrm (t))) {
-      k [0] = _f.trk [t].ht;   k [2] = '\0';     // oct
-      ht = (*k < '4') ? 'L' : 'R';               // ht L/R
+// drum dns first.  melo nts later
+   for (dp = 0;  dp < _dn.Ln;  dp++) {
+      c = d = 128;   nn = 0;
+      for (x = 0;  x < _dn [dp].nNt;  x++)
+         if (TDrm (_dn [dp].nt [x].t)) {
+            nt =   _dn [dp].nt [x].nt;
+            if (c == 128)  d = c = x;  // our first keeper n dest pos
+            else if (DrCmp (& nt, & _dn [dp].nt [c].nt) < 0)
+                               c = x;  // the one to keep
+            nn++;
+         }
+TStr xd;
+DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
+TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
+      if (nn > 1) {                    // some ta kill?
+         _dn [dp].nt [d].p  = 0;       // NO P FO EZ !
+         _dn [dp].nt [d].t  = _dn [dp].nt [c].t;
+         _dn [dp].nt [d].nt = _dn [dp].nt [c].nt;
+
+      // toss any other drum notes in the dn
+         for (x = d+1;  x < _dn [dp].nNt;  x++)  if (TDrm (_dn [dp].nt [x].t)) {
+            MemCp (& _dn [dp].nt [x], & _dn [dp].nt [x+1],
+                   sizeof (_dn [0].nt [0]) * (_dn [dp].nNt - x - 1));
+            _dn [dp].nNt--;
+            x--;                       // so it stays the same across loop inc
+         }
+      }
+   }
+
+// melodic notes - max o one note o five per dn time for oc's tr's nts
+   for (oc = '1';  oc <= '7';  oc++) {      // gather tracks w my ht
+      k [0] = oc;   k [2] = '\0';      // oct of key
+DBG("oc=`c", k[0]);
+      ht = (*k < '4') ? 'L' : 'R';
 
    // first we calc all the directions usin' nmin/nmax in dn n prev dn
       fst = true;   pnt = 128;
       for (dp = 0;  dp < _dn.Ln;  dp++) {
-         c = 128;   nsum = nn = nmin = nmax = 0; // stats for this dn
+         c = 128;   nsum = nn = nmin = nmax = 0;      // stats for this dn
          for (x = 0;  x < _dn [dp].nNt;  x++)
-            if (_dn [dp].nt [x].t == t) {
-               nt = _dn [dp].nt [x].nt;
+            if (_f.trk [_dn [dp].nt [x].t].ht == oc) {
+               nt =     _dn [dp].nt [x].nt;
                if (nn == 0)  nsum = nmin = nmax = nt;
                else         {nsum += nt;   if (nt < nmin) nmin = nt;
                                            if (nt > nmax) nmax = nt;}
                nn++;   if (c == 128)  c = x;
             }
-         if (! nn)  xx [dp].pos = 99;  // if no notes in dn for my trk
+         if (! nn)  xx [dp].pos = 99;  // if no notes in dn for my trks
          else {
-            xx [dp].pos = c;           // first nt pos for my trk
-            nt = nsum / nn;   ntr = (ubyt2)(32768 * (nsum % nn) / nn);
-            if      (nt  > pnt)   ch = '>';
-            else if (nt  < pnt)   ch = '<';
-            else if (ntr > pntr)  ch = '>';
-            else if (ntr < pntr)  ch = '<';
-            else                  ch = '=';
+            xx [dp].pos = c;           // first nt pos for my trks
+            nt = nsum / nn;   ntrm = (ubyt2)(32768 * (nsum % nn) / nn);
+            if      (nt   > pnt)    ch = '>';
+            else if (nt   < pnt)    ch = '<';
+            else if (ntrm > pntrm)  ch = '>';
+            else if (ntrm < pntrm)  ch = '<';
+            else                    ch = '=';
             xx [dp].dir = fst ? '=' : ch;
-TStr xd;
-DBG("tr=`d `s dp=`d nn=`d nsum=`d nt=`d ntr=`d pnt=`d pntr=`d ch=`c",
-t, TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntr, pnt, pntr, xx [dp].dir);
             fst = false;
+TStr xd;
+DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c",
+TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
-            pnt = nt;   pntr = ntr;
+            pnt = nt;   pntrm = ntrm;
 
-         // toss any notes of my trk beyond c
-            for (x = c+1;  x < _dn [dp].nNt;) {
-               if (_dn [dp].nt [x].t == t)
-                    {MemCp (& _dn [dp].nt [x], & _dn [dp].nt [x+1],
-                            sizeof (_dn [0].nt [0]) * (_dn [dp].nNt - x - 1));
-                     _dn [dp].nNt--;}
-               else  x++;
-            }
+         // toss any notes of my trks beyond c
+            for (x = c+1;  x < _dn [dp].nNt;  x++)
+               if (_f.trk [_dn [dp].nt [x].t].ht == oc) {
+                  MemCp (& _dn [dp].nt [x], & _dn [dp].nt [x+1],
+                         sizeof (_dn [0].nt [0]) * (_dn [dp].nNt - x - 1));
+                  _dn [dp].nNt--;
+                  x--;                 // undo loop inc
+               }
          }
       }
 
-   // now collect manually picked notes in _f.cue[].s for my track's octave
+   // now collect manually picked notes in _f.cue[].s for my oct's tracks
       StrFmt (st, ".ezpos `c", k [0]);
       for (p = 0;  p < _f.cue.Ln;  p++)
                                      if (! MemCm (_f.cue [p].s, st, StrLn (st)))
@@ -311,14 +353,14 @@ t, TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntr, pnt, pntr, xx [dp].dir);
                                          if (_dn [dp].time == _f.cue [p].time) {
             xx [dp].dir = '!';
             xx [dp].key = _f.cue [p].s [8];
-DBG("xx[`d].key=`c s=`s (.pos=`d)",
+DBG(" xx[`d].key=`c s=`s (.pos=`d)",
 dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
          }
       pf = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {
 
       // check for rolled chord/trill (fast stuff - time diff of < 15 ticks)
-      // find max nt within trill notes and align to pinky=4 for rh / 0 for lh
+      // find max nt within trill notes and align to pinky=4 for rh/0 for lh
       // then follow <>= back to start of trill, then forward to end of it
         ulong pmax, pend;              // max dn pos, end of trill pos
          tm = _dn [dp].time;           // max is actually min for LH
@@ -342,7 +384,7 @@ dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
             k [1] = 'c' + pf;
             _dn [pmax].nt [xx [pmax].pos].nt = MKey (k);
             pdir =         xx [pmax].dir;
-            for (p = pmax-1;  c && (p >= dp);    p--)  if (xx [p].pos != 99) {
+            for (p = pmax-1;  c && (p >= dp);    p--)  if (xx [p].pos!= 99) {
                c--;
                if      (pdir == '>')  {if (pf-- == 0)  pf = 4;}
                else if (pdir == '<')  {if (pf++ == 4)  pf = 0;}
@@ -353,7 +395,7 @@ dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
 
          // and now regular forward
             pf = (ht == 'L') ? 0 : 4;
-            for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos != 99) {
+            for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos!= 99) {
                c--;
                if      (xx [p].dir == '<')  {if (pf-- == 0)  pf = 4;}
                else if (xx [p].dir == '>')  {if (pf++ == 4)  pf = 0;}
@@ -765,24 +807,24 @@ nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          b++;                          // on to the next bar
 
       // init width parts of col based on sym[]s we'll have, n ntPoss
+      // end up w dmap[nd] of drum tracks in col
+      // and nMn,nMx for real notes;  oMn[], oMx, oX for ez notes
          nMn = 127;   nd = nMx = 0;
          for (o = 0;  o < 7;  o++)  {oMn [o] = 127;   oMx [o] = 0;}
          tb = Bar2Tm (_blk [cb1].bar);   te = Bar2Tm (_blk [nb].bar+1);
 
-         for (t = 0;  t < _f.trk.Ln;  t++)  if (TSho (t)) {
-            if      (TDrm (t)) {
-               for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn; p++) {
-                  if (n [p].te <  tb)  continue;
-                  if (n [p].tm >= te)  break;
-                  dmap [nd++] = t;   break; // one'll do it
-               }
-            }
-            else if (RCRD) {
-               for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
-                  ntb = dr->time;
-                  if (ntb <  tb)  continue;
-                  if (ntb >= te)  break;
-                  for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t) {
+         if (SHRCRD) {                 // build limits based on _dn[].nt[].nt
+            for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
+               ntb = dr->time;
+               if (ntb <  tb)  continue;
+               if (ntb >= te)  break;
+               for (i = 0;  i < dr->nNt;  i++)
+                  if (TDrm (t = dr->nt [i].t)) {
+                     for (x = 0;  x < nd;  x++)  if (dmap [x] == t)  break;
+                     if (x >= nd)  dmap [nd++] = t;
+//TODO prob need better order in dmap?
+                  }
+                  else {
                      nt = dr->nt [i].nt;   o = nt/12 - 2;
                      if (nt < oMn [o])  oMn [o] = nt;
                      if (nt > oMx [o])  oMx [o] = nt;
@@ -791,25 +833,31 @@ nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
                   }
                }
             }
-            else
-               for (n = _f.trk [t].n, nn = _f.trk [t].nn, p = 0;  p < nn; p++) {
+         else                          // build limits base on trk [].n[].nt
+            for (t = 0;  t < _f.trk.Ln;  t++)  if (TSho (t))
+               for (n = _f.trk [t].n, nn = _f.trk [t].nn,
+                    p = 0;  p < nn;  p++) {
                   if (n [p].te <  tb)  continue;
                   if (n [p].tm >= te)  break;
+                  if (TDrm (t))  {dmap [nd++] = t;   break;}    // one'll do it
                   if (n [p].nt < nMn)  nMn = n [p].nt;
                   if (n [p].nt > nMx)  nMx = n [p].nt;
                }
-         }
+         Sort (dmap, nd, sizeof (dmap [0]), DrCmp);
 
       // always want SOME notes in col (if none, use 4c-d;  if 1, use nMn+2)
          if      (! nMx)       {nMn = MKey (CC("4c"));   nMx = MKey (CC("4d"));}
          else if (nMx-nMn < 2)  nMx = nMn + 2;
 
          xo = dx = 0;                  // x offset (left white bump), drum x
-         if (RCRD) {
+         if (SHRCRD) {
             for (o = 0;  o < 7;  o++) {
                oX [o] = dx;
-               if (oMx [o])  for (nt = oMn [o];  nt <= oMx [o];  nt++)
-                  if (KeyCol [nt%12] == 'w')  dx += ww;
+               if (oMx [o]) {
+                  for (nt = oMn [o];  nt <= oMx [o];  nt++)
+                     if (KeyCol [nt%12] == 'w')  dx += ww;
+                  dx += 2;             // border
+               }
             }
 for(o=0;o<7;o++)DBG("   oc=`d nMn=`s nMx=`s x=`d",
 o+1,MKey2Str(ts1,oMn[o]),MKey2Str(ts2,oMx[o]),oX[o]);
@@ -833,104 +881,114 @@ o+1,MKey2Str(ts1,oMn[o]),MKey2Str(ts2,oMx[o]),oX[o]);
       // plus drum w + ctrl w + right border
          _col [nc].w    = (_col [nc].cx + cw + 4) - _col [nc].x;
          _col [nc].h    = ch;
-DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d nx=`d dx=`d",
+DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d nx=`d dx=`d (dx itself=`d)",
 nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,
-_col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx);
+_col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx, dx);
 
-      // build sym[]s for col calcin w=b,w,clip n nt,trk overlaps
-      // sym.x is an offset from col's nx
-      // order by reversed track so lead overdraws bass,
-      // white then black so black overdraws,etc
-         dpos = nd;
-         for (t = (ubyte)_f.trk.Ln;  t--;)  if (TSho (t)) {
-            drm = TDrm (t);
-            if (drm) {
-               for (mt = true, td = 0;  td < nd;  td++) if (dmap [td] == t)
-                                                           {mt = false;  break;}
-               if (mt)  continue;      // empty of notes - neeext
-               dpos--;                 // bump dpos
-            }
-            if (RCRD && (! drm)) {     // in ez, syms come from _dn notes
-               for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
-                  for (i = 0;  i < dr->nNt;  i++)  if (dr->nt [i].t == t) {
-                     ntb = dr->time;
-                     nte = dr->time + (M_WHOLE/16);   // even trills always 16th
-                  // true nte is next dn in my trk
-                     for (got = false, e = d+1;  e < _dn.Ln;  e++) {
-                        for (j = 0;  j < _dn [e].nNt;  j++)
-                           if (_dn [e].nt [j].t == t) {
-                              if (    (_dn [e].time - 4) > nte) {
-                                 nte = _dn [e].time - M_WHOLE/64;
-                                 if (nte >= te)  nte = te-1;    // limit to col
-                              }
-                              got = true;   break;
+         if (SHRCRD) {
+            for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
+               ntb = dr->time;
+               if (ntb <  tb)  continue;
+               if (ntb >= te)  break;
+
+               for (i = 0;  i < dr->nNt;  i++) {
+                  t   = dr->nt [i].t;
+                  nt  = dr->nt [i].nt;
+                  nte = dr->time + (M_WHOLE/16);      // even trills always 16th
+               // true nte is next dn in my ht
+                  for (got = false, e = d+1;  e < _dn.Ln;  e++) {
+                     for (j = 0;  j < _dn [e].nNt;  j++)
+                        if (_f.trk [_dn [e].nt [j].t].ht == _f.trk [t].ht) {
+                           if (    (_dn [e].time - 4) > nte) {
+                              nte = _dn [e].time - M_WHOLE/48;
+                              if (nte >= te)  nte = te-1;  // limit to col
                            }
-                        if (got)  break;
-                     }                 // LONG one or no next so go qnote
-                     if ((! got) || ((nte - ntb) > M_WHOLE))
-                        nte = dr->time + (M_WHOLE/4);
-                     if ((nte < tb) || (ntb >= te))  continue;
-                                       // FINALLY got nte
-                     nt = dr->nt [i].nt;
-                     ns = _sym.Ins ();
-                     _sym [ns].tr = t;   _sym [ns].nt = nt;     // not p !
-                     _sym [ns].tm = ntb;
-                     _sym [ns].top = _sym [ns].bot = true;
-                     if      (ntb < ((tb < M_WHOLE/32) ? 0 : (tb-M_WHOLE/32))) {
-                        _sym [ns].top = false;   _sym [ns].y = H_KB;
-                     }
-                     else if (ntb < tb) {
-                     // top stickin into piano area
-                        q = cb1;
-                        _sym [ns].y = (ubyt2)(_blk [q].y - _blk [q].h *
-                                              (_blk [q].tMn - ntb) /
-                                              (_blk [q].tMx - _blk [q].tMn));
-                     }
-                     else {
-                        for (q = cb1;  q < nb;  q++)
-                           if ((ntb >= _blk [q].tMn) &&
-                               (ntb <  _blk [q].tMx))  break;
-                        _sym [ns].y = (ubyt2)(_blk [q].y + _blk [q].h *
-                                              (ntb          - _blk [q].tMn) /
-                                              (_blk [q].tMx - _blk [q].tMn));
-                     }
-                     if (nte >= te) {
-                        _sym [ns].bot = false;   _sym [ns].h = ch - _sym [ns].y;
-                     }
-                     else {
-                        for (q = cb1;  q < nb;  q++)
-                           if ((nte >= _blk [q].tMn) &&
-                               (nte <  _blk [q].tMx))  break;
-                        _sym [ns].h = (ubyt2)(_blk [q].y + _blk [q].h *
-                                              (nte          - _blk [q].tMn) /
-                                              (_blk [q].tMx - _blk [q].tMn) -
-                                              _sym [ns].y + 1);
-                     }
-                     if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
+                           got = true;   break;
+                        }
+                     if (got)  break;
+                  }                 // LONG one or no next so go qnote
+                  if ((! got) || ((nte - ntb) > M_WHOLE))
+                     nte = dr->time + (M_WHOLE/4);    // FINALLY got nte
+                  if (TDrm (t) && (nte > ntb+M_WHOLE/16))
+                                   nte = ntb+M_WHOLE/16;   // limit drums
+                  ns = _sym.Ins ();
+                  _sym [ns].tr = t;   _sym [ns].nt = nt;   // not p !
+                  _sym [ns].tm = ntb;
+                  _sym [ns].top = _sym [ns].bot = true;
+                  if      (ntb < ((tb < M_WHOLE/32) ? 0 : (tb-M_WHOLE/32))) {
+                     _sym [ns].top = false;   _sym [ns].y = H_KB;
+                  }
+                  else if (ntb < tb) {
+                  // top stickin into piano area
+                     q = cb1;
+                     _sym [ns].y = (ubyt2)(_blk [q].y - _blk [q].h *
+                                           (_blk [q].tMn - ntb) /
+                                           (_blk [q].tMx - _blk [q].tMn));
+                  }
+                  else {
+                     for (q = cb1;  q < nb;  q++)
+                        if ((ntb >= _blk [q].tMn) &&
+                            (ntb <  _blk [q].tMx))  break;
+                     _sym [ns].y = (ubyt2)(_blk [q].y + _blk [q].h *
+                                           (ntb          - _blk [q].tMn) /
+                                           (_blk [q].tMx - _blk [q].tMn));
+                  }
+                  if (nte >= te) {
+                     _sym [ns].bot = false;   _sym [ns].h = ch - _sym [ns].y;
+                  }
+                  else {
+                     for (q = cb1;  q < nb;  q++)
+                        if ((nte >= _blk [q].tMn) &&
+                            (nte <  _blk [q].tMx))  break;
+                     _sym [ns].h = (ubyt2)(_blk [q].y + _blk [q].h *
+                                           (nte          - _blk [q].tMn) /
+                                           (_blk [q].tMx - _blk [q].tMn) -
+                                           _sym [ns].y + 1);
+                  }
+                  if (_sym [ns].h < 4)  _sym [ns].h = 4;     // min we can do
 
+                  if (TDrm (t)) {
+                     for (j = 0;  j < nd;  j++)  if (dmap [j] == t)  break;
+                     x = dx + j * nw;   w = nw;
+                  }
+                  else {
                      o = nt/12 - 2;    // always white within a (short) oct
                      MKey2Str (smn, oMn [o]);
                      MKey2Str (smx, nt);
                      x = oX [o] + (smx[1] - smn[1]) * ww;   w = ww;
 //DBG("      oct=`d oX=`d smn=`s smx=`s",o+1,oX[o],smn,smx);
-                     _sym [ns].x = x;   _sym [ns].w = w;
+                  }
+                  _sym [ns].x = x;   _sym [ns].w = w;
 //DBG("   DN ns=`d tr=`d nt=`s x=`d y=`d w=`d h=`d top=`b bot=`b tm=`d=`s",
 //ns,_sym[ns].tr, MKey2Str(ts1,nt),
 //_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot,
 //ntb,TmSt(ts2,ntb));
-                     _col [nc].nSym++;
-                  }
+                  _col [nc].nSym++;
                }
             }
-            else
+         }
+         else {
+         // build REAL sym[]s for col calcin w=b,w,clip n nt,trk overlaps
+         // sym.x is an offset from col's nx
+         // order by reversed track so lead overdraws bass,
+         // white then black so black overdraws,etc
+            dpos = nd;
+            for (t = (ubyte)_f.trk.Ln;  t--;)  if (TSho (t)) {
+               if (drm = TDrm (t)) {
+                  for (mt = true, td = 0;  td < nd;  td++)  if (dmap [td] == t)
+                                                           {mt = false;  break;}
+                  if (mt)  continue;      // empty of notes - neeext
+                  dpos--;                 // bump dpos
+               }
                for (bl = 0;  bl < (drm ? 1 : 2);  bl++)
                   for (n = _f.trk [t].n, nn = _f.trk [t].nn,
                        p = 0;  p < nn;  p++) {
                      ntb = n [p].tm;   nte = n [p].te;
-                     if ((nte < tb) || (ntb >= te))  continue;
+                     if ((nte < tb) || (ntb >= te))      continue;
 
                      if ((! drm) && (KeyCol [n [p].nt % 12] ==
-                                     (bl ? 'w' : 'b')))        continue;
+                                     (bl ? 'w' : 'b')))  continue;
+
                      ns = _sym.Ins ();
                      _sym [ns].tr = t;   _sym [ns].nt = p;
                      _sym [ns].top = (n [p].dn != NONE) ? true : false;
@@ -970,10 +1028,9 @@ _col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx);
                      _sym [ns].w = nw;
                      if (drm)  _sym [ns].x = dx + dpos*nw; // weird x for drums
                      else {
-                        if (! bl) {    // white keys - special,clipped x,w
-                           x = _sym [ns].x;   w = ww;
-                           x -= (WXOfs [n [p].nt % 12] * nw / 12);
-                           _sym [ns].x = x;   _sym [ns].w = w;
+                        if (! bl) {    // white keys - ofs left white bump
+                           _sym [ns].x -= (WXOfs [n [p].nt % 12] * nw / 12);
+                           _sym [ns].w  = ww;
                         }
 
                      // check for sym on dif melo trk, same nt, time overlap
@@ -998,6 +1055,7 @@ _col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx);
 //_sym[ns].x,_sym[ns].y, _sym[ns].w,_sym[ns].h, _sym[ns].top,_sym[ns].bot);
                      _col [nc].nSym++;
                   }
+            }
          }
 
       // complete out col, bumping pag - take last barline into account :/

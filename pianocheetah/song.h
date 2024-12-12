@@ -5,9 +5,7 @@
 
 #include "glo.h"
 
-#define HOVAL(v)  (((v) & 0x40) ? 1 : 0)
-
-// _f.lrn modes:  a=hear, b=hearRec, c=prac(learn), d=play(lead)
+// lrn modes:  hear, hearRec, practice, play
 #define LHEAR  'a'
 #define LHREC  'b'
 #define LPRAC  'c'
@@ -17,7 +15,8 @@
 #define  PRAC  (Up.lrn == LPRAC)
 #define  PLAY  (Up.lrn == LPLAY)
 
-#define  RCRD  (PRAC || PLAY)
+#define   RCRD (PRAC || PLAY)
+#define SHRCRD (RCRD || (_lrn.pLrn == LPRAC) || (_lrn.pLrn == LPLAY))
 
 extern void   CInit ();
 extern QColor CMap (ubyte n);

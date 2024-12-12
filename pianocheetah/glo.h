@@ -42,7 +42,7 @@ struct NtDef   {ubyte t, nt;   ubyt4 p;};
 // msec of rec ev down calcs (micro) tmpo btw ev downs and clip sez if way off
 // nt[] has notes to hit (lrn) and velo has ez trk velos
 struct DownRow {ubyt4 time, msec;  ubyt2 tmpo;  char clip;
-                ubyte nNt;  NtDef nt [14];  ubyte velo [7];};
+                ubyte nNt;  NtDef nt [14];  ubyte velo [8];};
 
 // combined ntDn,ntUp and if there's overlap btw tracks
 struct TrkNt   {ubyt4 dn, up, tm, te;   ubyte nt;   bool ov;};
