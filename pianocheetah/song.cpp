@@ -212,7 +212,7 @@ TRC("PutNt tr=`d bg=`b pDn=`d", t, bg, _pDn);
 if (App.trc) {TStr d1,d2;
 StrFmt (d1, "PutNt `s.`d velo=`d", Up.dev [dv].mo->Name (), ch+1, valu&0x7F);
 DumpEv (e, t, _f.trk [t].p, d1);
-DBG("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));}
+TRC("   bg=`b tmr=`s", bg, TmSt (d1, _timer->Get ()));}
 
    Up.dev [dv].mo->Put (ch, ctrl, valu, e->val2);
 }

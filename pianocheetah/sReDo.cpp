@@ -280,9 +280,9 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                                c = x;  // the one to keep
             nn++;
          }
-TStr xd;
-DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
-TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
+//TStr xd;
+//DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
+//TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
       if (nn > 1) {                    // some ta kill?
          _dn [dp].nt [d].p  = 0;       // NO P FO EZ !
          _dn [dp].nt [d].t  = _dn [dp].nt [c].t;
@@ -301,7 +301,7 @@ TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
 // melodic notes - max o one note o five per dn time for oc's tr's nts
    for (oc = '1';  oc <= '7';  oc++) {      // gather tracks w my ht
       k [0] = oc;   k [2] = '\0';      // oct of key
-DBG("oc=`c", k[0]);
+//DBG("oc=`c", k[0]);
       ht = (*k < '4') ? 'L' : 'R';
 
    // first we calc all the directions usin' nmin/nmax in dn n prev dn
@@ -327,9 +327,9 @@ DBG("oc=`c", k[0]);
             else                    ch = '=';
             xx [dp].dir = fst ? '=' : ch;
             fst = false;
-TStr xd;
-DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c",
-TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
+//TStr xd;
+//DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c",
+//TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
             pnt = nt;   pntrm = ntrm;
@@ -353,8 +353,8 @@ TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
                                          if (_dn [dp].time == _f.cue [p].time) {
             xx [dp].dir = '!';
             xx [dp].key = _f.cue [p].s [8];
-DBG(" xx[`d].key=`c s=`s (.pos=`d)",
-dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
+//DBG(" xx[`d].key=`c s=`s (.pos=`d)",
+//dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
          }
       pf = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {
@@ -768,7 +768,7 @@ TRC("SetSym end - w,h too small");
       }
       np = _pag.Ins ();                // init pag[np]
       _pag [np].col = & _col [pc1 = _col.Ln];
-DBG("b=`d/`d np=`d pc1=`d W=`d H=`d", b, _bEnd, np, pc1, W, H);
+//DBG("b=`d/`d np=`d pc1=`d W=`d H=`d", b, _bEnd, np, pc1, W, H);
       _pag [np].nCol = 0;
       _pag [np].w = _pag [np].h = 0;
       do {
@@ -779,7 +779,7 @@ TRC("_col full prob cuz w,h");
          nc = _col.Ins ();             // init col[nc]
          _col [nc].blk = & _blk [cb1 = _blk.Ln];   _col [nc].nBlk = 0;
          _col [nc].sym = & _sym [cs1 = _sym.Ln];   _col [nc].nSym = 0;
-DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
+//DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
          _col [nc].x   = _pag [np].w;  // remem 1st blk,sym of col
          ch = H_KB;
 
@@ -790,8 +790,8 @@ DBG(" nc=`d cb1=`d cs1=`d", nc, cb1, cs1);
                                _blk [nb].tMx = Bar2Tm (b+1);
          _blk [nb].y   = ch;   _blk [nb].h   = h;   ch += h;
          _blk [nb].sb  = sb;
-DBG("  nb(1)=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
-nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
+//DBG("  nb(1)=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
+//nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          while (b+1 <= _bEnd) {        // there has to BE another bar
             BarH (& h, & sb, b+1);
             if ((ch + h) > H)  break;  // won't fit, col complete, outa herez
@@ -801,8 +801,8 @@ nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
                                    _blk [nb].tMx = Bar2Tm (b+1);
             _blk [nb].y   = ch;    _blk [nb].h   = h;   ch += h;
             _blk [nb].sb  = sb;
-DBG("  nb=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
-nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
+//DBG("  nb=`d bar=`d ch=`d tMn=`d tMx=`d y=`d h=`d",
+//nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
          }
          b++;                          // on to the next bar
 
@@ -859,8 +859,8 @@ nb,b,ch,_blk[nb].tMn, _blk[nb].tMx, _blk[nb].y, _blk[nb].h);
                   dx += 2;             // border
                }
             }
-for(o=0;o<7;o++)DBG("   oc=`d nMn=`s nMx=`s x=`d",
-o+1,MKey2Str(ts1,oMn[o]),MKey2Str(ts2,oMx[o]),oX[o]);
+//for(o=0;o<7;o++)DBG("   oc=`d nMn=`s nMx=`s x=`d",
+//o+1,MKey2Str(ts1,oMn[o]),MKey2Str(ts2,oMx[o]),oX[o]);
          }
          else {
          // if nMn or nMx are white, gotta give extra w (white bump)
@@ -881,9 +881,9 @@ o+1,MKey2Str(ts1,oMn[o]),MKey2Str(ts2,oMx[o]),oX[o]);
       // plus drum w + ctrl w + right border
          _col [nc].w    = (_col [nc].cx + cw + 4) - _col [nc].x;
          _col [nc].h    = ch;
-DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d nx=`d dx=`d (dx itself=`d)",
-nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,
-_col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx, dx);
+//DBG("  nc=`d nMn=`s nMx=`s nDrm=`d w=`d h=`d nx=`d dx=`d (dx itself=`d)",
+//nc,MKey2Str(ts1,nMn),MKey2Str(ts2,nMx),nd,
+//_col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx, dx);
 
          if (SHRCRD) {
             for (dr = & _dn [0], d = 0;  d < _dn.Ln;  d++, dr++) {
@@ -1063,7 +1063,7 @@ _col[nc].w,_col[nc].h,_col[nc].nx,_col[nc].dx, dx);
          _pag [np].w += _col [nc].w;   _pag [np].nCol++;   nc++;
 
       } while ((b <= _bEnd) && (_pag [np].w < W));
-DBG(" lpEnd b=`d nc=`d", b, nc);
+//DBG(" lpEnd b=`d nc=`d", b, nc);
 
    // last col will usually go over, but always keep one of em
       if ((_pag [np].nCol > 1) && (_pag [np].w > W)) {     // reset to lop off
@@ -1077,7 +1077,7 @@ DBG(" lpEnd b=`d nc=`d", b, nc);
          _blk.Ln -= _col [nc].nBlk;
          _sym.Ln -= _col [nc].nSym;
          _col.Ln--;
-DBG("b=`d/`d bLn=`d sLn=`d cLn=`d", b, _bEnd, _blk.Ln, _sym.Ln, _col.Ln);
+//DBG("b=`d/`d bLn=`d sLn=`d cLn=`d", b, _bEnd, _blk.Ln, _sym.Ln, _col.Ln);
       }
    }
 TRC("SetSym end");

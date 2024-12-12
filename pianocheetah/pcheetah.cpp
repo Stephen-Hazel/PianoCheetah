@@ -53,7 +53,7 @@ static void XLoad ()
 //TODO recache if FL.xLen hits 0
    if (--FL.xLen == 0)  {Gui.Hey ("_midicache has 0 left - repick midi dir");
                          return;}
-DBG("   xPos=`d xLen=`d xFn=`s dMid=`s", FL.xPos, FL.xLen, FL.xFn, dMid);
+TRC("   xPos=`d xLen=`d xFn=`s dMid=`s", FL.xPos, FL.xLen, FL.xFn, dMid);
 // recreate dest dir
    StrFmt (dFnd, "`s/4_queue/found", App.Path (s, 'd'));
    d.Kill (dFnd);   d.Make (dFnd);
@@ -107,7 +107,7 @@ void PCheetah::SongRand ()
    }
    StrFmt (fnC, "`s/_midicache.txt", dMid);
    if (! f.Size (fnC)) {               // no cache yet so start makin one
-DBG("no _midicache.txt for `s", dMid);
+TRC("no _midicache.txt for `s", dMid);
       App.Run (StrFmt (c, "ll midi `p &", dMid));
       Gui.Hey ("Making midi cache in that dir...\n"
                "Come back when __midicache.txt turns to _midicache.txt");
@@ -116,7 +116,7 @@ DBG("no _midicache.txt for `s", dMid);
 
 // count # undid undeld
    FL.ext = true;   FL.xLen = 0;   f.DoText (fnC, nullptr, LstLen);
-DBG("   init FL.xLen=`d", FL.xLen);
+TRC("   init FL.xLen=`d", FL.xLen);
    FL.xPos = Rand (FL.xLen);
    XLoad ();
    LoadGo ();
@@ -300,7 +300,6 @@ void PCheetah::Upd (QString upd)
    }
 
    if (! StrCm (u, CC("trk"))) {
-DBG("trk bgn");
      char *rp [32];
      BStr  tip;
       _tr.Open ();   rp [6] = nullptr;
@@ -310,7 +309,6 @@ DBG("trk bgn");
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          StrFmt (tip, "#`d notes=`s ctrls=`s",
                  i+1, Up.trk [i].notes, Up.trk [i].ctrls);
-DBG("tip=`s", tip);
          _tr.Put (rp, tip);
          if (Cfg.ntCo == 2) {          // color by track (if lrn/show non drum)
             if (((rp [0][0] == 'l') || (rp [1][0] == 's')) &&
@@ -327,7 +325,6 @@ DBG("tip=`s", tip);
          }
       }
       _tr.Shut ();   _tr.HopTo (Up.eTrk, 0);
-DBG("trk end");
    }
 
    if (! MemCm (u, CC("hey "), 4))   Gui.Hey (& u [4]);
