@@ -401,20 +401,14 @@ TRC(" song init");
 
    setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
 TRC(" tbar init");
-  CtlTBar tb (this,
-      "show / hide track editing\n"
-      "(grid that picks which tracks to practice, RH/LH, sounds, etc)"
-      "`*..." "`v\0",
-      "View");
-   connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
-   Up.tbaTtl = tb.Act (0);
-
-  CtlTBar tb2 (this,                    // top
-      "configure midi devices" "`:/tbar/0" "`\0"
-      "settings and junk"      "`:/tbar/1" "`\0",
+  CtlTBar tb2 (this,                   // top
+      "view fullscreen / track editing" "`:/tbar/0" "`v\0"
+      "configure midi devices"          "`:/tbar/1" "`\0"
+      "settings and junk"               "`:/tbar/2" "`\0",
       "Config");
-   connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::MCfg);
-   connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::GCfg);
+   connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::Trak);
+   connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
+   connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
 
   CtlTBar tb3 (this,                   // list/prev/next/rand song
       "pick from song list" "`:/tbar/song/0" "`\0"
@@ -503,6 +497,12 @@ TRC(" tbar init");
             this, [this]() {emit sgCmd ("trkEd *");});
    connect (tb7.Act (7), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd -");});
+
+  CtlTBar tb (this,
+      "(I just show the song file for fullscreen)" "`*..." "`v\0",
+      "SongFile");
+   connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
+   Up.tbaTtl = tb.Act (0);
 
 TRC(" lyr,tr,nt init");
   CtlText t (ui->lyr);
