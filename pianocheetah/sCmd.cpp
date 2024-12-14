@@ -215,6 +215,12 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
          else if (PRAC)   Up.lrn = LHEAR;
          else             Up.lrn = LPLAY;
       }
+      if (RCRD) {
+        ubyt4 i;
+         for (i = 0;  i < _f.cue.Ln;  i++)  // need ta init loops for 1st time ?
+            if (_f.cue [i].tend && (_f.cue [i].s [0] == '['))  break;
+         if (i >= _f.cue.Ln)  LoopInit ();         
+      }
       ReDo ();
       if (PRAC)  {Cmd ("recWipe");   Cmd ("timeBar1");}
       return;
