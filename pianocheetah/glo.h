@@ -138,7 +138,7 @@ struct PosDef {
 
 //______________________________________________________________________________
 struct UTrkRow {
-   ubyte dvt;   bool drm;   TStr lrn, ht, name, grp, snd, dev, notes, ctrls;
+   ubyte dvt;   bool drm;   TStr lrn, ht, name, grp, snd, dev;   BStr tip;
 };
 struct UpdLst {
    ubyt2 txH;

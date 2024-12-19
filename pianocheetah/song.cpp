@@ -193,7 +193,7 @@ if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
 void Song::PutNt (ubyte t, TrkEv *e, bool bg)
 { ubyte ctrl = e->ctrl, valu = e->valu, i, dv, ch;
   ubyt4 v, d;
-TRC("PutNt tr=`d bg=`b pDn=`d", t, bg, _pDn);
+//TRC("PutNt tr=`d bg=`b pDn=`d", t, bg, _pDn);
    if (! TDrm (t))  ctrl += _f.tran;   // got some live transposin?
 
 // adjust velo of bg trk if learn mode n ntDn
@@ -201,7 +201,7 @@ TRC("PutNt tr=`d bg=`b pDn=`d", t, bg, _pDn);
       for (v = d = i = 0;  i < 8;  i++)  if (_dn [_pDn].velo [i])
          {v += _dn [_pDn].velo [i];   d++;}
 //TStr db;
-//TRC(" pDnTm=`s v=`d d=`d", TmSt (db,_dn [_pDn].time), v, d);
+//DBG(" pDnTm=`s v=`d d=`d", TmSt (db,_dn [_pDn].time), v, d);
       if (d)  valu = 0x80 | (v / d + (((v % d) >= (d / 2)) ? 1:0));
    }
    if ((! bg) && SHRCRD && ENTDN (e)) {
@@ -300,9 +300,9 @@ TRC("Put end - due to poz");
 
    // plow thru only lrn trks from .p to _now and dump stuff to midiout
    // no bg tracks till next loop
-TRC(" lrn trk loop:  `s", LrnS());
+//DBG(" lrn trk loop:  `s", LrnS());
       for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t)) {
-TRC("  tr=`d", t);
+//DBG("  tr=`d", t);
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
             if (ECTRL (& e [p]))  PutCC (t, & e [p]);
@@ -314,10 +314,10 @@ TRC("  tr=`d", t);
       }
 
    // plow thru bg tracks from .p to _now and dump stuff to midiout
-TRC(" bg trk loop:");
+//DBG(" bg trk loop:");
      bool hLrnX = HEAR && (_lrn.pLrn == LPRAC);
       for (t = 0;  t < _f.trk.Ln;  t++)  if (! TLrn (t)) {
-TRC("  tr=`d", t);
+//DBG("  tr=`d", t);
          for (e = _f.trk [t].e,  ne = _f.trk [t].ne,  p = _f.trk [t].p;
               (p < ne) && (e [p].time <= _now);  p++) {
          // ctrls ALWAYS go out

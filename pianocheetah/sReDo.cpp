@@ -10,9 +10,13 @@ bool Song::TSho (ubyte t)  {return (TLrn (t) ||
                                                          ? true:false;}
 void Song::ReTrk ()
 // give gui what it needs in Up.trk
-{ ubyte r;
-  TStr  s, g;
+{ ubyte r, nn, nc;
+  ubyt2 ct;
+  ubyt4 i;
+  TStr  s, g, s2;
+  BStr  tp;
   char *sl, *c;
+  TrkEv *e;
    Up.trk.Ln = 0;
    for (r = 0;  r < _f.trk.Ln;  r++) {
       Up.trk.Ins (r);
@@ -36,8 +40,8 @@ void Song::ReTrk ()
       StrCp (s, SndName (r));
       *g = '\0';
       if (*s) {
-         StrCp (g, s);                 // usta be a slash insteada _ :/
-         sl = StrCh (g, '_');
+         StrCp (g, s);
+         sl = StrCh (g, '_');          // _ usta be a slash :/
          if (sl != nullptr) {
             *sl = '\0';
             StrCp (s, & s [StrLn (g)+1]);
@@ -49,13 +53,64 @@ void Song::ReTrk ()
       if (_f.trk [r].grp)  StrCp  (s, CC("+"));
       else                 StrFmt (s, "`s.`d", DevName (r), _f.trk [r].chn+1);
       StrCp (Up.trk [r].dev, s);       // + / dev.chn
+
+      StrFmt (tp, "#`d  ", r+1);
+
       if (_f.trk [r].nb)
-           StrFmt (s, "(`d)`d", _f.trk [r].nb, _f.trk [r].nn);
-      else StrFmt (s,     "`d",                _f.trk [r].nn);
-      StrCp (Up.trk [r].notes, s);
-      StrFmt (s, "`d", _f.trk [r].ne - _f.trk [r].nb -
-                      (_f.trk [r].nn - _f.trk [r].nb)*2);
-      StrCp (Up.trk [r].ctrls, s);
+           StrFmt (s, "notes=(`d)`d  ", _f.trk [r].nb, _f.trk [r].nn);
+      else StrFmt (s, "notes=`d  ",                    _f.trk [r].nn);
+      StrAp (tp, s);
+
+      StrFmt (s, "ctrls=`d\n", _f.trk [r].ne - _f.trk [r].nb -
+                              (_f.trk [r].nn - _f.trk [r].nb)*2);
+      StrAp (tp, s);
+
+      nn = nc = 0;
+      for (i = 0, e = _f.trk [r].e;  ((nc<3)||(nn<3)) &&
+                                     (i < _f.trk [r].ne);  i++) {
+         StrFmt (s, "`<9s ", TmSt (s2, e [i].time));
+         ct = e [i].ctrl;
+         if (ct & 0x0080) {            // ctrl
+            if (nc == 3)  continue;
+
+            nc++;   StrAp (tp, s);
+            StrCp (s2, _f.ctl [ct & 0x7F].s);
+            if      (! StrCm (s2,  CC("Tmpo")))   // tmpo,tsig,ksig are special
+               StrFmt (s, CC("Tmpo=`d"),     e [i].valu | (e [i].val2<<8));
+            else if (! StrCm (s2,  CC("TSig"))) {
+               StrFmt (s, CC("TSig=`d/`d"),  e [i].valu,
+                                       1 << (e [i].val2 & 0x0F));
+               if (e [i].val2 >> 4)  StrFmt (s, "/`d",
+                                         1 + (e [i].val2 >> 4));
+            }
+            else if (! StrCm (s2, CC("KSig"))) {
+               StrAp (s, CC("KSig="));
+               if   (! (e [i].val2 & 0x80)) StrAp (s, MKeyStr  [e [i].valu]);
+               else if (e [i].valu != 11)   StrAp (s, MKeyStrB [e [i].valu]);
+               else                         StrAp (s, CC("Cb"));     // weird :/
+               if (e [i].val2 & 0x01)  StrAp (s, CC("m"));
+               *s = CHUP (*s);
+            }
+            else {
+               StrFmt (s, "`s=`d",            s2, e [i].valu);
+               if (e [i].val2)  StrFmt (s, " `d", e [i].val2);
+            }
+            StrAp (s, CC("\n"));
+            StrAp (tp, s);
+         }
+         else {                        // note
+            if (nn == 3)  continue;
+
+            nn++;   StrAp (tp, s);
+            StrFmt (s, "`s`c`d\n",
+               TDrm (r) ? MDrm2Str (s2, ct) : MKey2Str (s2, ct),
+               EUP (& e [i]) ? '^' : (EDN (& e [i]) ? '_' : '~'),
+               e [i].valu & 0x7F);
+            StrAp (tp, s);
+         }
+      }
+      tp [StrLn (tp)-1] = '\0';        // chop last \n
+      StrCp (Up.trk [r].tip, tp);
    }
 TRC("ReTrk eTrk=`d ln=`d", Up.eTrk, r);
    emit sgUpd ("trk");

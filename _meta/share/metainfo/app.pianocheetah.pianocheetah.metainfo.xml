@@ -5,7 +5,7 @@
    
   <name>PianoCheetah</name>
    
-  <summary>Piano practice that&apos;s kinda fun</summary>
+  <summary>a better way to play it</summary>
   
   <metadata_license>MIT</metadata_license>
   <project_license>Unlicense</project_license>
@@ -18,14 +18,14 @@
   <description>
     <p>
       Play and practice a pop song on piano and drums.
-      Shows notes in a &quot;pianoroll&quot; format that&apos;s a little bit fancy.
+      In a &quot;pianoroll&quot; format that&apos;s a kinda fancy.
     </p>
     <p>
       You practice the piano parts and the background tracks sync to your tempo.
       Our aim is to get a song into our head and fingers.
 
-      The real notes of the song can be simplifed down to one note per hand max.
-      And your hands can stay in one position.
+      The real notes of the song are simplifed down to one note per hand max.
+      And your hands stay in one position.
        
       Any midi file can become a song for you to practice and play.
 
@@ -58,11 +58,20 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="2024.12" date="2024-12-19">
+      <description>
+        <p>
+          Always EZ notes now (in play and practice).
+          Tracks have tooltips with #notes, #controls, first 3 of each detailed.
+          Tracks can be combined on a given playing octave now.
+          Testers needed - please help - sh@shaz.app .
+        </p>
+      </description>
+    </release>
     <release version="2024.10" date="2024-10-18">
       <description>
         <p>
-          Fixed bad bug that wan't refreshing screen.  
-          Testers needed - please help - stephen.hazel@hey.com .  
+          Fixed bad bug that wan't refreshing screen.   
           Recordings are now properly saved in 3_done directory with recSave command.  
           Cue editing is fixed.  
           EZ mode makes a new note upon any chord change.  

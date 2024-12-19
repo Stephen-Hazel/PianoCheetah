@@ -307,9 +307,7 @@ void PCheetah::Upd (QString upd)
          rp [0] = Up.trk [i].lrn;      rp [1] = Up.trk [i].ht;
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
-         StrFmt (tip, "#`d notes=`s ctrls=`s",
-                 i+1, Up.trk [i].notes, Up.trk [i].ctrls);
-         _tr.Put (rp, tip);
+         _tr.Put (rp,                           Up.trk [i].tip);
          if (Cfg.ntCo == 2) {          // color by track (if lrn/show non drum)
             if (((rp [0][0] == 'l') || (rp [1][0] == 's')) &&
                 (! Up.trk [i].drm))
@@ -381,6 +379,8 @@ TRC(" song init");
    CInit ();                           // init all them thar colors
    Gui.WinLoad (ui->spl);
    Up.cnv.SetFont ("Noto Sans", 12);   Up.tcnv.SetFont ("Noto Sans", 12);
+   Gui.A ()->setStyleSheet ("QToolTip {font: 15pt monospace;}");
+
    Up.txH   = Up.cnv.FontH ();
    Up.bug   = new QPixmap (":/bug");   // all dem bitmaps
    Up.cue   = new QPixmap (":/cue");
