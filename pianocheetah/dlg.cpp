@@ -10,7 +10,6 @@ CfgDef Cfg;
 
 void CfgDef::Init ()                   // default the global settings
 {  tran   = 0;                         // tran comes from .song
-   cmdKey = MKey (CC("8c"));           // trc from App
    ntCo   = 0;                         // scale
    barCl  = false;
    sVol   = 30;
@@ -27,7 +26,6 @@ TRC("CfgDef::Load");
    for (i = 0;  i < t.num;  i++) {
       StrCp (s, t.str [i]);   if (! (p = StrCh (s, '=')))  continue;
       *p = '\0';   StrCp (v, p+1);
-      if (StrSt (s, CC("cmdKey")))  Cfg.cmdKey = (ubyte)Str2Int (v);
       if (StrSt (s, CC("ntCo"  )))  Cfg.ntCo   = (ubyte)Str2Int (v);
       if (StrSt (s, CC("barCl" )))  Cfg.barCl  = (*v == 'y') ? true:false;
       if (StrSt (s, CC("sVol"  )))  Cfg.sVol   = (ubyte)Str2Int (v);
@@ -40,8 +38,8 @@ void CfgDef::Save ()                   // save global settings
   TStr fn;
   File f;
 TRC("CfgDef::Save");
-   StrFmt (buf, "cmdKey=`d\n"  "ntCo=`d\n"  "barCl=`s\n"   "sVol=`d\n",
-                 cmdKey,        ntCo,        barCl?"y":"n", sVol);
+   StrFmt (buf, "ntCo=`d\n"  "barCl=`s\n"   "sVol=`d\n",
+                 ntCo,        barCl?"y":"n", sVol);
    App.Path (fn, 'c');   StrAp (fn, CC("/cfg.txt"));
    f.Save (fn, buf, StrLn (buf));
 }
@@ -52,11 +50,9 @@ void DlgCfg::Open ()
 { TStr ts;
 TRC("DlgCfg::Open");
   CtlSpin tr (ui->tran, -12, 12);
-  CtlLine k  (ui->cmdKey);
   CtlSldr s  (ui->sVol, 0, 100);
   CtlChek b  (ui->barCl), t (ui->trc);
    tr.Set (Cfg.tran);
-   k.Set  (MKey2Str (ts, Cfg.cmdKey));
    s.Set  (Cfg.sVol);
    b.Set  (Cfg.barCl);   t.Set (App.trc);
    show ();   raise ();   activateWindow ();
@@ -66,12 +62,9 @@ void DlgCfg::Shut ()                   // set em n save em
 { TStr ts;
 TRC("DlgCfg.Shut");
   CtlSpin tr (ui->tran);
-  CtlLine k  (ui->cmdKey);
   CtlSldr s  (ui->sVol);
   CtlChek b  (ui->barCl), t (ui->trc);
    Cfg.tran  = tr.Get ();
-   StrCp (ts, k.Get ());   Cfg.cmdKey = MKey (ts);
-   if (! Cfg.cmdKey)       Cfg.cmdKey = MKey (CC("8c"));
    Cfg.sVol  = s.Get ();
    Cfg.barCl = b.Get ();   App.TrcPut (t.Get ());
    Cfg.Save ();                        // in case we die early :/
@@ -773,7 +766,7 @@ void DlgFL::Init ()
    App.CfgGet (CC("DlgFL_all"),  t);
    if (*t)  a.Set ((*t=='y')?true:false);   else a.Set (true);
 
-   connect (ui->all, &QCheckBox::stateChanged, this, & DlgFL::ReDo);
+   connect (ui->all, &QCheckBox::checkStateChanged, this, & DlgFL::ReDo);
 }
 
 void DlgFL::Quit ()

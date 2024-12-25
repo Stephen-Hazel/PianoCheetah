@@ -38,6 +38,7 @@ void Song::ReTrk ()
       StrCp (Up.trk [r].ht, s);
       StrCp (Up.trk [r].name, _f.trk [r].name);
       StrCp (s, SndName (r));
+DBG("tr=`d snd=`s", r, s);
       *g = '\0';
       if (*s) {
          StrCp (g, s);

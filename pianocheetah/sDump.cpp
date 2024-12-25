@@ -87,14 +87,14 @@ DBG("DUMP");
       "bEnd=`d tEnd=`s tr.Ln=`d eTrk=`d eOn=`b pLyr=`d\n"
       "now=`s pDn=`d/`s\n"
       "dn.Ln=`d nEv=`d maxEv=`d\n"
-      "Cfg_cmdKey=`d ntCo=`d barCl=`b\n"
+      "ntCo=`d barCl=`b\n"
       "SnF_tmpo=`d tran=`d `s\n"
       "POZ=`b uPoz=`b\n"
       "lrn: lpBgn=`s lpEnd=`s pg=`d",
       _bEnd, TmSt(t1,_tEnd), _f.trk.Ln, Up.eTrk, _eOn, _pLyr,
       TmSt(t2,_now), _pDn, TmSt(t3,_dn[_pDn].time),
       _dn.Ln, _f.nEv, _f.maxEv,
-      Cfg.cmdKey, Cfg.ntCo, Cfg.barCl,
+      Cfg.ntCo, Cfg.barCl,
       _f.tmpo, _f.tran, LrnS (),
       _lrn.POZ, Up.uPoz,
       TmSt(t1,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd), _pg

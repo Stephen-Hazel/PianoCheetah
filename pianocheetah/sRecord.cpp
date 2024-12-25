@@ -99,14 +99,14 @@ bool Song::CCEd (char *cSt, char *cMod, ubyte dev, MidiEv *ev)
       _cDo [c].valu = ev->valu;
       return true;
    }
-   if ((dev == 0) && (ev->ctrl == Cfg.cmdKey))
+// Bb means edit mode on
+   if (ev->ctrl/12 == 10)
       {_eOn = (ev->valu & 0x80 ? true : false);   return true;}
-   // {_c->dHlp->Show (_eOn = (ev->valu & 0x80 ? true : false));   return true;}
 
 // cmd "shift" on and key down matching cmd on dev 0 ?
-   if ((dev == 0) && _eOn) {
+   if (_eOn) {
       if (ev->valu & 0x80)             // cmds only on key down
-         for (c = 0; c < NUCmd; c++)  if (ev->ctrl == MKey (CC(UCmd [c].nt))) {
+         for (c = 0;  c < NUCmd;  c++) if (ev->ctrl == MKey (CC(UCmd [c].nt))) {
 TRC("Edit edit key!");
             Info (CC(UCmd [c].cmd));   Cmd (UCmd [c].cmd);
          }

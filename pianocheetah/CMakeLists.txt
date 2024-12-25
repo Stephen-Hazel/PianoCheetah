@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
-
+cmake_minimum_required(VERSION 3.31)
 project(pianocheetah VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)

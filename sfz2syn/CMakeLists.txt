@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.31)
 
 project(sfz2syn LANGUAGES CXX)
 
