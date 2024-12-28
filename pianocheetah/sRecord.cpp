@@ -62,29 +62,13 @@ TRC("MapCtl=> `s cMod=`s", cSt, cMod);
 
 
 static char const *eg1 [] = {
-   "timeBar1",
-   "time<<",
-   "time<",
-   "timePoz",
-   "time>",
-   "time>>"
+   "timeBar1", "time<<",  "time<",    "timePoz", "time>",    "time>>"
 };
 static char const *eg3 [] = {
-   "song<",
-   "song>",
-   "songRand",
-   "exit",
-   "tempoHop",
-   "tempo<",
-   "tempo>"
+   "song<",    "song>",   "songRand", "exit",    "tempoHop", "tempo<", "tempo>"
 };
 static char const *eg6 [] = {
-   "learn",
-   "recWipe",
-   "recSave",
-   "color",
-   "hearLoop",
-   "hearRec"
+   "learn",    "recWipe", "recSave",  "color",   "hearRec",  "hearLoop"
 };
 //TODO  fullscreen too
 

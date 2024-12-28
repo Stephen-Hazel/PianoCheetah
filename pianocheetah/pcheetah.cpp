@@ -237,11 +237,11 @@ void PCheetah::Upd (QString upd)
    if (i < NUCmd) {
       if (i > 4)  emit sgCmd (upd);
       else  switch (i) {
-         case 0:  Gui.Quit ();   break;     // exit
-         case 1:  SongPrv  ();   break;     // song<
-         case 2:  SongNxt  ();   break;     // song>
-         case 3:  SongRand ();   break;     // songRand
-         case 4:  SongKill ();   break;     // songKill
+         case 0:  SongPrv  ();   break;     // song<
+         case 1:  SongNxt  ();   break;     // song>
+         case 2:  SongRand ();   break;     // songRand
+         case 3:  SongKill ();   break;     // songKill
+         case 4:  Gui.Quit ();   break;     // exit
       }
       return;
    }
@@ -336,18 +336,15 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
   ubyte i;
   key   k;
   TStr  s;
-//DBG("keyPressEvent raw m=`d k=`d", e->modifiers (), e->key ());
-   if (! (k = km.Map (e->modifiers (), e->key ())))  return;
+//DBG("keyPressEvent raw mod=`d key=`d", e->modifiers (), e->key ());
+   k = km.Map (e->modifiers (), e->key ());
+   if (! k)  return;
    StrCp (s, km.Str (k));
-TRC("keyPressEvent `s", s);
+//DBG("   keystr=`s", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
-   if (i < NUCmd)             Upd (UCmd [i].cmd);
-   if (! StrCm (s, CC("d")))  emit sgCmd ("dump");
-   if (! StrCm (s, CC("f01"))) {
-TRC("help - was vis=`b", _dHlp->isVisible ());
-      if (_dHlp->isVisible ())  _dHlp->Shut ();
-      else                      _dHlp->Open ();
-   }
+   if (i < NUCmd)               Upd (UCmd [i].cmd);
+   if (! StrCm (s, CC("d")))    emit sgCmd ("dump");
+   if (! StrCm (s, CC("f01")))  _dHlp->Open ();
 }
 
 

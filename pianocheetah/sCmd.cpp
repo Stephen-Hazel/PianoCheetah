@@ -4,30 +4,30 @@
 
 UCmdDef UCmd [] = {
 // done by gui/pcheetah
-   {"exit",      "",    "esc","song",       "quit PianoCheetah"},
-   {"song<",     "3c",  "z",  "",           "load prev"},
-   {"song>",     "3d",  "x",  "",           "load next"},
-   {"songRand",  "3c#", "a",  "",           "load random"},
-   {"songKill",  "",    "!",  "",           "DELETE SONG (be CAREful)"},
+   {"song<",     "d# c", "z",  "song",       "load prev"},
+   {"song>",     "d# d", "x",  "",           "load next"},
+   {"songRand",  "d# e", "a",  "",           "load random"},
+   {"songKill",  "",     "!",  "",           "DELETE SONG (be CAREful)"},
+   {"exit",      "d# f", "esc","",           "quit PianoCheetah"},
 // done by thread/song
-   {"timePoz",   "3d#", "spc","time",       "play/pause"},
-   {"timeBar1",  "3e",  "1",  "",           "hop to 1st bar"},
-   {"time<",     "3f",  "2",  "",           "prev bar"},
-   {"time>",     "3f#", "3",  "",           "next bar"},
-   {"time<<",    "3g",  "lft","",           "prev page/loop/8th bar"},
-   {"time>>",    "3g#", "rit","",           "next page/loop/8th bar"},
-   {"timeBug",   "",    "b",  "",           "hop to loop with most bugs"},
-   {"tempoHop",  "3a",  "t",  "tempo",      "tempo: 60%=>80%=>100%=>"},
-   {"tempo<",    "3a#", "f02","",           "down"},
-   {"tempo>",    "3b",  "f03","",           "up"},
-   {"tran<",     "4c",  "f11","transpose",  "down"},
-   {"tran>",     "4c#", "f12","",           "up"},
-   {"recSave",   "4d",  "s",  "recording",  "save recording"},
-   {"recWipe",   "4d#", "w",  "",           "wipe ALL (CAREFUL)"},
-   {"learn",     "4e",  "l",  "learn mode", "learn: hear=>play=>practice=>"},
-   {"color",     "4g",  "c",  "",           "color: scale=>velocity=>track=>"},
-   {"hearLoop",  "4g#", "/",  "loop",       "Hear loop notes to learn"},
-   {"hearRec",   "4a",  ".",  "",           "Hear your recording"}
+   {"timeBar1",  "c# c", "1",  "time",       "hop to 1st bar"},
+   {"time<<",    "c# d", "lft","",           "prev page/loop/8th bar"},
+   {"time<",     "c# e", "2",  "",           "prev bar"},
+   {"timePoz",   "c# f", "spc","",           "play/pause"},
+   {"time>",     "c# g", "3",  "",           "next bar"},
+   {"time>>",    "c# a", "rit","",           "next page/loop/8th bar"},
+   {"timeBug",   "",     "b",  "",           "hop to loop with most bugs"},
+   {"tempoHop",  "d# g", "t",  "tempo",      "tempo: 60%=>80%=>100%=>"},
+   {"tempo<",    "d# a", "f02","",           "down"},
+   {"tempo>",    "d# b", "f03","",           "up"},
+   {"tran<",     "",     "f11","transpose",  "down"},
+   {"tran>",     "",     "f12","",           "up"},
+   {"learn",     "f# c", "l",  "recording",  "learn: hear=>play=>practice=>"},
+   {"recWipe",   "f# d", "w",  "",           "wipe ALL (CAREFUL)"},
+   {"recSave",   "f# e", "s",  "",           "save recording"},
+   {"color",     "f# f", "c",  "",           "color: scale=>velocity=>track=>"},
+   {"hearRec",   "f# g", ".",  "",           "Hear your recording"},
+   {"hearLoop",  "f# a", "/",  "",           "Hear loop notes to learn"}
 };
 ubyte NUCmd = BITS (UCmd);
 
@@ -41,28 +41,26 @@ DBG("Cmd='`s'", c);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (c, CC(UCmd [i].cmd)))  break;
    if (i < 5)     {emit sgUpd (s);   return;}
    if (i < NUCmd)  switch (i) {
-      case  5:  EdTime (0);  break;         // timePoz
-      case  6:  EdTime (1);  break;         // timeBar1
+      case  5:  EdTime (1);  break;         // timeBar1
+      case  6:  EdTime (4);  break;         // time<<
       case  7:  EdTime (2);  break;         // time<
-      case  8:  EdTime (3);  break;         // time>
-      case  9:  EdTime (4);  break;         // time<<
-      case 10:  EdTime (5);  break;         // time>>
+      case  8:  EdTime (0);  break;         // timePoz
+      case  9:  EdTime (5);  break;         // time>>
+      case 10:  EdTime (3);  break;         // time>
       case 11:  EdTime (6);  break;         // timeBug
 
       case 12:  EdTmpo (0);  break;         // tempoHop
       case 13:  EdTmpo (1);  break;         // tempo<
       case 14:  EdTmpo (2);  break;         // tempo>
-
       case 15:  EdTmpo (3);  break;         // tran<
       case 16:  EdTmpo (4);  break;         // tran>
 
-      case 17:  Save ('r');  break;         // recSave
+      case 17:  EdLrn  (0);  break;         // learn
       case 18:  RecWipe ();  break;         // recWipe
-
-      case 19:  EdLrn  (0);  break;         // learn
+      case 19:  Save ('r');  break;         // recSave
       case 20:  EdLrn  (3);  break;         // color
-      case 21:  EdLrn  (4);  break;         // hearLoop
-      case 22:  EdLrn  (5);  break;         // hearRec
+      case 21:  EdLrn  (5);  break;         // hearRec
+      case 22:  EdLrn  (4);  break;         // hearLoop
    }
    else if (! StrCm (c, CC("init")))      Init ();
    else if (! StrCm (c, CC("quit")))      Quit ();
