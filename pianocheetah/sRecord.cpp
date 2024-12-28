@@ -61,55 +61,75 @@ TRC("MapCtl=> `s cMod=`s", cSt, cMod);
 }
 
 
-bool Song::CCEd (char *cSt, char *cMod, ubyte dev, MidiEv *ev)
-// EDIT ctrl/key?  set tOn/tTr=0-nTrk-1;  to set _eOn/_eTrk n hit gui
-{ bool  tOn;
-  ubyte tTr, c;
-   if (! StrCm (cSt, CC("edit"))) {
-      tOn = (tTr = ev->valu) != 0;
-      if      (! StrCm (cMod, CC("bend"))) {
-         if (tTr > 64) {tOn = false;   tTr = 0;}
-         else {
-            tOn = (tTr = 64 - tTr) != 0;
-            tTr = (ubyte)(tTr * _f.trk.Ln / 65);
-         }
-      }
-      else if (! StrCm (cMod, CC("step"))) {
-         if (tOn)  if (--tTr >= _f.trk.Ln)  tTr = _f.trk.Ln-1;
-      }
-      else
-         tTr = (ubyte)(tTr * _f.trk.Ln / 128);
-//DBG("trLn=`d ev->valu=`d _eOn=`s _eTrk=`d tOn=`s tTr=`d",
-//_f.trk.Ln, ev->valu, _eOn?"t":"f",_eTrk, tOn?"t":"f",tTr);
-      if (tOn != _eOn)  _eOn = tOn;//{_c->dHlp->Show (_eOn = tOn);}
-      if (tTr != Up.eTrk)  {Up.eTrk = tTr;   ReTrk ();}
-      return true;
-   }
-   else if (! MemCm (cSt, CC("do_"), 3)) {
-      for (c = 0;  c < _cDo.Ln;  c++)
-         if ((_cDo [c].dev == dev) &&
-             (_cDo [c].chn == ev->chan) && (_cDo [c].ctl == ev->ctrl))  break;
-      if (c >= _cDo.Ln) {
-         if (_cDo.Full ())  return true;
-         _cDo.Ins ();
-         _cDo [c].dev = dev;                _cDo [c].chn  = ev->chan;
-         _cDo [c].ctl = (ubyte) ev->ctrl;   _cDo [c].valu = 0;
-      }
-      if ((_cDo [c].valu == 0) && ev->valu)  Cmd (cSt+3);
-      _cDo [c].valu = ev->valu;
-      return true;
-   }
-// Bb means edit mode on
-   if (ev->ctrl/12 == 10)
-      {_eOn = (ev->valu & 0x80 ? true : false);   return true;}
+static char const *eg1 [] = {
+   "timeBar1",
+   "time<<",
+   "time<",
+   "timePoz",
+   "time>",
+   "time>>"
+};
+static char const *eg3 [] = {
+   "song<",
+   "song>",
+   "songRand",
+   "exit",
+   "tempoHop",
+   "tempo<",
+   "tempo>"
+};
+static char const *eg6 [] = {
+   "learn",
+   "recWipe",
+   "recSave",
+   "color",
+   "hearLoop",
+   "hearRec"
+};
+//TODO  fullscreen too
 
-// cmd "shift" on and key down matching cmd on dev 0 ?
-   if (_eOn) {
-      if (ev->valu & 0x80)             // cmds only on key down
-         for (c = 0;  c < NUCmd;  c++) if (ev->ctrl == MKey (CC(UCmd [c].nt))) {
-TRC("Edit edit key!");
-            Info (CC(UCmd [c].cmd));   Cmd (UCmd [c].cmd);
+bool Song::NtCmd (MidiEv *ev)
+// command key?  set _ed n kick a cmd
+{ ubyte n, ln, i, wn [7] = {0,2,4,5,7,9,11}, bn [5] = {1,3,6,8,10};
+  TStr  s;
+  char *cmd, ch;
+  char const **g;
+   n = ev->ctrl % 12;
+
+   if (! _f.trk.Ln) {                  // do DlgFL input ?
+      if (MNTDN (ev)) {
+         if      (n == wn [6])  emit sgUpd ("FLex");
+         else if (n == wn [0])  emit sgUpd ("FLgo");
+         else if (n == wn [1])  emit sgUpd ("FLdn");
+         else if (n == wn [2])  emit sgUpd ("FLup");
+         else  Info (CC("B=exit  C=go!  D=dn  E=up"));
+      }
+      return true;
+   }
+
+// # note - edit mode on/off
+   if ((n == bn [0]) || (n == bn [1]) || (n == bn [2])) {
+      if ((_ed = MNTDN (ev) ? n : 0)) {
+         if      (_ed == bn [0])  {ln = 6;   g = eg1;}     // draw menu-y info
+         else if (_ed == bn [1])  {ln = 7;   g = eg3;}
+         else                     {ln = 6;   g = eg6;}
+         *s = '\0';
+         for (i = 0;  i < ln;  i++) {
+            ch  = 'C'+i;   if (i >= 5) ch = 'A'-5+i;
+            cmd = CC(g [i]);   StrFmt (& s [StrLn (s)], "`c=`s  ", ch, cmd);
          }
+         Info (s);
+      }
+      return true;
+   }
+   if (_ed) {
+      if (MNTDN (ev)) {                // cmds only on key down
+         if      (_ed == bn [0])  {ln = 6;   g = eg1;}
+         else if (_ed == bn [1])  {ln = 7;   g = eg3;}
+         else                     {ln = 6;   g = eg6;}
+         for (i = 0;  i < ln;  i++)  if (n == wn [i])  break;
+         if (i < ln)  {Info (cmd = CC(g [i]));   Cmd (cmd);}
+      }
       return true;
    }
    return false;
@@ -239,21 +259,13 @@ ev->msec, TmSt(s5,_pNow),TmSt(s6,_rNow),TmSt(s7,_now),TmSt(s8,_timer->Get ()),
 _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
 (1+   _pDn<_dn.Ln)?TmSt(sa,_dn [_pDn+1].time):"x"
 );
-   if (! _f.trk.Ln) {                  // no song? - do DlgFL input
-      if (MNTDN (ev)) {
-         if      (ev->ctrl == MKey (CC("3b")))  emit sgUpd ("FLex");
-         else if (ev->ctrl == MKey (CC("4c")))  emit sgUpd ("FLgo");
-         else if (ev->ctrl == MKey (CC("4d")))  emit sgUpd ("FLdn");
-         else if (ev->ctrl == MKey (CC("4e")))  emit sgUpd ("FLup");
-      }
-      return;
-   }
+   if (! ECTRL (ev))  if (NtCmd (ev))  return;   // filter note command evs
 
 // get str,mod if ctrl  (cSt="\0" fer nt)
    CCMap (cSt, cMod, dev, ev);
    if (*cSt) {
-      if ( (! StrCm (cSt, CC("."))) || CCEd (cSt, cMod, dev, ev) )
-         TRC("EvRcrd: filt'd|edit ctl");    // no rec?
+      if (! StrCm (cSt, CC(".")))
+         TRC("EvRcrd: filt'd ctl");    // no rec?
    // map cc str to pos in _f.ctl[] and fixup ev.ctrl
       else if (ev->ctrl = CCUpd (cSt)) {    // outa _f.ctl spots?  xit
          _rNow = ev->time;

@@ -179,7 +179,7 @@ void DlgChd::Init ()
    connect (tb.Act (1), & QAction::triggered, this, [this]() {Cmd (CC("+"));});
    connect (tb.Act (2), & QAction::triggered, this, [this]() {Cmd (CC("x"));});
    connect (ui->shhh, & QPushButton::clicked, this, [this]()
-                                              {emit sgCmd (CC("timePause"));});
+                                              {emit sgCmd (CC("timePoz"));});
    connect (ui->undo, & QPushButton::clicked, this, [this]() {UnDo ();});
    connect (ui->pop,  QOverload<int>::of(& QComboBox::currentIndexChanged),
                                               this, [this]() {Pop  ();});
@@ -569,7 +569,7 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
    }
 //DBG("i=`d", i);
    _t.Shut ();
-DBG("colw=`d", _t.ColW (1));
+//DBG("colw=`d", _t.ColW (1));
    if (_t.ColW (1) > 600)  _t.SetColW (1, 600);
    _t.HopTo (FL.pos, 0);
    Pik ();

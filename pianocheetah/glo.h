@@ -62,7 +62,6 @@ struct TrkRow  {ubyte  dev, chn,   din, drm,   vol, pan;
                 ubyt4 ne, nn, nb, p;};           // #e, #n, #broke, pos
 struct CtlRow  {WStr s;   bool sho;};            // song's ctl map
 struct CChRow  {ubyte dev, chn, ctl, trk, valu, val2;  ubyt4 time;};
-struct CDoRow  {ubyte dev, chn, ctl, valu;};
 struct TxtRow  {ubyt4 time, tend;  TStr s;};     // lyr,sct,chd,cue,bug
 struct TpoRow  {ubyt4 time;  ubyt2 val;};                       // tempo (orig)
 struct TSgRow  {ubyt4 time;  ubyte num, den, sub;  ubyt2 bar;}; // timesig

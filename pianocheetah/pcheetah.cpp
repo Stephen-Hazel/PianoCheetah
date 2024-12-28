@@ -446,15 +446,15 @@ TRC(" tbar init");
    connect (tb5.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("timeBar1");});
    connect (tb5.Act (1), & QAction::triggered,
-            this, [this]() {emit sgCmd ("timeHop<");});
+            this, [this]() {emit sgCmd ("time<<");});
    connect (tb5.Act (2), & QAction::triggered,
-            this, [this]() {emit sgCmd ("timeBar<");});
+            this, [this]() {emit sgCmd ("time<");});
    connect (tb5.Act (3), & QAction::triggered,
-            this, [this]() {emit sgCmd ("timePause");});
+            this, [this]() {emit sgCmd ("timePoz");});
    connect (tb5.Act (4), & QAction::triggered,
-            this, [this]() {emit sgCmd ("timeBar>");});
+            this, [this]() {emit sgCmd ("time>");});
    connect (tb5.Act (5), & QAction::triggered,
-            this, [this]() {emit sgCmd ("timeHop>");});
+            this, [this]() {emit sgCmd ("time>>");});
 
   CtlTBar tb6 (this,
       "decrease tempo"           "`:/tbar/tmpo/0" "`F2\0"

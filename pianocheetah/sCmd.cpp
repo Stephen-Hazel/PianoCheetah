@@ -10,12 +10,12 @@ UCmdDef UCmd [] = {
    {"songRand",  "3c#", "a",  "",           "load random"},
    {"songKill",  "",    "!",  "",           "DELETE SONG (be CAREful)"},
 // done by thread/song
-   {"timePause", "3d#", "spc","time",       "play/pause"},
+   {"timePoz",   "3d#", "spc","time",       "play/pause"},
    {"timeBar1",  "3e",  "1",  "",           "hop to 1st bar"},
-   {"timeBar<",  "3f",  "2",  "",           "prev bar"},
-   {"timeBar>",  "3f#", "3",  "",           "next bar"},
-   {"timeHop<",  "3g",  "lft","",           "prev page/loop/8th bar"},
-   {"timeHop>",  "3g#", "rit","",           "next page/loop/8th bar"},
+   {"time<",     "3f",  "2",  "",           "prev bar"},
+   {"time>",     "3f#", "3",  "",           "next bar"},
+   {"time<<",    "3g",  "lft","",           "prev page/loop/8th bar"},
+   {"time>>",    "3g#", "rit","",           "next page/loop/8th bar"},
    {"timeBug",   "",    "b",  "",           "hop to loop with most bugs"},
    {"tempoHop",  "3a",  "t",  "tempo",      "tempo: 60%=>80%=>100%=>"},
    {"tempo<",    "3a#", "f02","",           "down"},
@@ -41,12 +41,12 @@ DBG("Cmd='`s'", c);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (c, CC(UCmd [i].cmd)))  break;
    if (i < 5)     {emit sgUpd (s);   return;}
    if (i < NUCmd)  switch (i) {
-      case  5:  EdTime (0);  break;         // timePause
+      case  5:  EdTime (0);  break;         // timePoz
       case  6:  EdTime (1);  break;         // timeBar1
-      case  7:  EdTime (2);  break;         // timeBar<
-      case  8:  EdTime (3);  break;         // timeBar>
-      case  9:  EdTime (4);  break;         // timeHop<
-      case 10:  EdTime (5);  break;         // timeHop>
+      case  7:  EdTime (2);  break;         // time<
+      case  8:  EdTime (3);  break;         // time>
+      case  9:  EdTime (4);  break;         // time<<
+      case 10:  EdTime (5);  break;         // time>>
       case 11:  EdTime (6);  break;         // timeBug
 
       case 12:  EdTmpo (0);  break;         // tempoHop
@@ -96,7 +96,7 @@ DBG("Cmd='`s'", c);
 
 
 //______________________________________________________________________________
-ubyte Song::ChkETrk ()                 // be sure _eTrk is still ok
+ubyte Song::ChkETrk ()                 // be sure eTrk is still ok
 {  if (Up.eTrk >= _f.trk.Ln)  Up.eTrk = (ubyte)(_f.trk.Ln-1);
    return Up.eTrk;
 }
@@ -130,7 +130,7 @@ void Song::EdTime (char ofs)           // edit song time
    case 2:  if ((bar > 1) && (bt <= 2))  bar--;     break; // else restart bar
    case 3:                               bar++;     break;
 
-   case 4:  if (PRAC || _lrn.pLrn)  {SetLp ('<');   return;}    // timeHop<
+   case 4:  if (PRAC || _lrn.pLrn)  {SetLp ('<');   return;}    // time<<
             if (_pg) {
                bt =        _pag [_pg-1].col [0].blk [0].bar;
                if ((_pg == 1) || (bar > bt))  bar = bt;
@@ -139,7 +139,7 @@ void Song::EdTime (char ofs)           // edit song time
                break;
             }
             if (bar <= 8) bar = 1;  else bar -= 8;   break;
-   case 5:  if (PRAC || _lrn.pLrn)  {SetLp ('>');   return;}    // timeHop>
+   case 5:  if (PRAC || _lrn.pLrn)  {SetLp ('>');   return;}    // time>>
             if (_pg) {
                bar = (_pg >= _pag.Ln) ? _bEnd :
                      _pag [_pg].col [0].blk [0].bar;
@@ -219,7 +219,7 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
         ubyt4 i;
          for (i = 0;  i < _f.cue.Ln;  i++)  // need ta init loops for 1st time ?
             if (_f.cue [i].tend && (_f.cue [i].s [0] == '['))  break;
-         if (i >= _f.cue.Ln)  LoopInit ();         
+         if (i >= _f.cue.Ln)  LoopInit ();
       }
       ReDo ();
       if (PRAC)  {Cmd ("recWipe");   Cmd ("timeBar1");}

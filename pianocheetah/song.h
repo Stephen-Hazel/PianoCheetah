@@ -97,7 +97,7 @@ class Song: public QObject {
 
 public:
    Song ()                             // prep for 1st Wipe()
-   {  _eOn = false;   *_f.fn = '\0';   _f.ev = nullptr;   _nt = nullptr;
+   {  _ed = 0;   *_f.fn = '\0';   _f.ev = nullptr;   _nt = nullptr;
       Up.pos.at = Up.pos.drg = '\0';
    }
 
@@ -160,7 +160,7 @@ private:
    void  Shush   (bool tf);            // flip by volume cc (only) on/off
    bool  DnOK    (char n = '\0', ubyte *tr = nullptr, MidiEv *ev = nullptr);
    void  CCMap   (char *cSt, char *cMod, ubyte dev, MidiEv *ev);
-   bool  CCEd    (char *cSt, char *cMod, ubyte dev, MidiEv *ev);
+   bool  NtCmd   (MidiEv *ev);
    void  NtGet   (MidiEv *ev);
    void  SetMSec (ubyt4 p, MidiEv *ev);
    void  Record  (MidiEv *ev);
@@ -274,9 +274,7 @@ private:
    ubyt4  _now, _pNow, _rNow;
    LrnDef _lrn;
 
-   bool            _eOn;               // piano key editin'
-   Arr<CDoRow,128> _cDo;
-
+   ubyte _ed;                          // piano key editin'
    ubyt4 _pLyr, _hLyr, _pChd;
 
    Arr<CChRow,MAX_CCH>  _cch;          // ctl chasing

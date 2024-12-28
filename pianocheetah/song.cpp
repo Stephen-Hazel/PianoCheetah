@@ -55,7 +55,7 @@ TRC(" del ev,nt");
    _f.nEv = _f.maxEv = 0;   _f.ev = nullptr;
    if (_nt)  delete [] _nt;   _nt = nullptr;
 TRC(" del sym");
-   _cDo.Ln = _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = _f.tpo.Ln = 0;
+   _cch.Ln = _f.tSg.Ln = _f.kSg.Ln = _f.tpo.Ln = 0;
    *_f.dsc = '\0';
    MemSet (& _lrn, 0, sizeof (_lrn));
    DscInit ();
