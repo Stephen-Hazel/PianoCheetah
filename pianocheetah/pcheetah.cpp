@@ -134,6 +134,7 @@ TRC("SongKill `s", FL.lst [FL.pos]);
       {Gui.Hey ("songKill only works in 4_queue dir");   return;}
 
 //TODO gotta path.txt?  rm that .mid too
+   emit sgCmd ("wipe");   Zzz (750);   // give it 3/4 sec
    FL.lst.Del (p);   d.Kill (dr);   if (p == FL.lst.Ln)  p--;
    FL.pos = p;   LoadGo ();
 }
