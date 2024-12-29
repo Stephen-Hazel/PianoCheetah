@@ -29,10 +29,10 @@ TRC("Shush `b", tf);
 }
 
 
-void Song::CCMap (char *cSt, char *cMod, ubyte dev, MidiEv *ev)
+void Song::CCMap (char *cSt, ubyte dev, MidiEv *ev)
 // if it's a ctrl, cook it (via ccin.txt, ccmap.txt)
 { ubyte c;
-   *cSt = *cMod = '\0';                // default to notta ctrl (note)
+   *cSt = '\0';                        // default to notta ctrl (note)
    if (MNOTE (ev) || (dev >= _mi.Ln))  return;   //  notta ctrl so outa herez
 // raw to cooked per ccin.txt  (else default cooking w MCtl2Str)
    for (c = 0;  c < _mi [dev].cc.Ln;  c++)
@@ -43,21 +43,7 @@ void Song::CCMap (char *cSt, char *cMod, ubyte dev, MidiEv *ev)
          break;
       }
    if (c >= _mi [dev].cc.Ln)  MCtl2Str (cSt, ev->ctrl);
-//TRC(" ccIn.txt=> `s", cSt);
-
-// translate it if we've got a ccMap.txt
-   for (c = 0; c < _mi [dev].mp.Ln; c++)
-      if (! StrCm (cSt, _mi [dev].mp [c].cci)) {
-         StrCp    (cSt, _mi [dev].mp [c].cco);
-         if (! StrCm (cSt, CC(".")))
-            {TRC(" ccMap.txt sez . so FILTER");   return;}
-
-      // get cMod  (flip, step, etc)  can't do step till later...:/
-         StrCp (cMod,   _mi [dev].mp [c].mod);
-         if (StrCm (cMod, CC("flip")) == 0)  ev->valu = (ubyte)127 - ev->valu;
-         break;
-      }
-TRC("MapCtl=> `s cMod=`s", cSt, cMod);
+TRC(" ccIn.txt=> `s", cSt);
 }
 
 
@@ -231,7 +217,7 @@ void Song::EvRcrd (ubyte dev, MidiEv *ev)
 { ubyte  dr, nt, tr, oct;
   ubyt4  pd, dnTm;
   MidiEv te;
-  TStr   cSt, cMod, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
+  TStr   cSt, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
 TRC("EvRcrd `s.`d `s `s\n"
 " ms=`d _pNow=`s _rNow=`s _now=`s tmr=`s\n"
 " _pDn=`d dn.time=`s dn+1.time=`s",
@@ -246,7 +232,7 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
    if (! ECTRL (ev))  if (NtCmd (ev))  return;   // filter note command evs
 
 // get str,mod if ctrl  (cSt="\0" fer nt)
-   CCMap (cSt, cMod, dev, ev);
+   CCMap (cSt, dev, ev);
    if (*cSt) {
       if (! StrCm (cSt, CC(".")))
          TRC("EvRcrd: filt'd ctl");    // no rec?

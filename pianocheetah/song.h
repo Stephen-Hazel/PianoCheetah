@@ -159,7 +159,7 @@ private:
 // sRecord.cpp
    void  Shush   (bool tf);            // flip by volume cc (only) on/off
    bool  DnOK    (char n = '\0', ubyte *tr = nullptr, MidiEv *ev = nullptr);
-   void  CCMap   (char *cSt, char *cMod, ubyte dev, MidiEv *ev);
+   void  CCMap   (char *cSt, ubyte dev, MidiEv *ev);
    bool  NtCmd   (MidiEv *ev);
    void  NtGet   (MidiEv *ev);
    void  SetMSec (ubyt4 p, MidiEv *ev);

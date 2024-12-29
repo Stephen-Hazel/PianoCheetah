@@ -1,4 +1,6 @@
 // sDevTyp.cpp - device type stuff for Song
+//    primarily doin midiout so ccout.txt and sound.txt
+//    ccin.txt loaded by midiins in device.cpp
 
 #include "song.h"
 

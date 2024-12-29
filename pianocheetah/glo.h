@@ -79,9 +79,7 @@ struct SnRow  {TStr name;   ubyte prog, bank, bnkL;};
 struct MInDef {                        // midi in dev stuff
    MidiI          *mi;
    Arr<CcRow, 128> cc;
-   Arr<MapRow,128> mp;
    static char *CcRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr);
-   static char *MpRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr);
 };
 
 
@@ -103,7 +101,7 @@ public:
                                                       return _cc [c].raw;
       return 0;
    }
-   ubyt2 CCMap [128];                  // map song ctl id => raw ubyt2
+   ubyt2 CCMap [128];                  // map song ctl id => raw midi ubyt2
 
    ubyt4  SndID  (char *name, bool xmatch = false);
    SnRow *Snd    (ubyt4 id)  {if (id >= _sn.Ln) id = 0;   return & _sn [id];}

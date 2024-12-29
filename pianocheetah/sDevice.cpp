@@ -31,39 +31,6 @@ char *MInDef::CcRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
 }
 
 
-char *MInDef::MpRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
-// parse a record of the ccmap.txt file
-{ MInDef *m = (MInDef *)ptr;   (void)len;
-// outa room?
-   if (pos >= 128) {
-      DBG("MInDef::MpRec device/`s/ccmap.txt is > 128 lines", m->mi->Type());
-      return CC("x");
-   }
-   if (*buf == '#')  return nullptr;
-  ColSep ss (buf, 2);
-// got all the cols we need?
-   if (ss.Col [1][0] == '\0') {
-      DBG("MInDef::MpRec device/ccmap.txt line `d  missing cols",
-          m->mi->Type(), pos+1);
-      return CC("x");
-   }
-   if (StrLn (ss.Col [0]) > MAXWSTR) {
-      DBG("MInDef::MpRec device/`s/ccmap.txt line `d  ccin too long",
-          m->mi->Type(), pos+1);
-      return CC("x");
-   }
-   if (StrLn (ss.Col [1]) > MAXWSTR) {
-      DBG("MInDef::MpRec device/`s/ccmap.txt line `d  ccout too long",
-          m->mi->Type(), pos+1);
-      return CC("x");
-   }
-  ubyt4 n = m->mp.Ins ();
-   StrCp (m->mp [n].cci, ss.Col [0]);   StrCp (m->mp [n].cco, ss.Col [1]);
-                                        StrCp (m->mp [n].mod, ss.Col [2]);
-   return nullptr;
-}
-
-
 void Song::OpenMIn ()
 // open every non OFF midiin device we got
 // send out dev SET LOCAL CONTROL OFF if there's one of same name (that's on)
@@ -78,12 +45,9 @@ void Song::OpenMIn ()
       if (_mi.Full ())  break;         // got room?
       n = _mi.Ln++;
       _mi [n].mi = mi = new MidiI (iname, _timer);
-      _mi [n].cc.Ln =                  // pcheetah does ccin,ccmap work
-      _mi [n].mp.Ln = 0;
+      _mi [n].cc.Ln = 0;
       StrFmt (fn, "`s/device/`s/ccin.txt",  App.Path (t, 'd'), mi->Type ());
       f.DoText (fn, & _mi [n], _mi [0].CcRec);
-      StrFmt (fn, "`s/device/`s/ccmap.txt", App.Path (t, 'd'), mi->Type ());
-      f.DoText (fn, & _mi [n], _mi [0].MpRec);
 
    // send local control off (cc 122 0) if MidiO of same name exists
       if (Midi.Get ('o', iname, xs, xs, xs)) {
@@ -117,7 +81,7 @@ TRC("   Local Control=ON for `s", nm);
          delete mo;   mo = nullptr;
       }
       delete _mi [n].mi;     _mi [n].mi = nullptr;
-             _mi [n].cc.Ln = _mi [n].mp.Ln = 0;
+             _mi [n].cc.Ln = 0;
       _mi.Ln--;
    }
 }
