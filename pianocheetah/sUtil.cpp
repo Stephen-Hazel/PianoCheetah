@@ -273,13 +273,15 @@ void Song::EvDel (ubyte t, ubyt4 p, ubyt4 ne)
 
 bool Song::EvIns (ubyte t, ubyt4 p, ubyt4 ne)
 // if room, ins new spots;  bump following _f.trk[].e's
+//TODO tracks' .e must stay in order :/
+// if t0..2 all have same .e and ins into t1, t2.e SHOULD be bumped, t0.e NOT
 { ubyt4 pAbs;
    if (! ne)                    return true;
    if (_f.nEv + ne > _f.maxEv)  return false;   // no rooom :(
    pAbs = & _f.trk [t].e [p] - _f.ev;
    RecIns (_f.ev, _f.nEv += ne, sizeof (TrkEv), pAbs, ne);
-   for (ubyte i = 0; i < _f.trk.Ln; i++)
-      if ((i != t) && (_f.trk [i].e >= _f.trk [t].e))  _f.trk [i].e += ne;
+   for (ubyte i = t+1; i < _f.trk.Ln; i++)
+      if (_f.trk [i].e >= _f.trk [t].e)  _f.trk [i].e += ne;
    _f.trk [t].ne += ne;
    return true;
 }
@@ -315,21 +317,26 @@ void Song::EvInsT (ubyte t, MidiEv *ev)
 // same as above EvInsT but w MidiEv
 { ubyt4 ne, p, x;
   TrkEv *e;
+//DBG("EvInsT t=`d", t);
    e = _f.trk [t].e;   ne = _f.trk [t].ne;
    for (p = 0;  p < ne;  p++)  if (e [p].time > ev->time)  break;
+//DBG("   p=`d", p);
    if (ENTUP (ev)) {
       x = p;
       while (x && (e [x-1].time == ev->time)) {
          --x;
+//DBG("   x=>`d", x);
          if ((ENTDN (& e [x])) && (e [x].ctrl == ev->ctrl)) {p = x;   break;}
       }
    }
+//DBG("final p=`d pre EvIns", p);
    if (EvIns (t, p)) {
 // TStr  s, s2;
 //if (ENOTE (ev))  TRC("EvInsT tr=`d p=`d/`d tm=`s `s",
 //t, p, tne+1, TmSt (s, ev->time), MNt2Str (s2, ev));
 //else             TRC("EvInsT tr=`d p=`d/`d tm=`s `s $`02x",
 //t, p, tne+1, TmSt (s, ev->time), _f.ctl [ev->ctrl & 0x007F].s, ev->valu);
+//DBG("e=`08x", e);
       e [p].time = ev->time;   e [p].ctrl = (ubyte) ev->ctrl;
       e [p].valu = ev->valu;   e [p].val2 = ev->val2;   e [p].x = 0;
       if ((t >= _f.trk.Ln) && (! (ev->ctrl & 0x0080))) {

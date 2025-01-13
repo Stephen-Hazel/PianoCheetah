@@ -162,7 +162,7 @@ TRC("TmHop `s `s",TmSt(str,tm), LrnS ());
    NotesOff ();   TmpoPik ('l');
    if (_lrn.pLrn)                      // reset lrn/pLrn
       {Up.lrn = _lrn.pLrn;   _lrn.pLrn = 0;   emit sgUpd ("tbLrn");}
-TRC(" b `s", LrnS ());
+TRC(" => `s", LrnS ());
    for (cc = 0;  cc < _cch.Ln;  cc++) {
       _cch [cc].time = 0;
       _cch [cc].valu = _cch [cc].val2 = _cch [cc].trk = 0;

@@ -76,31 +76,33 @@ bool Song::NtCmd (MidiEv *ev)
       }
       return true;
    }
-
-// # note - edit mode on/off
-   if ((n == bn [0]) || (n == bn [1]) || (n == bn [2])) {
-      if ((_ed = MNTDN (ev) ? n : 0)) {
-         if      (_ed == bn [0])  {ln = 6;   g = eg1;}     // draw menu-y info
-         else if (_ed == bn [1])  {ln = 7;   g = eg3;}
-         else                     {ln = 6;   g = eg6;}
-         *s = '\0';
-         for (i = 0;  i < ln;  i++) {
-            ch  = 'C'+i;   if (i >= 5) ch = 'A'-5+i;
-            cmd = CC(g [i]);   StrFmt (& s [StrLn (s)], "`c=`s  ", ch, cmd);
+   if (RCRD) {                         // HEAR needs the black notes
+   // black note dn/up - edit mode on/off
+      if ((n == bn [0]) || (n == bn [1]) || (n == bn [2])) {
+         if ((_ed = MNTDN (ev) ? n : 0)) {
+            if      (_ed == bn [0])  {ln = 6;   g = eg1;}  // draw menu-y info
+            else if (_ed == bn [1])  {ln = 7;   g = eg3;}
+            else                     {ln = 6;   g = eg6;}
+            *s = '\0';
+            for (i = 0;  i < ln;  i++) {
+               ch  = 'C'+i;   if (i >= 5) ch = 'A'-5+i;
+               cmd = CC(g [i]);   StrFmt (& s [StrLn (s)], "`c=`s  ", ch, cmd);
+            }
+            Info (s);
          }
-         Info (s);
+         return true;
       }
-      return true;
-   }
-   if (_ed) {
-      if (MNTDN (ev)) {                // cmds only on key down
-         if      (_ed == bn [0])  {ln = 6;   g = eg1;}
-         else if (_ed == bn [1])  {ln = 7;   g = eg3;}
-         else                     {ln = 6;   g = eg6;}
-         for (i = 0;  i < ln;  i++)  if (n == wn [i])  break;
-         if (i < ln)  {Info (cmd = CC(g [i]));   Cmd (cmd);}
+   // white note dn - do command
+      if (_ed) {
+         if (MNTDN (ev)) {             // cmds only on key down
+            if      (_ed == bn [0])  {ln = 6;   g = eg1;}
+            else if (_ed == bn [1])  {ln = 7;   g = eg3;}
+            else                     {ln = 6;   g = eg6;}
+            for (i = 0;  i < ln;  i++)  if (n == wn [i])  break;
+            if (i < ln)  {Info (cmd = CC(g [i]));   Cmd (cmd);}
+         }
+         return true;
       }
-      return true;
    }
    return false;
 }
@@ -188,23 +190,37 @@ TRC("    bug ins");
 //______________________________________________________________________________
 void Song::Record (MidiEv *ev)
 // filter lame ntUps due to EdCmd n looping leftovers
-{ ubyt4  p, x;
+{ ubyte  t;
+  ubyt4  p, x;
   TrkEv *e;
   Arr<TrkEv,MAX_RCRD> *re;
    if (_lrn.POZ)  return;              // poz recording only happens when done
 
 TRC("Record `s", MDR(ev)?"drum":"melo");
-   re = MDR(ev) ? (& _recD) : (& _recM);
+   if (! RCRD) {
+      for (t = 0;  t < _f.trk.Ln;  t++) {
+         if (MDR (ev))  {if (   TDrm (t)  && (MCTRL (ev) ||
+                                              (_f.trk [t].drm == ev->ctrl)))
+                                                        break;}
+         else           {if ((! TDrm (t)) && TLrn (t))  break;}
+      }
+      if (t < _f.trk.Ln)  EvInsT (t, ev);
+      Put ();
+      return;
+   }
+
+   re = MDR (ev) ? (& _recD) : (& _recM);   // got no true "track"
    if (re->Full ())  return;
    for (p = 0;  p < re->Ln;  p++)  if ((*re) [p].time > ev->time)  break;
-   if (ENTUP (ev)) {
-      x = p;
-      while (x && ((*re) [x-1].time == ev->time)) {
-         --x;
-         if ((ENTDN (& ((*re) [x]))) && ((*re) [x].ctrl == ev->ctrl))
-            {p = x;   break;}
-      }
-   }
+/* if (ENTUP (ev)) {
+**    x = p;
+**    while (x && ((*re) [x-1].time == ev->time)) {
+**       --x;
+**       if ((ENTDN (& ((*re) [x]))) && ((*re) [x].ctrl == ev->ctrl))
+**          {p = x;   break;}
+**    }
+** }
+*/
    re->Ins (p);   e = & ((*re) [p]);
    e->time = ev->time;   e->ctrl = (ubyte) ev->ctrl;
    e->valu = ev->valu;   e->val2 = ev->val2;   e->x = 0;
@@ -231,18 +247,18 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
 );
    if (! ECTRL (ev))  if (NtCmd (ev))  return;   // filter note command evs
 
-// get str,mod if ctrl  (cSt="\0" fer nt)
+// check ctrl first - get str,mod   (cSt="\0" fer nt)
    CCMap (cSt, dev, ev);
    if (*cSt) {
-      if (! StrCm (cSt, CC(".")))
-         TRC("EvRcrd: filt'd ctl");    // no rec?
-   // map cc str to pos in _f.ctl[] and fixup ev.ctrl
+      if      (! StrCm (cSt, CC(".")))
+         TRC("EvRcrd: filt'd ctl");         // no rec?
       else if (ev->ctrl = CCUpd (cSt)) {    // outa _f.ctl spots?  xit
-         _rNow = ev->time;
-         Record (ev);                  // ins ev into rec trk
+      // map cc str to pos in _f.ctl[] and fixup ev.ctrl
+         _rNow = ev->time;   Record (ev);   DrawNow ();
       }
+TRC("   ctrl - rec n out");
+      return;
    }
-   if (MCTRL (ev) || (! RCRD))  return;
 
 // notes only now:  map drum .din => .drm
    dr = MDR(ev) ? 1 : 0;   nt = (ubyte) ev->ctrl;
@@ -250,10 +266,15 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
       if (TLrn (tr) && TDrm (tr) && (_f.trk [tr].din == nt))
          {ev->ctrl = nt = _f.trk [tr].drm;   break;}
 
-// set _lrn.rec, clear on NtUp (and done), set time on NtDn
-   if (! MNTDN (ev))
-      {_lrn.rec [dr][nt].tm = 0;   Record (ev);   DrawNow ();   return;}
+// on NtUp, clear _lrn.rec, record n scram  ...or if HEAR
+   if (! MNTDN (ev) || (! RCRD)) {
+TRC("   ntup|hear - rec n out");
+      _lrn.rec [dr][nt].tm = 0;
+      _rNow = ev->time;   Record (ev);   DrawNow ();
+      return;
+   }
 
+// RCRD n NtDn from here on...
    if (_lrn.nt1)  {                    // kill rec on 1st ntdn of loop
       _lrn.nt1 = false;   _recM.Ln = _recD.Ln = 0;    // recWipe
       for (ulong x = 0;  x < _dn.Ln;  x++) {          // clear _dn's rec stuff
@@ -310,10 +331,7 @@ TRC("   lrnTrk=`d pDn=`d", tr, pd);
       _dn [pd].velo [oct] = ev->valu & 0x7F;     // .ht '1' => 1 (0 for drum)
 TRC("   oct=`d", oct);
    }
-
-   _rNow = ev->time;
-   Record (ev);                        // ins ev into rec trk
-   DrawNow ();
+   _rNow = ev->time;   Record (ev);   DrawNow ();
 TRC("EvRcrd end");
 }
 

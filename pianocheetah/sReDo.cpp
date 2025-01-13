@@ -1141,8 +1141,8 @@ TRC("SetSym end");
 
 
 //------------------------------------------------------------------------------
-void Song::ReDo ()
-{ ubyte t;
+void Song::ReDo ()                     // somethin fundamental changed sooo
+{ ubyte t;                             // rebuild eeeverythin
   char  ch;
 TRC("ReDo");
    if (_lrn.POZ)                       Shush (false);
@@ -1155,6 +1155,7 @@ TRC(" clear stuph");
 TRC(" ReEv SetDn SetNt SetLp TmHop SetSym Draw ReTrk DscSave :/");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
    ReEv ();   SetDn ();   SetNt ();   SetLp ('.');   TmHop (_now);
-   _pg = _tr = 0;   SetSym ();   Draw ('a');   ReTrk ();   DscSave ();
+   _pg = _tr = 0;
+   SetSym ();   Draw ('a');   ReTrk ();   DscSave ();
 TRC("ReDo end");
 }

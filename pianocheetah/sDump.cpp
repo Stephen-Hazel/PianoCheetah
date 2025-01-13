@@ -221,6 +221,7 @@ DBG("DUMP");
       ct[2][6], ct[2][7], ct[2][8], ct[2][9], ct[2][10], ct[2][11]);
    DBG("} DUMP");
 
+*/
    if (e2) {
       for (t = 0; t < _f.trk.Ln; t++) {
          DBG("t=`d ne=`d nb=`d nn=`d",
@@ -230,7 +231,6 @@ DBG("DUMP");
       }
 
    }
-*/
 //if (Sy != nullptr)  Sy->Dump ();
    DumpRec ();
 DBG("DUMP end");

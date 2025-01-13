@@ -236,7 +236,7 @@ for (e=0; e<nD; e++)TRC("  d[`d]=`d=`s",e,d[e],MDrm2Str(s,d[e]));
                _f.trk.Cp (t+x, t);
                for (neX = 0;  neT && (ev [neT-1].ctrl == d [x]);
                     neX++, neT--)  ;
-               _f.trk [t+x].e = & ev [neT];  _f.trk [t+x].ne  = neX;
+               _f.trk [t+x].e = & ev [neT];  _f.trk [t+x].ne = neX;
 TRC("  t=`d ne=`d", t+x, _f.trk [t+x].ne);
             }
             _f.trk [t].ne = neT;
@@ -290,7 +290,6 @@ t, _f.trk.Ln, _f.trk [t].dev, Up.dev [_f.trk [t].dev].dvt);
                Up.dvt [Up.dev [_f.trk [t].dev].dvt].SndID (CC("Drum/*"));
 TRC("  set trk `d snd to Drum/*=`d", t, _f.trk [t].snd);
          }
-//Dump ();
          t += nD;
       }
 TRC(" t end");
@@ -678,7 +677,7 @@ TRC("   tempo trk=`d cc=x`02x ne=`d", t, cc, _f.trk [t].ne);
 
 // wipe existing
    for (e = _f.trk [t].e, p = 0;  p < _f.trk [t].ne;)
-      {if (e [p].ctrl == cc)  EvDel (t, p);   else p++;}
+      {if (e [p].ctrl == cc) EvDel (t, p);   else p++;}
 TRC("   new ne=`d", _f.trk [t].ne);
    m.ctrl = cc;
    if (l_r != 'r')                     // lrn from _f.tpo[]

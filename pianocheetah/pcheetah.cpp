@@ -497,7 +497,7 @@ TRC(" tbar init");
             this, [this]() {emit sgCmd ("trkEd -");});
 
   CtlTBar tb (this,
-      "(I just show the song file for fullscreen)" "`*..." "`v\0",
+      "(I just show the song file for fullscreen)" "`*..." "`\0",
       "SongFile");
    connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
    Up.tbaTtl = tb.Act (0);
