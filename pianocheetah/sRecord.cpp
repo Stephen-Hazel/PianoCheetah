@@ -29,24 +29,6 @@ TRC("Shush `b", tf);
 }
 
 
-void Song::CCMap (char *cSt, ubyte dev, MidiEv *ev)
-// if it's a ctrl, cook it (via ccin.txt, ccmap.txt)
-{ ubyte c;
-   *cSt = '\0';                        // default to notta ctrl (note)
-   if (MNOTE (ev) || (dev >= _mi.Ln))  return;   //  notta ctrl so outa herez
-// raw to cooked per ccin.txt  (else default cooking w MCtl2Str)
-   for (c = 0;  c < _mi [dev].cc.Ln;  c++)
-      if (ev->ctrl == _mi [dev].cc [c].raw) {
-         StrCp (cSt,  _mi [dev].cc [c].map);
-         if (! StrCm (cSt, CC(".")))
-            {TRC(" ccIn.txt  sez . so FILTER");   return;}
-         break;
-      }
-   if (c >= _mi [dev].cc.Ln)  MCtl2Str (cSt, ev->ctrl);
-TRC(" ccIn.txt=> `s", cSt);
-}
-
-
 static char const *eg1 [] = {
    "timeBar1", "time<<",  "time<",    "timePoz", "time>",    "time>>"
 };
@@ -56,7 +38,6 @@ static char const *eg3 [] = {
 static char const *eg6 [] = {
    "learn",    "recWipe", "recSave",  "color",   "hearRec",  "hearLoop"
 };
-//TODO  fullscreen too
 
 bool Song::NtCmd (MidiEv *ev)
 // command key?  set _ed n kick a cmd
@@ -199,12 +180,15 @@ void Song::Record (MidiEv *ev)
 TRC("Record `s", MDR(ev)?"drum":"melo");
    if (! RCRD) {
       for (t = 0;  t < _f.trk.Ln;  t++) {
-         if (MDR (ev))  {if (   TDrm (t)  && (MCTRL (ev) ||
-                                              (_f.trk [t].drm == ev->ctrl)))
-                                                        break;}
-         else           {if ((! TDrm (t)) && TLrn (t))  break;}
+         if (MDR (ev))  {
+            if (   TDrm (t)  && (MCTRL (ev) || (_f.trk [t].drm == ev->ctrl)))
+                                          {EvInsT (t, ev);   break;}
+         }
+         else {                        // melo notes can go into parallel trks
+            if ((! TDrm (t)) && TLrn (t))  EvInsT (t, ev);
+            if (MCTRL (ev))  break;    // but ctrls just in 1st
+         }
       }
-      if (t < _f.trk.Ln)  EvInsT (t, ev);
       Put ();
       return;
    }
@@ -212,7 +196,7 @@ TRC("Record `s", MDR(ev)?"drum":"melo");
    re = MDR (ev) ? (& _recD) : (& _recM);   // got no true "track"
    if (re->Full ())  return;
    for (p = 0;  p < re->Ln;  p++)  if ((*re) [p].time > ev->time)  break;
-/* if (ENTUP (ev)) {
+/* if (MNTUP (ev)) {
 **    x = p;
 **    while (x && ((*re) [x-1].time == ev->time)) {
 **       --x;
@@ -230,7 +214,7 @@ TRC("Record `s", MDR(ev)?"drum":"melo");
 //______________________________________________________________________________
 void Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
-{ ubyte  dr, nt, tr, oct;
+{ ubyte  c, dr, nt, tr, oct;
   ubyt4  pd, dnTm;
   MidiEv te;
   TStr   cSt, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
@@ -245,22 +229,27 @@ ev->msec, TmSt(s5,_pNow),TmSt(s6,_rNow),TmSt(s7,_now),TmSt(s8,_timer->Get ()),
 _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
 (1+   _pDn<_dn.Ln)?TmSt(sa,_dn [_pDn+1].time):"x"
 );
-   if (! ECTRL (ev))  if (NtCmd (ev))  return;   // filter note command evs
-
-// check ctrl first - get str,mod   (cSt="\0" fer nt)
-   CCMap (cSt, dev, ev);
-   if (*cSt) {
-      if      (! StrCm (cSt, CC(".")))
-         TRC("EvRcrd: filt'd ctl");         // no rec?
-      else if (ev->ctrl = CCUpd (cSt)) {    // outa _f.ctl spots?  xit
-      // map cc str to pos in _f.ctl[] and fixup ev.ctrl
-         _rNow = ev->time;   Record (ev);   DrawNow ();
-      }
-TRC("   ctrl - rec n out");
+// check ctrl first
+   if (MCTRL (ev)) {
+   // raw ubyt2 ctrl into a str (via ccin.txt): _mi[].cc[].raw => .map
+      for (c = 0;  c < _mi [dev].cc.Ln;  c++)
+         if (ev->ctrl == _mi [dev].cc [c].raw)
+            {StrCp (cSt, _mi [dev].cc [c].map);
+TRC(" ccin.txt => `s", cSt);
+             break;}       // not in map?
+      if (c >= _mi [dev].cc.Ln)  MCtl2Str (cSt, ev->ctrl);     // try to default
+TRC(" cc $`02x => `s", ev->ctrl, cSt);
+      if      (! StrCm (cSt, CC(".")))  {TRC("   filtered.");}
+      else if (ev->ctrl = CCPos (cSt))      // 0 if outa _f.ctl spots,etc
+         {_rNow = ev->time;   Record (ev);   DrawNow ();}
+TRC("EvRcrd end - ctrl");
       return;
    }
 
-// notes only now:  map drum .din => .drm
+// notes only now
+   if (NtCmd (ev))  return;            // filter note command evs
+
+// map drum .din => .drm
    dr = MDR(ev) ? 1 : 0;   nt = (ubyte) ev->ctrl;
    if (dr)  for (tr = 0;  tr < _f.trk.Ln;  tr++)      // might hafta map .din
       if (TLrn (tr) && TDrm (tr) && (_f.trk [tr].din == nt))
@@ -268,9 +257,9 @@ TRC("   ctrl - rec n out");
 
 // on NtUp, clear _lrn.rec, record n scram  ...or if HEAR
    if (! MNTDN (ev) || (! RCRD)) {
-TRC("   ntup|hear - rec n out");
       _lrn.rec [dr][nt].tm = 0;
       _rNow = ev->time;   Record (ev);   DrawNow ();
+TRC("EvRcrd end - ntup|hear");
       return;
    }
 

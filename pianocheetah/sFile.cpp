@@ -460,7 +460,7 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
          for (i = 0;  i < _f.ctl.Ln;  i++)  if (! StrCm (buf, _f.ctl [i].s))
                                                break;
-         if (i >= _f.ctl.Ln) {         // new ctl s
+         if (i >= _f.ctl.Ln) {         // new ctl str
             if (_f.ctl.Ln >= 128)  {TRC("Song::Load  >128 ctls");   return;}
             _f.ctl.Ln++;   StrCp (_f.ctl [i].s, buf);
          }
@@ -498,6 +498,7 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
       StrCp (buf, st [TB_EVT].Get (e, 1));
       if (*buf == '!') {               // ctl
+//TODO use CCPos() and make funcs for this junk...
          if ((m = StrCh (buf, '=')))  *m++ = '\0';
          else  {TRC("Song::Load  !ctl no = in trk=`d ev#=`d", t+1, e);
                 return;}

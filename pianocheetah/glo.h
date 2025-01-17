@@ -101,7 +101,6 @@ public:
                                                       return _cc [c].raw;
       return 0;
    }
-   ubyt2 CCMap [128];                  // map song ctl id => raw midi ubyt2
 
    ubyt4  SndID  (char *name, bool xmatch = false);
    SnRow *Snd    (ubyt4 id)  {if (id >= _sn.Ln) id = 0;   return & _sn [id];}
@@ -110,6 +109,7 @@ public:
    void   SNam   (char *t, char *grp, bool dr);
    void   Dump   ();
 
+   ubyt2 CCMap [128];                  // map song ctl id => raw midi ubyt2
    TStr               _name;
    Arr<SnRow,SND_MAX> _sn;   ubyt4 _nDr;
    Arr<CcRow,128    > _cc;

@@ -32,8 +32,10 @@ char *MInDef::CcRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
 
 
 void Song::OpenMIn ()
-// open every non OFF midiin device we got
-// send out dev SET LOCAL CONTROL OFF if there's one of same name (that's on)
+// open every non OFF midiin device we got in device.txt
+//   set _mi[].mi to device
+//   load ccin.txt into _mi[].cc[] ubyt2 .raw comes in and turns to str .map
+//   send out dev SET LOCAL CONTROL OFF if there's one of same name (that's on)
 { MidiI *mi;
   TStr   iname, t, xs, fn;
   ubyte  i = 0, e [4];
@@ -43,8 +45,12 @@ void Song::OpenMIn ()
    _mi.Ln = 0;
    while (Midi.GetPos ('i', i++, iname, t, xs, xs))  if (StrCm (t, CC("OFF"))) {
       if (_mi.Full ())  break;         // got room?
+
+   // init our device
       n = _mi.Ln++;
       _mi [n].mi = mi = new MidiI (iname, _timer);
+
+   // load ccin.txt of devtype (only devtype stuff input needs)
       _mi [n].cc.Ln = 0;
       StrFmt (fn, "`s/device/`s/ccin.txt",  App.Path (t, 'd'), mi->Type ());
       f.DoText (fn, & _mi [n], _mi [0].CcRec);

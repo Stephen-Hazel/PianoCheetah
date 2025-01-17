@@ -2,7 +2,7 @@
 // /device.txt
 // /cc.txt  (comes from install)
 // these all have to be d/l via devtype or text edited:
-//    /<devtype>/ccin.txt  ccmap.txt  ccout.txt  sound.txt
+//    /<devtype>/ccin.txt  ccout.txt  sound.txt
 
 #include "midicfg.h"
 

@@ -159,7 +159,7 @@ private:
 // sRecord.cpp
    void  Shush   (bool tf);            // flip by volume cc (only) on/off
    bool  DnOK    (char n = '\0', ubyte *tr = nullptr, MidiEv *ev = nullptr);
-   void  CCMap   (char *cSt, ubyte dev, MidiEv *ev);
+   ubyte CCPos   (char *cSt);          // get _ctl pos; upd _cch,_ctl,dvt.CCMap
    bool  NtCmd   (MidiEv *ev);
    void  NtGet   (MidiEv *ev);
    void  SetMSec (ubyt4 p, MidiEv *ev);
@@ -182,7 +182,6 @@ private:
    ubyt4 NtDnPrv (ubyt4 tm), NtDnNxt (ubyt4 tm);
    void  ReCtl   ();                   // map all DevTyps w song's _ctl[]s
    void  CtlClean();                   // redo _ctl[] to just used ones sorted
-   ubyte CCUpd   (char *cSt);          // get _ctl pos; upd _cch,_ctl,dvt.CCMap
    void  EvDel   (ubyte t, ubyt4 p, ubyt4 ne = 1);
    bool  EvIns   (ubyte t, ubyt4 p, ubyt4 ne = 1);
    void  EvInsT  (ubyte t, TrkEv  *ev);

@@ -188,7 +188,7 @@ TRC("    empty so ins a 120");
          _f.tpo [0].val  = 120;
          EvIns (t, 0);
          _f.trk [t].e [0].time = 0;
-         _f.trk [t].e [0].ctrl = CCUpd (CC("tmpo"));
+         _f.trk [t].e [0].ctrl = CCPos (CC("tmpo"));
          _f.trk [t].e [0].valu = 120;
          _f.trk [t].e [0].val2 = 0;
          _f.trk [t].e [0].x    = 0;

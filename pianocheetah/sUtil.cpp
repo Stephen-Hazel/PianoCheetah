@@ -170,9 +170,29 @@ void Song::ReCtl ()                    // rebuild used _f.dvts' CCMaps
 TRC("ReCtl  rebuild dvt.CCMap");
    for (d = 0;  d < Up.dvt.Ln;  d++)  if (Up.dvt [d].Name () [0]) { // used?
       MemSet (Up.dvt [d].CCMap, 0, sizeof (Up.dvt [d].CCMap));
-      for (i = 0;  i < _f.ctl.Ln;  i++)
+      for (i = 0;  i < _f.ctl.Ln;  i++) {
          Up.dvt [d].CCMap [i] = Up.dvt [d].CCID (_f.ctl [i].s);
+TRC("   DvT=`s `s=`d=`04x",
+Up.dvt [d].Name(), _f.ctl [i].s, Up.dvt [d].CCMap [i], Up.dvt [d].CCMap [i]);
+      }
    }
+}
+
+
+ubyte Song::CCPos (char *cSt)
+// turn cSt into _f.ctl 0x80|pos (and ins if new and room)
+// return 0 if outa room
+{ ubyte c;
+   for (c = 0;  c < _f.ctl.Ln;  c++)  if (! StrCm (_f.ctl [c].s, cSt))  break;
+   if (c >= _f.ctl.Ln) {
+TRC("CCPos  new! `s => `d", cSt, c);
+      if (_f.ctl.Full ())
+         {TRC("   hit 128 :(");   StrCp (cSt, CC("."));   return 0;}
+      _f.ctl.Ln++;   StrCp (_f.ctl [c].s, cSt);   _f.ctl [c].sho = true;
+      ReCtl ();
+   }
+TRC("CCPos=`d=`02x", c, 0x80|c);
+   return 0x80 | c;
 }
 
 
@@ -187,6 +207,7 @@ static int CtlCmp (void *p1, void *p2)  // ..._f.ctl str sortin (by MCC[] pos)
    if (i2 < NMCC)  return  1;
    return StrCm (s1, s2);
 }
+
 
 void Song::CtlClean ()
 // compact _f.ctl[] to just used n shown ones.  sorted nice
@@ -218,42 +239,6 @@ TRC("CtlClean");
    }
    ReCtl ();
 TRC("CtlClean end");
-}
-
-
-ubyte Song::CCUpd (char *cSt)
-// got a rec ev w cSt so ( without doin a full ReEv() )
-// lookup _f.ctl pos given ccStr,t;  update _f.ctl,dvt.CCMap,_cch if needed
-{ ubyte c, cc;
-  ubyt2 ch;
-   for (c = 0;  c < _f.ctl.Ln;  c++)  if (! StrCm (_f.ctl [c].s, cSt))  break;
-   if (c >= _f.ctl.Ln) {
-TRC("CCUpd  new! cSt=`s => c=`d", cSt, c);
-      if (_f.ctl.Full ()) {
-         StrCp (cSt, CC("."));
-TRC("   out of _f.ctl spots :(");
-         return 0;
-      }
-      _f.ctl.Ln++;
-      _f.ctl        [_f.ctl.Ln-1].sho = StrCm (cSt, CC("hold")) ? false : true;
-      StrCp (_f.ctl [_f.ctl.Ln-1].s, cSt);
-      ReCtl ();
-      if (StrCm (cSt, CC("hold")) == 0)  ReDo ();     // ...argh
-   }
-   cc = 0x80 | c;
-
-// ins into _cch[] if dev/chn/ctl is new
-/*TODO RETHINK
-   for (ch = 0;  ch < _cch.Ln;  ch++)
-      if ( (_cch [ch].dev == _f.trk [t].dev) &&
-           (_cch [ch].chn == _f.trk [t].chn) &&
-           (_cch [ch].ctl == cc) )  break;
-   if ((ch >= _cch.Ln) && (! _cch.Full ())) {
-      _cch.Ins ();                      _cch [ch].dev = _f.trk [t].dev;
-      _cch [ch].chn = _f.trk [t].chn;   _cch [ch].ctl = cc;
-   }
-*/
-   return cc;
 }
 
 
@@ -317,32 +302,28 @@ void Song::EvInsT (ubyte t, MidiEv *ev)
 // same as above EvInsT but w MidiEv
 { ubyt4 ne, p, x;
   TrkEv *e;
-//DBG("EvInsT t=`d", t);
+DBG("EvInsT t=`d", t);
    e = _f.trk [t].e;   ne = _f.trk [t].ne;
    for (p = 0;  p < ne;  p++)  if (e [p].time > ev->time)  break;
-//DBG("   p=`d", p);
-   if (ENTUP (ev)) {
+   if (MNTUP (ev)) {
       x = p;
       while (x && (e [x-1].time == ev->time)) {
          --x;
-//DBG("   x=>`d", x);
          if ((ENTDN (& e [x])) && (e [x].ctrl == ev->ctrl)) {p = x;   break;}
       }
    }
-//DBG("final p=`d pre EvIns", p);
    if (EvIns (t, p)) {
-// TStr  s, s2;
-//if (ENOTE (ev))  TRC("EvInsT tr=`d p=`d/`d tm=`s `s",
-//t, p, tne+1, TmSt (s, ev->time), MNt2Str (s2, ev));
-//else             TRC("EvInsT tr=`d p=`d/`d tm=`s `s $`02x",
-//t, p, tne+1, TmSt (s, ev->time), _f.ctl [ev->ctrl & 0x007F].s, ev->valu);
-//DBG("e=`08x", e);
+TStr s, s2;
+if (MNOTE (ev))  TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s",
+t, p, ne, e, TmSt (s, ev->time), MNt2Str (s2, ev));
+else             TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s $`02x",
+t, p, ne, e, TmSt (s, ev->time), _f.ctl [ev->ctrl & 0x007F].s, ev->valu);
       e [p].time = ev->time;   e [p].ctrl = (ubyte) ev->ctrl;
       e [p].valu = ev->valu;   e [p].val2 = ev->val2;   e [p].x = 0;
       if ((t >= _f.trk.Ln) && (! (ev->ctrl & 0x0080))) {
          if (ev->valu & 0x80)  {_f.trk [t].nn++;   _f.trk [t].nb++;}
          else                                      _f.trk [t].nb--;
-//DBG("EvInsT2 t=`d nn=`d nb=`d", t, _f.trk [t].nn, _f.trk [t].nb);
+DBG("EvInsT2 t=`d nn=`d nb=`d", t, _f.trk [t].nn, _f.trk [t].nb);
       }
    }
 }

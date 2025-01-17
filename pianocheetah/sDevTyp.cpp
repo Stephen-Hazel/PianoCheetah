@@ -2,6 +2,12 @@
 //    primarily doin midiout so ccout.txt and sound.txt
 //    ccin.txt loaded by midiins in device.cpp
 
+// ccin.txt  loaded by Device  => _mi[].cc[].raw => .map (ubyt2 to str)
+// ccout.txt loaded by DevType => Up.dvt[]._cc[].raw => .map
+// sUtil.cpp Song::ReCtl() rebuilds
+//    Up.dvt[].CCMap[] which turns _f.ctl[].str's pos into _cc[].raw
+
+
 #include "song.h"
 
 char *DevTyp::SnRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
@@ -55,7 +61,7 @@ char *DevTyp::CcRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
       DBG("DevTyp::CcRec `s", Msg);
    }
   ubyte n = (ubyte) d->_cc.Ins ();
-   StrCp (d->_cc [n].map,     ss.Col [0]);
+   StrCp (d->_cc [n].map, ss.Col [0]);
    d->_cc [n].raw = MCtl (ss.Col [1]);
    return NULL;
 }
