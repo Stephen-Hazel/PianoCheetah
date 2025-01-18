@@ -236,13 +236,14 @@ void PCheetah::Upd (QString upd)
 //TRC("Upd `s", u);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, CC(UCmd [i].cmd)))  break;
    if (i < NUCmd) {
-      if (i > 4)  emit sgCmd (upd);
+      if (i > 5)  emit sgCmd (upd);
       else  switch (i) {
          case 0:  SongPrv  ();   break;     // song<
          case 1:  SongNxt  ();   break;     // song>
          case 2:  SongRand ();   break;     // songRand
          case 3:  SongKill ();   break;     // songKill
          case 4:  Gui.Quit ();   break;     // exit
+         case 5:  Trak     ();   break;     // fullScr
       }
       return;
    }

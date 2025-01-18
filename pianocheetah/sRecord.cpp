@@ -30,7 +30,7 @@ TRC("Shush `b", tf);
 
 
 static char const *eg1 [] = {
-   "timeBar1", "time<<",  "time<",    "timePoz", "time>",    "time>>"
+   "timeBar1", "time<<",  "time<",    "timePoz", "time>",    "time>>", "fullScr"
 };
 static char const *eg3 [] = {
    "song<",    "song>",   "songRand", "exit",    "tempoHop", "tempo<", "tempo>"
@@ -61,7 +61,7 @@ bool Song::NtCmd (MidiEv *ev)
    // black note dn/up - edit mode on/off
       if ((n == bn [0]) || (n == bn [1]) || (n == bn [2])) {
          if ((_ed = MNTDN (ev) ? n : 0)) {
-            if      (_ed == bn [0])  {ln = 6;   g = eg1;}  // draw menu-y info
+            if      (_ed == bn [0])  {ln = 7;   g = eg1;}  // draw menu-y info
             else if (_ed == bn [1])  {ln = 7;   g = eg3;}
             else                     {ln = 6;   g = eg6;}
             *s = '\0';
@@ -76,7 +76,7 @@ bool Song::NtCmd (MidiEv *ev)
    // white note dn - do command
       if (_ed) {
          if (MNTDN (ev)) {             // cmds only on key down
-            if      (_ed == bn [0])  {ln = 6;   g = eg1;}
+            if      (_ed == bn [0])  {ln = 7;   g = eg1;}
             else if (_ed == bn [1])  {ln = 7;   g = eg3;}
             else                     {ln = 6;   g = eg6;}
             for (i = 0;  i < ln;  i++)  if (n == wn [i])  break;
@@ -234,14 +234,15 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
    // raw ubyt2 ctrl into a str (via ccin.txt): _mi[].cc[].raw => .map
       for (c = 0;  c < _mi [dev].cc.Ln;  c++)
          if (ev->ctrl == _mi [dev].cc [c].raw)
-            {StrCp (cSt, _mi [dev].cc [c].map);
-TRC(" ccin.txt => `s", cSt);
-             break;}       // not in map?
+            {StrCp (cSt, _mi [dev].cc [c].map);   break;}       // not in map?
       if (c >= _mi [dev].cc.Ln)  MCtl2Str (cSt, ev->ctrl);     // try to default
-TRC(" cc $`02x => `s", ev->ctrl, cSt);
-      if      (! StrCm (cSt, CC(".")))  {TRC("   filtered.");}
-      else if (ev->ctrl = CCPos (cSt))      // 0 if outa _f.ctl spots,etc
-         {_rNow = ev->time;   Record (ev);   DrawNow ();}
+      if      (! StrCm (cSt, CC("."))) {    // <=keep that dang brace !!
+TRC(" cc filtered.");
+      }
+      else if (ev->ctrl = CCPos (cSt)) {    // 0 if outa _f.ctl spots,etc
+TRC(" cc => `s=#`d", cSt, ev->ctrl & 0x7F);
+         _rNow = ev->time;   Record (ev);   DrawNow ();
+      }
 TRC("EvRcrd end - ctrl");
       return;
    }

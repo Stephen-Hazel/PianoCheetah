@@ -167,13 +167,13 @@ ubyt4 Song::SilNxt (ubyt4 tm)
 //______________________________________________________________________________
 void Song::ReCtl ()                    // rebuild used _f.dvts' CCMaps
 { ubyte d, i;
-TRC("ReCtl  rebuild dvt.CCMap");
+//TRC("ReCtl  rebuild dvt.CCMap");
    for (d = 0;  d < Up.dvt.Ln;  d++)  if (Up.dvt [d].Name () [0]) { // used?
       MemSet (Up.dvt [d].CCMap, 0, sizeof (Up.dvt [d].CCMap));
       for (i = 0;  i < _f.ctl.Ln;  i++) {
          Up.dvt [d].CCMap [i] = Up.dvt [d].CCID (_f.ctl [i].s);
-TRC("   DvT=`s `s=`d=`04x",
-Up.dvt [d].Name(), _f.ctl [i].s, Up.dvt [d].CCMap [i], Up.dvt [d].CCMap [i]);
+//TRC("   DvT=`s `s=`d=`04x",
+//Up.dvt [d].Name(), _f.ctl [i].s, Up.dvt [d].CCMap [i], Up.dvt [d].CCMap [i]);
       }
    }
 }
@@ -191,7 +191,7 @@ TRC("CCPos  new! `s => `d", cSt, c);
       _f.ctl.Ln++;   StrCp (_f.ctl [c].s, cSt);   _f.ctl [c].sho = true;
       ReCtl ();
    }
-TRC("CCPos=`d=`02x", c, 0x80|c);
+//TRC("CCPos=`d=`02x", c, 0x80|c);
    return 0x80 | c;
 }
 

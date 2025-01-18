@@ -9,7 +9,8 @@ UCmdDef UCmd [] = {
    {"songRand",  "d# e", "a",  "",           "load random"},
    {"songKill",  "",     "!",  "",           "DELETE SONG (be CAREful)"},
    {"exit",      "d# f", "esc","",           "quit PianoCheetah"},
-// done by thread/song
+   {"fullScr",   "c# b", "v",  "",           "view full screen"},
+// done by thread/song/me
    {"timeBar1",  "c# c", "1",  "time",       "hop to 1st bar"},
    {"time<<",    "c# d", "lft","",           "prev page/loop/8th bar"},
    {"time<",     "c# e", "2",  "",           "prev bar"},
@@ -39,28 +40,28 @@ void Song::Cmd (QString s)
 DBGTH("PcSng");                        // first time Song is hit :/
 DBG("Cmd='`s'", c);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (c, CC(UCmd [i].cmd)))  break;
-   if (i < 5)     {emit sgUpd (s);   return;}
+   if (i < 6)     {emit sgUpd (s);   return;}
    if (i < NUCmd)  switch (i) {
-      case  5:  EdTime (1);  break;         // timeBar1
-      case  6:  EdTime (4);  break;         // time<<
-      case  7:  EdTime (2);  break;         // time<
-      case  8:  EdTime (0);  break;         // timePoz
-      case  9:  EdTime (5);  break;         // time>>
-      case 10:  EdTime (3);  break;         // time>
-      case 11:  EdTime (6);  break;         // timeBug
+      case  6:  EdTime (1);  break;         // timeBar1
+      case  7:  EdTime (4);  break;         // time<<
+      case  8:  EdTime (2);  break;         // time<
+      case  9:  EdTime (0);  break;         // timePoz
+      case 10:  EdTime (5);  break;         // time>>
+      case 11:  EdTime (3);  break;         // time>
+      case 12:  EdTime (6);  break;         // timeBug
 
-      case 12:  EdTmpo (0);  break;         // tempoHop
-      case 13:  EdTmpo (1);  break;         // tempo<
-      case 14:  EdTmpo (2);  break;         // tempo>
-      case 15:  EdTmpo (3);  break;         // tran<
-      case 16:  EdTmpo (4);  break;         // tran>
+      case 13:  EdTmpo (0);  break;         // tempoHop
+      case 14:  EdTmpo (1);  break;         // tempo<
+      case 15:  EdTmpo (2);  break;         // tempo>
+      case 16:  EdTmpo (3);  break;         // tran<
+      case 17:  EdTmpo (4);  break;         // tran>
 
-      case 17:  EdLrn  (0);  break;         // learn
-      case 18:  RecWipe ();  break;         // recWipe
-      case 19:  Save ('r');  break;         // recSave
-      case 20:  EdLrn  (3);  break;         // color
-      case 21:  EdLrn  (5);  break;         // hearRec
-      case 22:  EdLrn  (4);  break;         // hearLoop
+      case 18:  EdLrn  (0);  break;         // learn
+      case 19:  RecWipe ();  break;         // recWipe
+      case 20:  Save ('r');  break;         // recSave
+      case 21:  EdLrn  (3);  break;         // color
+      case 22:  EdLrn  (5);  break;         // hearRec
+      case 23:  EdLrn  (4);  break;         // hearLoop
    }
    else if (! StrCm (c, CC("init")))      Init ();
    else if (! StrCm (c, CC("quit")))      Quit ();
@@ -125,8 +126,8 @@ void Song::EdTime (char ofs)           // edit song time
             if (Up.uPoz)  Poz (true);   else Put ();       // restart schedulin
             return;
 
-   case 2:  if ((bar > 1) && (bt <= 2))  bar--;     break; // else restart bar
-   case 3:                               bar++;     break;
+   case 2:  if ((bar > 1) && (bt <= 2))  bar--;     break;      // time<
+   case 3:                               bar++;     break;      // time>
 
    case 4:  if (PRAC || _lrn.pLrn)  {SetLp ('<');   return;}    // time<<
             if (_pg) {
