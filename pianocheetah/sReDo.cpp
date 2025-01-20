@@ -252,6 +252,7 @@ TRC("SetDn qu=`c", qu);
    MemSet (qd,   0, sizeof (qd));
    for (got = true;  got;) {
       got = false;
+DBG("a");
    // get tm - min time of a NtDn across all ? trks
       for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))
          for (p = tpos [t], e = _f.trk [t].e, ne = _f.trk [t].ne;  p < ne;  p++)
@@ -260,6 +261,7 @@ TRC("SetDn qu=`c", qu);
                else if (e [p].time < tm)  tm = e [p].time;
                break;
             }
+DBG("b");
       if (got) {
       // build on[] noteset from noteDn evs @ 1st time
          MemSet (on, 0, sizeof (on));  // start fresh - notes all off
@@ -280,6 +282,7 @@ t, p, ne, MKey2Str (s3, e [p].ctrl), TmSt(s1,e [p].time), TmSt(s2,tm));
                      on [d][e [p].ctrl].t = t+1;
                      on [d][e [p].ctrl].p = p;
 
+DBG("c");
                   // need to scoot a possible NtUp earlier cuzu me?
                      if (ptm != tm)  for (q = p;  q;  q--)
                         if ((e [q-1].ctrl == e [p].ctrl) && ENTUP (& e [q-1]) &&
@@ -302,6 +305,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                      on [d][e [p].ctrl].p = p;
                   }
             }
+DBG("d");
             tpos [t] = p;
          }
 
@@ -310,6 +314,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          dp = _dn.Ln;
          _dn [dp].time = tm;   _dn [dp].msec = 0;   _dn [dp].tmpo = 0;
                                                     _dn [dp].clip = '\0';
+DBG("e");
          MemSet (_dn [dp].velo, 0, sizeof (_dn[0].velo));
          for (nn = d = 0;  d < 2;  d++)  for (c = 0;  c < 128;  c++)
             if (on [d][c].t && (nn < BITS (_dn [0].nt))) {
@@ -326,6 +331,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
 // drum oct/ht is 0, oct1=>1 .. 7=>7
 
 // drum dns first.  melo nts later
+DBG("");
    for (dp = 0;  dp < _dn.Ln;  dp++) {
       c = d = 128;   nn = 0;
       for (x = 0;  x < _dn [dp].nNt;  x++)
@@ -336,9 +342,9 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                                c = x;  // the one to keep
             nn++;
          }
-//TStr xd;
-//DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
-//TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
+TStr xd;
+DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
+TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
       if (nn > 1) {                    // some ta kill?
          _dn [dp].nt [d].p  = 0;       // NO P FO EZ !
          _dn [dp].nt [d].t  = _dn [dp].nt [c].t;
@@ -353,11 +359,12 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          }
       }
    }
+DBG("f");
 
 // melodic notes - max o one note o five per dn time for oc's tr's nts
    for (oc = '1';  oc <= '7';  oc++) {      // gather tracks w my ht
       k [0] = oc;   k [2] = '\0';      // oct of key
-//DBG("oc=`c", k[0]);
+DBG("oc=`c", k[0]);
       ht = (*k < '4') ? 'L' : 'R';
 
    // first we calc all the directions usin' nmin/nmax in dn n prev dn
@@ -383,9 +390,9 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
             else                    ch = '=';
             xx [dp].dir = fst ? '=' : ch;
             fst = false;
-//TStr xd;
-//DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c",
-//TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
+TStr xd;
+DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c",
+TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
             pnt = nt;   pntrm = ntrm;
@@ -409,8 +416,8 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                                          if (_dn [dp].time == _f.cue [p].time) {
             xx [dp].dir = '!';
             xx [dp].key = _f.cue [p].s [8];
-//DBG(" xx[`d].key=`c s=`s (.pos=`d)",
-//dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
+DBG(" xx[`d].key=`c s=`s (.pos=`d)",
+dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
          }
       pf = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {
@@ -449,6 +456,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                pdir =      xx [p].dir;
             }
 
+DBG("g");
          // and now regular forward
             pf = (ht == 'L') ? 0 : 4;
             for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos!= 99) {
@@ -471,6 +479,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
       }
    }
 // always need dn[pdn].time >= _now so add a dummy at time=0 if none yet
+DBG("h");
    if ( (! _dn.Ln) || _dn [0].time )
       {_dn.Ins (0);   _dn [0].time = 0;   _dn [0].nNt = 0;}
 

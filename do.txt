@@ -1,77 +1,41 @@
-start win 
-
-del blk of notes dies
-changing dev doesnt pick next chan
-looping needs a little tlc i think
-how is recorded tempo somehow bein saved to learn .song ?
-hearmode rec - show notes/ctrls as played;  in poz, step recording
-
-arp random notes;  find all the rush sounds
-
-syn!!
-   test a HUGE power chord
-   phasor - 2 voices w a control on phase amt
-   vel2cut - only for lrn track
-   pbnd=>pan
-   crazypan(random pan smoothly btw smallest subbeat)
-   wow(filter sweep) timed to note dur
-   glide(portamento)
-      cc turns it on/off for a chan as usual then...
-         on next notedown spot,
-            if same keys n #notes as last notedn, do NOTHIN
-            else bend from some prev note - just try junk
-      tricky:  across .wavs of inst, prog change morph
-
-   maybe do away with channels altogether?
-      add ubyte sync (syn color) to NtDn which picks from synpal table
-                                                                   (syn palette)
-      0 for only chan defaults
-      else an entry in synpal (which can be completely diff from chan) with
-         name, sound,frq,cut,vol,pan,
-            vel2cut,phasor,porta,pb2pan,
-            tremelo, vibrato, filter sweep
-            envelopes that adjust to wav of inst (if unlooped)
-               (lfo is just an envelope that repeats where envval=-1..+1)
-               filter cutoff/amt
-               vol for tremelo
-               pbend for vibrato
-      what kinda format for saving in .song
-
-ez should make similar sections have same fingering
-      restart at rep boundaries or somethin
-   using 2 hands on a given track (for 10 notes instead of 5)
-      pick ? 3+LH
-
-limit note editing in RCRD to only what makes sense
-   dlgmov - not in RCRD;   is move to backing ok?
-            upon close - "you need a practice track to add notes on"  ???
-
-EvIns - do i ALWAYS keep trk[].e in order throughout .song lifetime?
-
-control picker should show if control is used in song
-   hover should show track# etc
-   pick all ctrls used in song
-
-FLFind should search for text inside .mid files too
-
-
-think/spec______________________________________________________________________
+play____________________________________________________________________________
 
 take apart magic singable dumb songs (into .txt?)
-   petshopboys - take apart synth things
-   yaz too esp "situation"
-   journey whos crying now
-   every rush sound
+   petshopboys, yaz "situation" - study synth notes;  journey whos crying now
+   find every rush sound
 
-playing things you can't reach on piano, powerchord etc
-   guitar strum from 1 ntdn or an actual strum?
-   play drums on keys w map of just 12 main ones (kick,snar,hhcl,hhop,cras)
-   scoot alotta 1 5 1 5 1 5 => some other nicer pattern 1 3 5 3 1 3 etc
-   play melodic tracks with drums :)
+do impossible piano things
+   big powerchords, unreachable, guitar strum, rhythm guitar
+   play drums on keys - make a good map
+   replace pattern w another funner to play one
 
-map cc zone1 to somethin how?
 
-syn - boils to pitch,filter,amp,pan
+syn_____________________________________________________________________________
+
+phasor - 2 voices w a control on phase amt
+pan:  pbnd=>pan, crazypan(random pan smoothly btw smallest subbeat)
+cut:  vel2cut - only for lrn;  wow(filter sweep) timed to note dur
+frq:  glide(portamento)
+      on next notedown spot,
+         if same key, do NOTHIN
+         else bend from "some" prev note - just try junk
+      tricky:  across .wavs of inst, prog change morph
+maybe do away with channels altogether?
+   add ubyte sync (syn color) to NtDn which picks from synpal table
+                                                                (syn palette)
+   0 for only chan defaults
+   else an entry in synpal (which can be completely diff from chan) with
+      name, sound,frq,cut,vol,pan,
+         vel2cut,phasor,porta,pb2pan,
+         tremelo, vibrato, filter sweep
+         envelopes that adjust to wav of inst (if unlooped)
+            (lfo is just an envelope that repeats where envval=-1..+1)
+            filter cutoff/amt
+            vol for tremelo
+            pbend for vibrato
+   what kinda format for saving in .song
+
+boils to pitch,phase,filter,amp,pan
    portamento
       how do i transfer to a new sample of instr?
       call it autobend
@@ -113,66 +77,14 @@ ME:
 
    a next dur,level means calc rate of (next level - cur level) / dur
    stop before releaseDur until noteup happens then do releaseDur as
-                                                (0 - cur level) / dur
 
-is lfo implemented as a repeating envelope w values -1..0..1..0..-1 etc?
-
-I was looking at my Z4000 in a scope the other day, and the attack is switchable
- expo/log, whereas the decay and release are exponential.
+attack is switchable expo/log, decay and release are exponential.
+   exponential attack: y=1-e^(-at)
+   exponential decay:  y=e^(-at)
+   (exp is reciprocal of log)
 
 some envelopes can follow a wav or
 repeat (making an lfo like effect)
-
-Another common use for envelope generators is to control the filter cutoff frequ
-ency in subtractive synthesis. By modulating the cutoff frequency with an ADSR e
-nvelope, sound designers can create dynamic timbral changes over the duration of
- a note, such as the characteristic "wow" sound of a synth bass or the evolving
-tonality of a note on a sweeping pad.
-
-   consider exp curves later IF musical
-      This is exponential decay:  y=e^(-at)
-      This is exponential attack: y=1-e^(-at)
-
-      A naive way to see this would be to say:
-
-      Hey, the ear perception is logarithmic, so if we want it to sound like a l
-inear increase in volume, we should make it exponential, as the exponential is t
-he reciprocal function of the logarithm.
-
-      But, unfortunately, this will only work for the decaying phases, which are
- of the form:
-      y = A * exp(-alpha * t): if you apply a log on that, you will actually get
- a linear perception.
-
-      However, for the increasing phases (in which the attack belongs), which ar
-e of the form:
-      y = A * (1-exp(-alpha * t)) (plus a constant sometimes), well this does no
-t work: you do not get a linear increase when applying a log
-
-It sounds like we don't all agree on which kind of curve is "exponential" and wh
-ich is "logarithmic," so I'm going to try to say concave upward and concave down
-ward instead:
-
-I don't think going up fast-at-the-start, slow-at-the-end (i.e. concave downward
-) is particularly natural for attacks. In order for a physical process to genera
-te that, there would have to be something special about the peak volume level, s
-uch that it homes in on that level and stays there during the attack phase. Mayb
-e an organ with an ASR envelope might work that way, but things that are being s
-truck, plucked, bowed, or similar probably wouldn't. Normally the natural volume
- level reflecting ongoing energy input would be the sustain level, not the attac
-k peak. A concave-downward attack in an ADSR envelope basically amounts to sayin
-g you have two different sustain levels.
-
-I think the RC style of envelope gets used just because it's what comes out of a
-n RC circuit - as I mentioned in the original posting. What would seem more natu
-ral to me would be the kind of curve you'd get by feeding a linear envelope thro
-ugh an exponential converter, whether it's really implemented that way or in som
-e other way. That would be always concave upward, not only in the D and R phases
-. One advantage of an envelope like that is it's more likely to be click-free, b
-ecause of moving relatively slowly when it's near zero; the sharp part of the cu
-rve happens when it has already eased into increasing amplitude.
-
-
 
    portamento,
       get allowed dur
@@ -181,15 +93,14 @@ rve happens when it has already eased into increasing amplitude.
 
    fx, arpeggiator
 
-qt on win  ...research
+
+think/spec______________________________________________________________________
 
 in oct, are black notes slightly offset from strict 12/7 by
    slight narrowing/offsetting for a more aesthetic look?
 
 
 do2/doc_________________________________________________________________________
-
-backups - php cron to cp dadata/_ => add big/yyyymmdd,   replace bu
 
 youtube embed in https://www.gitkraken.com/
 
@@ -217,34 +128,42 @@ how video   cleanin up a song
    end of song controls makin it go long - can't auto kill em
    editing raw .song with text editor
 
-building a song from nothin
-
-shazware -
-   l   - dir arg
-         strip n resort by .ext
-   ned - dbg BlkPst - copy DEF works - KDE sees it fine
-            paste gets 450 bytes of garbage starting with \0
-         when to clear FLn ?
-         double click on a word to find?
-         mark line 1 w block - hilite doesn't show
-   ftx - enclose any space in findstr for ned
-         kick ned with lineno upon dblclick on right pane line
-   doc n package it as app.shaz - flatpak freeware
-
 
 backlog_________________________________________________________________________
 
-changing device on a track doesn't pick right channel
+del blk of notes dies
 
-lhear/lrn modes not doin hear of lrn tracks right sometimes
+changing dev doesnt pick next chan
+
+looping needs a little tlc i think
+
+how is recorded tempo somehow bein saved to learn .song ?
+
+hearmode rec - show notes/ctrls as played;  in poz, step recording
+
+ez should make similar sections have same fingering
+      restart at rep boundaries or somethin
+   using 2 hands on a given track (for 10 notes instead of 5)
+      pick ? 3+LH
+
+arp random notes
+
+limit note editing in RCRD to only what makes sense
+   dlgmov - not in RCRD;   is move to backing ok?
+            upon close - "you need a practice track to add notes on"  ???
+
+EvIns - do i ALWAYS keep trk[].e in order throughout .song lifetime?
+
+control picker should show if control is used in song
+   map cc zone1 to somethin how?
+   hover should show track# etc
+   pick all ctrls used in song
+
+FLFind should search for text inside .mid files too
+
 
 wrapping text in tables happens only on 2nd show
    would LIKE to wrap at char instead of word
-
-raspi flatpak
-
-spurious bug:  sometimes played notes are echoed instead of shushed
-               black rec trails show in next cue area
 
 what is messin up sounds back to piano?
 
@@ -272,11 +191,3 @@ control editing
       but which track if not global ctl?
       and does Draw do sep lines per track for non global ctls?
    editing tsig,tmpo,ksig
-
-os.h - File::Open(paths/fn,r) - case INsensitive on read
-   if open fails  (prob cuz case),
-      lowercase the paths/fn and StrCm existing paths/fn to find it to open,r
-
-PcSng Syn::Put bad valu  ch=1 cc=266 valu=226
-   LegendOfZelda/_not_rated_130000_Pop_6_19_15_Z_Z_Zelda_-_Legend_of_Zelda_-
-   _Bolero_of_Fire_-_Arranged_by_Sinbios'
