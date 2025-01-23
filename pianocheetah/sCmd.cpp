@@ -100,7 +100,13 @@ ubyte Song::ChkETrk ()                 // be sure eTrk is still ok
    return Up.eTrk;
 }
 
-void Song::RecWipe ()  {_recM.Ln = _recD.Ln = 0;   ReDo ();}
+void Song::RecWipe ()
+{  NotesOff ();
+   _recM.Ln = _recD.Ln = 0;
+   if (! RCRD)  for (ubyte t = 0;  t < _f.trk.Ln;  t++)
+      if (TLrn (t))  EvDel (t, 0, _f.trk [t].ne);
+   ReDo ();
+}
 
 
 //______________________________________________________________________________

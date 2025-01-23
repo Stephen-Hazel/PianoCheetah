@@ -391,7 +391,7 @@ DBG("oc=`c", k[0]);
             xx [dp].dir = fst ? '=' : ch;
             fst = false;
 TStr xd;
-DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c",
+DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c  LAST",
 TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
@@ -456,7 +456,7 @@ dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
                pdir =      xx [p].dir;
             }
 
-DBG("g");
+DBG("g NOPE");
          // and now regular forward
             pf = (ht == 'L') ? 0 : 4;
             for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos!= 99) {

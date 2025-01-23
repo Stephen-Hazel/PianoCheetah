@@ -1,7 +1,9 @@
 play____________________________________________________________________________
 
 take apart magic singable dumb songs (into .txt?)
-   petshopboys, yaz "situation" - study synth notes;  journey whos crying now
+   petshopboys, yazoo "situation", assembly, erasure(vince clarke) - study synth
+ notes
+   journey whos crying now
    find every rush sound
 
 do impossible piano things
@@ -12,30 +14,54 @@ do impossible piano things
 
 syn_____________________________________________________________________________
 
-phasor - 2 voices w a control on phase amt
-pan:  pbnd=>pan, crazypan(random pan smoothly btw smallest subbeat)
-cut:  vel2cut - only for lrn;  wow(filter sweep) timed to note dur
-frq:  glide(portamento)
+glide
+   try glissando (round,2)
+   ctrl to turn it on/off for chan
+   how to set dur - set to subbt, beat, bar (of tempo)
+   glide amp, cut too
+
+boils to frq,phase,fltCut,fltAmt,amp,pan
+
+multi sounds  (phasor is multi with itself and phase onna env/cc)
+
+buf for cur tempo, last note(s?), tsig(subbt dur), ...anything else?
+
+phasor - 2 voices w a control BARELY changing frq cents
+frq:  glide(portamento)  (dur setting, exact algo to pick prev note)
       on next notedown spot,
-         if same key, do NOTHIN
-         else bend from "some" prev note - just try junk
+         start frq on prev key frq.  if same key, do NOTHIN
+            else time frq to move to ntDn note - just try junk
       tricky:  across .wavs of inst, prog change morph
+cut:  vel2cut - only for lrn;  wow(filter sweep) timed to note dur
+pan:  pbnd=>pan, crazypan(random pan smoothly btw smallest subbeat)
+
+   fancy full envelope(=lfo)
+      an env/lfo is just an auto "cc change over time"
+      controls frq, phase, cutoff, amp, pan, fxamt?
+      initLevel*6,attackDur,lvl*6,decayDur,susLvl*6,releaseDur
+      or [loop=y/n][level*6,curve,dur]
+         level can be random,-1..0..1
+         curve can be line/sin/exp/log
+         dur can be based on tempo?  or wav len(unlooped)
+                                     or wav attack(up to loopBgn)
+   autocontrols that happen with each note?
+
 maybe do away with channels altogether?
    add ubyte sync (syn color) to NtDn which picks from synpal table
                                                                 (syn palette)
    0 for only chan defaults
    else an entry in synpal (which can be completely diff from chan) with
-      name, sound,frq,cut,vol,pan,
-         vel2cut,phasor,porta,pb2pan,
-         tremelo, vibrato, filter sweep
-         envelopes that adjust to wav of inst (if unlooped)
-            (lfo is just an envelope that repeats where envval=-1..+1)
-            filter cutoff/amt
-            vol for tremelo
-            pbend for vibrato
-   what kinda format for saving in .song
+      name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
+                   tremelo, vibrato, filter sweep
+      envelopes that adjust overall dur to wav of inst (if unlooped)
+         or attack phase of wav (pre loopBgn length)
 
-boils to pitch,phase,filter,amp,pan
+      (lfo is just an envelope that repeats where envval=-1..+1)
+         filter cutoff/amt for wow
+         vol   for tremelo
+         pbend for vibrato
+   what kinda format for saving?  save in .song or device/syn or ?
+
    portamento
       how do i transfer to a new sample of instr?
       call it autobend
@@ -47,10 +73,6 @@ boils to pitch,phase,filter,amp,pan
          glissando to stop at each note along the way
    give syn some way to do per note portamento (only 1 note of the channel)
       (note specific pbend that is)
-
-   maybe make fancy full envelope
-      controls vol, filter cutoff, and phasor, fxamt?
-   autocontrols that happen with each note?
 
    env docs:
       delay   - time  to stay at 0 then start attack (dumb)
