@@ -4,33 +4,51 @@
 
 UCmdDef UCmd [] = {
 // done by gui/pcheetah
-   {"song<",     "d# c", "z",  "song",       "load prev"},
-   {"song>",     "d# d", "x",  "",           "load next"},
-   {"songRand",  "d# e", "a",  "",           "load random"},
-   {"songKill",  "",     "!",  "",           "DELETE SONG (be CAREful)"},
-   {"exit",      "d# f", "esc","",           "quit PianoCheetah"},
-   {"fullScr",   "c# b", "v",  "",           "view full screen"},
+   {"song<",     "song",       "load prev"},
+   {"songRand",  "",           "load random"},
+   {"song>",     "",           "load next"},
+   {"songKill",  "",           "DELETE SONG (be CAREful)"},
+   {"exit",      "",           "quit PianoCheetah"},
+   {"fullScr",   "",           "view full screen"},
 // done by thread/song/me
-   {"timeBar1",  "c# c", "1",  "time",       "hop to 1st bar"},
-   {"time<<",    "c# d", "lft","",           "prev page/loop/8th bar"},
-   {"time<",     "c# e", "2",  "",           "prev bar"},
-   {"timePoz",   "c# f", "spc","",           "play/pause"},
-   {"time>",     "c# g", "3",  "",           "next bar"},
-   {"time>>",    "c# a", "rit","",           "next page/loop/8th bar"},
-   {"timeBug",   "",     "b",  "",           "hop to loop with most bugs"},
-   {"tempoHop",  "d# g", "t",  "tempo",      "tempo: 60%=>80%=>100%=>"},
-   {"tempo<",    "d# a", "f02","",           "down"},
-   {"tempo>",    "d# b", "f03","",           "up"},
-   {"tran<",     "",     "f11","transpose",  "down"},
-   {"tran>",     "",     "f12","",           "up"},
-   {"learn",     "f# c", "l",  "recording",  "learn: hear=>play=>practice=>"},
-   {"recWipe",   "f# d", "w",  "",           "wipe ALL (CAREFUL)"},
-   {"recSave",   "f# e", "s",  "",           "save recording"},
-   {"color",     "f# f", "c",  "",           "color: scale=>velocity=>track=>"},
-   {"hearRec",   "f# g", ".",  "",           "Hear your recording"},
-   {"hearLoop",  "f# a", "/",  "",           "Hear loop notes to learn"}
+   {"timeBar1",  "time",       "hop to 1st bar"},
+   {"time<",     "",           "prev bar"},
+   {"time>",     "",           "next bar"},
+   {"time<<",    "",           "prev page/loop/8th bar"},
+   {"time>>",    "",           "next page/loop/8th bar"},
+   {"timePoz",   "",           "play/pause"},
+   {"timeBug",   "",           "hop to loop with most bugs"},
+   {"tempoHop",  "tempo",      "tempo: 60%=>80%=>100%=>"},
+   {"tempo<",    "",           "down"},
+   {"tempo>",    "",           "up"},
+   {"tran<",     "transpose",  "down"},
+   {"tran>",     "",           "up"},
+   {"learn",     "recording",  "learn: hear=>play=>practice=>"},
+   {"recWipe",   "",           "wipe ALL (CAREFUL)"},
+   {"recSave",   "",           "save recording"},
+   {"color",     "",           "color: scale=>velocity=>track=>"},
+   {"hearRec",   "",           "Hear your recording"},
+   {"hearLoop",  "",           "Hear loop notes to learn"}
 };
 ubyte NUCmd = BITS (UCmd);
+
+void Song::UCmdLoad ()
+// load .nt n .ky from device/keycmd.txt for given .cmd
+{ TStr fn, s;
+  ulong i, c;
+  StrArr t (CC("keycmd"), 50, 50*sizeof(TStr));
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/keycmd.txt"));   t.Load (fn);
+   for (i = 0;  i < t.num;  i++) {
+      StrCp (s, t.str [i]);   if (*s == '#')  continue;
+     ColSep ss (s, 3);
+      for (c = 0;  c < NUCmd;  c++)
+         if (! StrCm (ss.Col [0], CC(UCmd [c].cmd)))  break;
+      if (c >= NUCmd)
+{DBG("device/keycmd.txt is broke - no cmd='`s'", ss.Col [0]);   return;}
+      StrCp (UCmd [c].nt, ss.Col [1]);
+      StrCp (UCmd [c].ky, ss.Col [2]);
+   }
+}
 
 
 void Song::Cmd (QString s)

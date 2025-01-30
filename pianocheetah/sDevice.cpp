@@ -19,14 +19,14 @@ char *MInDef::CcRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
           m->mi->Type (), pos+1);
       return CC("x");
    }
-   if (StrLn (ss.Col [1]) > MAXWSTR) {
+   if (StrLn (ss.Col [0]) > MAXWSTR) {
       DBG("MInDef::CcRec ccin.txt for `s line `d  map cc too long",
           m->mi->Type (), pos+1);
       return CC("x");
    }
   ubyt4 n = m->cc.Ins ();
-   StrCp (m->cc [n].map,        ss.Col [0]);
-          m->cc [n].raw = MCtl (ss.Col [1]);
+          m->cc [n].raw = MCtl (ss.Col [0]);
+   StrCp (m->cc [n].map,        ss.Col [1]);
    return nullptr;
 }
 
@@ -309,8 +309,6 @@ t, ts, MDrm2Str (st, s), SndName (t));
    }
 TRC("  nSnd=`d  maxch=`d", _sySn.Ln, mc);
    Sy.LoadSnd (snd, mc);
-DBG("a");
    Up.dev [sy].mo->GMInit (mc+1);
-DBG("b");
    SetChn ();                          // redo chan progch biz
 }

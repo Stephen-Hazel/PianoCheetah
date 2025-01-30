@@ -70,8 +70,7 @@ struct KSgRow  {ubyt4 time;  ubyte key, min, flt;};             // keysig
 
 //______________________________________________________________________________
 // midi devtype base stuph
-struct CcRow  {WStr map;  ubyt2 raw;};
-struct MapRow {WStr cci, cco;  TStr mod;};
+struct CcRow  {ubyt2 raw;   WStr map;};
 struct SnRow  {TStr name;   ubyte prog, bank, bnkL;};
 
 

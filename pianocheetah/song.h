@@ -24,10 +24,11 @@ extern QColor CMap (ubyte n);
 extern char  KeyCol [13];              // in sEdit.cpp
 extern ubyte WXOfs  [12];
 
-struct UCmdDef {const char *cmd, *nt, *ky, *grp, *desc;};
+struct UCmdDef {const char *cmd, *grp, *desc;   WStr nt, ky;};
 extern UCmdDef UCmd [];                // in sCmd.cpp
 extern ubyte  NUCmd;
 
+struct CCMDef {ubyte dev;   ubyt2 cc;   WStr str;};
 
 //______________________________________________________________________________
 extern int   EvCmp   (void *p1, void *p2);       // ..._TrkEv[] sortin
@@ -157,6 +158,7 @@ private:
    void  Dump     (bool ev2 = false);
 
 // sRecord.cpp
+   void  CCMapLoad ();
    void  Shush   (bool tf);            // flip by volume cc (only) on/off
    bool  DnOK    (char n = '\0', ubyte *tr = nullptr, MidiEv *ev = nullptr);
    ubyte CCPos   (char *cSt);          // get _ctl pos; upd _cch,_ctl,dvt.CCMap
@@ -221,6 +223,7 @@ private:
    void  DbgPos  (char x = '\0');      // MsDn,Mv,Up are slots below
 
 // sCmd.cpp
+   void  UCmdLoad ();
    ubyte ChkETrk ();
    void  RecWipe (), Msg (char *s),
          EdSong (char ofs), EdTime (char ofs), EdTmpo (char ofs),
@@ -261,6 +264,7 @@ private:
    Timer               *_timer;
    Arr<MInDef,MAX_DEVI> _mi;
    SongFile             _f;
+   Arr<CCMDef,128>      _ccMap;
    Arr<TrkEv,MAX_RCRD>  _recM;         // rec events - melodic
    Arr<TrkEv,MAX_RCRD>  _recD;         // rec events - drum
    Arr<ubyt4,128>       _sySn;         // syn's sound bank: just melodic no drum

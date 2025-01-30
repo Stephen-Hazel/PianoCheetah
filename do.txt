@@ -1,50 +1,119 @@
 play____________________________________________________________________________
 
 take apart magic singable dumb songs (into .txt?)
-   petshopboys, yazoo "situation", assembly, erasure(vince clarke) - study synth
- notes
-   journey whos crying now
+   petshopboys, depmode, yazoo "situation", assembly, erasure(vince clarke)
+   owl city, journey whos crying now
    find every rush sound
+   replicate synth riffs
 
-do impossible piano things
-   big powerchords, unreachable, guitar strum, rhythm guitar
-   play drums on keys - make a good map
-   replace pattern w another funner to play one
-
+do unreachable powerchords, guitar strum, rhythm guitar
+   drums on keys - make a good map but get it from device/drummap.txt
+      pick drum instead of oct (show Drum instead of 4RH)
+      kick,kik2, snar,snr2, hhcl,hhop,hhpd, ride,rdbl, cras
+                 clap,sstk
 
 syn_____________________________________________________________________________
 
-glide
-   try glissando (round,2)
-   ctrl to turn it on/off for chan
-   how to set dur - set to subbt, beat, bar (of tempo)
-   glide amp, cut too
+make syn do glide,glRate,glFrom,fltCut
+make ccmap pick ccmap/*.txt
+make recorded evs show right away
 
-boils to frq,phase,fltCut,fltAmt,amp,pan
+MAIN
+   frq(snd,note,phase)
+   flt(cut,res)
+   amp
+   pan
+   fx(send,type,params) fx2, fx3, etc
 
-multi sounds  (phasor is multi with itself and phase onna env/cc)
+song=>syn buf for
+   time(bar.bt.x), tempo, tsig(num,den,subbt), ksig, chord(root,pat,bass)
+   last note(set?) per chan
+   ...anything else?
 
-buf for cur tempo, last note(s?), tsig(subbt dur), ...anything else?
+default routing...
+   vel=>cut      (not for bg tracks)
+   pbnd normal
+   pbnd2=>pan
+   cc65 glide on/off
+   cc84 rate  0..127 for glide rate (speed per halfstep)
 
-phasor - 2 voices w a control BARELY changing frq cents
-frq:  glide(portamento)  (dur setting, exact algo to pick prev note)
-      on next notedown spot,
-         start frq on prev key frq.  if same key, do NOTHIN
-            else time frq to move to ntDn note - just try junk
-      tricky:  across .wavs of inst, prog change morph
-cut:  vel2cut - only for lrn;  wow(filter sweep) timed to note dur
-pan:  pbnd=>pan, crazypan(random pan smoothly btw smallest subbeat)
+syn palette list:
+direct
+   key=>oscNote   (duh)
+   pbnd=>oscPhase (duh)
+   velo=>!fltCut
+   velo=>amp      (duh)
+   pbnd=>pan
 
-   fancy full envelope(=lfo)
-      an env/lfo is just an auto "cc change over time"
-      controls frq, phase, cutoff, amp, pan, fxamt?
-      initLevel*6,attackDur,lvl*6,decayDur,susLvl*6,releaseDur
-      or [loop=y/n][level*6,curve,dur]
-         level can be random,-1..0..1
-         curve can be line/sin/exp/log
-         dur can be based on tempo?  or wav len(unlooped)
-                                     or wav attack(up to loopBgn)
-   autocontrols that happen with each note?
+   sinlfo=>phase   vibrato
+   sinlfo=>amp     tremelo
+
+   env=>fltCut  (wow.  esp bass sawtooth)
+
+   pbnd=>gliss whole keyboard
+
+   multi - play 2nd(+) voice
+      snd=(how?)
+      ccmap=(how?)
+
+   glide - intro pbnd from another (usually prev in seq) note to mine
+      Glide    u 0   n cc65  portamento on/off
+      GlRate   u 0   n cc5   portamento rate hi
+      GlRateL  u 0   n cc37  portamento rate lo
+      GlFrom   u 0   n cc84  portamento note
+      pkey=64 for prev note in seq,
+           62 for 2 hsteps down to me,
+           66 for 2 hsteps up to me,
+           etc
+      rate=subbt/hstep
+           beat/hstep
+           16th/hstep
+           bar, 4bars, 8 bars, etc
+           make rate lin/log/exp/sin/cos
+      dur=give all hstep distances a constant time to get there
+          (so diff rates:
+              1c-8c in 1 sec
+              3g-4c in 1 sec)
+          with lin/log/exp/sin/cos curve
+      glis=on/off  (round cents to note)
+      glide amp, cut too
+      1 note=>multiple is easy
+      multiple...
+         3=>1 means this note gets 2 xSnd on each of prev notes
+      how do i transfer to a new sample of snd?
+      cc65 on/off
+       cc5 portamento time (rate)
+      cc84 junky portamento amount (??) sometimes sets previous note
+           syn maybe 0=off,64=glis,127=smooth
+
+   phaser - multi me with slight phase diff
+      phase=varied how?  in sync w time, random, w env
+
+   crazypan - random pan changing at random (hearable) durs
+      mode=maybe rotating in time, env, etc?
+
+   named envs
+      turn a snd's level into an env
+      random env (or random pos)
+
+      level [dur curve level] repStages durDecay
+      dur=songtime or absolutetime
+      curve=lin linear
+            sin 0-1  1/4 circle 0..pi/2
+            cos 1-0
+            log 0-1
+            exp 1-0
+            sinpos .5=>1=>.5=>0=>.5=>...
+            logsin 0=>1=>0=>-1=>0 ==>1
+            expcos 1=>0=>-1=>0=>1 ==>0
+                  exponential attack: y=1-e^(-at)
+                  exponential decay:  y=e^(-at)
+                  (exp is reciprocal of log)
+      level=amount for curve to reach
+      repStages=stage to go back to during sustain
+
+      lfo(dur) is just an env of
+         0 [dur sin 1 dur cos 1 dur sin -1 dur cos -1] 0 0
 
 maybe do away with channels altogether?
    add ubyte sync (syn color) to NtDn which picks from synpal table
@@ -53,7 +122,7 @@ maybe do away with channels altogether?
    else an entry in synpal (which can be completely diff from chan) with
       name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
                    tremelo, vibrato, filter sweep
-      envelopes that adjust overall dur to wav of inst (if unlooped)
+      envelopes that adjust overall dur to wav of snd (if unlooped)
          or attack phase of wav (pre loopBgn length)
 
       (lfo is just an envelope that repeats where envval=-1..+1)
@@ -61,57 +130,6 @@ maybe do away with channels altogether?
          vol   for tremelo
          pbend for vibrato
    what kinda format for saving?  save in .song or device/syn or ?
-
-   portamento
-      how do i transfer to a new sample of instr?
-      call it autobend
-      midi has only portamento time cc5 and on/off cc65 (only mono)
-         cc84 portamento amount (??)
-      pitchbend between each note
-         what about one to three?
-         speed, duration setting for how fast it goes
-         glissando to stop at each note along the way
-   give syn some way to do per note portamento (only 1 note of the channel)
-      (note specific pbend that is)
-
-   env docs:
-      delay   - time  to stay at 0 then start attack (dumb)
-      attack  - time  from 0-100% level (exp curve)
-      decay   - time  from 100%-sustain level
-      sustain - level to decay to that lasts until noteup
-      sustainRATE - bring level down over time until noteup happens
-      release - time  from noteup sustain level to 0
-=>    sync or loop ?
-         sync fits full env dur to clock division
-         loop restarts the env over n over
-      more stages than 0-100-sust-0
-
-ME:
-   level: 0.0-1.0  (completely attenuated-no attenuation)
-   dur: .000001-3600.0 secs  (can't be 0 - just del the stage)
-   level [dur,level] dur
-      meaning initialLevel [nextDur,nextLevel]*X releaseDur (implied level of 0)
-      adsr would be 0 attack,100 decay,sustain release
-      yama would be initialLevel attack,attackLevel decay,sustain release
-      (just do any delay in midi)
-   so default is 1.0 0.2  (no cutoff or ramp, release of 200 ms)
-   might want 1.0 60,0.5 0.2  (slow taper to level 0.5 over 1 min)
-
-   a next dur,level means calc rate of (next level - cur level) / dur
-   stop before releaseDur until noteup happens then do releaseDur as
-
-attack is switchable expo/log, decay and release are exponential.
-   exponential attack: y=1-e^(-at)
-   exponential decay:  y=e^(-at)
-   (exp is reciprocal of log)
-
-some envelopes can follow a wav or
-repeat (making an lfo like effect)
-
-   portamento,
-      get allowed dur
-      calc (new pitch to hz - cur pitch to hz) / dur
-         calc phase buf incr
 
    fx, arpeggiator
 
@@ -153,7 +171,9 @@ how video   cleanin up a song
 
 backlog_________________________________________________________________________
 
-del blk of notes dies
+if Hey!  device is off, it's dead forever...
+
+eznotes - replace pattern w another funner to play one
 
 changing dev doesnt pick next chan
 

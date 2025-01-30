@@ -2,6 +2,36 @@
 
 #include "song.h"
 
+void Song::CCMapLoad ()
+{ TStr fn, s;
+  ulong i, j;
+  ubyte d, c;
+  StrArr t (CC("ccmap"), 128, 128*sizeof(TStr));
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/ccmap/1.txt"));
+   t.Load (fn);
+   _ccMap.Ln = 0;
+   for (i = j = 0;  i < t.num;  i++) {
+      StrCp (s, t.str [i]);   if (*s == '#')  continue;
+     ColSep ss (s, 3);
+      for (d = 0;  d < _mi.Ln;  d++)
+         if (! StrCm (_mi [d].mi->Name (), ss.Col [0]))  break;
+      if (d >= _mi.Ln) {
+DBG("couldn't find device '`s' in ccmap", ss.Col [0]);
+         _ccMap.Ln = 0;   return;
+      }
+      for (c = 0;  c < _mi [d].cc.Ln;  c++)
+         if (! StrCm (_mi [d].cc [c].map, ss.Col [1]))  break;
+      if (c >= _mi [d].cc.Ln) {
+DBG("couldn't find control '`s' in ccmap", ss.Col [1]);
+         _ccMap.Ln = 0;   return;
+      }
+      _ccMap.Ln++;
+      _ccMap [j].dev = d;
+      _ccMap [j].cc  = _mi [d].cc [c].raw;
+      StrCp (_ccMap [j].str, ss.Col [2]);   j++;
+   }
+}
+
 
 void Song::Shush (bool tf)
 // on bg chans (non lrn, non REC) set vol per tf
@@ -29,61 +59,27 @@ TRC("Shush `b", tf);
 }
 
 
-static char const *eg1 [] = {
-   "timeBar1", "time<<",  "time<",    "timePoz", "time>",    "time>>", "fullScr"
-};
-static char const *eg3 [] = {
-   "song<",    "song>",   "songRand", "exit",    "tempoHop", "tempo<", "tempo>"
-};
-static char const *eg6 [] = {
-   "learn",    "recWipe", "recSave",  "color",   "hearRec",  "hearLoop"
-};
-
 bool Song::NtCmd (MidiEv *ev)
 // command key?  set _ed n kick a cmd
-{ ubyte n, ln, i, wn [7] = {0,2,4,5,7,9,11}, bn [5] = {1,3,6,8,10};
-  TStr  s;
-  char *cmd, ch;
-  char const **g;
-   n = ev->ctrl % 12;
-
+{ ubyte n, i;
+  char *cmd;
+   n = ev->ctrl;
    if (! _f.trk.Ln) {                  // do DlgFL input ?
       if (MNTDN (ev)) {
-         if      (n == wn [6])  emit sgUpd ("FLex");
-         else if (n == wn [0])  emit sgUpd ("FLgo");
-         else if (n == wn [1])  emit sgUpd ("FLdn");
-         else if (n == wn [2])  emit sgUpd ("FLup");
-         else  Info (CC("B=exit  C=go!  D=dn  E=up"));
+         if      (n == MKey (CC("3b")))  emit sgUpd ("FLex");
+         else if (n == MKey (CC("4c")))  emit sgUpd ("FLgo");
+         else if (n == MKey (CC("4d")))  emit sgUpd ("FLdn");
+         else if (n == MKey (CC("4e")))  emit sgUpd ("FLup");
+         else  Info (CC("3b=exit  4c=go!  4d=dn  4e=up"));
       }
       return true;
    }
-   if (RCRD) {                         // HEAR needs the black notes
-   // black note dn/up - edit mode on/off
-      if ((n == bn [0]) || (n == bn [1]) || (n == bn [2])) {
-         if ((_ed = MNTDN (ev) ? n : 0)) {
-            if      (_ed == bn [0])  {ln = 7;   g = eg1;}  // draw menu-y info
-            else if (_ed == bn [1])  {ln = 7;   g = eg3;}
-            else                     {ln = 6;   g = eg6;}
-            *s = '\0';
-            for (i = 0;  i < ln;  i++) {
-               ch  = 'C'+i;   if (i >= 5) ch = 'A'-5+i;
-               cmd = CC(g [i]);   StrFmt (& s [StrLn (s)], "`c=`s  ", ch, cmd);
-            }
-            Info (s);
-         }
-         return true;
+   if (_ed) {
+      if (MNTDN (ev)) {
+         for (i = 0;  i < NUCmd;  i++)  if (n == MKey (UCmd [i].nt))  break;
+         if (i < NUCmd)  {Info (cmd = CC(UCmd [i].cmd));   Cmd (cmd);}
       }
-   // white note dn - do command
-      if (_ed) {
-         if (MNTDN (ev)) {             // cmds only on key down
-            if      (_ed == bn [0])  {ln = 7;   g = eg1;}
-            else if (_ed == bn [1])  {ln = 7;   g = eg3;}
-            else                     {ln = 6;   g = eg6;}
-            for (i = 0;  i < ln;  i++)  if (n == wn [i])  break;
-            if (i < ln)  {Info (cmd = CC(g [i]));   Cmd (cmd);}
-         }
-         return true;
-      }
+      return true;
    }
    return false;
 }
@@ -230,16 +226,16 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
 (1+   _pDn<_dn.Ln)?TmSt(sa,_dn [_pDn+1].time):"x"
 );
 // check ctrl first
-   if (MCTRL (ev)) {
-   // raw ubyt2 ctrl into a str (via ccin.txt): _mi[].cc[].raw => .map
-      for (c = 0;  c < _mi [dev].cc.Ln;  c++)
-         if (ev->ctrl == _mi [dev].cc [c].raw)
-            {StrCp (cSt, _mi [dev].cc [c].map);   break;}       // not in map?
-      if (c >= _mi [dev].cc.Ln)  MCtl2Str (cSt, ev->ctrl);     // try to default
-      if      (! StrCm (cSt, CC("."))) {    // <=keep that dang brace !!
-TRC(" cc filtered.");
-      }
-      else if (ev->ctrl = CCPos (cSt)) {    // 0 if outa _f.ctl spots,etc
+   *cSt = '\0';
+   if (MCTRL (ev)) {                   // try /ccmap/*.txt first
+      for (c = 0;  c < _ccMap.Ln;  c++)  if ((_ccMap [c].dev == dev) &&
+                                             (_ccMap [c].cc  == ev->ctrl))
+         {StrCp (cSt, _ccMap [c].str);   break;}
+      if      (! *cSt)  {TRC(" cc filtered");}   // keep these dang braces !!
+      else if (! StrCm (cSt, CC("keycmd")))
+         {Info (CC((_ed = (ev->valu < 64) ? 0 : 1)
+                   ? "KeyCmd on" : "KeyCmd off"));   return;}
+      else if (ev->ctrl = CCPos (cSt)) {         // 0 if outa _f.ctl spots,etc
 TRC(" cc => `s=#`d", cSt, ev->ctrl & 0x7F);
          _rNow = ev->time;   Record (ev);   DrawNow ();
       }

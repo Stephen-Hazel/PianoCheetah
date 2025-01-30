@@ -252,7 +252,6 @@ TRC("SetDn qu=`c", qu);
    MemSet (qd,   0, sizeof (qd));
    for (got = true;  got;) {
       got = false;
-DBG("a");
    // get tm - min time of a NtDn across all ? trks
       for (t = 0;  t < _f.trk.Ln;  t++)  if (TLrn (t))
          for (p = tpos [t], e = _f.trk [t].e, ne = _f.trk [t].ne;  p < ne;  p++)
@@ -261,7 +260,6 @@ DBG("a");
                else if (e [p].time < tm)  tm = e [p].time;
                break;
             }
-DBG("b");
       if (got) {
       // build on[] noteset from noteDn evs @ 1st time
          MemSet (on, 0, sizeof (on));  // start fresh - notes all off
@@ -282,7 +280,6 @@ t, p, ne, MKey2Str (s3, e [p].ctrl), TmSt(s1,e [p].time), TmSt(s2,tm));
                      on [d][e [p].ctrl].t = t+1;
                      on [d][e [p].ctrl].p = p;
 
-DBG("c");
                   // need to scoot a possible NtUp earlier cuzu me?
                      if (ptm != tm)  for (q = p;  q;  q--)
                         if ((e [q-1].ctrl == e [p].ctrl) && ENTUP (& e [q-1]) &&
@@ -305,7 +302,6 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                      on [d][e [p].ctrl].p = p;
                   }
             }
-DBG("d");
             tpos [t] = p;
          }
 
@@ -314,7 +310,6 @@ DBG("d");
          dp = _dn.Ln;
          _dn [dp].time = tm;   _dn [dp].msec = 0;   _dn [dp].tmpo = 0;
                                                     _dn [dp].clip = '\0';
-DBG("e");
          MemSet (_dn [dp].velo, 0, sizeof (_dn[0].velo));
          for (nn = d = 0;  d < 2;  d++)  for (c = 0;  c < 128;  c++)
             if (on [d][c].t && (nn < BITS (_dn [0].nt))) {
@@ -331,7 +326,6 @@ DBG("e");
 // drum oct/ht is 0, oct1=>1 .. 7=>7
 
 // drum dns first.  melo nts later
-DBG("");
    for (dp = 0;  dp < _dn.Ln;  dp++) {
       c = d = 128;   nn = 0;
       for (x = 0;  x < _dn [dp].nNt;  x++)
@@ -359,7 +353,6 @@ TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
          }
       }
    }
-DBG("f");
 
 // melodic notes - max o one note o five per dn time for oc's tr's nts
    for (oc = '1';  oc <= '7';  oc++) {      // gather tracks w my ht
@@ -456,7 +449,6 @@ dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
                pdir =      xx [p].dir;
             }
 
-DBG("g NOPE");
          // and now regular forward
             pf = (ht == 'L') ? 0 : 4;
             for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos!= 99) {
@@ -479,7 +471,6 @@ DBG("g NOPE");
       }
    }
 // always need dn[pdn].time >= _now so add a dummy at time=0 if none yet
-DBG("h");
    if ( (! _dn.Ln) || _dn [0].time )
       {_dn.Ins (0);   _dn [0].time = 0;   _dn [0].nNt = 0;}
 
