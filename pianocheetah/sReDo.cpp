@@ -336,9 +336,9 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                                c = x;  // the one to keep
             nn++;
          }
-TStr xd;
-DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
-TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
+//TStr xd;
+//DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
+//TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
       if (nn > 1) {                    // some ta kill?
          _dn [dp].nt [d].p  = 0;       // NO P FO EZ !
          _dn [dp].nt [d].t  = _dn [dp].nt [c].t;
@@ -357,7 +357,7 @@ TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
 // melodic notes - max o one note o five per dn time for oc's tr's nts
    for (oc = '1';  oc <= '7';  oc++) {      // gather tracks w my ht
       k [0] = oc;   k [2] = '\0';      // oct of key
-DBG("oc=`c", k[0]);
+//DBG("oc=`c", k[0]);
       ht = (*k < '4') ? 'L' : 'R';
 
    // first we calc all the directions usin' nmin/nmax in dn n prev dn
@@ -383,9 +383,9 @@ DBG("oc=`c", k[0]);
             else                    ch = '=';
             xx [dp].dir = fst ? '=' : ch;
             fst = false;
-TStr xd;
-DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c  LAST",
-TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
+//TStr xd;
+//DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c  LAST",
+//TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
             pnt = nt;   pntrm = ntrm;
@@ -409,8 +409,8 @@ TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
                                          if (_dn [dp].time == _f.cue [p].time) {
             xx [dp].dir = '!';
             xx [dp].key = _f.cue [p].s [8];
-DBG(" xx[`d].key=`c s=`s (.pos=`d)",
-dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
+//DBG(" xx[`d].key=`c s=`s (.pos=`d)",
+//dp, xx [dp].key, _f.cue [p].s, xx [dp].pos);
          }
       pf = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {

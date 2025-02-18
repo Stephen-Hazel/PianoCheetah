@@ -7,6 +7,7 @@ UpdLst Up;                             // what gui needs from meee
 void Song::Init ()                     // init that there stuff we needz...
 {
 DBG("Song::Init bgn");
+   MCCInit ();
    _timer = new Timer ();              // boot timer
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
    connect (_timer, & Timer::TimerMsEv, this,
@@ -249,6 +250,14 @@ TRC(" end o song");
 
    // get bar.beat str for now n tL8r (default to wakeup on next subbeat)
       TmStr (bar, _now, & tL8r);
+
+     SInfo i;
+      i.time = _now;
+      i.tmpo = _timer->Tempo ();
+      i.bt   = tL8r - _now;
+      i.sb   = i.bt / 4;
+      Sy.Tell (& i);
+
       if (onBt) {                      // on beat|64th, update time ctrl
 TRC(" beat");
          StrFmt (Up.time, "`s`s", _timer->Pause () ? "X" : "", bar);

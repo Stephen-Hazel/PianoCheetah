@@ -268,6 +268,8 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, CC("dKSg")))   _dKSg->Open ();
    if (! StrCm (u, CC("dQua")))   _dQua->Open ();
    if (! StrCm (u, CC("dMov")))   _dMov->Open ();
+   if (! StrCm (u, CC("dHlpO")))  _dHlp->Open ();
+   if (! StrCm (u, CC("dHlpS")))  _dHlp->Shut ();
 
    if (! StrCm (u, CC("time"))) {
      CtlLabl l (ui->time);
@@ -474,11 +476,11 @@ TRC(" tbar init");
       "`insert track"               "`:/tbar/trak/2" "`\0"
       "`delete track"               "`:/tbar/trak/3" "`\0"
       "`scoot track up"             "`:/tbar/trak/4" "`\0"
-      "`scoot track down"           "`:/tbar/trak/5" "`\0"
-      "`time scaling - for { to } => } scales to ^"
-                                    "`:/tbar/trak/6" "`\0"
-      "`time offsetting - for { to end => { moves to ^"
-                                    "`:/tbar/trak/7" "`\0",
+      "`scoot track down"           "`:/tbar/trak/5" "`\0",
+//    "`time scaling - for { to } => } scales to ^"
+//                                  "`:/tbar/trak/6" "`\0"
+//    "`time offsetting - for { to end => { moves to ^"
+//                                  "`:/tbar/trak/7" "`\0",
       "EditTrack");
    connect (tb7.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd sp");});
@@ -492,10 +494,10 @@ TRC(" tbar init");
             this, [this]() {emit sgCmd ("trkEd u");});
    connect (tb7.Act (5), & QAction::triggered,
             this, [this]() {emit sgCmd ("trkEd d");});
-   connect (tb7.Act (6), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkEd *");});
-   connect (tb7.Act (7), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkEd -");});
+// connect (tb7.Act (6), & QAction::triggered,
+//          this, [this]() {emit sgCmd ("trkEd *");});
+// connect (tb7.Act (7), & QAction::triggered,
+//          this, [this]() {emit sgCmd ("trkEd -");});
 
   CtlTBar tb (this,
       "(I just show the song file for fullscreen)" "`*..." "`\0",

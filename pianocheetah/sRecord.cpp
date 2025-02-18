@@ -11,19 +11,21 @@ void Song::CCMapLoad ()
    t.Load (fn);
    _ccMap.Ln = 0;
    for (i = j = 0;  i < t.num;  i++) {
-      StrCp (s, t.str [i]);   if (*s == '#')  continue;
+      StrCp (s, t.str [i]);
      ColSep ss (s, 3);
+      if ((*s == '#') || (ss.Col [2][0] == '\0')) continue;
       for (d = 0;  d < _mi.Ln;  d++)
          if (! StrCm (_mi [d].mi->Name (), ss.Col [0]))  break;
       if (d >= _mi.Ln) {
-DBG("couldn't find device '`s' in ccmap", ss.Col [0]);
-         _ccMap.Ln = 0;   return;
+DBG("couldn't find device '`s' in ccmap line `d", ss.Col [0], i);
+         continue;
       }
       for (c = 0;  c < _mi [d].cc.Ln;  c++)
          if (! StrCm (_mi [d].cc [c].map, ss.Col [1]))  break;
       if (c >= _mi [d].cc.Ln) {
-DBG("couldn't find control '`s' in ccmap", ss.Col [1]);
-         _ccMap.Ln = 0;   return;
+DBG("couldn't find control name '`s' in ccin.txt of `s",
+ss.Col [1], _mi [d].mi->Name ());
+         continue;
       }
       _ccMap.Ln++;
       _ccMap [j].dev = d;
@@ -165,13 +167,13 @@ TRC("    bug ins");
 
 
 //______________________________________________________________________________
-void Song::Record (MidiEv *ev)
+bool Song::Record (MidiEv *ev)
 // filter lame ntUps due to EdCmd n looping leftovers
 { ubyte  t;
   ubyt4  p, x;
   TrkEv *e;
   Arr<TrkEv,MAX_RCRD> *re;
-   if (_lrn.POZ)  return;              // poz recording only happens when done
+   if (_lrn.POZ)  return false;        // poz recording only happens when done
 
 TRC("Record `s", MDR(ev)?"drum":"melo");
    if (! RCRD) {
@@ -186,11 +188,11 @@ TRC("Record `s", MDR(ev)?"drum":"melo");
          }
       }
       Put ();
-      return;
+      return true;
    }
 
    re = MDR (ev) ? (& _recD) : (& _recM);   // got no true "track"
-   if (re->Full ())  return;
+   if (re->Full ())  return false;
    for (p = 0;  p < re->Ln;  p++)  if ((*re) [p].time > ev->time)  break;
 /* if (MNTUP (ev)) {
 **    x = p;
@@ -204,16 +206,18 @@ TRC("Record `s", MDR(ev)?"drum":"melo");
    re->Ins (p);   e = & ((*re) [p]);
    e->time = ev->time;   e->ctrl = (ubyte) ev->ctrl;
    e->valu = ev->valu;   e->val2 = ev->val2;   e->x = 0;
+   return false;
 }
 
 
 //______________________________________________________________________________
-void Song::EvRcrd (ubyte dev, MidiEv *ev)
+bool Song::EvRcrd (ubyte dev, MidiEv *ev)
 // deal with a midiin device's event
 { ubyte  c, dr, nt, tr, oct;
   ubyt4  pd, dnTm;
   MidiEv te;
   TStr   cSt, s1,s2,s3,s4,s5,s6,s7,s8,s9,sa;
+  bool   re = false;
 TRC("EvRcrd `s.`d `s `s\n"
 " ms=`d _pNow=`s _rNow=`s _now=`s tmr=`s\n"
 " _pDn=`d dn.time=`s dn+1.time=`s",
@@ -231,20 +235,24 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
       for (c = 0;  c < _ccMap.Ln;  c++)  if ((_ccMap [c].dev == dev) &&
                                              (_ccMap [c].cc  == ev->ctrl))
          {StrCp (cSt, _ccMap [c].str);   break;}
-      if      (! *cSt)  {TRC(" cc filtered");}   // keep these dang braces !!
-      else if (! StrCm (cSt, CC("keycmd")))
-         {Info (CC((_ed = (ev->valu < 64) ? 0 : 1)
-                   ? "KeyCmd on" : "KeyCmd off"));   return;}
-      else if (ev->ctrl = CCPos (cSt)) {         // 0 if outa _f.ctl spots,etc
-TRC(" cc => `s=#`d", cSt, ev->ctrl & 0x7F);
-         _rNow = ev->time;   Record (ev);   DrawNow ();
+      if      (! *cSt)
+         Info (StrFmt (s1, "`s filtered (not in ccin.txt or ccmap/1.txt)",
+               MCtl2Str (s2, ev->ctrl)));
+      else if (! StrCm (cSt, CC("keycmd"))) {
+         if (ev->valu < 64)  {if (  _ed)  _ed = 0;  else return re;}
+         else                {if (! _ed)  _ed = 1;  else return re;}
+         emit sgUpd (_ed ? "dHlpO" : "dHlpS");
+      }
+      else if (ev->ctrl = CCPos (cSt)) {    // 0 if outa _f.ctl spots,etc
+         _rNow = ev->time;   re = Record (ev);
+         Info (StrFmt (s1, "`s = `d", cSt, ev->valu));
       }
 TRC("EvRcrd end - ctrl");
-      return;
+      return re;
    }
 
 // notes only now
-   if (NtCmd (ev))  return;            // filter note command evs
+   if (NtCmd (ev))  return false;      // filter note command evs
 
 // map drum .din => .drm
    dr = MDR(ev) ? 1 : 0;   nt = (ubyte) ev->ctrl;
@@ -255,12 +263,12 @@ TRC("EvRcrd end - ctrl");
 // on NtUp, clear _lrn.rec, record n scram  ...or if HEAR
    if (! MNTDN (ev) || (! RCRD)) {
       _lrn.rec [dr][nt].tm = 0;
-      _rNow = ev->time;   Record (ev);   DrawNow ();
+      _rNow = ev->time;   re = Record (ev);   DrawNow ();
 TRC("EvRcrd end - ntup|hear");
-      return;
+      return re;
    }
 
-// RCRD n NtDn from here on...
+// RCRD n NtDn from here on...  (no redo)
    if (_lrn.nt1)  {                    // kill rec on 1st ntdn of loop
       _lrn.nt1 = false;   _recM.Ln = _recD.Ln = 0;    // recWipe
       for (ulong x = 0;  x < _dn.Ln;  x++) {          // clear _dn's rec stuff
@@ -319,13 +327,20 @@ TRC("   oct=`d", oct);
    }
    _rNow = ev->time;   Record (ev);   DrawNow ();
 TRC("EvRcrd end");
+   return false;
 }
 
 
 //______________________________________________________________________________
 void Song::MIn ()
 { MidiEv e;
+  bool re = false;
    for (ubyte d = 0;  d < _mi.Ln;  d++)
-      while (_mi [d].mi->Get (& e))  EvRcrd (d, & e);
+      while (_mi [d].mi->Get (& e))  if (EvRcrd (d, & e))  re = true;
    Put ();
+   if (re) {                           // quick-ish ReDo
+TRC("miReDo");
+      SetNt ();   _pg = _tr = 0;   SetSym ();   Draw ('a');
+TRC("miReDo end");
+   }
 }

@@ -11,15 +11,11 @@ char *MInDef::CcRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
       DBG("MInDef::CcRec ccin.txt for `s is > 128 lines", m->mi->Type ());
       return CC("x");
    }
-   if (*buf == '#')  return nullptr;
   ColSep ss (buf, 2);
+   if ((*buf == '#') || (! ss.Col [1][0]) ||
+                          (ss.Col [1][0] == '.'))  return nullptr;
 // got all the cols we need?
-   if (ss.Col [1][0] == '\0') {
-      DBG("MInDef::CcRec ccin.txt for `s line `d  missing cols",
-          m->mi->Type (), pos+1);
-      return CC("x");
-   }
-   if (StrLn (ss.Col [0]) > MAXWSTR) {
+   if (StrLn (ss.Col [1]) > MAXWSTR) {
       DBG("MInDef::CcRec ccin.txt for `s line `d  map cc too long",
           m->mi->Type (), pos+1);
       return CC("x");

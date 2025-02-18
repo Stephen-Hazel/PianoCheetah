@@ -167,31 +167,34 @@ ubyt4 Song::SilNxt (ubyt4 tm)
 //______________________________________________________________________________
 void Song::ReCtl ()                    // rebuild used _f.dvts' CCMaps
 { ubyte d, i;
-//TRC("ReCtl  rebuild dvt.CCMap");
-   for (d = 0;  d < Up.dvt.Ln;  d++)  if (Up.dvt [d].Name () [0]) { // used?
+  TStr  s;
+   for (d = 0;  d < Up.dvt.Ln;  d++)  if (Up.dvt [d].Name () [0]) {  // used?
       MemSet (Up.dvt [d].CCMap, 0, sizeof (Up.dvt [d].CCMap));
-      for (i = 0;  i < _f.ctl.Ln;  i++) {
-         Up.dvt [d].CCMap [i] = Up.dvt [d].CCID (_f.ctl [i].s);
-//TRC("   DvT=`s `s=`d=`04x",
-//Up.dvt [d].Name(), _f.ctl [i].s, Up.dvt [d].CCMap [i], Up.dvt [d].CCMap [i]);
-      }
+      for (i = 0;  i < _f.ctl.Ln;  i++)
+         if (! (Up.dvt [d].CCMap [i] = Up.dvt [d].CCID (_f.ctl [i].s))) {
+Info(StrFmt (s, "DvT=`s can't do cc=`s", Up.dvt [d].Name(), _f.ctl [i].s));
+DBG (           "DvT=`s can't do cc=`s", Up.dvt [d].Name(), _f.ctl [i].s);
+         }
    }
 }
 
 
 ubyte Song::CCPos (char *cSt)
-// turn cSt into _f.ctl 0x80|pos (and ins if new and room)
+// turn cSt into _f.ctl pos|0x80 (and ins if new and room)
 // return 0 if outa room
 { ubyte c;
+  TStr  s;
    for (c = 0;  c < _f.ctl.Ln;  c++)  if (! StrCm (_f.ctl [c].s, cSt))  break;
-   if (c >= _f.ctl.Ln) {
-TRC("CCPos  new! `s => `d", cSt, c);
-      if (_f.ctl.Full ())
-         {TRC("   hit 128 :(");   StrCp (cSt, CC("."));   return 0;}
+   if (c >= _f.ctl.Ln) {               // new?
+Info(StrFmt (s, "CCPos  new! `s => `d", cSt, c));
+      if (_f.ctl.Full ()) {
+Info(StrFmt (s, "CCPos  out of room for `s :(", cSt));
+DBG (           "CCPos  out of room for `s :(", cSt);
+         return 0;
+      }
       _f.ctl.Ln++;   StrCp (_f.ctl [c].s, cSt);   _f.ctl [c].sho = true;
       ReCtl ();
    }
-//TRC("CCPos=`d=`02x", c, 0x80|c);
    return 0x80 | c;
 }
 
@@ -302,7 +305,7 @@ void Song::EvInsT (ubyte t, MidiEv *ev)
 // same as above EvInsT but w MidiEv
 { ubyt4 ne, p, x;
   TrkEv *e;
-DBG("EvInsT t=`d", t);
+//DBG("EvInsT t=`d", t);
    e = _f.trk [t].e;   ne = _f.trk [t].ne;
    for (p = 0;  p < ne;  p++)  if (e [p].time > ev->time)  break;
    if (MNTUP (ev)) {
@@ -313,17 +316,17 @@ DBG("EvInsT t=`d", t);
       }
    }
    if (EvIns (t, p)) {
-TStr s, s2;
-if (MNOTE (ev))  TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s",
-t, p, ne, e, TmSt (s, ev->time), MNt2Str (s2, ev));
-else             TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s $`02x",
-t, p, ne, e, TmSt (s, ev->time), _f.ctl [ev->ctrl & 0x007F].s, ev->valu);
+//TStr s, s2;
+//if (MNOTE (ev))  TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s",
+//t, p, ne, e, TmSt (s, ev->time), MNt2Str (s2, ev));
+//else             TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s $`02x",
+//t, p, ne, e, TmSt (s, ev->time), _f.ctl [ev->ctrl & 0x007F].s, ev->valu);
       e [p].time = ev->time;   e [p].ctrl = (ubyte) ev->ctrl;
       e [p].valu = ev->valu;   e [p].val2 = ev->val2;   e [p].x = 0;
       if ((t >= _f.trk.Ln) && (! (ev->ctrl & 0x0080))) {
          if (ev->valu & 0x80)  {_f.trk [t].nn++;   _f.trk [t].nb++;}
          else                                      _f.trk [t].nb--;
-DBG("EvInsT2 t=`d nn=`d nb=`d", t, _f.trk [t].nn, _f.trk [t].nb);
+//DBG("EvInsT2 t=`d nn=`d nb=`d", t, _f.trk [t].nn, _f.trk [t].nb);
       }
    }
 }

@@ -61,11 +61,11 @@ DBG("Cmd='`s'", c);
    if (i < 6)     {emit sgUpd (s);   return;}
    if (i < NUCmd)  switch (i) {
       case  6:  EdTime (1);  break;         // timeBar1
-      case  7:  EdTime (4);  break;         // time<<
-      case  8:  EdTime (2);  break;         // time<
-      case  9:  EdTime (0);  break;         // timePoz
+      case  7:  EdTime (2);  break;         // time<
+      case  8:  EdTime (3);  break;         // time>
+      case  9:  EdTime (4);  break;         // time<<
       case 10:  EdTime (5);  break;         // time>>
-      case 11:  EdTime (3);  break;         // time>
+      case 11:  EdTime (0);  break;         // timePoz
       case 12:  EdTime (6);  break;         // timeBug
 
       case 13:  EdTmpo (0);  break;         // tempoHop

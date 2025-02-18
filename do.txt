@@ -14,15 +14,25 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 syn_____________________________________________________________________________
 
-make syn do glide,glRate,glFrom,fltCut
-make ccmap pick ccmap/*.txt
-make recorded evs show right away
+show control values by type and better (off/mini/on)
+   controls song has IN it, off/mini/on
+   then controls not yet in it
+
+   show ccmap help
+   show filtered output cc
+
+set velo>fCut how
+new cmd for erasing rec so you don't wreck prac songs
+
+envelopes w exp,sin curves
+
+glide midi/yamaha specs
 
 MAIN
-   frq(snd,note,phase)
-   flt(cut,res)
-   amp
-   pan
+   frq(snd,note,phase) oSnd,oKey,oCnt
+   flt(cut,res)        fCut,fRes
+   amp                 amp
+   pan                 pan
    fx(send,type,params) fx2, fx3, etc
 
 song=>syn buf for
@@ -30,53 +40,30 @@ song=>syn buf for
    last note(set?) per chan
    ...anything else?
 
-default routing...
-   vel=>cut      (not for bg tracks)
-   pbnd normal
-   pbnd2=>pan
-   cc65 glide on/off
-   cc84 rate  0..127 for glide rate (speed per halfstep)
-
 syn palette list:
 direct
    key=>oscNote   (duh)
-   pbnd=>oscPhase (duh)
-   velo=>!fltCut
+   pbnd=>oscPhase (duh)  give it range of 44 tho :)
    velo=>amp      (duh)
+   velo=>!fCut
    pbnd=>pan
+
+   env=>fCut  (wow.  esp bass sawtooth)
 
    sinlfo=>phase   vibrato
    sinlfo=>amp     tremelo
-
-   env=>fltCut  (wow.  esp bass sawtooth)
-
-   pbnd=>gliss whole keyboard
 
    multi - play 2nd(+) voice
       snd=(how?)
       ccmap=(how?)
 
-   glide - intro pbnd from another (usually prev in seq) note to mine
-      Glide    u 0   n cc65  portamento on/off
-      GlRate   u 0   n cc5   portamento rate hi
-      GlRateL  u 0   n cc37  portamento rate lo
-      GlFrom   u 0   n cc84  portamento note
-      pkey=64 for prev note in seq,
-           62 for 2 hsteps down to me,
-           66 for 2 hsteps up to me,
-           etc
-      rate=subbt/hstep
-           beat/hstep
-           16th/hstep
-           bar, 4bars, 8 bars, etc
-           make rate lin/log/exp/sin/cos
-      dur=give all hstep distances a constant time to get there
-          (so diff rates:
-              1c-8c in 1 sec
-              3g-4c in 1 sec)
-          with lin/log/exp/sin/cos curve
-      glis=on/off  (round cents to note)
-      glide amp, cut too
+   glide, glRate, glFrom works :)
+      sync rate to tmpo/tsig
+      subbt,beat,bar,4bars
+      glis=on/off?  (round and retrigger on next)
+
+   glide amp, fCut too
+
       1 note=>multiple is easy
       multiple...
          3=>1 means this note gets 2 xSnd on each of prev notes

@@ -165,8 +165,8 @@ private:
    bool  NtCmd   (MidiEv *ev);
    void  NtGet   (MidiEv *ev);
    void  SetMSec (ubyt4 p, MidiEv *ev);
-   void  Record  (MidiEv *ev);
-   void  EvRcrd  (ubyte dev, MidiEv *ev);
+   bool  Record  (MidiEv *ev);
+   bool  EvRcrd  (ubyte dev, MidiEv *ev);
 
 // sChrd.cpp
    void  PreChd ();
