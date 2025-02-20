@@ -60,7 +60,7 @@ TRC("DrawRec all=`b pp=`d", all, pp);
 
 // init ctl arr cc[] w ctrl id,type,default value from _f.ctl[],cc.txt
    tp = 0;                             // default to no tempo
-   for (ncc = c = 0;  c < _f.ctl.Ln;  c++)  if (_f.ctl [c].sho) {
+   for (ncc = c = 0;  c < _f.ctl.Ln;  c++)  if (_f.ctl [c].sho != 'n') {
       StrCp (cc [ncc].s, _f.ctl [c].s);
       cc [ncc].id = 0x80 | c;   cc [ncc].ty = 'u';
                                 cc [ncc].df = 0;
@@ -584,7 +584,7 @@ void Song::DrawPg (ubyt4 pp)
    // vert line per drum(top),ctl(base) - skip 1st ctl's line
       for (x = co.dx, t = 0;  t < co.nDrm;  t++)
          {x += W_NT;   Up.cnv.RectF (x-1, 0, 1, co.h, CBBg);}
-      for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho)
+      for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho != 'n')
          {if (x > cx) Up.cnv.RectF  (x,   0, 1, co.h, CBBg);   x += th;}
 
    // draw bars/beats/subbeats background lines - 1st time is beat just b4 tMn
@@ -616,7 +616,8 @@ void Song::DrawPg (ubyt4 pp)
                                Up.cnv.TextV (x, 3, str);   x += W_NT;
       }
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)
-         if (_f.ctl [t].sho)  {Up.cnv.TextV (x, 3, _f.ctl [t].s);   x += th;}
+         if (_f.ctl [t].sho != 'n')
+            {Up.cnv.TextV (x, 3, _f.ctl [t].s);   x += th;}
       if ((x > x1) && (c < pg [pp].nCol-1))
          Up.cnv.RectF (x1, 0, x-x1-1, 2, CBLACK);
    //__________________________________
@@ -730,7 +731,7 @@ void Song::DrawPg (ubyt4 pp)
    // draw shown controls of (shown tracks  or  track"less"=dr#1)
       x = cx;                          // td to 1st drum trk else 255
       for (td = 255, t = 0;  t < nTrk;  t++)  if (TDrm (t))  {td = t;   break;}
-      for (cc = 0;  cc < _f.ctl.Ln;  cc++)  if (_f.ctl [cc].sho) {
+      for (cc = 0;  cc < _f.ctl.Ln;  cc++)  if (_f.ctl [cc].sho != 'n') {
       // init ctl w str,typ,default value from cc.txt
          StrCp (cs, _f.ctl [cc].s);
          ccg = false;

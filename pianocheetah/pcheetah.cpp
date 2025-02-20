@@ -550,9 +550,9 @@ TRC(" dlg init");
    connect (_dTSg, & DlgTSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dKSg, & DlgKSg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dQua, & DlgQua::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
+   connect (_dCtl, & DlgCtl::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dFL,  & QDialog::accepted, this, & PCheetah::LoadGo);
    connect (_dFL,  & QDialog::rejected, this, & PCheetah::Quit);
-   connect (_dCtl, & QDialog::accepted, this, [this]() {emit sgCmd ("ctl");});
    connect (_dMov, & QDialog::accepted, this, [this]() {emit sgCmd ("mov");});
 
 // parse cmdline arg:  try to load song in dir or turn fn into song to do

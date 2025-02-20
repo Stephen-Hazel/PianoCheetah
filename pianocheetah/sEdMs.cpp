@@ -91,7 +91,7 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
    else if (x >= cx) {                 // control area
      sbyt2 tx = (sbyt2)cx;
       Up.pos.cp = 0;
-      for (ubyte i = 0;  i < _f.ctl.Ln;  i++)  if (_f.ctl [i].sho)
+      for (ubyte i = 0;  i < _f.ctl.Ln;  i++)  if (_f.ctl [i].sho != 'n')
          {if (x < (tx += th))  {Up.pos.ct = i;   break;}
           else                  Up.pos.cp++;}
      TrkEv *e;

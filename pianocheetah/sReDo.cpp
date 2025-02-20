@@ -598,7 +598,7 @@ TRC("focus");
 //       ReTrk ();
 //    }
 // }
-   ShoCtl (CC("tmpo"), PRAC?true:false);
+   _f.ctl [CCPos (CC("tmpo"))].sho = PRAC?'y':'n';
 TRC("SetLp end - bgn=`s end=`s", TmSt(ts,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd));
 }
 
@@ -815,7 +815,8 @@ TStr ts1, ts2;
    W = Up.w;   H = Up.h;
 TRC("SetSym w=`d h=`d", W, H);
    nw = W_NT;   ww = W_NTW;   th = Up.txH;  // dem consts
-   for (cw = 0, p = 0;  p < _f.ctl.Ln;  p++)  if (_f.ctl [p].sho)  cw += th;
+   for (cw = 0, p = 0;  p < _f.ctl.Ln;  p++)  if (_f.ctl [p].sho != 'n')
+                                                                       cw += th;
    _pag.Ln = _col.Ln = _blk.Ln = _sym.Ln = 0;
    for (b = 1;  b <= _bEnd;) {
       if (_pag.Full ()) {
@@ -1151,7 +1152,7 @@ TRC("ReDo");
 TRC(" clear stuph");
    MemSet (_lrn.rec, 0, sizeof (_lrn.rec));
    for (t = 0;  t < _f.ctl.Ln;  t++)   // show tempo ctl if we're in prac
-      if (! StrCm (_f.ctl [t].s, CC("Tmpo")))  _f.ctl [t].sho = (bool)(PRAC);
+      if (! StrCm (_f.ctl [t].s, CC("Tmpo")))  _f.ctl [t].sho = PRAC?'y':'n';
 TRC(" ReEv SetDn SetNt SetLp TmHop SetSym Draw ReTrk DscSave :/");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
    ReEv ();   SetDn ();   SetNt ();   SetLp ('.');   TmHop (_now);

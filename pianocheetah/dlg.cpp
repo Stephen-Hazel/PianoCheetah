@@ -245,18 +245,25 @@ void DlgChd::Quit ()  {Gui.DlgSave (this, "DlgChd");}
 
 
 //______________________________________________________________________________
-// dlgCtl - pick a new drum track per section (patA,patB,fill)
+// dlgCtl - pick whether to show/hide/mini the controls
 
 void DlgCtl::Upd ()
 { ubyt2 r = _t.CurRow ();
   TStr  s;
-   StrCp (s, _t.Get (r, 1));   _t.Set (r, 1, CC((*s == 'y') ? "no" : "yep"));
+   StrCp (s, _t.Get (r, 1));           // chords only show/hide
+   if (r == 0)             StrCp (s, CC((*s == 's') ? "hide":"show"));
+   else {                              // else hide/mini/show
+      if      (*s == 'h')  StrCp (s, CC("mini"));
+      else if (*s == 'm')  StrCp (s, CC("show"));
+      else                 StrCp (s, CC("hide"));
+   }
+   _t.Set (r, 1, s);   StrCp (Up.d [r][1], s);
 }
 
 
 void DlgCtl::Init ()
 {  Gui.DlgLoad (this, "DlgCtl");
-   _t.Init (ui->t, "control\0show\0");
+   _t.Init (ui->t, "Control\0Show?\0");
    connect (ui->t, & QTableWidget::itemClicked, this, & DlgCtl::Upd);
 }
 
@@ -264,8 +271,8 @@ void DlgCtl::Init ()
 void DlgCtl::Open ()
 { ubyte r, c;
   char *ro [3];
-   show ();   raise ();   activateWindow ();
    ro [2] = nullptr;
+   show ();   raise ();   activateWindow ();
    _t.Open ();
    for (r = 0;  r < Up.nR;  r++) {
       for (c = 0;  c < 2;  c++)  ro [c] = Up.d [r][c];
@@ -277,10 +284,7 @@ void DlgCtl::Open ()
 
 
 void DlgCtl::Shut ()
-{  Up.nR = _t.NRow ();
-   for (ubyte r = 0;  r < Up.nR;  r++)
-      for (ubyte c = 0;  c < 2;  c++)
-         StrCp (Up.d [r][c], _t.Get (r, c));
+{  emit sgCmd (CC("ctl"));
    done (true);   lower ();   hide ();
 }
 

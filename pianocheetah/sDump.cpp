@@ -140,7 +140,7 @@ DBG("DUMP");
 
 /* DBG("ctl name sho");
    for (t = 0; t < _f.ctl.Ln; t++)
-      DBG("`>3d `s `b", t,_f.ctl [t].s, _f.ctl [t].sho);
+      DBG("`>3d `s `c", t,_f.ctl [t].s, _f.ctl [t].sho);
    DBG("cch dev chn ctl      trk valu val2     time");
    for (t = 0; t < _cch.Ln; t++)
       DBG("`>3d `>3d `>3d `<8s `>3d `>4d `>4d `>8d",

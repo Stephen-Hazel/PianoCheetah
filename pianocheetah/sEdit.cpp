@@ -189,49 +189,37 @@ TRC("q");
 
 //______________________________________________________________________________
 void Song::PreCtl ()
-{ ubyte i, j;
-  TStr  s;
+// dlg to pick which controls to show/hide/mini
+{ TStr s;
    Up.nR = 1+_f.ctl.Ln;
    StrCp (Up.d [0][0], CC("chords"));
-   StrCp (Up.d [0][1], CC(_lrn.chd ? "yep" : "no"));
-   for (i = 0;  i < _f.ctl.Ln;  i++) {
-      StrCp (Up.d [i+1][0],    _f.ctl [i].s);
-      StrCp (Up.d [i+1][1], CC(_f.ctl [i].sho ? "yep" : "no"));
-   }
-   StrCp (s, CC("no"));
-   for (i = 0;  i < NMCC;  i++) {
-      for (j = 0;  j < _f.ctl.Ln;  j++)
-         if (! StrCm (_f.ctl [j].s, MCC [i].s))  break;
-      if (j >= _f.ctl.Ln) {
-         StrCp (Up.d [Up.nR  ][0], MCC [i].s);
-         StrCp (Up.d [Up.nR++][1], s);
-      }
+   StrCp (Up.d [0][1], CC(_lrn.chd ? "show" : "hide"));
+   for (ubyte i = 0;  i < _f.ctl.Ln;  i++) {
+                                  StrCp (s, CC("show"));
+      if (_f.ctl [i].sho == 'm')  StrCp (s, CC("mini"));
+      if (_f.ctl [i].sho == 'n')  StrCp (s, CC("hide"));
+      StrCp (Up.d [i+1][0], _f.ctl [i].s);
+      StrCp (Up.d [i+1][1], s);
    }
    emit sgUpd ("dCtl");
 }
 
 
 void Song::Ctl ()
-{ ubyte i, ln;
-   _lrn.chd = (Up.d [0][1][0] == 'y') ? true : false;
-   ln = _f.ctl.Ln;
-   for (i = 0;  i < ln;  i++)
-      _f.ctl [i].sho = (Up.d [i+1][1][0] == 'y') ? true : false;
-   for (i = ln+1;  i < Up.nR;  i++)  if (Up.d [i][1][0] == 'y') {
-      _f.ctl.Ln++;
-      StrCp (_f.ctl [ln].s, Up.d [i][0]);   _f.ctl [ln++].sho = true;
+{ char c;
+   _lrn.chd = (Up.d [0][1][0] == 's') ? true : false;
+   for (ubyte i = 0;  i < _f.ctl.Ln;  i++) {
+      c = Up.d [i+1][1][0];
+      if      (c == 's')  c = 'y';
+      else if (c == 'h')  c = 'n';     // mini already ok
+      _f.ctl [i].sho = c;
    }
    ReDo ();
 }
 
 
-void Song::ShoCtl (char *ctl, bool sho)
-{  for (ubyte i = 0;  i < _f.ctl.Ln;  i++)
-      if (! StrCm (_f.ctl [i].s, ctl))  _f.ctl [i].sho = sho;
-}
-
-
 void Song::SetCtl (char *arg)
+// mouse ctl event editing
 { char *s, *c;
   ubyte tr, cc, mc;
   ubyt4 tm, p;

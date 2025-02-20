@@ -209,7 +209,6 @@ private:
    void  PreCtl  ();
    void  Cue     (char *s);
    void  Ctl     ();
-   void  ShoCtl  (char *ctl, bool sho);
    void  SetCtl  (char *arg);
    void  PreQua  ();
    void  Qua     (char *tnf);

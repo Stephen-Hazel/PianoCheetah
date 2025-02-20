@@ -60,7 +60,7 @@ struct TrkRow  {ubyte  dev, chn,   din, drm,   vol, pan;
                 TrkEv *e;
                 TrkNt *n;
                 ubyt4 ne, nn, nb, p;};           // #e, #n, #broke, pos
-struct CtlRow  {WStr s;   bool sho;};            // song's ctl map
+struct CtlRow  {WStr s;   char sho;};            // song's ctl map sho=y,n,m(ini
 struct CChRow  {ubyte dev, chn, ctl, trk, valu, val2;  ubyt4 time;};
 struct TxtRow  {ubyt4 time, tend;  TStr s;};     // lyr,sct,chd,cue,bug
 struct TpoRow  {ubyt4 time;  ubyt2 val;};                       // tempo (orig)

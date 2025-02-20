@@ -475,7 +475,7 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
       }
    }
    if (t < nt)  {TRC("Song::Load  EndTrack<ntrk");   return;}
-   for (t = 0;  t < _f.ctl.Ln;  t++)  _f.ctl [t].sho = false;
+   for (t = 0;  t < _f.ctl.Ln;  t++)  _f.ctl [t].sho = 'n';
 
 // init initial tSg - sort by bar n calc .time
    Sort (_f.tSg.Ptr (), _f.tSg.Ln, _f.tSg.Siz (), IniTSigCmp);

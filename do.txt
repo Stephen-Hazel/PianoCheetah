@@ -14,12 +14,12 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 syn_____________________________________________________________________________
 
-show control values by type and better (off/mini/on)
-   controls song has IN it, off/mini/on
-   then controls not yet in it
+show control value types in picker
+   control display should have y,m capabilities
+bug = chord hide/show doesn't take effect
+   on/off - always mini
 
-   show ccmap help
-   show filtered output cc
+ccmap help?
 
 set velo>fCut how
 new cmd for erasing rec so you don't wreck prac songs

@@ -192,7 +192,7 @@ Info(StrFmt (s, "CCPos  out of room for `s :(", cSt));
 DBG (           "CCPos  out of room for `s :(", cSt);
          return 0;
       }
-      _f.ctl.Ln++;   StrCp (_f.ctl [c].s, cSt);   _f.ctl [c].sho = true;
+      _f.ctl.Ln++;   StrCp (_f.ctl [c].s, cSt);   _f.ctl [c].sho = 'y';
       ReCtl ();
    }
    return 0x80 | c;
@@ -223,8 +223,10 @@ TRC("CtlClean");
    for (t = 0;  t < _f.trk.Ln;  t++)   // find used ctls we DO got
       for (ev = _f.trk [t].e, e = 0;  e < _f.trk [t].ne;  e++)
          if ((tc = ev [e].ctrl) & 0x80)  cc [tc & 0x7F][0] = 'x';
-   for (ncc = c = 0;  c < _f.ctl.Ln;  c++)  if ((cc [c][0]) || _f.ctl [c].sho) {
-      StrFmt (cc [ncc++], "`s`s", _f.ctl [c].sho ? "+" : "", _f.ctl [c].s);
+   for (ncc = c = 0;  c < _f.ctl.Ln;  c++)
+                                   if ((cc [c][0]) || (_f.ctl [c].sho != 'n')) {
+      StrFmt (cc [ncc++], "`s`s",
+         (_f.ctl [c].sho != 'n') ? "+" : "", _f.ctl [c].s);
    }
    Sort (cc, ncc, sizeof (cc [0]), CtlCmp);
 // build map of old=>new (_f.ctl[]=>cc[])
@@ -237,8 +239,8 @@ TRC("CtlClean");
    _f.ctl.Ln = ncc;                    // rebuild _f.ctl[]
    for (c = 0;  c < ncc;  c++) {
       if (cc [c][0] == '+')
-            {_f.ctl [c].sho = true;    StrCp (_f.ctl [c].s, & cc [c][1]);}
-      else  {_f.ctl [c].sho = false;   StrCp (_f.ctl [c].s,   cc [c]);}
+            {_f.ctl [c].sho = 'y';   StrCp (_f.ctl [c].s, & cc [c][1]);}
+      else  {_f.ctl [c].sho = 'n';   StrCp (_f.ctl [c].s,   cc [c]);}
    }
    ReCtl ();
 TRC("CtlClean end");

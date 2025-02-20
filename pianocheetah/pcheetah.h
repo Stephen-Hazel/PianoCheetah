@@ -220,6 +220,9 @@ public:
 public slots:
    void Upd ();
 
+signals:
+   void sgCmd (char *s);
+
 private:
    Ui::DlgCtl *ui;
    CtlTabl    _t;
