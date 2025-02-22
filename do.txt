@@ -14,12 +14,7 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 syn_____________________________________________________________________________
 
-show control value types in picker
-   control display should have y,m capabilities
-bug = chord hide/show doesn't take effect
-   on/off - always mini
-
-ccmap help?
+ctrl labels not shown for sho = y
 
 set velo>fCut how
 new cmd for erasing rec so you don't wreck prac songs

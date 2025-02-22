@@ -7,7 +7,7 @@ void Song::CCMapLoad ()
   ulong i, j;
   ubyte d, c;
   StrArr t (CC("ccmap"), 128, 128*sizeof(TStr));
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/ccmap/1.txt"));
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/ccmap.txt"));
    t.Load (fn);
    _ccMap.Ln = 0;
    for (i = j = 0;  i < t.num;  i++) {
@@ -243,7 +243,7 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
          else                {if (! _ed)  _ed = 1;  else return re;}
          emit sgUpd (_ed ? "dHlpO" : "dHlpS");
       }
-      else if (ev->ctrl = CCPos (cSt)) {    // 0 if outa _f.ctl spots,etc
+      else if (ev->ctrl = CtlEv (cSt)) {    // 0 if outa _f.ctl spots,etc
          _rNow = ev->time;   re = Record (ev);
          Info (StrFmt (s1, "`s = `d", cSt, ev->valu));
       }

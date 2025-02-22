@@ -104,8 +104,7 @@ ubyte Song::CCValAt (ubyt4 tm, ubyte tr, char *cc)
    if (TDrm (tr))  return StrCm (cc, CC("Vol")) ? 64 : 127;
 
 // get a cc valu into cid n val
-   for (cid = c = 0; c < _f.ctl.Ln; c++)  if (! StrCm (_f.ctl [c].s, cc))
-      {cid = 0x80 | c;   break;}
+   cid = CtlEv (cc, 'r');
    for (c = 0; c < NMCC; c++)  if (! StrCm (MCC [c].s, cc))
       {val = (ubyte)MCC [c].dflt;   break;}
    if (! (cid & 0x80)) {               // not in song?  must be default val then
@@ -166,8 +165,8 @@ TRC(" => `s", LrnS ());
    for (cc = 0;  cc < _cch.Ln;  cc++) {
       _cch [cc].time = 0;
       _cch [cc].valu = _cch [cc].val2 = _cch [cc].trk = 0;
-      cs = _f.ctl [_cch [cc].ctl & 0x7F].s;
-//DBG(" cc=`d cs=`s", cc, (char *) cs);
+      cs = CtlSt (_cch [cc].ctl);
+//DBG(" cc=`d cs=`s", cc, cs);
       if (! StrCm (cs, CC("Prog"))) {      // prog is special
          for (t = 0;  t < _f.trk.Ln;  t++)
             if ((_f.trk [t].dev == _cch [cc].dev) &&
@@ -201,18 +200,17 @@ TRC(" chase ctl actual valu in _f.trk[].e, set .p");
    }
 TRC(" put each ctl");
    for (cc = 0;  cc < _cch.Ln;  cc++) {
-      c  = _cch [cc].ctl & 0x7F;
-      v  = _cch [cc].valu;
-      v2 = _cch [cc].val2;
+      cs = CtlSt (_cch [cc].ctl);
+      v  =        _cch [cc].valu;
+      v2 =        _cch [cc].val2;
 //DBG(" cc=`s trk=`d dv=`d ch=`d valu=`d val2=`d",
-//_f.ctl [c].s, _cch [cc].trk, _cch [cc].dev, _cch [cc].chn, v, v2);
-      if      (! StrCm (_f.ctl [c].s, CC("Prog")))  SetChn (_cch [cc].trk);
-      else if (! StrCm (_f.ctl [c].s, CC("Tmpo")))  PutTp ((v2 << 8) | v);
-      else if (! StrCm (_f.ctl [c].s, CC("TSig")))  PutTs (v, 1 << (v2 & 0x0F),
-                                                                    v2 >> 4);
+//cs, _cch [cc].trk, _cch [cc].dev, _cch [cc].chn, v, v2);
+      if      (! StrCm (cs, CC("Prog")))  SetChn (_cch [cc].trk);
+      else if (! StrCm (cs, CC("Tmpo")))  PutTp ((v2 << 8) | v);
+      else if (! StrCm (cs, CC("TSig")))  PutTs (v, 1 << (v2 & 0x0F), v2 >> 4);
       else {
          d  = _cch [cc].dev;
-         if ((cw = Up.dvt [Up.dev [d].dvt].CCMap [c]))
+         if ((cw = Up.dvt [Up.dev [d].dvt].CCMap [_cch [cc].ctl & 0x7F]))
             Up.dev [d].mo->Put (_cch [cc].chn, cw, v, v2);
       }
    }

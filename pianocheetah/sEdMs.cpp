@@ -23,7 +23,7 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
 // at x:      ct
 // at f,d:    sy
 { ubyt4 c, p, ne, tm1, tm2;
-  ubyt2 nx, dx, cx, th = Up.txH;
+  ubyt2 nx, dx, cx, th = Up.txH, w;
   PagDef *pg;
   ColDef  co;
    Up.pos.at = Up.pos.got = '\0';   if (! (p = _pg))  return Up.pos.at;
@@ -91,15 +91,17 @@ char Song::MsPos (sbyt2 x, sbyt2 y)
    else if (x >= cx) {                 // control area
      sbyt2 tx = (sbyt2)cx;
       Up.pos.cp = 0;
-      for (ubyte i = 0;  i < _f.ctl.Ln;  i++)  if (_f.ctl [i].sho != 'n')
-         {if (x < (tx += th))  {Up.pos.ct = i;   break;}
-          else                  Up.pos.cp++;}
+      for (ubyte i = 0;  i < _f.ctl.Ln;  i++)  if (_f.ctl [i].sho != 'n') {
+         w = th;   if (_f.ctl [i].sho == 'y')  w += 32+2;
+         if (x < (tx += w))  {Up.pos.ct = i;   break;}
+         else                 Up.pos.cp++;
+      }
      TrkEv *e;
      ubyt4 ne, pr;
      TStr  cs;
      bool  cg = false;                 // global ctl? (tmpo,ksig,tsig)
      ubyte tr, td = 255;               // ...so look for it on drum trk
-      StrCp (cs, _f.ctl [Up.pos.ct].s);
+      StrCp (cs, CtlSt (Up.pos.ct));
       if ( (! StrCm (CC("tmpo"), cs)) || (! StrCm (CC("ksig"), cs)) ||
                                          (! StrCm (CC("tsig"), cs)) ) {
          cg = true;
@@ -292,8 +294,8 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
 //DBG(" Up.Pos at=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);
       if (Up.pos.at == 'x') {
          if (Up.pos.got) {
-            e = &      _f.trk [Up.pos.tr].e [Up.pos.p];
-            StrCp (cs, _f.ctl [Up.pos.ct].s);
+            e = & _f.trk [Up.pos.tr].e [Up.pos.p];
+            StrCp (cs, CtlSt (Up.pos.ct));
             TmSt (s, e->time);   StrAp (s, CC(" "));   StrAp (s, cs);
                                                        StrAp (s, CC("="));
             for (t = 0;  t < NMCC;  t++)  if (! StrCm (MCC [t].s, cs))  break;
@@ -333,7 +335,7 @@ DBG("  nope");
       pg = & _pag [Up.pos.pg];
       MemCp (& co, & pg->col [Up.pos.co], sizeof (co));
       t = Y2Tm (y, & co);   TmSt (s, t);
-      StrCp (cs, _f.ctl [Up.pos.ct].s);
+      StrCp (cs, CtlSt (Up.pos.ct));
       StrFmt (s2, "time=`s control=`s", s, cs);
       for (t = 0;  t < NMCC;  t++)  if (! StrCm (MCC [t].s, cs))  break;
       ct = (t >= NMCC) ? 'u' : MCC [t].typ;
@@ -414,7 +416,7 @@ void Song::MsUp (Qt::MouseButton b, sbyt2 x, sbyt2 y)
       pg = & _pag [Up.pos.pg];
       MemCp (& co, & pg->col [Up.pos.co], sizeof (co));
       Up.pos.tm = Y2Tm (y, & co);
-      StrCp (c, _f.ctl [Up.pos.ct].s);
+      StrCp (c, CtlSt (Up.pos.ct));
       for (t = 0;  t < NMCC;  t++)  if (! StrCm (MCC [t].s, c))  break;
       ct = (t >= NMCC) ? 'u' : MCC [t].typ;
      TrkEv *e = Up.pos.got ? & _f.trk [Up.pos.tr].e [Up.pos.p] : nullptr;

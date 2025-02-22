@@ -161,7 +161,6 @@ private:
    void  CCMapLoad ();
    void  Shush   (bool tf);            // flip by volume cc (only) on/off
    bool  DnOK    (char n = '\0', ubyte *tr = nullptr, MidiEv *ev = nullptr);
-   ubyte CCPos   (char *cSt);          // get _ctl pos; upd _cch,_ctl,dvt.CCMap
    bool  NtCmd   (MidiEv *ev);
    void  NtGet   (MidiEv *ev);
    void  SetMSec (ubyt4 p, MidiEv *ev);
@@ -182,7 +181,10 @@ private:
    ubyt4 Y2Tm    (ubyt2 y, ColDef *co);
    ubyt4 SilPrv  (ubyt4 tm), SilNxt  (ubyt4 tm);
    ubyt4 NtDnPrv (ubyt4 tm), NtDnNxt (ubyt4 tm);
-   void  ReCtl   ();                   // map all DevTyps w song's _ctl[]s
+   void  ReCtlO  ();                   // map all DevTyps w song's _ctl[]s
+   ubyte CtlEv   (char *cSt, char ro = '\0');
+                                       // get _ctl pos; upd _cch,_ctl,dvt.CCMap
+   char *CtlSt   (ubyte ctrl);
    void  CtlClean();                   // redo _ctl[] to just used ones sorted
    void  EvDel   (ubyte t, ubyt4 p, ubyt4 ne = 1);
    bool  EvIns   (ubyte t, ubyt4 p, ubyt4 ne = 1);

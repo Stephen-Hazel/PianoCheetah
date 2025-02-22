@@ -441,9 +441,9 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
    nt = (ubyte)(_f.trk.Ln = st [TB_TRK].NRow ());
    ne =                     st [TB_EVT].NRow ();
-   _f.ctl.Ln = 3;   StrCp (_f.ctl [0].s, CC("Tmpo"));
-                    StrCp (_f.ctl [1].s, CC("TSig"));
-                    StrCp (_f.ctl [2].s, CC("KSig"));
+// NOTE !! Tmpo must always exist and be first in _f.ctl[] !!
+   _f.ctl.Ln = 0;   CtlEv (CC("Tmpo"));   CtlEv (CC("TSig"));
+                                          CtlEv (CC("KSig"));
    _f.tSg.Ln = 0;
    for (t = 0, pe = e = 0;  e < ne;  e++) {
       if (! StrCm (st [TB_EVT].Get (e, 0), CC("EndTrack"))) {
@@ -455,16 +455,12 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
       if ('!' ==       st [TB_EVT].Get (e, 1) [0]) {
          StrCp (buf, & st [TB_EVT].Get (e, 1) [1]);
          if ((m = StrCh (buf, '=')))  *m = '\0';
-         else  {TRC("Song::Load  !ctrl no = at trk=`d ev#=`d", t+1, e);
-                return;}
-
-         for (i = 0;  i < _f.ctl.Ln;  i++)  if (! StrCm (buf, _f.ctl [i].s))
-                                               break;
-         if (i >= _f.ctl.Ln) {         // new ctl str
-            if (_f.ctl.Ln >= 128)  {TRC("Song::Load  >128 ctls");   return;}
-            _f.ctl.Ln++;   StrCp (_f.ctl [i].s, buf);
-         }
-         if ((i == 1) && (! _f.tSg.Full ())) {
+         else  {DBG("Song::Load  !ctrl no = at trk=`d ev#=`d", t+1, e);
+                continue;}
+         if (! (i = CtlEv (buf)))
+               {DBG("Song::Load  no room for ctrl=`s", buf);
+                continue;}
+         if ((i == 0x81) && (! _f.tSg.Full ())) {
             StrCp (buf, ++m);   if ((m = StrCh (buf, '/')))  *m++ = '\0';
             te = _f.tSg.Ins ();
             _f.tSg [te].num = (ubyte)Str2Int (buf);
@@ -493,39 +489,32 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    for (e2 = _f.trk [t = 0].e, e = 0;  e < ne;  e++) {
       StrCp (buf, st [TB_EVT].Get (e, 0));
       if (! StrCm (buf, CC("EndTrack")))  {e2 = _f.trk [++t].e;   continue;}
-
       e2->time = Str2Tm (buf);         // ok parse the rec - all start w time
-
       StrCp (buf, st [TB_EVT].Get (e, 1));
       if (*buf == '!') {               // ctl
-//TODO use CCPos() and make funcs for this junk...
-         if ((m = StrCh (buf, '=')))  *m++ = '\0';
-         else  {TRC("Song::Load  !ctl no = in trk=`d ev#=`d", t+1, e);
-                return;}
-         for (i = 0;  i < _f.ctl.Ln;  i++)
-            if (! StrCm (& buf [1], _f.ctl [i].s))
-               {e2->ctrl = (ubyte)(0x80 | i);   break;}
-         if      (i == 0) {            // tmpo
+         m = StrCh (buf, '=');   *m++ = '\0';    // already know it's there
+         e2->ctrl = CtlEv (& buf [1]);
+         if      (e2->ctrl == 0x80) {  // tmpo
            ubyt2 tp;
             tp = (ubyt2)Str2Int (m);
             e2->valu = tp & 0x00FF;   e2->val2 = tp >> 8;
          }
-         else if (i == 1) {            // tsig
+         else if (e2->ctrl == 0x81) {  // tsig
            ubyte n, d, s, x;
             if (! (p = StrCh (m, '/')))
-               {TRC("Song::Load  TSig missing / trk=`d ev#=`d", t+1, e);
-                return;}
+               {DBG("Song::Load  TSig missing / trk=`d ev#=`d", t+1, e);
+                continue;}
             n = (ubyte)Str2Int (m);
             d = (ubyte)Str2Int (++p);
             s = 1;
             if ((m = StrCh (p, '/')))  s = (ubyte)Str2Int (++m);
             for (x = 0;  x < 8;  x++)  if ((1 << x) == d)  break;
             if (x >= 8)
-               {TRC("Song::Load  TSig bad denom trk=`d ev#=`d", t+1, e);
-                return;}
+               {DBG("Song::Load  TSig bad denom trk=`d ev#=`d", t+1, e);
+                continue;}
             e2->valu = n;   e2->val2 = x | ((s-1) << 4);
          }
-         else if (i == 2) {            // ksig
+         else if (e2->ctrl == 0x82) {  // ksig
            char *map = CC("b2#b#b2#b#b2");
             e2->valu = i = MNt (m);
             if (m [StrLn (m)-1] == 'm')  e2->val2 = 1;  // minor
@@ -670,10 +659,7 @@ TRC("TmpoPik `s", (l_r == 'l') ? "lrn" : "rec");
    for (t = 0;  t < _f.trk.Ln;  t++)  if (TDrm (t))  break;
    if (t >= _f.trk.Ln)  return;        // no tempo track??  nothin ta do
 
-// lookup tmpo cc
-   for (cc = 0;  cc < _f.ctl.Ln;  cc++)
-      if (! StrCm (_f.ctl [cc].s, CC("tmpo")))  {cc |= 0x80;   break;}
-   if (! (cc & 0x80))  return;         // no tempo control??  outa herez
+   cc = CtlEv (CC("tmpo"));            // it'll always be 0x80
 TRC("   tempo trk=`d cc=x`02x ne=`d", t, cc, _f.trk [t].ne);
 
 // wipe existing
@@ -788,7 +774,7 @@ DBG("fns=`s", fns);
             while ((_dn [p].time < e [i].time) && (p+1 < _dn.Ln))  p++;
             c = e [i].ctrl;            // ^ sync
             if (c & 0x0080) {          // ctrl
-               StrCp (s, _f.ctl [c & 0x7F].s);
+               StrCp (s, CtlSt (c));
                if      (! StrCm (s,  CC("Tmpo")))  // tmpo,tsig,ksig are special
                   f.Put (StrFmt (s, CC("!Tmpo=`d"),
                                                  e [i].valu | (e [i].val2<<8)));

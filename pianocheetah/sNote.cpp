@@ -34,8 +34,8 @@ DBG("`02d `02x`02x`02x", i, CSclD[i].red (), CSclD[i].green (),CSclD[i].blue());
 ubyte Song::DrawRec (bool all, ubyt4 pp)
 // draw rec trk notes (on top) - either all or ONly pNow-1..now
 // very similar to DrawPg, but just a rect instead of DrawSym, etc (read it 1st)
-{ ubyte nt, dnt, t, tt, dPos, c, ncc,      tp;
-  ubyt2 nx, cx, h, x, x1, x2, y, y2, th = Up.txH, tpMn, tpMx, vl, v2;
+{ ubyte nt, dnt, t, tt, dPos, c, tp;
+  ubyt2 nx, cx, h, x, x1, x2, y, y2, w, th = Up.txH, tpMn, tpMx, vl, v2;
   bool  drm, got;
   char  cl;
   ubyt4 tMn, tMx, pMn, pMx, t1, t2, p, ne, tDn, tUp, on [128];
@@ -43,7 +43,6 @@ ubyte Song::DrawRec (bool all, ubyt4 pp)
   QColor  qc;
   TrkEv  *e, ev;
   TpoRow *te;
-  struct {TStr s;  ubyte id;  char ty;  ubyt4 tm;  ubyt2 df, vl;}  cc [128];
   PagDef *pg = & _pag [pp];
   ColDef  co;
   DownRow *dn;
@@ -57,31 +56,19 @@ TRC("DrawRec all=`b pp=`d", all, pp);
 //TStr d1,d2,d3,d4;
 //DBG(" pMn=`s pMx=`s  pNow=`s",
 //TmSt(d1,pMn), TmSt(d2,pMx), TmSt(d3,_pNow));
-
-// init ctl arr cc[] w ctrl id,type,default value from _f.ctl[],cc.txt
    tp = 0;                             // default to no tempo
-   for (ncc = c = 0;  c < _f.ctl.Ln;  c++)  if (_f.ctl [c].sho != 'n') {
-      StrCp (cc [ncc].s, _f.ctl [c].s);
-      cc [ncc].id = 0x80 | c;   cc [ncc].ty = 'u';
-                                cc [ncc].df = 0;
-      for (t = 0;  t < NMCC;  t++)  if (! StrCm (MCC [t].s, cc [ncc].s))
-         {cc [ncc].df = MCC [t].dflt;   cc [ncc].ty = MCC [t].typ;   break;}
-      if (! StrCm (cc [ncc].s, CC("tmpo"))) {
-         tp = ncc+1;   cc [ncc].id = 0xFF;
+   if (_f.ctl [0].sho != 'n')
+      {tp = 0x80;   w = th-2;   if (_f.ctl [c].sho == 'y')  w = 32;}
+   if (tp) {
+// show prev col if we're on col>0 n we're <= tMn+M_WHOLE
+      for (t = 0;  t < pg->nCol;  t++) {
+         MemCp (& co, & pg->col [t], sizeof (co));      // load column specs
+         tMn = co.blk [0].tMn;   tMx = co.blk [co.nBlk-1].tMx;
+         if (tMx <= pMn)  continue;      // NEXT !
+         if (tMn >= pMx)  break;         // we're done
 
-      // show prev col if we're on col>0 n we're <= tMn+M_WHOLE
-         for (t = 0;  t < pg->nCol;  t++) {
-            MemCp (& co, & pg->col [t], sizeof (co));      // load column specs
-            tMn = co.blk [0].tMn;   tMx = co.blk [co.nBlk-1].tMx;
-            if (tMx <= pMn)  continue;      // NEXT !
-            if (tMn >= pMx)  break;         // we're done
-
-            if ((! all) && t && (pMn <= tMn+M_WHOLE))  pMn = tMn - M_WHOLE;
-         }                                  // gotta show prev rec tempo
-      }
-//DBG(" cc=`s col=`d id=$`02x dflt=`d typ=`c",
-//cc [ncc].s, ncc, cc [ncc].id, cc [ncc].df, cc [ncc].ty);
-      ncc++;
+         if ((! all) && t && (pMn <= tMn+M_WHOLE))  pMn = tMn - M_WHOLE;
+      }                                  // gotta show prev rec tempo
    }
 
    for (c = 0;  c < pg->nCol;  c++) {
@@ -95,7 +82,7 @@ TRC("DrawRec all=`b pp=`d", all, pp);
 //c,TmSt(d1,tMn),TmSt(d2,tMx),
 //MKey2Str(d3,co.nMn),MKey2Str(d4,co.nMx),co.w,co.h,co.x, nx,cx);
       if (tp) {                        // tempo is super special...:/
-         x  = cx + (tp-1) * th;
+         x = cx;
       // go thru prescribed tempo evs, get min,max and adjust w clip for tpMn,Mx
          te = & _f.tpo [0];   ne = _f.tpo.Ln;   vl = 120;
          for (p = 0;  (p < ne) && (te [p].time < tMn);  p++)  vl = te [p].val;
@@ -129,8 +116,8 @@ TRC("DrawRec all=`b pp=`d", all, pp);
 //DBG("  p=`d/`d  t1=`s vl=`d  t2=`s v2=`d",
 //p, ne,  TmSt(d1, t1), vl,  TmSt(d2, t2), v2);
             if ((t1 != NONE) && vl) {
-               x1 = (th-2)*(vl-tpMn)/(tpMx-tpMn);   y  = Tm2Y (t1, & co);
-               x2 = (th-2)*(v2-tpMn)/(tpMx-tpMn);   y2 = Tm2Y (t2, & co);
+               x1 = w*(vl-tpMn)/(tpMx-tpMn);   y  = Tm2Y (t1, & co);
+               x2 = w*(v2-tpMn)/(tpMx-tpMn);   y2 = Tm2Y (t2, & co);
 //DBG("     x1=`d y=`d x2=`d y2=`d cl=`c", x1, y, x2, y2, cl);
                qc = CBLACK;   if (cl=='s') qc = CSclD [4]; // slow=>green
                               if (cl=='f') qc = CSclD [0]; // fast=>red
@@ -152,69 +139,15 @@ TRC("DrawRec all=`b pp=`d", all, pp);
          ne  = t ?    _recD.Ln   :    _recM.Ln;
          drm = t ?          true : false;
          for (nt = 0;  nt < 128;  nt++)   on [nt]    = NONE;
-         for (tt = 0;  tt < ncc;  tt++)  {cc [tt].tm = NONE;
-                                          cc [tt].vl = cc [tt].df;}
-      // get existing noteOns,CCs till tMn
+      // get existing noteOns till tMn
          for (p = 0;  (p < ne) && (e [p].time < tMn);  p++) {
             if (((nt = e [p].ctrl) & 0x80) == 0) {                   // note
                if      ((e [p].valu & 0x80) == 0)  on [nt] = NONE;   // up
                else if ((e [p].val2 & 0x80) == 0)  on [nt] = p;      // dn
             }
-            else                                                     // ctrl
-               for (tt = 0;  tt < ncc;  tt++)  if (nt == cc [tt].id)
-                  {cc [tt].tm = tMn;   cc [tt].vl = e [p].valu;}
          }
          for (;       (p < ne) && (e [p].time < tMx);  p++) {
-            if ((nt = e [p].ctrl) & 0x80) {                          // ctrl
-               for (x = cx, tt = 0;  tt < ncc;  tt++, x += th)
-                                                         if (cc [tt].id == nt) {
-//TStr z1,z2;
-//DBG("c  ?p=`d/`d e.tm=`s ctl=`d val=`d",
-//p, ne, TmSt(z1,e [p].time), e [p].ctrl, e [p].valu);
-                  if (((t2 = e [p].time) >= pMn) && (t2 <= pMx)) {
-                     if      (cc [tt].ty == 'x') {
-                        CtlX2Str (str, cc [tt].s, & e [p]);
-                        Up.cnv.TextVC (x, Tm2Y (t2, & co), str, CBLACK);
-                     }
-                     else if (cc [tt].ty == 'o') {
-                        t1 = cc [tt].tm;
-                        if ((t1 == NONE) || (t1 < tMn))  t1 = tMn;
-                        if (t1 < pMn)  t1 = pMn;
-                        y  = Tm2Y (t1, & co);
-                        if (t2 > tMx)  t2 = tMx;
-                        if (t2 > pMx)  t2 = pMx;
-                        y2 = Tm2Y (t2, & co);
-
-                        if (cc [tt].vl >= 64)
-                           Up.cnv.RectF (x+3, y, 2, y2-y+1, CBLACK);
-                     }
-                     else {            //   's' 'u'
-                        t1 = cc [tt].tm;
-//DBG("c  pEv.tm=`s va1=`d", TmSt(z2,t1), cc [tt].vl);
-                        if ((t1 == NONE) || (t1 < tMn))  t1 = tMn;
-                        if (t1 < pMn)  t1 = pMn;
-                        y  = Tm2Y (t1, & co);
-                        if (t2 > tMx)  t2 = tMx;
-                        if (t2 > pMx)  t2 = pMx;
-                        y2 = Tm2Y (t2, & co);
-
-                        x1 = (th-2)*cc [tt].vl/127;
-                        if (cc [tt].vl != cc [tt].df)
-                           Up.cnv.RectF (x+x1, y, 2, y2-y+1, CBLACK);
-
-                        x2 = (th-2)*e [p].valu/127;
-//DBG("c     h=`d y1=`d y2=`d x1=`d x2=`d t1=`s t2=`s",
-//y2-y+1, y, y2, x1, x2, TmSt(z2,t1), TmSt(z1,t2));
-                        if      (x1 < x2)
-                           Up.cnv.RectF (x+x1, y2, x2-x1+1, 2,CBLACK);
-                        else if (x1 > x2)
-                           Up.cnv.RectF (x+x2, y2, x1-x2+1, 2,CBLACK);
-                     }
-                  }
-                  cc [tt].tm = e [p].time;   cc [tt].vl = e [p].valu;
-                  break;               // got dat ctl.  skip on out
-               }
-            }
+            if ((nt = e [p].ctrl) & 0x80)  ;     // ctrl - no neeeed
             else {
                if      ((e [p].valu & 0x80) == 0) {                  // note up
                   tUp = e [p].time;
@@ -315,27 +248,6 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                   Up.cnv.RectF (x+2, y+1, W_NT-4,  1, qc);
                   Up.cnv.RectF (x+4, y+2, W_NT-8,  1, qc);
                }
-            }
-         }
-         tUp = pMx;   if (tUp > tMx)  tUp = tMx;
-         y2 = Tm2Y (tUp, & co);
-//DBG("   zPrep y2=`d tUp=`d", y2, tUp);
-         for (tt = 0;  tt < ncc;  tt++)  if ((tDn = cc [tt].tm) <= tUp) {
-//TStr d1;
-//DBG("c  z?  tt=`d tm=`s vl=`d", tt, TmSt(d1,tDn), cc [tt].vl);
-            if ((cc [tt].ty != 'x') && (cc [tt].vl != cc [tt].df)) {
-            // continue ctl val to bot of col/now
-               if (tDn < tMn)  tDn = tMn;
-               if (tDn < pMn)  tDn = pMn;
-               if (tDn > tUp)  continue;    // shouldn't but does fer now :/
-
-               y = Tm2Y (tDn, & co);
-//DBG("c  z  h=`d y=`d tDn=`s", y2-y+1, y, TmSt(d1,tDn));
-               if (cc [tt].ty == 'o')
-                  {if (cc [tt].vl >= 64)
-                      Up.cnv.RectF (cx+tt*th+3, y, 2, y2-y+1, CBLACK);}
-               else   Up.cnv.RectF (cx+tt*th+(th-2)*cc [tt].vl/127, y,
-                                                   2, y2-y+1, CBLACK);
             }
          }
       }
@@ -584,8 +496,10 @@ void Song::DrawPg (ubyt4 pp)
    // vert line per drum(top),ctl(base) - skip 1st ctl's line
       for (x = co.dx, t = 0;  t < co.nDrm;  t++)
          {x += W_NT;   Up.cnv.RectF (x-1, 0, 1, co.h, CBBg);}
-      for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho != 'n')
-         {if (x > cx) Up.cnv.RectF  (x,   0, 1, co.h, CBBg);   x += th;}
+      for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho != 'n') {
+         w = th;   if (_f.ctl [t].sho == 'y') w = 32+2;
+         if (x > cx) Up.cnv.RectF  (x,   0, 1, co.h, CBBg);   x += w;
+      }
 
    // draw bars/beats/subbeats background lines - 1st time is beat just b4 tMn
       for (tn = bt = 0, t1 = tMn;  t1 < tMx;  t1 = t2, bt++) {
@@ -615,9 +529,10 @@ void Song::DrawPg (ubyt4 pp)
          StrCp (str, trk [t].name);   str [4] = '\0';
                                Up.cnv.TextV (x, 3, str);   x += W_NT;
       }
-      for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)
-         if (_f.ctl [t].sho != 'n')
-            {Up.cnv.TextV (x, 3, _f.ctl [t].s);   x += th;}
+      for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho != 'n') {
+         w = th;   if (_f.ctl [t].sho == 'y') x = 32+2;
+         Up.cnv.TextV (x, 3, CtlSt (t));   x += w;
+      }
       if ((x > x1) && (c < pg [pp].nCol-1))
          Up.cnv.RectF (x1, 0, x-x1-1, 2, CBLACK);
    //__________________________________
@@ -732,8 +647,10 @@ void Song::DrawPg (ubyt4 pp)
       x = cx;                          // td to 1st drum trk else 255
       for (td = 255, t = 0;  t < nTrk;  t++)  if (TDrm (t))  {td = t;   break;}
       for (cc = 0;  cc < _f.ctl.Ln;  cc++)  if (_f.ctl [cc].sho != 'n') {
+         w = th-2;   if (_f.ctl [cc].sho == 'y')  w = 32;
+
       // init ctl w str,typ,default value from cc.txt
-         StrCp (cs, _f.ctl [cc].s);
+         StrCp (cs, CtlSt (cc));
          ccg = false;
          if ( (! StrCm (CC("ksig"), cs)) ||
               (! StrCm (CC("tsig"), cs)) || (! StrCm (CC("tmpo"), cs)) )
@@ -774,11 +691,11 @@ void Song::DrawPg (ubyt4 pp)
 
          // ok, draw em in our col
             for (;       (p < ne) && (te [p].time < tMx);  p++) {
-               x2 = x+(th-2)*(TmpoAct (te [p].val)-tpMn)/(tpMx-tpMn);
+               x2 = x+w*(TmpoAct (te [p].val)-tpMn)/(tpMx-tpMn);
                y2 = Tm2Y (             te [p].time, & co);
 //DBG("  tmpo pTm=`s pVal=`d x2=`d y2=`d", TmSt(d1, t1), vl, x2, y2);
                if (t1 != NONE) {
-                  x1 = x+(th-2)*(vl-tpMn)/(tpMx-tpMn);     // vline to prv vl
+                  x1 = x+w*(vl-tpMn)/(tpMx-tpMn);          // vline to prv vl
                   y  = Tm2Y (t1, & co);                    // hline to prv tm
                   Up.cnv.RectF (x1, y, 2, y2-y+1, qc);
                   if      (x1 < x2) Up.cnv.RectF (x1, y2, x2-x1+1, 2, qc);
@@ -790,7 +707,8 @@ void Song::DrawPg (ubyt4 pp)
 //DBG("  tmpo done t1=`s vl=`d", TmSt(z1, t1), vl);
             if ((t1 == NONE) || (t1 < tMn))  t1 = tMn;
             y = Tm2Y (t1, & co);   y2 = Tm2Y (tMx, & co);
-            Up.cnv.RectF (x+(th-2)*(vl-tpMn)/(tpMx-tpMn), y, 2, y2-y+1, qc);
+            Up.cnv.RectF (x+w*(vl-tpMn)/(tpMx-tpMn), y, 2, y2-y+1, qc);
+
          }
          else
             for (t = 0;  t < nTrk;  t++)  if ( (   ccg  && (t == td)) ||
@@ -823,8 +741,8 @@ void Song::DrawPg (ubyt4 pp)
                   t1 = e [p].time;   vl = e [p].valu;
                }
                else {                  // s u - like tmpo but easier scaling
-                  x1 = x+(th-2)* vl/127;
-                  x2 = x+(th-2)* e [p].valu/127;
+                  x1 = x + w*vl/127;
+                  x2 = x + w*e [p].valu/127;
                   y2 = Tm2Y (e [p].time, & co);
 //TStr z1;
 //DBG("cc  t1=`s vl=`d x2=`d y2=`d", TmSt(z1, t1), vl, x2, y2);
@@ -846,12 +764,12 @@ void Song::DrawPg (ubyt4 pp)
                if ((t1 == NONE) || (t1 < tMn))  t1 = tMn;
                y = Tm2Y (t1, & co);   y2 = Tm2Y (tMx, & co);
                if (vt == 'o')
-                  {if (vl >= 64)  Up.cnv.RectF (x,  y, 2, y2-y+1, CScl [cno]);}
-               else  Up.cnv.RectF (x+(th-2)*vl/127, y, 2, y2-y+1, CScl [cno]);
+                  {if (vl >= 64)  Up.cnv.RectF (x, y, 2, y2-y+1, CScl [cno]);}
+               else  Up.cnv.RectF (x+w*vl/127,     y, 2, y2-y+1, CScl [cno]);
             }
             if (Cfg.ntCo == 2)  if (++cno >= 12)  cno = 0;
          }
-         x += th;
+         x += (w+2);
       }
 
    //__________________________________

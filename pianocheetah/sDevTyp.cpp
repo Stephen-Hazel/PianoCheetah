@@ -4,8 +4,8 @@
 
 // ccin.txt  loaded by Device  => _mi[].cc[].raw => .map (ubyt2 to str)
 // ccout.txt loaded by DevType => Up.dvt[]._cc[].raw => .map
-// sUtil.cpp Song::ReCtl() rebuilds
-//    Up.dvt[].CCMap[] which turns _f.ctl[].str's pos into _cc[].raw
+// sUtil.cpp Song::ReCtlO() rebuilds
+//    Up.dvt[].CCMap[] which turns _f.ctl[].s's pos into _cc[].raw
 
 
 #include "song.h"

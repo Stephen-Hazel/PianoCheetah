@@ -159,13 +159,15 @@ ubyt4 Song::SilNxt (ubyt4 tm)
 //    tm += ((M_WHOLE/4) - tm % (M_WHOLE/4));
    }
    if (tm > tme)  tm = tme;
-   if (tm > tIn+M_WHOLE*2)  tm = tIn;  // don't go further foreward than 2 bars
+   if (tm > tIn+M_WHOLE*2)  tm = tIn;  // don't go further forward than 2 bars
    return tm;
 }
 
 
 //______________________________________________________________________________
-void Song::ReCtl ()                    // rebuild used _f.dvts' CCMaps
+// funcs around _f.ctl[]
+
+void Song::ReCtlO ()                   // rebuild used _f.dvts' CCMaps
 { ubyte d, i;
   TStr  s;
    for (d = 0;  d < Up.dvt.Ln;  d++)  if (Up.dvt [d].Name () [0]) {  // used?
@@ -179,30 +181,35 @@ DBG (           "DvT=`s can't do cc=`s", Up.dvt [d].Name(), _f.ctl [i].s);
 }
 
 
-ubyte Song::CCPos (char *cSt)
+ubyte Song::CtlEv (char *cSt, char ro)
 // turn cSt into _f.ctl pos|0x80 (and ins if new and room)
 // return 0 if outa room
 { ubyte c;
   TStr  s;
    for (c = 0;  c < _f.ctl.Ln;  c++)  if (! StrCm (_f.ctl [c].s, cSt))  break;
-   if (c >= _f.ctl.Ln) {               // new?
-Info(StrFmt (s, "CCPos  new! `s => `d", cSt, c));
+   if (c >= _f.ctl.Ln) {               // new one to insert
+      if (ro != '\0')  return 0;       // just checkin - don't wanna ins
+
+Info(StrFmt (s, "CtlEv  new! `s => `d", cSt, c));
       if (_f.ctl.Full ()) {
-Info(StrFmt (s, "CCPos  out of room for `s :(", cSt));
-DBG (           "CCPos  out of room for `s :(", cSt);
+Info(StrFmt (s, "CtlEv  out of room for `s :(", cSt));
+DBG (           "CtlEv  out of room for `s :(", cSt);
          return 0;
       }
-      _f.ctl.Ln++;   StrCp (_f.ctl [c].s, cSt);   _f.ctl [c].sho = 'y';
-      ReCtl ();
+      _f.ctl.Ln++;   StrCp (_f.ctl [c].s, cSt);   _f.ctl [c].sho = 'm';
+      ReCtlO ();
    }
    return 0x80 | c;
 }
 
 
+char *Song::CtlSt (ubyte ctrl)  {return _f.ctl [ctrl & 0x7F].s;}
+
+
 static int CtlCmp (void *p1, void *p2)  // ..._f.ctl str sortin (by MCC[] pos)
 { char *s1 = (char *)p1, *s2 = (char *)p2;
   ubyte i1, i2;
-   if (*s1 == '+')  s1++;   if (*s2 == '+')  s2++;
+   s1++;   s2++;                       // skip past sho char
    for (i1 = 0;  i1 < NMCC;  i1++)  if (! StrCm (s1, MCC [i1].s))  break;
    for (i2 = 0;  i2 < NMCC;  i2++)  if (! StrCm (s2, MCC [i2].s))  break;
    if ((i1 < NMCC) && (i2 < NMCC))  return i1 - i2;
@@ -213,7 +220,7 @@ static int CtlCmp (void *p1, void *p2)  // ..._f.ctl str sortin (by MCC[] pos)
 
 
 void Song::CtlClean ()
-// compact _f.ctl[] to just used n shown ones.  sorted nice
+// compact _f.ctl[] to just used n shown ones.  sorted per device/cc.txt (MCC)
 { ubyte ncc, c, d, t, tc, cm [128];
   TStr   cc [128];
   ubyt4  e;
@@ -223,26 +230,21 @@ TRC("CtlClean");
    for (t = 0;  t < _f.trk.Ln;  t++)   // find used ctls we DO got
       for (ev = _f.trk [t].e, e = 0;  e < _f.trk [t].ne;  e++)
          if ((tc = ev [e].ctrl) & 0x80)  cc [tc & 0x7F][0] = 'x';
-   for (ncc = c = 0;  c < _f.ctl.Ln;  c++)
-                                   if ((cc [c][0]) || (_f.ctl [c].sho != 'n')) {
-      StrFmt (cc [ncc++], "`s`s",
-         (_f.ctl [c].sho != 'n') ? "+" : "", _f.ctl [c].s);
-   }
+// rebuild cc[] w only used ones 0 str of   sho + s
+   for (ncc = c = 0;  c < _f.ctl.Ln;  c++)  if (cc [c][0])
+      StrFmt (cc [ncc++], "`c`s", _f.ctl [c].sho, _f.ctl [c].s);
    Sort (cc, ncc, sizeof (cc [0]), CtlCmp);
 // build map of old=>new (_f.ctl[]=>cc[])
    for (c = 0;  c < _f.ctl.Ln;  c++)  for (d = 0;  d < ncc;  d++)
-      if (! StrCm (_f.ctl [c].s, (cc [d][0] == '+') ? & cc [d][1] : cc [d]))
+      if (! StrCm (_f.ctl [c].s, & cc [d][1]))
          {cm [c] = d;   break;}
    for (t = 0;  t < _f.trk.Ln;  t++)   // restamp ctl evs
       for (ev = _f.trk [t].e, e = 0;  e < _f.trk [t].ne;  e++)
          if ((tc = ev [e].ctrl) & 0x80)  ev [e].ctrl = 0x80 | cm [tc & 0x7F];
    _f.ctl.Ln = ncc;                    // rebuild _f.ctl[]
-   for (c = 0;  c < ncc;  c++) {
-      if (cc [c][0] == '+')
-            {_f.ctl [c].sho = 'y';   StrCp (_f.ctl [c].s, & cc [c][1]);}
-      else  {_f.ctl [c].sho = 'n';   StrCp (_f.ctl [c].s,   cc [c]);}
-   }
-   ReCtl ();
+   for (c = 0;  c < ncc;  c++)  {_f.ctl [c].sho = cc [c][0];
+                          StrCp (_f.ctl [c].s,  & cc [c][1]);}
+   ReCtlO ();
 TRC("CtlClean end");
 }
 
@@ -322,7 +324,7 @@ void Song::EvInsT (ubyte t, MidiEv *ev)
 //if (MNOTE (ev))  TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s",
 //t, p, ne, e, TmSt (s, ev->time), MNt2Str (s2, ev));
 //else             TRC("EvInsT tr=`d p=`d/`d e=`08x tm=`s `s $`02x",
-//t, p, ne, e, TmSt (s, ev->time), _f.ctl [ev->ctrl & 0x007F].s, ev->valu);
+//t, p, ne, e, TmSt (s, ev->time), CtlSt (ev->ctrl), ev->valu);
       e [p].time = ev->time;   e [p].ctrl = (ubyte) ev->ctrl;
       e [p].valu = ev->valu;   e [p].val2 = ev->val2;   e [p].x = 0;
       if ((t >= _f.trk.Ln) && (! (ev->ctrl & 0x0080))) {

@@ -25,7 +25,7 @@ void Song::DumpEv (TrkEv *e, ubyte t, ubyt4 p, char *pre)
    StrAp (o, TmSt (ts, e->time));   StrAp (o, CC(" "));
    if (ECTRL (e))
       StrFmt (&o[StrLn(o)], "`s(cc`d)=`02x,`02x",
-              _f.ctl [e->ctrl & 0x7F].s, e->ctrl & 0x7F, e->valu, e->val2);
+              CtlSt (e->ctrl), e->ctrl & 0x7F, e->valu, e->val2);
    else {
       StrFmt (&o[StrLn(o)], "`s`c`d",
          TDrm (t) ? MDrm2Str (s, e->ctrl) : MKey2Str (s, e->ctrl),
@@ -140,14 +140,13 @@ DBG("DUMP");
 
 /* DBG("ctl name sho");
    for (t = 0; t < _f.ctl.Ln; t++)
-      DBG("`>3d `s `c", t,_f.ctl [t].s, _f.ctl [t].sho);
+      DBG("`>3d `s `c", t, CtlSt (t), _f.ctl [t].sho);
    DBG("cch dev chn ctl      trk valu val2     time");
    for (t = 0; t < _cch.Ln; t++)
       DBG("`>3d `>3d `>3d `<8s `>3d `>4d `>4d `>8d",
          t,
          _cch [t].dev,
-         _cch [t].chn,
-         _f.ctl [_cch [t].ctl & 0x7F].s,
+         _cch [t].chn,  CtlSt (_cch [t].ctl),
          _cch [t].trk,
          _cch [t].valu,
          _cch [t].val2,

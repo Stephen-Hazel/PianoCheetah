@@ -198,7 +198,7 @@ void Song::PreCtl ()
                                   StrCp (s, CC("show"));
       if (_f.ctl [i].sho == 'm')  StrCp (s, CC("mini"));
       if (_f.ctl [i].sho == 'n')  StrCp (s, CC("hide"));
-      StrCp (Up.d [i+1][0], _f.ctl [i].s);
+      StrCp (Up.d [i+1][0], CtlSt (i));
       StrCp (Up.d [i+1][1], s);
    }
    emit sgUpd ("dCtl");
@@ -243,27 +243,27 @@ TRC("setCtl tr=`d p=`d tm=`d ctl=`s val=`s", tr, p, tm, c, s);
            (! StrCm (c, CC("tsig"))) || (! StrCm (c, CC("tmpo"))) ) {
          for (tr = 0;  tr < _f.trk.Ln;  tr++)  if (TDrm (tr))  break;
          if (tr >= _f.trk.Ln)
-            {Hey (CC("no drum track to put control into"));   return;}
+            {DBG     ("no drum track to put control into");
+             Info (CC("no drum track to put control into"));   return;}
       }
       else {                           // find a learn track
          for (tr = 0;  tr < _f.trk.Ln;  tr++)  if (TLrn (tr))  break;
          if (tr >= _f.trk.Ln)
-            {Hey (CC("no learn track to put control into"));   return;}
+            {DBG     ("no learn track to put control into");
+             Info (CC("no learn track to put control into"));   return;}
       }
    }
 // scoot tsig,ksig time to bar start
-   if ( (! StrCm (c, CC("tsig"))) || (! StrCm (c, CC("tsig"))) )
+   if ( (! StrCm (c, CC("tsig"))) || (! StrCm (c, CC("ksig"))) )
       tm = Bar2Tm (Tm2Bar (tm));
    for (mc = 0;  mc < NMCC;  mc++)  if (! StrCm (c, MCC [mc].s))  break;
    if (MCC [mc].typ == 'x')  {CtlX2Val (& ev, c, s);
                               e.valu = ev.valu;              e.val2 = ev.val2;}
    else                      {e.valu = (ubyte)Str2Int (s);   e.val2 = 0;}
-   for (cc = 0;  cc < _f.ctl.Ln;  cc++)  if (! StrCm (c, _f.ctl [cc].s))  break;
-TRC("set time=`s tr=`d ctrl=`d valu=`d val2=`d",
-TmSt (ts, tm), tr+1, cc, e.valu, e.val2);
-   e.time = tm;   e.ctrl = 0x80|cc;
+TRC("set time=`s tr=`d ctrl=`s valu=`d val2=`d",
+TmSt (ts, tm), tr+1, c, e.valu, e.val2);
+   e.time = tm;   e.ctrl = CtlEv (c);
    EvInsT (tr, & e);
-   if (MCC [mc].typ == 'x')
    ReDo ();
 }
 

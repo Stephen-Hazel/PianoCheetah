@@ -175,20 +175,22 @@ void Song::PutLy ()
 
 
 void Song::PutCC (ubyte t, TrkEv *e)
-{ ubyte c = e->ctrl & 0x7F, dv, ch;
+{ ubyte dv, ch;
   ubyt2 craw;
-   dv = _f.trk[t].dev;   ch = _f.trk[t].chn;
+  TStr  cs;
+   StrCp (cs, CtlSt (e->ctrl));   dv = _f.trk [t].dev;
+                                  ch = _f.trk [t].chn;
 if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
               Up.dev [dv].mo->Name (), ch, TmSt (d2, _timer->Get ()));
               DumpEv (e, t, _f.trk [t].p, d1);}
-   if      (! StrCm (_f.ctl [c].s, CC("Tmpo")))
+   if      (! StrCm (cs, CC("Tmpo")))
       PutTp (e->valu + (e->val2 << 8));
-   else if (! StrCm (_f.ctl [c].s, CC("TSig")))
+   else if (! StrCm (cs, CC("TSig")))
       PutTs (e->valu, 1 << (e->val2 & 0x0F), e->val2 >> 4);
-   else if (! StrCm (_f.ctl [c].s, CC("KSig")))  ;    // just ignore fer now
-   else if (! StrCm (_f.ctl [c].s, CC("Prog")))  SetChn (t);
-   else if ((craw = Up.dvt [Up.dev [dv].dvt].CCMap [c]))
-           Up.dev [dv].mo->Put (ch, craw, e->valu, e->val2);
+   else if (! StrCm (cs, CC("KSig")))  ;    // just ignore fer now
+   else if (! StrCm (cs, CC("Prog")))  SetChn (t);
+   else if ((craw = Up.dvt [Up.dev [dv].dvt].CCMap [e->ctrl & 0x7F]))
+      Up.dev [dv].mo->Put (ch, craw, e->valu, e->val2);
 }
 
 

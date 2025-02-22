@@ -75,7 +75,7 @@ void Song::ReTrk ()
             if (nc == 3)  continue;
 
             nc++;   StrAp (tp, s);
-            StrCp (s2, _f.ctl [ct & 0x7F].s);
+            StrCp (s2, CtlSt (ct));
             if      (! StrCm (s2,  CC("Tmpo")))   // tmpo,tsig,ksig are special
                StrFmt (s, CC("Tmpo=`d"),     e [i].valu | (e [i].val2<<8));
             else if (! StrCm (s2,  CC("TSig"))) {
@@ -138,7 +138,7 @@ TRC("ReEv  rebuild _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch");
       for (d = _f.trk [t].dev, c = _f.trk [t].chn, ev = _f.trk [t].e,
            e = 0;  e < _f.trk [t].ne;  e++) {
          if ((tc = ev [e].ctrl) & 0x80) {
-            StrCp (s, _f.ctl [tc & 0x7F].s);
+            StrCp (s, CtlSt (tc));
             if (tpo && (! StrCm (s, CC("Tmpo"))))  if (! _f.tpo.Full ()) {
                p = _f.tpo.Ins ();
                _f.tpo [p].time = ev [e].time;
@@ -188,7 +188,7 @@ TRC("    empty so ins a 120");
          _f.tpo [0].val  = 120;
          EvIns (t, 0);
          _f.trk [t].e [0].time = 0;
-         _f.trk [t].e [0].ctrl = CCPos (CC("tmpo"));
+         _f.trk [t].e [0].ctrl = CtlEv (CC("tmpo"));
          _f.trk [t].e [0].valu = 120;
          _f.trk [t].e [0].val2 = 0;
          _f.trk [t].e [0].x    = 0;
@@ -598,7 +598,7 @@ TRC("focus");
 //       ReTrk ();
 //    }
 // }
-   _f.ctl [CCPos (CC("tmpo"))].sho = PRAC?'y':'n';
+   _f.ctl [CtlEv (CC("tmpo")) & 0x7F].sho = PRAC?'m':'n';
 TRC("SetLp end - bgn=`s end=`s", TmSt(ts,_lrn.lpBgn), TmSt(t2,_lrn.lpEnd));
 }
 
@@ -815,8 +815,10 @@ TStr ts1, ts2;
    W = Up.w;   H = Up.h;
 TRC("SetSym w=`d h=`d", W, H);
    nw = W_NT;   ww = W_NTW;   th = Up.txH;  // dem consts
-   for (cw = 0, p = 0;  p < _f.ctl.Ln;  p++)  if (_f.ctl [p].sho != 'n')
-                                                                       cw += th;
+   for (cw = 0, p = 0;  p < _f.ctl.Ln;  p++) {
+      if      (_f.ctl [p].sho == 'm')  cw += th;
+      else if (_f.ctl [p].sho == 'y')  cw += 32+2;
+   }
    _pag.Ln = _col.Ln = _blk.Ln = _sym.Ln = 0;
    for (b = 1;  b <= _bEnd;) {
       if (_pag.Full ()) {
@@ -1151,8 +1153,7 @@ TRC("ReDo");
    if ((! Up.uPoz) && _timer->Pause ())  Poz (false);
 TRC(" clear stuph");
    MemSet (_lrn.rec, 0, sizeof (_lrn.rec));
-   for (t = 0;  t < _f.ctl.Ln;  t++)   // show tempo ctl if we're in prac
-      if (! StrCm (_f.ctl [t].s, CC("Tmpo")))  _f.ctl [t].sho = PRAC?'y':'n';
+   _f.ctl [CtlEv (CC("tmpo")) & 0x7F].sho = PRAC?'m':'n';
 TRC(" ReEv SetDn SetNt SetLp TmHop SetSym Draw ReTrk DscSave :/");
    emit sgUpd ("tbPoz");   emit sgUpd ("tbLrn");
    ReEv ();   SetDn ();   SetNt ();   SetLp ('.');   TmHop (_now);
