@@ -530,7 +530,7 @@ void Song::DrawPg (ubyt4 pp)
                                Up.cnv.TextV (x, 3, str);   x += W_NT;
       }
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho != 'n') {
-         w = th;   if (_f.ctl [t].sho == 'y') x = 32+2;
+         w = th;   if (_f.ctl [t].sho == 'y')  w = 32+2;
          Up.cnv.TextV (x, 3, CtlSt (t));   x += w;
       }
       if ((x > x1) && (c < pg [pp].nCol-1))

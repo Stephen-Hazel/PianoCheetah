@@ -14,59 +14,42 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 syn_____________________________________________________________________________
 
-ctrl labels not shown for sho = y
+glide midi/yamaha specs
+
+
+dbg EnvStg,Env etc
+build Sin (lfo) simpler
 
 set velo>fCut how
 new cmd for erasing rec so you don't wreck prac songs
 
-envelopes w exp,sin curves
-
-glide midi/yamaha specs
-
 MAIN
-   frq(snd,note,phase) oSnd,oKey,oCnt
-   flt(cut,res)        fCut,fRes
-   amp                 amp
-   pan                 pan
+   frq(snd,note,phase) oSnd,oKey,oCnt (signed * range)
+   flt(cut,res)        fCut,fRes (try 2 byte res)
+   amp                 amp (unsigned)
+   pan                 pan (signed)
+
    fx(send,type,params) fx2, fx3, etc
 
-song=>syn buf for
-   time(bar.bt.x), tempo, tsig(num,den,subbt), ksig, chord(root,pat,bass)
-   last note(set?) per chan
-   ...anything else?
-
 syn palette list:
-direct
-   key=>oscNote   (duh)
-   pbnd=>oscPhase (duh)  give it range of 44 tho :)
-   velo=>amp      (duh)
-   velo=>!fCut
-   pbnd=>pan
+ direct:
+   note=>oKey
+   velo=>amp
 
+ also:
+   velo=>fCut
+   bend=>oCnt   pbRng=200
+   bend=>pan
    env=>fCut  (wow.  esp bass sawtooth)
-
    sinlfo=>phase   vibrato
    sinlfo=>amp     tremelo
 
-   multi - play 2nd(+) voice
-      snd=(how?)
-      ccmap=(how?)
+   multi - play 2nd(+) inst (picked how?)
 
-   glide, glRate, glFrom works :)
-      sync rate to tmpo/tsig
-      subbt,beat,bar,4bars
+   glide, glRate, glFrom
+      sync rate to tmpo/tsig;  subbt,beat,bar,4bars
       glis=on/off?  (round and retrigger on next)
-
-   glide amp, fCut too
-
-      1 note=>multiple is easy
-      multiple...
-         3=>1 means this note gets 2 xSnd on each of prev notes
-      how do i transfer to a new sample of snd?
-      cc65 on/off
-       cc5 portamento time (rate)
-      cc84 junky portamento amount (??) sometimes sets previous note
-           syn maybe 0=off,64=glis,127=smooth
+      glide amp, fCut too
 
    phaser - multi me with slight phase diff
       phase=varied how?  in sync w time, random, w env
@@ -74,30 +57,33 @@ direct
    crazypan - random pan changing at random (hearable) durs
       mode=maybe rotating in time, env, etc?
 
-   named envs
-      turn a snd's level into an env
-      random env (or random pos)
+ named env/lfo s
+   level [dur curve level] repStages durDecay
+   level=amount for curve to reach
+   curve=lin linear
+         sin 0-1  1/4 circle 0..pi/2
+         cos 1-0
+         log 0-1
+         exp 1-0
+         sinpos .5=>1=>.5=>0=>.5=>...
+         logsin 0=>1=>0=>-1=>0 ==>1
+         expcos 1=>0=>-1=>0=>1 ==>0
+               exponential attack: y=1-e^(-at)
+               exponential decay:  y=e^(-at)
+               (exp is reciprocal of log)
+   repStages=stage to go back to during sustain
+   dur some sort of song time
+      tmpo/tsig/beat/subbt/etc
 
-      level [dur curve level] repStages durDecay
-      dur=songtime or absolutetime
-      curve=lin linear
-            sin 0-1  1/4 circle 0..pi/2
-            cos 1-0
-            log 0-1
-            exp 1-0
-            sinpos .5=>1=>.5=>0=>.5=>...
-            logsin 0=>1=>0=>-1=>0 ==>1
-            expcos 1=>0=>-1=>0=>1 ==>0
-                  exponential attack: y=1-e^(-at)
-                  exponential decay:  y=e^(-at)
-                  (exp is reciprocal of log)
-      level=amount for curve to reach
-      repStages=stage to go back to during sustain
+   inputs: levels mostly (dur syncd to tempo, curvetype by name)
 
-      lfo(dur) is just an env of
-         0 [dur sin 1 dur cos 1 dur sin -1 dur cos -1] 0 0
+   follow a wav
+   random dur/curve/level
 
-maybe do away with channels altogether?
+   lfo(dur) is just an env of
+      0 [dur sin 1 dur cos 1 dur sin -1 dur cos -1] 0 0
+
+ synpal on only one note should be possible
    add ubyte sync (syn color) to NtDn which picks from synpal table
                                                                 (syn palette)
    0 for only chan defaults
@@ -126,30 +112,19 @@ do2/doc_________________________________________________________________________
 
 youtube embed in https://www.gitkraken.com/
 
-wtf video   prove fun-ness   get buy in
-   davin n jannah.  in turret, van, living room.
-   with shorty, flashy, rockn88, keytar
+edit down wtf video
 
-why video   theory-ish / pulpit
-   we used to play instruments and sing in church and bars and school
-      now we don't go to church, school barely teaches anything let alone music
-      bars still exist, but just barely
-      where oh where are you tonight :)
-   screens have wrecked us
-      it's time to turn that around.
-      time for screens to help us with our stories and songs
-   ...88 mechanical switches
-      feel = tempo + velocity
-      why is piano playin hard
-      how is guitar better
-      how many people should play a song
+shoot ez linux
+
+why is piano playin hard
+   how many people should play a song
+   how is guitar better
 
 how video   cleanin up a song
    name it a.mid in a dir
    addin/removin cues,
    end of song controls makin it go long - can't auto kill em
    editing raw .song with text editor
-
 
 backlog_________________________________________________________________________
 
