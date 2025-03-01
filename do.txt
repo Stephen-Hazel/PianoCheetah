@@ -18,14 +18,10 @@ android music player
 
 glide yamaha specs
 
-voices need a list of envs (how to set from pch?)
-   dbg EnvStg,Env etc
-   build Sin (lfo) simpler
-
-glide inc per sample
+how should pch spec envs for syn...
+   build Sin (lfo) from env
 
 cc for release dur - default of subbt?
-if wav doesn't repeat and reached end, NO RELEASE env
 
 set velo>fCut how
 new cmd for erasing rec so you don't wreck prac songs
