@@ -14,11 +14,18 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 syn_____________________________________________________________________________
 
-glide midi/yamaha specs
+android music player
 
+glide yamaha specs
 
-dbg EnvStg,Env etc
-build Sin (lfo) simpler
+voices need a list of envs (how to set from pch?)
+   dbg EnvStg,Env etc
+   build Sin (lfo) simpler
+
+glide inc per sample
+
+cc for release dur - default of subbt?
+if wav doesn't repeat and reached end, NO RELEASE env
 
 set velo>fCut how
 new cmd for erasing rec so you don't wreck prac songs
@@ -74,6 +81,7 @@ syn palette list:
    repStages=stage to go back to during sustain
    dur some sort of song time
       tmpo/tsig/beat/subbt/etc
+      or spec'd like txt2song dur
 
    inputs: levels mostly (dur syncd to tempo, curvetype by name)
 
