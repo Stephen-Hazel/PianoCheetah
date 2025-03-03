@@ -14,12 +14,27 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 syn_____________________________________________________________________________
 
-android music player
-
-glide yamaha specs
+android music player - named music_out
+   "music coming out of your fucking phone"
+   3 checkboxes for top level dirs
+      a_list (songs that even your friends would NEVER skip)
+      b_list (skippable)
+      c_list (songs you like that nobody else does)
+   rand/sort button
+   show list where song filenames WRAP
+   pick song in list to start
+   play/pause button
+   see if i can receive google home "skip"
 
 how should pch spec envs for syn...
-   build Sin (lfo) from env
+EnvStg FE [7] = { {1., 1., 0.001},
+                  {0., 1., 0.001},
+                  {1., 1., 0.001},
+                  {0., 1., 0.001},
+                  {1., 1., 0.001},
+                  {0., 1., 0.001},
+                  {1., 0., 0.} };
+   sin curve for env
 
 cc for release dur - default of subbt?
 
