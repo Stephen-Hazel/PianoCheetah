@@ -4,7 +4,6 @@
 #define GLO_H
 
 #include "stv/ui.h"
-#include "stv/uiKey.h"
 #include "stv/timer.h"
 #include "stv/syn.h"
 #include "stv/midi.h"

@@ -39,7 +39,6 @@ set(PROJECT_SOURCES
       sDump.cpp
       stv/os.cpp
       stv/ui.cpp
-      stv/uiKey.cpp
       stv/timer.h
       stv/midi.h
       stv/midi.cpp
