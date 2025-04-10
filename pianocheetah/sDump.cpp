@@ -135,25 +135,19 @@ DBG("DUMP");
          _f.trk [t].ht ?_f.trk [t].ht :' ',
          _f.trk [t].drm
       );
-   for (t = 0; t < Up.dev.Ln; t++)
+   for (t = 0;  t < Up.dev.Ln;  t++)
       if (Up.dev [t].mo)  Up.dev [t].mo->DumpOns ();
 
 /* DBG("ctl name sho");
-   for (t = 0; t < _f.ctl.Ln; t++)
+   for (t = 0;  t < _f.ctl.Ln;  t++)
       DBG("`>3d `s `c", t, CtlSt (t), _f.ctl [t].sho);
-   DBG("cch dev chn ctl      trk valu val2     time");
-   for (t = 0; t < _cch.Ln; t++)
-      DBG("`>3d `>3d `>3d `<8s `>3d `>4d `>4d `>8d",
-         t,
-         _cch [t].dev,
-         _cch [t].chn,  CtlSt (_cch [t].ctl),
-         _cch [t].trk,
-         _cch [t].valu,
-         _cch [t].val2,
-         _cch [t].time
+   DBG("cch dev chn ctl");
+   for (t = 0;  t < _cch.Ln;  t++)
+      DBG("`>3d `>3d `>3d `<8s",
+         t, _cch [t].dev, _cch [t].chn,  CtlSt (_cch [t].ctl)
       );
    DBG("tSg     time  bar num den sub");
-   for (s = 0; s < _f.tSg.Ln; s++)
+   for (s = 0;  s < _f.tSg.Ln;  s++)
       DBG("`>3d `>8d `>4d `>3d `>3d",
          s,
          _f.tSg [s].time,
@@ -163,7 +157,7 @@ DBG("DUMP");
          _f.tSg [s].sub
       );
    DBG("kSg     time key min flt");
-   for (s = 0; s < _f.kSg.Ln; s++)
+   for (s = 0;  s < _f.kSg.Ln;  s++)
       DBG("`>3d `>8d `<3s `<3b `<3b",
          s,
          _f.kSg [s].time,
@@ -172,24 +166,24 @@ DBG("DUMP");
          _f.kSg [s].flt
       );
    DBG("mapD shh ht inp ctl vol pan snd");
-   for (t = 0; t < _mapD.Ln; t++)
+   for (t = 0;  t < _mapD.Ln;  t++)
       DBG("`>3d `b `c `s `s `>3d `>3d `d",
          t, _mapD [t].shh, _mapD [t].ht ? _mapD [t].ht : ' ',
          MDrm2Str(t2,_mapD [t].inp), MDrm2Str(t1,_mapD [t].ctl),
          _mapD [t].vol, _mapD [t].pan, _mapD [t].snd);
-   for (t = 0; t < _dvt.Ln; t++)  {DBG("dvt=`02d...", t);   _dvt [t].Dump ();}
+   for (t = 0;  t < _dvt.Ln;  t++)  {DBG("dvt=`02d...", t);   _dvt [t].Dump ();}
    DBG("lyr     time  str");
-   for (s = 0; s < _f.lyr.Ln; s++)
+   for (s = 0;  s < _f.lyr.Ln;  s++)
       DBG("`>3d `s `s", s, TmSt (t1, _f.lyr [s].time), _f.lyr [s].s);
    DBG("chd     time  str");
-   for (s = 0; s < _f.chd.Ln; s++)
+   for (s = 0;  s < _f.chd.Ln;  s++)
       DBG("`>3d `s `s", s, TmSt (t1, _f.chd [s].time), _f.chd [s].s);
    DBG("cue time tend str");
-   for (s = 0; s < _f.cue.Ln; s++)
+   for (s = 0;  s < _f.cue.Ln;  s++)
       DBG("`d `s `s `s", s,  TmSt(t1,_f.cue [s].time),
            _f.cue [s].tend ? TmSt(t2,_f.cue [s].tend) : "", _f.cue [s].s);
    DBG("bug time hits");
-   for (s = 0; s < _f.bug.Ln; s++)
+   for (s = 0;  s < _f.bug.Ln;  s++)
       DBG("`d `s `s", s, TmSt(t1,_f.bug [s].time), _f.bug [s].s);
    DBG("_f.tmpo=`d/`d", _f.tmpo, FIX1);
    DBG("{ _f.tpo time tmpo tmpoAct");

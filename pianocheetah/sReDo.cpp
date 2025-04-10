@@ -158,6 +158,8 @@ TRC("ReEv  rebuild _f.ctl, _f.tpo,_f.tSg,_f.kSg, _cch");
                _f.kSg [p].flt  = ev [e].val2 & 0x80;
                _f.kSg [p].min  = ev [e].val2 & 0x01;
             }
+         // _cch just tracks unique dev,chn,ctl we have in song
+         // TmHop uses it to chase control values to a time we're at
             for (p = 0;  p < _cch.Ln;  p++)
                if ((_cch [p].dev == d) && (_cch [p].chn == c) &&
                                           (_cch [p].ctl == tc))  break;

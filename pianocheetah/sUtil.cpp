@@ -431,15 +431,15 @@ void Song::NewSnd (char ofs)
 
 //______________________________________________________________________________
 void Song::NewDev (char *dNm)          // slam trk to new dev picked by gui
-{ ubyte d, oDv, oCh, nCh, tr, t, t1, t2;
+{ ubyte d, oDv, nCh, tr, t, t1, t2;
   char  cmap [17];
   TStr  sNm;
   bool  got;
   TrkRow ro;
    ChkETrk ();   tr = Up.eTrk;
 DBG("NewDev `s   tr=`d", dNm, tr);     // get trk n old dev,chn
-   d = oDv = _f.trk [tr].dev;   oCh = _f.trk [tr].chn;
-DBG(" old dv=`d ch=`d", oDv, oCh+1);
+   d = oDv = _f.trk [tr].dev;
+DBG(" old dv=`d", oDv);
    if ( (   _f.trk [tr].grp  && (! StrCm (dNm, CC("+")))) ||    // no change?
         ((! _f.trk [tr].grp) && (! StrCm (dNm, DevName (tr)))) )
                                                             {ReDo ();   return;}
@@ -498,10 +498,6 @@ DBG(" shut old dev");
 DBG(" open new dev=`d", d);
    }
 
-// redo cch[]
-   for (t = 0;  t < _cch.Ln;  t++)  if ((_cch [t].dev == oDv) &&
-                                        (_cch [t].chn == oCh))
-                                       {_cch [t].dev = d;   _cch [t].chn = nCh;}
    _f.trk [tr].dev = d;
    _f.trk [tr].chn = nCh;
    _f.trk [tr].grp = (StrCm (dNm, CC("+")) ? false : true);
@@ -578,13 +574,7 @@ TRC("TrkDel t=`d", t);
    for (got = false, e = 0;  e < _f.trk.Ln;  e++)
       if ((e != t) && (_f.trk [e].dev == _f.trk [t].dev))
          {got = true;   break;}
-   if (! got) {
-      for (i = 0;  i < _cch.Ln;) {     // kill _cch entries for dev
-         if (_cch [i].dev == _f.trk [t].dev)  _cch.Del (i);
-         else                                 i++;
-      }
-      ShutDev (_f.trk [t].dev);
-   }
+   if (! got)  ShutDev (_f.trk [t].dev);
    _f.trk.Del (t);
    if (t < _f.trk.Ln)         _f.trk.Ln--;  // adj all .trk refs
    if (Up.eTrk >  t)          Up.eTrk--;

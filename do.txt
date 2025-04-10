@@ -1,10 +1,11 @@
 play____________________________________________________________________________
 
-take apart magic singable dumb songs (into .txt?)
+play, study magic singable dumb songs, pick out riffs
    petshopboys, depmode, yazoo "situation", assembly, erasure(vince clarke)
    owl city, journey whos crying now
-   find every rush sound
-   replicate synth riffs
+find every rush sound
+
+look for better pitchbenders - joysticks, etc
 
 do unreachable powerchords, guitar strum, rhythm guitar
    drums on keys - make a good map but get it from device/drummap.txt
@@ -14,111 +15,65 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 syn_____________________________________________________________________________
 
-android music player - named music_out
-   "music coming out of your fucking phone"
-   3 checkboxes for top level dirs
-      a_list (songs that even your friends would NEVER skip)
-      b_list (skippable)
-      c_list (songs you like that nobody else does)
-   rand/sort button
-   show list where song filenames WRAP
-   pick song in list to start
-   play/pause button
-   see if i can receive google home "skip"
+where do i config envelopes?  time always relative to tempo/tsig i think
 
-how should pch spec envs for syn...
-EnvStg FE [7] = { {1., 1., 0.001},
-                  {0., 1., 0.001},
-                  {1., 1., 0.001},
-                  {0., 1., 0.001},
-                  {1., 1., 0.001},
-                  {0., 1., 0.001},
-                  {1., 0., 0.} };
-   sin curve for env
+decide default map of everything
+   pbnd=oKey, pb2=oCnt, pedal=fCut, pedal2=amp, pb3=pan
 
-cc for release dur - default of subbt?
+how should pch spec all the mods for syn...
+   MAIN:
+      osc(snd,note,phase) oSnd,oKey/oCnt  (0-?, 2100-10800=0-8700)
+      flt(cut,res)        fCut,fRes       (8000-13500=0-5500, 0-960)
+      amp                 amp             (    0..1)
+      pan                 pan             (-1..0..1)
 
-set velo>fCut how
-new cmd for erasing rec so you don't wreck prac songs
+      ...fx(send,type,params) fx2, etc
 
-MAIN
-   frq(snd,note,phase) oSnd,oKey,oCnt (signed * range)
-   flt(cut,res)        fCut,fRes (try 2 byte res)
-   amp                 amp (unsigned)
-   pan                 pan (signed)
+      always:
+         note=>oKey
+         velo=>amp
+         amp relEnv;  cc for dur default=subbt, always levl=0, curv=exp
 
-   fx(send,type,params) fx2, fx3, etc
+      default:
+         velo=>fCut        (off if static velos)
+         bend=>oKey/oCnt * pBnR
+         bend2=>pan
+         env on all default to static 1.0
 
-syn palette list:
- direct:
-   note=>oKey
-   velo=>amp
+   Env { {1., 1., 0.001}, {0., 1., 0.001},
+         {1., 1., 0.001}, {0., 1., 0.001},
+         {1., 1., 0.001}, {0., 1., 0.001}, {1., 0., 0.} };
+      named preset ones (durs per tempo/tsig,etc)
 
- also:
-   velo=>fCut
-   bend=>oCnt   pbRng=200
-   bend=>pan
-   env=>fCut  (wow.  esp bass sawtooth)
-   sinlfo=>phase   vibrato
-   sinlfo=>amp     tremelo
+      iLvl (lvl,dur,crv) repTo
+         dur: by tmpo/tsig/beat/subbt/etc
+         lvl: -1..0..1
+         crv: lin,exp,sin  (exp amt)
+      sin curve too;  follow wav?  rand?
 
-   multi - play 2nd(+) inst (picked how?)
+   also:
+      multi:    2nd+ osc w picked oSnd
+      phaser:   2 osc, 1 with env>oCnt
+      wow:      env>fCut
+      vibrato:  env(sin)=>oKey/oCnt
+      tremelo:  env(sin)=>amp
+      crazypan: random pan for rand (hearable) durs;  rotating(env), etc?
+      glide:    glRate(set...),glFrom
+                   env linear from pNote/glFrom to midi note
+                   rate per tmpo/tsig;  subbt,beat,bar,4bars
+                   glis?  (round and retrigger on next)
+                   ?glide amp, fCut too
 
-   glide, glRate, glFrom
-      sync rate to tmpo/tsig;  subbt,beat,bar,4bars
-      glis=on/off?  (round and retrigger on next)
-      glide amp, fCut too
+   synpal:
+      add sync (syn color) on NtDn(NtUp too?)
+         0=channel defaults, else...
+            picks from syn palette table which has...
+         name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
+                      tremelo, vibrato, filter sweep
+               envelopes that adjust overall dur to wav of snd (if unlooped)
+               or attack phase of wav (pre loopBgn length)
 
-   phaser - multi me with slight phase diff
-      phase=varied how?  in sync w time, random, w env
-
-   crazypan - random pan changing at random (hearable) durs
-      mode=maybe rotating in time, env, etc?
-
- named env/lfo s
-   level [dur curve level] repStages durDecay
-   level=amount for curve to reach
-   curve=lin linear
-         sin 0-1  1/4 circle 0..pi/2
-         cos 1-0
-         log 0-1
-         exp 1-0
-         sinpos .5=>1=>.5=>0=>.5=>...
-         logsin 0=>1=>0=>-1=>0 ==>1
-         expcos 1=>0=>-1=>0=>1 ==>0
-               exponential attack: y=1-e^(-at)
-               exponential decay:  y=e^(-at)
-               (exp is reciprocal of log)
-   repStages=stage to go back to during sustain
-   dur some sort of song time
-      tmpo/tsig/beat/subbt/etc
-      or spec'd like txt2song dur
-
-   inputs: levels mostly (dur syncd to tempo, curvetype by name)
-
-   follow a wav
-   random dur/curve/level
-
-   lfo(dur) is just an env of
-      0 [dur sin 1 dur cos 1 dur sin -1 dur cos -1] 0 0
-
- synpal on only one note should be possible
-   add ubyte sync (syn color) to NtDn which picks from synpal table
-                                                                (syn palette)
-   0 for only chan defaults
-   else an entry in synpal (which can be completely diff from chan) with
-      name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
-                   tremelo, vibrato, filter sweep
-      envelopes that adjust overall dur to wav of snd (if unlooped)
-         or attack phase of wav (pre loopBgn length)
-
-      (lfo is just an envelope that repeats where envval=-1..+1)
-         filter cutoff/amt for wow
-         vol   for tremelo
-         pbend for vibrato
-   what kinda format for saving?  save in .song or device/syn or ?
-
-   fx, arpeggiator
+   what kinda format for saving?  save in .song or device/syn/ or ?
 
 
 think/spec______________________________________________________________________
@@ -128,10 +83,6 @@ in oct, are black notes slightly offset from strict 12/7 by
 
 
 do2/doc_________________________________________________________________________
-
-youtube embed in https://www.gitkraken.com/
-
-edit down wtf video
 
 shoot ez linux
 
@@ -145,7 +96,10 @@ how video   cleanin up a song
    end of song controls makin it go long - can't auto kill em
    editing raw .song with text editor
 
+
 backlog_________________________________________________________________________
+
+new cmd for erasing rec so you don't wreck prac songs
 
 if Hey!  device is off, it's dead forever...
 

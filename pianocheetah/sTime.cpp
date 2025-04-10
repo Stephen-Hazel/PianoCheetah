@@ -105,8 +105,8 @@ ubyte Song::CCValAt (ubyt4 tm, ubyte tr, char *cc)
 
 // get a cc valu into cid n val
    cid = CtlEv (cc, 'r');
-   for (c = 0; c < NMCC; c++)  if (! StrCm (MCC [c].s, cc))
-      {val = (ubyte)MCC [c].dflt;   break;}
+   for (c = 0;  c < NMCC;  c++)  if (! StrCm (MCC [c].s, cc))
+      {val = (ubyte) MCC [c].dflt;   break;}
    if (! (cid & 0x80)) {               // not in song?  must be default val then
 //DBG("CCValAt tm=`d tr=`d cc=`s - melo new val=`d", tm, tr, cc, val);
       return val;
@@ -162,25 +162,28 @@ TRC("TmHop `s `s",TmSt(str,tm), LrnS ());
    if (_lrn.pLrn)                      // reset lrn/pLrn
       {Up.lrn = _lrn.pLrn;   _lrn.pLrn = 0;   emit sgUpd ("tbLrn");}
 TRC(" => `s", LrnS ());
+
    for (cc = 0;  cc < _cch.Ln;  cc++) {
+   // control chasing - set each dev,chn,ctl in _cch to time 0, default value
       _cch [cc].time = 0;
       _cch [cc].valu = _cch [cc].val2 = _cch [cc].trk = 0;
       cs = CtlSt (_cch [cc].ctl);
 //DBG(" cc=`d cs=`s", cc, cs);
-      if (! StrCm (cs, CC("Prog"))) {      // prog is special
+      if (! StrCm (cs, CC("Prog"))) {  // prog is special - need it's trk
          for (t = 0;  t < _f.trk.Ln;  t++)
             if ((_f.trk [t].dev == _cch [cc].dev) &&
                 (_f.trk [t].chn == _cch [cc].chn))  break;
-         if (t < _f.trk.Ln) _cch [cc].trk  = t;
+         if (t < _f.trk.Ln) _cch [cc].trk = t;
       }
-      else                             // else lookup in dev/cc.txt
+      else                             // else lookup default in dev/cc.txt
          for (c = 0;  c < NMCC;  c++)  if (! StrCm (MCC [c].s, cs))
             {_cch [cc].valu = MCC [c].dflt & 0x7F;
              _cch [cc].val2 = MCC [c].dflt >> 7;   break;}
 //DBG(" trk=`d valu=`d val2=`d", _cch [cc].trk, _cch [cc].valu, _cch [cc].val2);
    }
-TRC(" chase ctl actual valu in _f.trk[].e, set .p");
+
    for (t = 0;  t < _f.trk.Ln;  t++) {
+   // chase ctl actual valu at tm in _f.trk[].e, (and set trk's .p)
       d = _f.trk [t].dev;   c = _f.trk [t].chn;
       for (p = 0, ne = _f.trk [t].ne, e = _f.trk [t].e;
            (p < ne) && (e->time < tm);  p++, e++)     // not <= (for next Put)
@@ -198,8 +201,9 @@ TRC(" chase ctl actual valu in _f.trk[].e, set .p");
          }
       _f.trk [t].p = p;                // chase _f.trk[].p
    }
-TRC(" put each ctl");
+
    for (cc = 0;  cc < _cch.Ln;  cc++) {
+   // ok it's either just init'd or latest at tm is set - dump em out midi
       cs = CtlSt (_cch [cc].ctl);
       v  =        _cch [cc].valu;
       v2 =        _cch [cc].val2;
@@ -215,6 +219,7 @@ TRC(" put each ctl");
       }
    }
 
+// chase all our other pos es
    for (p = 0, ne = _f.chd.Ln;  (p < ne) && (_f.chd [p].time < tm);  p++)  ;
    _pChd = p;
    for (p = 0, ne = _f.lyr.Ln;  (p < ne) && (_f.lyr [p].time < tm);  p++)  ;
@@ -224,6 +229,7 @@ TRC(" put each ctl");
    for (p = 0;  p < ne;  p++)  for (c = 0;  c < _dn [p].nNt;  c++)
       _dn [p].nt [c].nt &= 0x7F;       // clear all hi bits to unhit
    MemSet (_lrn.rec, 0, sizeof (_lrn.rec));
+
 TRC(" timerset");                      // unpoz unless uPoz
    _timer->Set (_pNow = 1 + (_rNow = _now = tm));
    _lrn.POZ = false;   Poz (Up.uPoz);

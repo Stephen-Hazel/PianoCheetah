@@ -305,6 +305,5 @@ t, ts, MDrm2Str (st, s), SndName (t));
    }
 TRC("  nSnd=`d  maxch=`d", _sySn.Ln, mc);
    Sy.LoadSnd (snd, mc);
-   Up.dev [sy].mo->GMInit (mc+1);
    SetChn ();                          // redo chan progch biz
 }
