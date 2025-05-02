@@ -58,6 +58,18 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="2025.05" date="2025-05-02">
+      <description>
+        <p>
+          Doesn't core anymore - last release had broken link :/
+          Testers needed - please help - sh@shaz.app .
+          Command keys on piano work properly.
+          Syn does glide (portamento).
+          Syn has envelopes (including LFOs done as an envelope).
+          New record live in hear mode.
+        </p>
+      </description>
+    </release>
     <release version="2024.12" date="2024-12-19">
       <description>
         <p>
