@@ -18,24 +18,10 @@ syn_____________________________________________________________________________
 shaz.app - song - front page w, cast, ifttt skip, db, login
 ned's find polish
 
-finish env to point of release
-   how do i pass env strs to syn from pch
-
-   update pc.zip
-   test link bug in turret
+how do i (properly) pass env strs to syn from pch
 
 pitch STEP (not bend) only along the 7 scale notes for 2 octaves +-
 env with random levels (0..1,-1..1,etc)
-
-device/syn/env.txt has
-   name
-      dest (frq,fCut,fRes,amp,pan)
-      level dur(w,q,e,s,etc) curve   (repeated up to 16 max)
-      endlevel
-   ...next etc
-   EnvLoad loads em all
-   pch's track sound picks which to apply in trk's chn
-      notes "colored" with em too?
 
 decide default map of everything
    pbnd=oKey, pb2=oCnt, pedal=fCut, pedal2=amp, pb3=pan
@@ -60,9 +46,6 @@ how should pch spec all the mods for syn...
          bend2=>pan
          env on all default to static 1.0
 
-   Env { {1., 1., 0.001}, {0., 1., 0.001},
-         {1., 1., 0.001}, {0., 1., 0.001},
-         {1., 1., 0.001}, {0., 1., 0.001}, {1., 0., 0.} };
       named preset ones (durs per tempo/tsig,etc)
 
       iLvl (lvl,dur,crv) repTo
