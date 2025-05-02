@@ -574,8 +574,13 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
 TRC(" map dev/chn/snd");
    _f.trk.Ln = nt;
-   for (t = 0;  t < nt;  t++)  PickDev (t, st [TB_TRK].Get (t, 1),
-                                           st [TB_TRK].Get (t, 0));
+   for (t = 0;  t < nt;  t++) {
+      PickDev (t, st [TB_TRK].Get (t, 1),
+                  st [TB_TRK].Get (t, 0));
+      if ( Up.dev [_f.trk [t].dev].mo->Syn () &&
+           (p = StrCh (_f.trk [t].name, '[')) )
+         Up.dev [_f.trk [t].dev].mo->Put (_f.trk [t].chn, MC_CC|19, 0, 0, p+1);
+   }
 TRC(" sortin trks");
    for (t = 0;  t < nt;  t++)   // sort play events
       Sort (_f.trk [t].e, _f.trk [t].ne, sizeof (TrkEv), EvCmp);
