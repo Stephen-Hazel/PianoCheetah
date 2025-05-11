@@ -397,58 +397,62 @@ static bool SongOK (void *ptr, char dfx, char *fn)
 
 void FLstDef::Load ()
 // load last FLst[];  add new files we got;  del gone files
-{ ubyt4  i, j, r, ins1;
-  TStr   dr, fn, c;
-  File   f;
+{ ubyt4 i, j, ins1;
+  TStr  dr, fn, c;
+  File  f;
+DBG("FL::Load bgn");
   StrArr t (CC("FL.Load"), FL.MAX, FL.MAX*sizeof (TStr)/2);
 // load prev songlist.txt in cfg dir w order of learn,rep songs
    App.Path (fn, 'c');   StrAp (fn, CC("/songlist.txt"));   t.Load (fn);
+DBG("fn=`s t.num=`d", fn, t.num);
    FL.pos = 0;   FL.lst.Ln = t.num;
-   for (ubyt4 r = 0;  r < t.num;  r++)
-      {StrCp (FL.lst [r], t.str [r]);   FL.lst [r][FL.X] = 'n';}
-//DBG("songlist.txt:");for (i=0;i<FL.lst.Ln;i++) DBG("`d `s", i, FL.lst [i]);
+   for (ubyt4 i = 0;  i < t.num;  i++)
+      {StrCp (FL.lst [i], t.str [i]);   FL.lst [i][FL.X] = 'n';}
+DBG("songlist.txt:");for (i=0;i<FL.lst.Ln;i++) DBG("`d `s", i, FL.lst [i]);
 
 // reinit t n list every a.song file in Pianocheetah dir
-   t.Init (CC("lstS"), FL.MAX, FL.MAX*sizeof (TStr)/2);
    App.Path (dr, 'd');
+   t.Init (CC("lstS"), FL.MAX, FL.MAX*sizeof (TStr)/2);
    StrFmt (fn, "`s/1_learning",   dr);   f.DoDir (fn, & t, SongOK);
    StrFmt (fn, "`s/2_repertoire", dr);   f.DoDir (fn, & t, SongOK);
-   StrFmt (fn, "`s/3_done",       dr);   f.DoDir (fn, & t, SongOK);
-   StrFmt (fn, "`s/4_queue",      dr);   f.DoDir (fn, & t, SongOK);
    t.Sort ();
-//TRC("num pc songs=`d", t.num);  t.Dump ();
+TRC("num 1,2 pc songs=`d", t.num);  t.Dump ();
 
-// upd FL / ins at top / del learn/rep songs to keep prev order
-   for (ins1 = 0;  i < FL.lst.Ln;  i++)
-      if (StrSt (FL.lst [i], CC("2_repertoire")))  break;
+// if got 2_rep, need 1_learn ins pos
+   for (ins1 = 0;  ins1 < FL.lst.Ln;  ins1++)
+      if (StrSt (FL.lst [ins1], CC("2_repertoire")))  break;
 
-   for (i = 0;  i < t.num;  i++) {     // songlist flag from n=>y if still here
-      if (StrSt (t.str [i], CC("3_done")) ||     // leave i at 3_done or 4_queue
-          StrSt (t.str [i], CC("4_queue")))  break;
-
-      for (j = 0;  j < FL.lst.Ln;  j++)     // was in songlist?  upd
+// upd FL keepin prev order if file still exists (w flag n=>y)
+   for (i = 0;  i < t.num;  i++) {
+      for (j = 0;  j < FL.lst.Ln;  j++)     // in songlist?  break early
          if (! StrCm (t.str [i], FL.lst [j]))  break;
-
-      if (j >= FL.lst.Ln)  {                // new - ins to songlist
-         if (FL.lst.Full ())  continue;
-
-         j = StrSt (t.str [i], CC("1_learning")) ? ins1++ : FL.lst.Ln;
-         FL.lst.Ins (j);   StrCp (FL.lst [j], t.str [i]);
+      if (j >= FL.lst.Ln)  if (! FL.lst.Full ()) {    // new - append ta songlst
+         if (StrSt (t.str [i], CC("1_learning")))  j = ins1++;
+         if (FL.lst.Full ())  break;
+         FL.lst.Ins (j);
+         StrCp (FL.lst [j], t.str [i]);
       }
       FL.lst [j][FL.X] = 'y';
    }
-   for (j = 0;  j < FL.lst.Ln;)        // del gone ones (still n ones)
+   for (j = 0;  j < FL.lst.Ln;)        // del gone ones (still n)
       {if (FL.lst [j][FL.X] == 'n')  FL.lst.Del (j);   else  j++;}
-   r = FL.lst.Ln;                      // append done/queue to FLst[]
-   for (;  i < t.num;  i++, r++) {     // FLAG init for rand load
-      if (! FL.lst.Ins (r))  break;
 
-      StrCp (FL.lst [r], t.str [i]);
-      FL.lst [r][FL.X] = StrSt (t.str [i], CC("4_queue")) ? 'n' : 'y';
+// append done/queue to FLst[]
+   t.Init (CC("lstS"), FL.MAX, FL.MAX*sizeof (TStr)/2);
+   StrFmt (fn, "`s/3_done",  dr);   f.DoDir (fn, & t, SongOK);
+   StrFmt (fn, "`s/4_queue", dr);   f.DoDir (fn, & t, SongOK);
+   t.Sort ();
+TRC("num 3,4 pc songs=`d", t.num);  t.Dump ();
+   j = FL.lst.Ln;
+   for (i = 0;  i < t.num;  i++, j++) {     // FLAG init for rand load
+      if (FL.lst.Full ())  break;
+      FL.lst.Ins ();
+      StrCp (FL.lst [j], t.str [i]);
+      FL.lst [j][FL.X] = StrSt (t.str [i], CC("4_queue")) ? 'n' : 'y';
    }
    Save ();
 TRC("FL::Load ln=`d", FL.lst.Ln);
-//for(i=0;i<FL.lst.Ln;i++)DBG("`d `s `c", i, FL.lst[i], FL.lst[i][FL.X]);
+for(i=0;i<FL.lst.Ln;i++)DBG("`d `s `c", i, FL.lst[i], FL.lst[i][FL.X]);
 }
 
 
@@ -551,17 +555,20 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
   ubyt4 i, ln, p;
   bool  all;
   CtlChek c (ui->all);   all = c.Get ();
-//DBG("all=`b", all);
-   _t.Open ();   ro [2] = nullptr;
+DBG("all=`b", all);
+   _t.Open ();
    if (! (ln = FL.lst.Ln))  {_t.Shut ();   return;}
 
    App.Path (ts, 'd');   p = StrLn (ts) + 1;
+   ro [0] = s1;   ro [1] = s2;   ro [2] = nullptr;
+DBG("ln=`d ts=`s p=`d", ln, ts, p);
    for (i = 0;  i < ln;  i++) {
       StrCp (ts, & FL.lst [i][p]);
-//DBG("i=`d/`d all=`b FL.pos=`d p=`d ts=`s", i, ln, all, FL.pos, p, ts);
+DBG("i=`d/`d all=`b FL.pos=`d p=`d ts=`s", i, ln, all, FL.pos, p, ts);
       if ((! all) && (*ts >= '3')) {   // not doin all?  done unless FL.pos sez
-         if (FL.pos >= i)  {all = true;  c.Set (true);}
-         else              break;
+         if (FL.pos < i)  break;
+         Gui.Hey ("pick a learn/rep song to uncheck all");
+         all = true;  c.Set (true);
       }
       switch (*ts) {                   // 1_learning/ 2_repertoire/ 3_done/ etc
          case '1':  StrCp (s1, CC("learn"));   StrCp (s2, & ts [11]);   break;
@@ -569,12 +576,11 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
          case '3':  StrCp (s1, CC("done"));    StrCp (s2, & ts [ 7]);   break;
          case '4':  StrCp (s1, CC("queue"));   StrCp (s2, & ts [ 8]);   break;
       }
-      ro [0] = s1;   ro [1] = s2;   _t.Put (ro);
+      _t.Put (ro);
    }
-//DBG("i=`d", i);
    _t.Shut ();
 //DBG("colw=`d", _t.ColW (1));
-   if (_t.ColW (1) > 600)  _t.SetColW (1, 600);
+// if (_t.ColW (1) > 600)  _t.SetColW (1, 600);
    _t.HopTo (FL.pos, 0);
    Pik ();
 }

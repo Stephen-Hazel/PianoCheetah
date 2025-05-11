@@ -5,7 +5,7 @@ play, study magic singable dumb songs, pick out riffs
    owl city, journey whos crying now
 find every rush sound
 
-look for better pitchbenders - joysticks, etc
+try joystick
 
 do unreachable powerchords, guitar strum, rhythm guitar
    drums on keys - make a good map but get it from device/drummap.txt
@@ -13,26 +13,32 @@ do unreachable powerchords, guitar strum, rhythm guitar
       kick,kik2, snar,snr2, hhcl,hhop,hhpd, ride,rdbl, cras
                  clap,sstk
 
-syn_____________________________________________________________________________
+code____________________________________________________________________________
 
-shaz.app - song - front page w, cast, ifttt skip, db, login
-ned's find polish
+ned - finish find
 
-how do i (properly) pass env strs to syn from pch
+fix pcheetah for new qt
+   tophat audio card wanted 48000 - does syn break?
+      is _frq set to 48000 cuz dbg didn't seem like it
+   pc in dark mode :(
+      icon needs white outline around main icon for stupid dark mode
+      and gotta fix all the toolbar icons etc etc
 
-pitch STEP (not bend) only along the 7 scale notes for 2 octaves +-
-env with random levels (0..1,-1..1,etc)
 
-decide default map of everything
+syn -
+   get a solid default map
+   incl multi n phasor, etc
+
+   pitch STEP (not bend) only along the 7 scale notes for 2 octaves +-
+   env with random levels (0..1,-1..1,etc)
+
    pbnd=oKey, pb2=oCnt, pedal=fCut, pedal2=amp, pb3=pan
 
-how should pch spec all the mods for syn...
    MAIN:
       osc(snd,note,phase) oSnd,oKey/oCnt  (0-?, 2100-10800=0-8700)
       flt(cut,res)        fCut,fRes       (8000-13500=0-5500, 0-960)
       amp                 amp             (    0..1)
       pan                 pan             (-1..0..1)
-
       ...fx(send,type,params) fx2, etc
 
       always:
@@ -46,37 +52,37 @@ how should pch spec all the mods for syn...
          bend2=>pan
          env on all default to static 1.0
 
-      named preset ones (durs per tempo/tsig,etc)
+         named preset ones (durs per tempo/tsig,etc)
 
-      iLvl (lvl,dur,crv) repTo
-         dur: by tmpo/tsig/beat/subbt/etc
-         lvl: -1..0..1
-         crv: lin,exp,sin  (exp amt)
-      sin curve too;  follow wav?  rand?
+         iLvl (lvl,dur,crv) repTo
+            dur: by tmpo/tsig/beat/subbt/etc
+            lvl: -1..0..1
+            crv: lin,exp,sin  (exp amt)
+         sin curve too;  follow wav?  rand?
 
-   also:
-      multi:    2nd+ osc w picked oSnd
-      phaser:   2 osc, 1 with env>oCnt
-      wow:      env>fCut
-      vibrato:  env(sin)=>oKey/oCnt
-      tremelo:  env(sin)=>amp
-      crazypan: random pan for rand (hearable) durs;  rotating(env), etc?
-      glide:    glRate(set...),glFrom
-                   env linear from pNote/glFrom to midi note
-                   rate per tmpo/tsig;  subbt,beat,bar,4bars
-                   glis?  (round and retrigger on next)
-                   ?glide amp, fCut too
+      also:
+         multi:    2nd+ osc w picked oSnd
+         phaser:   2 osc, 1 with env>oCnt
+         wow:      env>fCut
+         vibrato:  env(sin)=>oKey/oCnt
+         tremelo:  env(sin)=>amp
+         crazypan: random pan for rand (hearable) durs;  rotating(env), etc?
+         glide:    glRate(set...),glFrom
+                      env linear from pNote/glFrom to midi note
+                      rate per tmpo/tsig;  subbt,beat,bar,4bars
+                      glis?  (round and retrigger on next)
+                      ?glide amp, fCut too
 
-   synpal:
-      add sync (syn color) on NtDn(NtUp too?)
-         0=channel defaults, else...
-            picks from syn palette table which has...
-         name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
-                      tremelo, vibrato, filter sweep
-               envelopes that adjust overall dur to wav of snd (if unlooped)
-               or attack phase of wav (pre loopBgn length)
+      synpal:
+         add sync (syn color) on NtDn(NtUp too?)
+            0=channel defaults, else...
+               picks from syn palette table which has...
+            name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
+                         tremelo, vibrato, filter sweep
+                  envelopes that adjust overall dur to wav of snd (if unlooped)
+                  or attack phase of wav (pre loopBgn length)
 
-   what kinda format for saving?  save in .song or device/syn/ or ?
+      what kinda format for saving?  save in .song or device/syn/ or ?
 
 
 think/spec______________________________________________________________________
