@@ -15,21 +15,14 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 code____________________________________________________________________________
 
-ned - finish find
+pc volume setting not set until partway thru
+tophat pcm_rate wanted 44100 got 48000 :/  but _frq stays 44100
 
-fix pcheetah for new qt
-   tophat audio card wanted 48000 - does syn break?
-      is _frq set to 48000 cuz dbg didn't seem like it
-   pc in dark mode :(
-      icon needs white outline around main icon for stupid dark mode
-      and gotta fix all the toolbar icons etc etc
-
-
-syn -
+syn
    get a solid default map
-   incl multi n phasor, etc
+   multi n phasor are next!
 
-   pitch STEP (not bend) only along the 7 scale notes for 2 octaves +-
+   pitch STEP (not bend) only along the 7 ksig notes for 2 octaves +-
    env with random levels (0..1,-1..1,etc)
 
    pbnd=oKey, pb2=oCnt, pedal=fCut, pedal2=amp, pb3=pan
@@ -107,6 +100,12 @@ how video   cleanin up a song
 
 
 backlog_________________________________________________________________________
+
+File::Open that's CASE INSENSITIVE
+
+pc in dark mode :(
+   icon needs white outline around main icon for stupid dark mode
+   and gotta fix all the toolbar icons etc etc
 
 master volume per device (us0)
 

@@ -400,15 +400,13 @@ void FLstDef::Load ()
 { ubyt4 i, j, ins1;
   TStr  dr, fn, c;
   File  f;
-DBG("FL::Load bgn");
   StrArr t (CC("FL.Load"), FL.MAX, FL.MAX*sizeof (TStr)/2);
 // load prev songlist.txt in cfg dir w order of learn,rep songs
    App.Path (fn, 'c');   StrAp (fn, CC("/songlist.txt"));   t.Load (fn);
-DBG("fn=`s t.num=`d", fn, t.num);
    FL.pos = 0;   FL.lst.Ln = t.num;
    for (ubyt4 i = 0;  i < t.num;  i++)
       {StrCp (FL.lst [i], t.str [i]);   FL.lst [i][FL.X] = 'n';}
-DBG("songlist.txt:");for (i=0;i<FL.lst.Ln;i++) DBG("`d `s", i, FL.lst [i]);
+//DBG("songlist.txt:");for (i=0;i<FL.lst.Ln;i++) DBG("`d `s", i, FL.lst [i]);
 
 // reinit t n list every a.song file in Pianocheetah dir
    App.Path (dr, 'd');
@@ -416,7 +414,7 @@ DBG("songlist.txt:");for (i=0;i<FL.lst.Ln;i++) DBG("`d `s", i, FL.lst [i]);
    StrFmt (fn, "`s/1_learning",   dr);   f.DoDir (fn, & t, SongOK);
    StrFmt (fn, "`s/2_repertoire", dr);   f.DoDir (fn, & t, SongOK);
    t.Sort ();
-TRC("num 1,2 pc songs=`d", t.num);  t.Dump ();
+//TRC("num 1,2 pc songs=`d", t.num);  t.Dump ();
 
 // if got 2_rep, need 1_learn ins pos
    for (ins1 = 0;  ins1 < FL.lst.Ln;  ins1++)
@@ -442,7 +440,7 @@ TRC("num 1,2 pc songs=`d", t.num);  t.Dump ();
    StrFmt (fn, "`s/3_done",  dr);   f.DoDir (fn, & t, SongOK);
    StrFmt (fn, "`s/4_queue", dr);   f.DoDir (fn, & t, SongOK);
    t.Sort ();
-TRC("num 3,4 pc songs=`d", t.num);  t.Dump ();
+//TRC("num 3,4 pc songs=`d", t.num);  t.Dump ();
    j = FL.lst.Ln;
    for (i = 0;  i < t.num;  i++, j++) {     // FLAG init for rand load
       if (FL.lst.Full ())  break;
@@ -451,8 +449,8 @@ TRC("num 3,4 pc songs=`d", t.num);  t.Dump ();
       FL.lst [j][FL.X] = StrSt (t.str [i], CC("4_queue")) ? 'n' : 'y';
    }
    Save ();
-TRC("FL::Load ln=`d", FL.lst.Ln);
-for(i=0;i<FL.lst.Ln;i++)DBG("`d `s `c", i, FL.lst[i], FL.lst[i][FL.X]);
+//TRC("FL::Load ln=`d", FL.lst.Ln);
+//for(i=0;i<FL.lst.Ln;i++)DBG("`d `s `c", i, FL.lst[i], FL.lst[i][FL.X]);
 }
 
 
@@ -555,16 +553,14 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
   ubyt4 i, ln, p;
   bool  all;
   CtlChek c (ui->all);   all = c.Get ();
-DBG("all=`b", all);
    _t.Open ();
    if (! (ln = FL.lst.Ln))  {_t.Shut ();   return;}
 
    App.Path (ts, 'd');   p = StrLn (ts) + 1;
    ro [0] = s1;   ro [1] = s2;   ro [2] = nullptr;
-DBG("ln=`d ts=`s p=`d", ln, ts, p);
    for (i = 0;  i < ln;  i++) {
       StrCp (ts, & FL.lst [i][p]);
-DBG("i=`d/`d all=`b FL.pos=`d p=`d ts=`s", i, ln, all, FL.pos, p, ts);
+//DBG("i=`d/`d all=`b FL.pos=`d p=`d ts=`s", i, ln, all, FL.pos, p, ts);
       if ((! all) && (*ts >= '3')) {   // not doin all?  done unless FL.pos sez
          if (FL.pos < i)  break;
          Gui.Hey ("pick a learn/rep song to uncheck all");
@@ -579,8 +575,7 @@ DBG("i=`d/`d all=`b FL.pos=`d p=`d ts=`s", i, ln, all, FL.pos, p, ts);
       _t.Put (ro);
    }
    _t.Shut ();
-//DBG("colw=`d", _t.ColW (1));
-// if (_t.ColW (1) > 600)  _t.SetColW (1, 600);
+   if (_t.ColW (1) > 600)  _t.SetColW (1, 600);  // or we get scrollin right :(
    _t.HopTo (FL.pos, 0);
    Pik ();
 }
@@ -593,7 +588,7 @@ static char *FLFind (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
    for (ubyte i = 0;  i < NCol;  i++)  if (! StrSt (fn, Col [i]))
                                            return nullptr;
    NFnd++;
-DBG("FLFind fn=`s", fn);
+//DBG("FLFind fn=`s", fn);
    FFnd.Put (fn);   FFnd.Put (CC("\n"));   return nullptr;
 }
 
@@ -624,9 +619,9 @@ void DlgFL::Find ()
   ColSep ss (srch, 8);
    for (NCol = 0;  ss.Col [NCol][0];  NCol++)  Col [NCol] = ss.Col [NCol];
    App.CfgGet (CC("DlgFL_dir"), dMid);
-DBG("a dir=`s", dMid);
+//DBG("a dir=`s", dMid);
    if (*dMid == '\0')  StrCp (dMid, getenv ("HOME"));
-DBG("b dir=`s", dMid);
+//DBG("b dir=`s", dMid);
    if (! Gui.AskDir (dMid, "pick dir to search for songs in (NOT / please)"))
       return;
 

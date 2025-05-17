@@ -58,6 +58,15 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="2025.05b" date="2025-05-11">
+      <description>
+        <p>
+          table columns are sized properly.
+          song files are listed properly.
+          Testers needed - please help - sh@shaz.app .
+        </p>
+      </description>
+    </release>
     <release version="2025.05" date="2025-05-02">
       <description>
         <p>
