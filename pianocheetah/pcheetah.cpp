@@ -341,14 +341,15 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
   key   k;
   TStr  s;
 //DBG("keyPressEvent raw mod=`d key=`d", e->modifiers (), e->key ());
-   k = km.Map (e->modifiers (), e->key ());
-   if (! k)  return;
+   if (! (k = km.Map (e->modifiers (), e->key ())))  return;
+
    StrCp (s, km.Str (k));
 //DBG("   keystr=`s", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
-   if (i < NUCmd)               Upd (UCmd [i].cmd);
-   if (! StrCm (s, CC("d")))    emit sgCmd ("dump");
-   if (! StrCm (s, CC("f01")))  _dHlp->Open ();
+   if      (i < NUCmd)               Upd (UCmd [i].cmd);
+   else if (! StrCm (s, CC("d")))    emit sgCmd ("dump");
+   else if (! StrCm (s, CC("f01")))  _dHlp->Open ();
+   else QMainWindow::keyPressEvent (e);
 }
 
 

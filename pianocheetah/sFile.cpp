@@ -395,7 +395,8 @@ static int IniTSigCmp (void *p1, void *p2)  // by .bar
 
 void Song::Load (char *fn)
 // ok, go thru the BRUTAL HELL to load in a song, etc...
-{ TStr  fnt, buf;
+{ TStr  fnt;
+  BStr  buf;
   ubyte nt, t, dt, i, syn;
   ubyt4 ln, e, ne, pe, te, tm, mint;
   char *m, *p, ud;
@@ -562,7 +563,7 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
    for (e = 0;  e < ne;  e++) {
       tm = Str2Tm (st [TB_LYR].Get (e, 0));
       StrCp (buf,  st [TB_LYR].Get (e, 1));
-      while ((m = StrCh (buf, '_')))  *m = ' ';
+      ReplCh (buf, '_', ' ');
       if      (*buf == '*') {                                        // * chd
          if (StrCm (buf, CC("*SHOW")))  TxtIns (tm, & buf [1], & _f.chd);
          else                           _lrn.chd = true;
@@ -574,12 +575,21 @@ TRC(" init _f.ev, _f.trk[].e, build _f.ctl[].s");
 
 TRC(" map dev/chn/snd");
    _f.trk.Ln = nt;
+   for (t = 0;  t < nt;  t++)  PickDev (t, st [TB_TRK].Get (t, 1),
+                                           st [TB_TRK].Get (t, 0));
    for (t = 0;  t < nt;  t++) {
-      PickDev (t, st [TB_TRK].Get (t, 1),
-                  st [TB_TRK].Get (t, 0));
-      if ( Up.dev [_f.trk [t].dev].mo->Syn () &&
-           (p = StrCh (_f.trk [t].name, '[')) )
-         Up.dev [_f.trk [t].dev].mo->Put (_f.trk [t].chn, MC_CC|19, 0, 0, p+1);
+      if (Up.dev [_f.trk [t].dev].mo->Syn () &&
+          (p = StrCh (_f.trk [t].name, '[')) ) {
+         StrCp (buf, p+1);
+         for (ubyte u = t+1;  u < _f.trk.Ln;  u++) {
+            if ((_f.trk [u].dev == _f.trk [t].dev) &&
+                (_f.trk [u].chn == _f.trk [t].chn) &&
+                (p = StrSt (_f.trk [u].name, CC("+["))))
+               {StrAp (buf, CC("|"));   StrAp (buf, p+2);}
+            else  break;
+         }
+         Up.dev [_f.trk [t].dev].mo->Put (_f.trk [t].chn, MC_CC|19, 0, 0, buf);
+      }
    }
 TRC(" sortin trks");
    for (t = 0;  t < nt;  t++)   // sort play events
@@ -764,7 +774,7 @@ DBG("fns=`s", fns);
       f.Put (CC("Lyric:\n"));
       for (i = 0;  i < _f.lyr.Ln;  i++) {
          StrCp (s3, _f.lyr [i].s);
-         while ((m = StrCh (s3, ' ')))  *m = '_';
+         ReplCh (s3, ' ', '_');
          f.Put (StrFmt (s, "`<9s `s\n",  TmSt (s2, _f.lyr [i].time), s3));
       }
       for (i = 0;  i < _f.lyr.Ln;)     // take em BACK on out :/

@@ -15,56 +15,43 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 code____________________________________________________________________________
 
-pc volume setting not set until partway thru
-tophat pcm_rate wanted 44100 got 48000 :/  but _frq stays 44100
+in test +[ phaser - need +[oCntSinSm
+   wordwrap in table not workin
 
-syn
-   get a solid default map
-   multi n phasor are next!
+env scaling
+   env amp - 0-1 continuous
+   env dur - 0-1 continuous or
+                 discrete  - *1/16 *2/16 *3/16 *4/16 .. *32/16 or
+                 discrete2 - /16 /8 /4 /2 1 *2 *4 *8 *16
+   rand curve (level,subdur)
+   follow an osc?
 
-   pitch STEP (not bend) only along the 7 ksig notes for 2 octaves +-
-   env with random levels (0..1,-1..1,etc)
+MAIN:
+   osc(snd,note,phase) oSnd,oKey/oCnt  (0-?, 2100-10800=0-8700)
+   flt(cut,res)        fCut,fRes       (8000-13500=0-5500, 0-960)
+   amp                 amp             (    0..1)
+   pan                 pan             (-1..0..1)
+   ...fx(send,type,params) fx2, etc
 
-   pbnd=oKey, pb2=oCnt, pedal=fCut, pedal2=amp, pb3=pan
+always:  note=>oKey  velo=>amp
 
-   MAIN:
-      osc(snd,note,phase) oSnd,oKey/oCnt  (0-?, 2100-10800=0-8700)
-      flt(cut,res)        fCut,fRes       (8000-13500=0-5500, 0-960)
-      amp                 amp             (    0..1)
-      pan                 pan             (-1..0..1)
-      ...fx(send,type,params) fx2, etc
-
-      always:
-         note=>oKey
-         velo=>amp
-         amp relEnv;  cc for dur default=subbt, always levl=0, curv=exp
-
-      default:
-         velo=>fCut        (off if static velos)
-         bend=>oKey/oCnt * pBnR
-         bend2=>pan
-         env on all default to static 1.0
-
-         named preset ones (durs per tempo/tsig,etc)
-
-         iLvl (lvl,dur,crv) repTo
-            dur: by tmpo/tsig/beat/subbt/etc
-            lvl: -1..0..1
-            crv: lin,exp,sin  (exp amt)
-         sin curve too;  follow wav?  rand?
-
-      also:
-         multi:    2nd+ osc w picked oSnd
-         phaser:   2 osc, 1 with env>oCnt
-         wow:      env>fCut
-         vibrato:  env(sin)=>oKey/oCnt
-         tremelo:  env(sin)=>amp
-         crazypan: random pan for rand (hearable) durs;  rotating(env), etc?
-         glide:    glRate(set...),glFrom
-                      env linear from pNote/glFrom to midi note
-                      rate per tmpo/tsig;  subbt,beat,bar,4bars
-                      glis?  (round and retrigger on next)
-                      ?glide amp, fCut too
+fx list:
+         (release env dur)
+   (bnd) oKey+oCnt * +-PBnd * pBnR       PBnd (regular)
+         scale +-15 ksig notes for oKey  bnd.scale
+         pan                             bnd.pan
+   (mod) scale sinenv.lvl > oCnt         mod.lvlVibr
+         scale sinenv.dur > oCnt         mod.durVibr
+         scale expenv.lvl > amp          mod.lvlTrem
+         scale expenv.dur > amp          mod.durTrem
+         velo > fCut                     vel.fCut
+         pedl > fCut                     ped.fCut
+         pedl > amp                      ped.amp
+         env > fCut                      wow
+         rndenv > pan                    crazypan
+         glide: glRate,glFrom
+         glis?  (round and retrigger on next)
+                ?glide amp, fCut too
 
       synpal:
          add sync (syn color) on NtDn(NtUp too?)
@@ -74,8 +61,6 @@ syn
                          tremelo, vibrato, filter sweep
                   envelopes that adjust overall dur to wav of snd (if unlooped)
                   or attack phase of wav (pre loopBgn length)
-
-      what kinda format for saving?  save in .song or device/syn/ or ?
 
 
 think/spec______________________________________________________________________
@@ -87,6 +72,8 @@ in oct, are black notes slightly offset from strict 12/7 by
 do2/doc_________________________________________________________________________
 
 shoot ez linux
+   get your data backed up properly
+   make an iso and install it
 
 why is piano playin hard
    how many people should play a song
@@ -100,6 +87,12 @@ how video   cleanin up a song
 
 
 backlog_________________________________________________________________________
+
+try putting sounds with banks in a tooltip (strip *,bank)
+
+pc volume setting not set until partway thru
+
+tophat pcm_rate wanted 44100 got 48000 :/  but _frq stays 44100
 
 File::Open that's CASE INSENSITIVE
 
