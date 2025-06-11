@@ -15,8 +15,8 @@ do unreachable powerchords, guitar strum, rhythm guitar
 
 code____________________________________________________________________________
 
-in test +[ phaser - need +[oCntSinSm
-   wordwrap in table not workin
+phaser - dbg shows things are good, but i'm not hearin a diff ??
+   dbg with n without
 
 env scaling
    env amp - 0-1 continuous
@@ -88,7 +88,9 @@ how video   cleanin up a song
 
 backlog_________________________________________________________________________
 
-try putting sounds with banks in a tooltip (strip *,bank)
+wordwrap in table not workin
+
+put sounds with banks in a tooltip (strip *,bank)
 
 pc volume setting not set until partway thru
 

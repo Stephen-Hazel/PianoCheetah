@@ -581,14 +581,17 @@ TRC(" map dev/chn/snd");
       if (Up.dev [_f.trk [t].dev].mo->Syn () &&
           (p = StrCh (_f.trk [t].name, '[')) ) {
          StrCp (buf, p+1);
-         for (ubyte u = t+1;  u < _f.trk.Ln;  u++) {
+        ubyte u;
+         for (u = t+1;  u < _f.trk.Ln;  u++) {
             if ((_f.trk [u].dev == _f.trk [t].dev) &&
                 (_f.trk [u].chn == _f.trk [t].chn) &&
                 (p = StrSt (_f.trk [u].name, CC("+["))))
                {StrAp (buf, CC("|"));   StrAp (buf, p+2);}
             else  break;
          }
+//DBG(" tr=`d buf=`s", t, buf);
          Up.dev [_f.trk [t].dev].mo->Put (_f.trk [t].chn, MC_CC|19, 0, 0, buf);
+         if (u > t+1)  t = u-1;
       }
    }
 TRC(" sortin trks");
