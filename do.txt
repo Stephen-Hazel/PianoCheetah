@@ -1,22 +1,17 @@
 play____________________________________________________________________________
 
 play, study magic singable dumb songs, pick out riffs
-   petshopboys, depmode, yazoo "situation", assembly, erasure(vince clarke)
+   petshopboys, depmode, yazoo "situation", erasure(vince clarke), assembly
    owl city, journey whos crying now
+
 find every rush sound
 
-try joystick
-
-do unreachable powerchords, guitar strum, rhythm guitar
-   drums on keys - make a good map but get it from device/drummap.txt
-      pick drum instead of oct (show Drum instead of 4RH)
-      kick,kik2, snar,snr2, hhcl,hhop,hhpd, ride,rdbl, cras
-                 clap,sstk
 
 code____________________________________________________________________________
 
-phaser - dbg shows things are good, but i'm not hearin a diff ??
-   dbg with n without
+show phInc,fCut,fRes,amp,pan in voice::dump (on pch gui?)
+phaser - not hearin it ??
+shouldn't there be 2 voices even if mono?
 
 env scaling
    env amp - 0-1 continuous
@@ -65,6 +60,18 @@ fx list:
 
 think/spec______________________________________________________________________
 
+controls in gui - pad of 3 control,values (3 x droplist,button)
+   pick control.  down on button follows mouse x to set value
+
+device/drummap.txt picks drum layout for keyboards
+      kick,kik2, snar,snr2, hhcl,hhop,hhpd, ride,rdbl, cras
+                 clap,sstk
+   drum map name in place of 4RH?
+
+do unreachable powerchords, guitar strum, rhythm guitar
+   drums on keys - make a good map but get it from device/drummap.txt
+      pick drum instead of oct (show Drum instead of 4RH)
+
 in oct, are black notes slightly offset from strict 12/7 by
    slight narrowing/offsetting for a more aesthetic look?
 
@@ -91,6 +98,8 @@ backlog_________________________________________________________________________
 wordwrap in table not workin
 
 put sounds with banks in a tooltip (strip *,bank)
+
+controller via joystick
 
 pc volume setting not set until partway thru
 
