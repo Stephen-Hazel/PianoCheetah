@@ -338,9 +338,6 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
                                c = x;  // the one to keep
             nn++;
          }
-//TStr xd;
-//DBG(" `s dp=`d nn=`d d=`d c=`d tr=`d nt=`d",
-//TmS(xd,_dn [dp].time), dp, nn, d, c, _dn[dp].nt[c].t, _dn[dp].nt[c].nt);
       if (nn > 1) {                    // some ta kill?
          _dn [dp].nt [d].p  = 0;       // NO P FO EZ !
          _dn [dp].nt [d].t  = _dn [dp].nt [c].t;
@@ -386,7 +383,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
             xx [dp].dir = fst ? '=' : ch;
             fst = false;
 //TStr xd;
-//DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c  LAST",
+//DBG(" `s dp=`d nn=`d nsum=`d nt=`d ntrm=`d pnt=`d pntrm=`d ch=`c",
 //TmS(xd,_dn [dp].time), dp, nn, nsum, nt, ntrm, pnt, pntrm, xx [dp].dir);
             _dn [dp].nt [c].p  = 0;    // NO P FO EZ !
             _dn [dp].nt [c].nt = ((ht == 'L') ? nmin : nmax);
@@ -416,6 +413,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          }
       pf = 0;
       for (dp = 0;  dp < _dn.Ln;  dp++)  if (xx [dp].pos != 99) {
+//DBG(" dp=`d", dp);
 
       // check for rolled chord/trill (fast stuff - time diff of < 15 ticks)
       // find max nt within trill notes and align to pinky=4 for rh/0 for lh
@@ -425,35 +423,32 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
          pmax = dp;   nmax = _dn [dp].nt [xx [dp].pos].nt;
          c = 0;                        // count #downs in trill
          for (p = dp+1;  p < _dn.Ln;  p++)  if (xx [p].pos != 99) {
-            if (_dn [p].time < tm+15) {
-               c++;   pend = p;   tm = _dn [p].time;
-               if (ht == 'L')
-                    {if (       _dn [p].nt [xx [p].pos].nt < nmax)
-                        {nmax = _dn [p].nt [xx [p].pos].nt;   pmax = p;}}
-               else {if (       _dn [p].nt [xx [p].pos].nt > nmax)
-                        {nmax = _dn [p].nt [xx [p].pos].nt;   pmax = p;}}
-            }
-            else  break;
+            if (_dn [p].time >= tm+15)  break;
+
+            c++;   pend = p;   tm = _dn [p].time;
+            if (ht == 'L') {if (      _dn [       p].nt [xx [p].pos].nt < nmax)
+                               nmax = _dn [pmax = p].nt [xx [p].pos].nt;}
+            else            if (      _dn [       p].nt [xx [p].pos].nt > nmax)
+                               nmax = _dn [pmax = p].nt [xx [p].pos].nt;
          }
-         if (c) {
-         // do rolled chord/trill
+         if (c) {                      // doin rolled chord/trill
            char pdir;                  // usin prev dir n goin in reverse
             pf = (ht == 'L') ? 0 : 4;
             k [1] = 'c' + pf;
             _dn [pmax].nt [xx [pmax].pos].nt = MKey (k);
             pdir =         xx [pmax].dir;
-            for (p = pmax-1;  c && (p >= dp);    p--)  if (xx [p].pos!= 99) {
-               c--;
+         // goin down if any
+            for (p = pmax;    c && (p > dp);)          if (xx [p].pos != 99) {
+               c--;  p--;              // decr loops are annoyin :/
                if      (pdir == '>')  {if (pf-- == 0)  pf = 4;}
                else if (pdir == '<')  {if (pf++ == 4)  pf = 0;}
                k [1] = 'c' + pf;
                _dn [p].nt [xx [p].pos].nt = MKey (k);
                pdir =      xx [p].dir;
             }
-
-         // and now regular forward
+         // and now regular goin up
             pf = (ht == 'L') ? 0 : 4;
-            for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos!= 99) {
+            for (p = pmax+1;  c && (p <= pend);  p++)  if (xx [p].pos != 99) {
                c--;
                if      (xx [p].dir == '<')  {if (pf-- == 0)  pf = 4;}
                else if (xx [p].dir == '>')  {if (pf++ == 4)  pf = 0;}
@@ -462,8 +457,7 @@ t, q-1, ne, MKey2Str (s3, e [q-1].ctrl), TmSt(s1,e [q-1].time),
             }
             dp = pend;   pf = 0;
          }
-         else {
-         // do regular
+         else {                        // doin regular next dn
             if      (xx [dp].dir == '!')  pf = xx [dp].key - 'c';
             else if (xx [dp].dir == '<')  {if (pf-- == 0)  pf = 4;}
             else if (xx [dp].dir == '>')  {if (pf++ == 4)  pf = 0;}
