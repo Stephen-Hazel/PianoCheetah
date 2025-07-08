@@ -9,9 +9,7 @@ find every rush sound
 
 code____________________________________________________________________________
 
-bug:
-sReDo.cpp SetDn
-448  for (p = pmax-1;  c && (p >= dp);  p--)  if (xx [p].pos!= 99) {
+test out van pc
 
 
 show phInc,fCut,fRes,amp,pan in voice::dump (on pch gui?)
