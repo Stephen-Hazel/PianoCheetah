@@ -6,10 +6,10 @@
 
 #include "midicfg.h"
 
-TStr SynCfg;
 BStr DevTyp;
 
-void InitDevType ()
+void MidiCfg::InitDevType ()
+// load our device types and sound devices
 { TStr   dev;
   StrArr a;
   ubyt2  n, i, q;
@@ -20,6 +20,12 @@ void InitDevType ()
    for (q = 4, i = 0;  i < n;  i++)    // make a zz str for gui
       {StrCp (& DevTyp [q], p = a.Get (i));   q += StrLn (p) + 1;}
    DevTyp [q] = '\0';
+
+   Snd.Load ();
+  CtlList so (ui->lstSyn);
+   so.ClrLs ();
+   for (i = 0;  i < Snd.len;  i++)  so.InsLs (Snd.lst [i].desc);
+   so.InsLs (CC("OFF"));
 }
 
 
@@ -89,7 +95,7 @@ void MidiCfg::Load ()
 { ubyte i;
   TStr  nm, ty, ds, dv, chk;
   char *rp [4];
-   Midi.Load ();   Snd.Load ();
+   Midi.Load ();
    *chk = '\0';
    for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)
       if  (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
@@ -127,13 +133,19 @@ void MidiCfg::Load ()
    for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)  _ti.Put (rp);
    for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++)  _to.Put (rp);
    _ti.Shut ();   _to.Shut ();
+
+// now syn cfgs
+  TStr fn, s;
+  StrArr t (CC("cfg"), 2, 2*sizeof(TStr));
   CtlList so (ui->lstSyn);
-   so.ClrLs ();
-   for (i = 0;  i < Snd.len;  i++)  so.InsLs (Snd.lst [i].desc);
-   so.InsLs (CC("OFF"));
-   if (*SynCfg)  so.SetS (SynCfg);
+  CtlSpin bu (ui->spbBuf);
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/syn/cfg.txt"));   t.Load (fn);
+   if (t.str [0][0])  so.SetS (         t.str [0]);    else so.Set (0);
+   if (t.str [1][0])  bu.Set  (Str2Int (t.str [1]));   else bu.Set (64);
+
    RedoMIn ();
 }
+
 
 void MidiCfg::Save ()
 { TStr  fn, ts, dt [64];
@@ -180,9 +192,12 @@ void MidiCfg::Save ()
    f.Shut ();
 
   CtlList so (ui->lstSyn);
-   so.GetS (SynCfg);
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/syn.txt"));
-   f.Save (fn, SynCfg, StrLn (SynCfg));
+  CtlSpin bu (ui->spbBuf);
+  TStr s, s1;
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/syn/cfg.txt"));
+   StrFmt (s, "`s\n`d\n", so.GetS (s1), bu.Get ());
+   f.Save (fn, s, StrLn (s));
+
    emit Reload ();
 }
 
@@ -318,10 +333,8 @@ DBG("Init");
   TStr fn;
   File f;
   ulong ln;
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/syn.txt"));
-   ln = f.Load (fn, SynCfg, sizeof (SynCfg)-1);
-   SynCfg [ln] = '\0';
-   while (ln && (SynCfg [ln-1] == '\n'))  SynCfg [--ln] = '\0';
+  CtlSpin bu (ui->spbBuf, 32, 128);
+   bu.Set (64);
   CtlTBar tb (this,
       "Refresh device lists\n"
        "(if you've installed/uninstalled/forgot to power on devices)"

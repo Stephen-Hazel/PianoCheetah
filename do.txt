@@ -9,10 +9,6 @@ find every rush sound
 
 code____________________________________________________________________________
 
-test out van pc
-
-
-show phInc,fCut,fRes,amp,pan in voice::dump (on pch gui?)
 phaser - not hearin it ??
 shouldn't there be 2 voices even if mono?
 

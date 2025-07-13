@@ -35,6 +35,7 @@ public:
   ~MidiCfg ()   {delete ui;}
 
    void Init (), Quit ();
+   void InitDevType ();
    void ShutMIn (), RedoMIn ();
    void TestI (ubyte mi, MidiEv e);
 
