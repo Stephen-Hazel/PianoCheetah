@@ -172,7 +172,7 @@ void Song::ReCtlO ()                   // rebuild used _f.dvts' CCMaps
   TStr  s;
    for (d = 0;  d < Up.dvt.Ln;  d++)  if (Up.dvt [d].Name () [0]) {  // used?
       MemSet (Up.dvt [d].CCMap, 0, sizeof (Up.dvt [d].CCMap));
-      for (i = 0;  i < _f.ctl.Ln;  i++)
+      for (i = 3;  i < _f.ctl.Ln;  i++)     // skip tmpo,tsig,ksig
          if (! (Up.dvt [d].CCMap [i] = Up.dvt [d].CCID (_f.ctl [i].s))) {
 Info(StrFmt (s, "DvT=`s can't do cc=`s", Up.dvt [d].Name(), _f.ctl [i].s));
 DBG (           "DvT=`s can't do cc=`s", Up.dvt [d].Name(), _f.ctl [i].s);

@@ -6,7 +6,7 @@ UpdLst Up;                             // what gui needs from meee
 
 void Song::Init ()                     // init that there stuff we needz...
 {
-DBG("Song::Init bgn");
+TRC("Song::Init bgn");
    MCCInit ();
    _timer = new Timer ();              // boot timer
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
@@ -22,17 +22,17 @@ DBG("Song::Init bgn");
    if (Sy.Dead () && StrCm (Sy._snDsc, CC("OFF")))  Die (CC(
       "Another app owns sound device.\n"
       "So no Syn till you close that app and restart PianoCheetah :("));
-DBG("Song::Init end");
+TRC("Song::Init end");
 }
 
 
 void Song::Quit ()                     // clean up
 {
-DBG("Song::Quit bgn");
+TRC("Song::Quit bgn");
    Wipe ();   ShutMIn ();   Sy.Quit ();   delete _timer;
    if (_f.ev)  delete [] _f.ev;
    emit sgUpd ("bye");
-DBG("Song::Quit end");
+TRC("Song::Quit end");
 }
 
 

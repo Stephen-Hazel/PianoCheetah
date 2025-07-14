@@ -94,6 +94,8 @@ how video   cleanin up a song
 
 backlog_________________________________________________________________________
 
+Info() doesn't seem to work..
+
 wordwrap in table not workin
 
 put sounds with banks in a tooltip (strip *,bank)
