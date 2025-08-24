@@ -220,7 +220,7 @@ static int CtlCmp (void *p1, void *p2)  // ..._f.ctl str sortin (by MCC[] pos)
 
 
 void Song::CtlClean ()
-// compact _f.ctl[] to just used n shown ones.  sorted per device/cc.txt (MCC)
+// compact _f.ctl[] to just used n shown ones.  sorted per device/cc.txt
 { ubyte ncc, c, d, t, tc, cm [128];
   TStr   cc [128];
   ubyt4  e;

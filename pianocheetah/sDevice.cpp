@@ -11,7 +11,7 @@ char *MInDef::CcRec (char *buf, ubyt2 len, ubyt4 pos, void *ptr)
       DBG("MInDef::CcRec ccin.txt for `s is > 128 lines", m->mi->Type ());
       return CC("x");
    }
-  ColSep ss (buf, 2);
+  ColSep ss (buf, 3);
    if ((*buf == '#') || (! ss.Col [1][0]) ||
                           (ss.Col [1][0] == '.'))  return nullptr;
 // got all the cols we need?
@@ -85,6 +85,40 @@ TRC("   Local Control=ON for `s", nm);
       delete _mi [n].mi;     _mi [n].mi = nullptr;
              _mi [n].cc.Ln = 0;
       _mi.Ln--;
+   }
+}
+
+
+//______________________________________________________________________________
+void Song::CCMapLoad ()
+{ TStr fn, s;
+  ulong i, j;
+  ubyte d, c;
+  StrArr t (CC("ccmap"), 128, 128*sizeof(TStr));
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/ccmap.txt"));
+   t.Load (fn);
+   _ccMap.Ln = 0;
+   for (i = j = 0;  i < t.num;  i++) {
+      StrCp (s, t.str [i]);
+     ColSep ss (s, 3);
+      if ((*s == '#') || (ss.Col [2][0] == '\0')) continue;
+      for (d = 0;  d < _mi.Ln;  d++)
+         if (! StrCm (_mi [d].mi->Name (), ss.Col [0]))  break;
+      if (d >= _mi.Ln) {
+DBG("couldn't find device '`s' in ccmap line `d", ss.Col [0], i);
+         continue;
+      }
+      for (c = 0;  c < _mi [d].cc.Ln;  c++)
+         if (! StrCm (_mi [d].cc [c].map, ss.Col [1]))  break;
+      if (c >= _mi [d].cc.Ln) {
+DBG("couldn't find control name '`s' in ccin.txt of `s",
+ss.Col [1], _mi [d].mi->Name ());
+         continue;
+      }
+      _ccMap.Ln++;
+      _ccMap [j].dev = d;
+      _ccMap [j].cc  = _mi [d].cc [c].raw;
+      StrCp (_ccMap [j].str, ss.Col [2]);   j++;
    }
 }
 

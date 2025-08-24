@@ -18,6 +18,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QCheckBox" name="chk">
+     <property name="text">
+      <string>show chords</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTableWidget" name="t"/>
    </item>
   </layout>

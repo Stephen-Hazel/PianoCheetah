@@ -13,7 +13,6 @@ void Song::DragRc ()
    emit sgUpd ("nt");
 }
 
-
 const ubyt4 DRAG = 2;                  // drag threshold (if <, then plain clik)
 
 char Song::MsPos (sbyt2 x, sbyt2 y)
@@ -188,7 +187,7 @@ void Song::MsDn (Qt::MouseButton b, sbyt2 x, sbyt2 y)
    Up.pos.pPoz = Poz (true);   NotesOff ();
 
    if (Up.pos.at == 'k') {             // keyboard area - ctl[].sho editin
-      PreCtl ();   _pg = 0;
+      Up.id = 99;   PreCtl ();   _pg = 0;
       if (! Up.pos.pPoz) Poz (false);
       return;
    }

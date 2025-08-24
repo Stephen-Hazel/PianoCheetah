@@ -649,7 +649,7 @@ void Song::DrawPg (ubyt4 pp)
       for (cc = 0;  cc < _f.ctl.Ln;  cc++)  if (_f.ctl [cc].sho != 'n') {
          w = th-2;   if (_f.ctl [cc].sho == 'y')  w = 32;
 
-      // init ctl w str,typ,default value from cc.txt
+      // init ctl w str,typ,default value from device/cc.txt
          StrCp (cs, CtlSt (cc));
          ccg = false;
          if ( (! StrCm (CC("ksig"), cs)) ||

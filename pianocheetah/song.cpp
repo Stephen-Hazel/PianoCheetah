@@ -7,13 +7,11 @@ UpdLst Up;                             // what gui needs from meee
 void Song::Init ()                     // init that there stuff we needz...
 {
 TRC("Song::Init bgn");
-   MCCInit ();
    _timer = new Timer ();              // boot timer
    connect (_timer, & Timer::TimerEv,   this, & Song::Put);
    connect (_timer, & Timer::TimerMsEv, this,
             [this]()  {if (_lrn.POZ)  Shush (true);});
    Sy.Init ();
-   Midi.Load ();
    OpenMIn ();                         // boot MidiI's
    for (ubyte d = 0;  d < _mi.Ln;  d++)
       QObject::connect (_mi [d].mi, & MidiI::MidiIEv, this, & Song::MIn);
@@ -68,6 +66,7 @@ TRC(" f");
    Up.song [0] = '\0';
 TRC(" g");
    emit sgUpd ("bars");   *Up.hey = '\0';   PutLy ();   ReTrk ();   Draw ();
+   Up.id = 99;
 TRC("Wipe end");
 }
 

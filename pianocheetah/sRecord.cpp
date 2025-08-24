@@ -2,38 +2,6 @@
 
 #include "song.h"
 
-void Song::CCMapLoad ()
-{ TStr fn, s;
-  ulong i, j;
-  ubyte d, c;
-  StrArr t (CC("ccmap"), 128, 128*sizeof(TStr));
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/ccmap.txt"));
-   t.Load (fn);
-   _ccMap.Ln = 0;
-   for (i = j = 0;  i < t.num;  i++) {
-      StrCp (s, t.str [i]);
-     ColSep ss (s, 3);
-      if ((*s == '#') || (ss.Col [2][0] == '\0')) continue;
-      for (d = 0;  d < _mi.Ln;  d++)
-         if (! StrCm (_mi [d].mi->Name (), ss.Col [0]))  break;
-      if (d >= _mi.Ln) {
-DBG("couldn't find device '`s' in ccmap line `d", ss.Col [0], i);
-         continue;
-      }
-      for (c = 0;  c < _mi [d].cc.Ln;  c++)
-         if (! StrCm (_mi [d].cc [c].map, ss.Col [1]))  break;
-      if (c >= _mi [d].cc.Ln) {
-DBG("couldn't find control name '`s' in ccin.txt of `s",
-ss.Col [1], _mi [d].mi->Name ());
-         continue;
-      }
-      _ccMap.Ln++;
-      _ccMap [j].dev = d;
-      _ccMap [j].cc  = _mi [d].cc [c].raw;
-      StrCp (_ccMap [j].str, ss.Col [2]);   j++;
-   }
-}
-
 
 void Song::Shush (bool tf)
 // on bg chans (non lrn, non REC) set vol per tf
@@ -231,13 +199,13 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
 );
 // check ctrl first
    *cSt = '\0';
-   if (MCTRL (ev)) {                   // try /ccmap/*.txt first
+   if (MCTRL (ev)) {                   // in=>song first
       for (c = 0;  c < _ccMap.Ln;  c++)  if ((_ccMap [c].dev == dev) &&
                                              (_ccMap [c].cc  == ev->ctrl))
          {StrCp (cSt, _ccMap [c].str);   break;}
-      if      (! *cSt)
-         Info (StrFmt (s1, "`s filtered (not in ccin.txt or ccmap/1.txt)",
-               MCtl2Str (s2, ev->ctrl)));
+      if      (! *cSt) {
+         if (Up.id == 99)  {Up.id = dev;   Up.icc = ev->ctrl;   PreCtl ();}
+      }
       else if (! StrCm (cSt, CC("keycmd"))) {
          if (ev->valu < 64)  {if (  _ed)  _ed = 0;  else return re;}
          else                {if (! _ed)  _ed = 1;  else return re;}

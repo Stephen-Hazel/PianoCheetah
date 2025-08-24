@@ -1,6 +1,15 @@
 #!/bin/php
 <?php
-// b - build with flatpak-builder n stuff
+// bDbg - build with flatpak-builder n stuff DEBUG VERSION
+// build then...
+/*
+flatpak run --command=sh --devel --filesystem=$(pwd) app.pianocheetah.pianocheetah
+gdb /app/bin/pianocheetah
+set logging enabled on
+thread apply all backtrace
+run
+bt full
+*/
 // args:   o   build only - for release to flathub
 //         c   wipe config dir - for full reinstall
    $arg = '';   if ($argc > 1)  $arg = $argv [1];

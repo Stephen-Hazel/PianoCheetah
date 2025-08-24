@@ -189,31 +189,73 @@ TRC("q");
 
 //______________________________________________________________________________
 void Song::PreCtl ()
-// dlg to pick which controls to show/hide/mini
-{ TStr s;
-   Up.nR = 1+_f.ctl.Ln;
-   StrCp (Up.d [0][0], CC("chords"));
-   StrCp (Up.d [0][1], CC(_lrn.chd ? "show" : "hide"));
-   for (ubyte i = 0;  i < _f.ctl.Ln;  i++) {
-                                  StrCp (s, CC("show"));
-      if (_f.ctl [i].sho == 'm')  StrCp (s, CC("mini"));
-      if (_f.ctl [i].sho == 'n')  StrCp (s, CC("hide"));
-      StrCp (Up.d [i+1][0], CtlSt (i));
-      StrCp (Up.d [i+1][1], s);
+// dlg to pick mapping of input to song controls;  and show/hide/mini
+{ ubyte n, d, c, i, j;
+  TStr     ds, s, sh, b;
+   Up.rHop = 0;
+   n = 0;
+   for (d = 0;  d < _mi.Ln;  d++) {
+      StrCp (ds, _mi [d].mi->Name ());
+      for (c = 0;  c < _mi [d].cc.Ln;  c++) {
+         StrCp (Up.d [n][0], ds);   StrCp (Up.d [n][4], Int2Str (d, b));
+         StrCp (Up.d [n][1], _mi [d].cc [c].map);
+                                    StrCp (Up.d [n][5], Int2Str (c, b));
+         if ((Up.id == d) && (Up.icc == _mi [d].cc [c].raw))  Up.rHop = n;
+         StrCp (Up.d [n][2], CC("-"));
+         StrCp (Up.d [n][3], CC("hide"));
+         n++;
+      }
+   }
+   Up.nR = n;
+   Up.d [n][0][0] = _lrn.chd ? 'Y' : 'N';   // view chords flag :/
+   for (i = 0;  i < n;  i++) {
+      d = Str2Int (Up.d [i][4]);
+      c = Str2Int (Up.d [i][5]);
+      *s = '\0';
+      for (j = 0;  j < _ccMap.Ln;  j++)
+         if ((_ccMap [j].dev == d) &&
+             (_ccMap [j].cc  == _mi [d].cc [c].raw))
+            {StrCp (s, _ccMap [j].str);   StrCp (Up.d [i][2], s);   break;}
+      if (*s)  for (j = 0;  j < _f.ctl.Ln;  j++)  if (! StrCm (s, CtlSt (j))) {
+         if      (_f.ctl [j].sho == 'y')  StrCp (sh, CC("show"));
+         else if (_f.ctl [j].sho == 'm')  StrCp (sh, CC("mini"));
+         else                             StrCp (sh, CC("hide"));
+         StrCp (Up.d [i][3], sh);
+      }
    }
    emit sgUpd ("dCtl");
 }
 
 
 void Song::Ctl ()
-{ char c;
-   _lrn.chd = (Up.d [0][1][0] == 's') ? true : false;
-   for (ubyte i = 0;  i < _f.ctl.Ln;  i++) {
-      c = Up.d [i+1][1][0];
-      if      (c == 's')  c = 'y';
-      else if (c == 'h')  c = 'n';     // mini already ok
-      _f.ctl [i].sho = c;
+// re set _ccMap and store in device/ccmap.txt;  set cc's show
+{ TStr  fn, ds, cs, ms, sh;
+  ubyte     d,  c, i, j, n;
+  File  f;
+  BStr  bs;
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/ccmap.txt"));
+   if (! f.Open (fn, "w"))  return;
+
+   _lrn.chd = (Up.d [Up.nR][0][0] == 'Y') ? true : false;
+   n = _ccMap.Ln = 0;
+   for (i = 0;  i < Up.nR;  i++) {
+      StrCp (ds, Up.d [i][0]);   d = Str2Int (Up.d [i][4]);
+      StrCp (cs, Up.d [i][1]);   c = Str2Int (Up.d [i][5]);
+      StrCp (ms, Up.d [i][2]);
+      StrCp (sh, Up.d [i][3]);
+      if (StrCm (ms, CC("-"))) {
+         f.Put (StrFmt (bs, "`s `s `s\n",  ds, cs, ms));
+         _ccMap [n].dev = d;
+         _ccMap [n].cc  = _mi [d].cc [c].raw;
+         StrCp (_ccMap [n].str, ms);
+         n++;   _ccMap.Ln++;
+
+         for (j = 0;  j < _f.ctl.Ln;  j++)  if (! StrCm (ms, CtlSt (j)))
+            _f.ctl [j].sho = *sh;
+      }
    }
+   f.Shut ();
+   Up.id = 99;
    ReDo ();
 }
 

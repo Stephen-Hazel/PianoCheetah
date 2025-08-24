@@ -27,6 +27,7 @@ UCmdDef UCmd [] = {
    {"recWipe",   "",           "wipe ALL (CAREFUL)"},
    {"recSave",   "",           "save recording"},
    {"color",     "",           "color: scale=>velocity=>track=>"},
+   {"ctrlMap",   "",           "map input => song controls"},
    {"hearRec",   "",           "Hear your recording"},
    {"hearLoop",  "",           "Hear loop notes to learn"}
 };

@@ -121,6 +121,7 @@ private:
 
 // sDevice.cpp  (n sDevTyp.cpp)
    void  OpenMIn (), ShutMIn ();
+   void  CCMapLoad ();
 
    char *DevName (ubyte t)
    {  if (!  Up.dev [_f.trk [t].dev].mo)  return CC("");
@@ -158,7 +159,6 @@ private:
    void  Dump     (bool ev2 = false);
 
 // sRecord.cpp
-   void  CCMapLoad ();
    void  Shush   (bool tf);            // flip by volume cc (only) on/off
    bool  DnOK    (char n = '\0', ubyte *tr = nullptr, MidiEv *ev = nullptr);
    bool  NtCmd   (MidiEv *ev);
@@ -207,13 +207,13 @@ private:
 
 // sEdit.cpp
    void  PreTDr  (bool kick = true);
-   void  TDr     (char *arg);
+   void     TDr  (char *arg);
    void  PreCtl  ();
-   void  Cue     (char *s);
-   void  Ctl     ();
+   void     Ctl  ();
    void  SetCtl  (char *arg);
+   void  Cue     (char *s);
    void  PreQua  ();
-   void  Qua     (char *tnf);
+   void     Qua  (char *tnf);
    void  NtDur   ();
    void  NtHop   ();
    void  Mov     ();

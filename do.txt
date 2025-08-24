@@ -9,16 +9,17 @@ find every rush sound
 
 code____________________________________________________________________________
 
-phaser - not hearin it ??
-shouldn't there be 2 voices even if mono?
+add pStp - (what ex IS tune?) stay within scale (chord?), no need for pStR
 
-env scaling
-   env amp - 0-1 continuous
-   env dur - 0-1 continuous or
-                 discrete  - *1/16 *2/16 *3/16 *4/16 .. *32/16 or
-                 discrete2 - /16 /8 /4 /2 1 *2 *4 *8 *16
-   rand curve (level,subdur)
-   follow an osc?
+strum ?
+
+build all the envs
+test,improve env mods
+   dur - discrete   *1/16 *2/16 *3/16 *4/16 .. *32/16
+         discrete2  /16 /8 /4 /2 1 *2 *4 *8 *16
+         continuous 0-1
+rand curve (level,subdur)
+follow an osc?
 
 MAIN:
    osc(snd,note,phase) oSnd,oKey/oCnt  (0-?, 2100-10800=0-8700)
@@ -34,27 +35,32 @@ fx list:
    (bnd) oKey+oCnt * +-PBnd * pBnR       PBnd (regular)
          scale +-15 ksig notes for oKey  bnd.scale
          pan                             bnd.pan
-   (mod) scale sinenv.lvl > oCnt         mod.lvlVibr
-         scale sinenv.dur > oCnt         mod.durVibr
-         scale expenv.lvl > amp          mod.lvlTrem
-         scale expenv.dur > amp          mod.durTrem
-         velo > fCut                     vel.fCut
+   (mod) velo > fCut                     vel.fCut
          pedl > fCut                     ped.fCut
          pedl > amp                      ped.amp
-         env > fCut                      wow
-         rndenv > pan                    crazypan
+
+   (env) 0..-1>pan    panl   x
+         0..1>pan     panr   x
+         sin>pan      pano   x
+         sin>fCut     wow    x
+         sin>oCnt     phaser x (tiny level kinda slow)
+         sin>oCnt     vibr     (noticable level)
+         sin>amp      trem
+
+         rnd>pan      panran
+
          glide: glRate,glFrom
          glis?  (round and retrigger on next)
                 ?glide amp, fCut too
 
-      synpal:
-         add sync (syn color) on NtDn(NtUp too?)
-            0=channel defaults, else...
-               picks from syn palette table which has...
-            name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
-                         tremelo, vibrato, filter sweep
-                  envelopes that adjust overall dur to wav of snd (if unlooped)
-                  or attack phase of wav (pre loopBgn length)
+note level control (syn palette)
+   add sync (syn color) on NtDn(NtUp too?)
+   0=channel defaults, else...
+      picks from syn palette table which has...
+   name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
+                tremelo, vibrato, filter sweep
+         envelopes that adjust overall dur to wav of snd (if unlooped)
+         or attack phase of wav (pre loopBgn length)
 
 
 think/spec______________________________________________________________________

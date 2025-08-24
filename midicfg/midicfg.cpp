@@ -1,8 +1,4 @@
-// midicfg.cpp - midi configurin - edit stuff in pianocheetah/device dir
-// /device.txt
-// /cc.txt  (comes from install)
-// these all have to be d/l via devtype or text edited:
-//    /<devtype>/ccin.txt  ccout.txt  sound.txt
+// midicfg.cpp - midi configurin - edit pianocheetah/device/device.txt
 
 #include "midicfg.h"
 

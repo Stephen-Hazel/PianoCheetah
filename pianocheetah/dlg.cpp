@@ -245,49 +245,64 @@ void DlgChd::Quit ()  {Gui.DlgSave (this, "DlgChd");}
 
 
 //______________________________________________________________________________
-// dlgCtl - pick whether to show/hide/mini the controls
+// dlgCtl - pick dev,ctlin=>songctl n whether to show/hide/mini the controls
+
+static BStr MLst;
+
+static char CtlPop (char *ls, ubyt2 r, ubyte c)
+{  (void)r;   ZZCp (ls, MLst);   return (c == 2) ? 'l' : '\0';
+}
 
 void DlgCtl::Upd ()
 { ubyt2 r = _t.CurRow ();
+  ubyte c = _t.CurCol ();
   TStr  s;
-   StrCp (s, _t.Get (r, 1));           // chords only show/hide
-   if (r == 0)             StrCp (s, CC((*s == 's') ? "hide":"show"));
-   else {                              // else hide/mini/show
-      if      (*s == 'h')  StrCp (s, CC("mini"));
-      else if (*s == 'm')  StrCp (s, CC("show"));
-      else                 StrCp (s, CC("hide"));
-   }
-   _t.Set (r, 1, s);   StrCp (Up.d [r][1], s);
+   if (c != 3)  return;
+   StrCp (s, _t.Get (r, 2));   if (! StrCm (s, CC("-")))  return;
+
+   StrCp (s, _t.Get (r, 3));           // hide/mini/show
+   if      (*s == 'h')  StrCp (s, CC("mini"));
+   else if (*s == 'm')  StrCp (s, CC("show"));
+   else                 StrCp (s, CC("hide"));
+   _t.Set (r, 3, s);
 }
 
-
 void DlgCtl::Init ()
-{  Gui.DlgLoad (this, "DlgCtl");
-   _t.Init (ui->t, "Control\0Show?\0");
+{ ubyte i;
+   *MLst = '\0';     ZZApS (MLst, CC("-"));
+   for (i = 0;  i < NMCC;  i++)  if (! StrCm (MCC [i].s, CC("hold")))  break;
+   while (i < NMCC)  ZZApS (MLst, MCC [i++].s);
+
+   Gui.DlgLoad (this, "DlgCtl");
+   _t.Init (ui->t, "Device\0DeviceControl\0_SongControl\0Show?\0", CtlPop);
    connect (ui->t, & QTableWidget::itemClicked, this, & DlgCtl::Upd);
 }
 
-
 void DlgCtl::Open ()
 { ubyte r, c;
-  char *ro [3];
-   ro [2] = nullptr;
+  char *ro [5];
+  CtlChek ch (ui->chk);
+   ch.Set (Up.d [Up.nR][0][0] == 'Y');
+   ro [4] = nullptr;
    show ();   raise ();   activateWindow ();
    _t.Open ();
    for (r = 0;  r < Up.nR;  r++) {
-      for (c = 0;  c < 2;  c++)  ro [c] = Up.d [r][c];
+      for (c = 0;  c < 4;  c++)  ro [c] = Up.d [r][c];
       _t.Put (ro);
    }
    _t.Shut ();
    Gui.DlgMv (this, Up.gp, "tc");
+   _t.HopTo (Up.rHop, 2);
 }
-
 
 void DlgCtl::Shut ()
-{  emit sgCmd (CC("ctl"));
+{ CtlChek ch (ui->chk);
+   Up.d [Up.nR][0][0] = ch.Get () ? 'Y':'N';
+   for (ubyte r = 0;  r < Up.nR;  r++)
+      {StrCp (Up.d [r][2], _t.Get (r,2));   StrCp (Up.d [r][3], _t.Get (r,3));}
+   emit sgCmd (CC("ctl"));
    done (true);   lower ();   hide ();
 }
-
 
 void DlgCtl::Quit ()  {Gui.DlgSave (this, "DlgCtl");}
 

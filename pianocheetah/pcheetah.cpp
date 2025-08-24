@@ -249,7 +249,6 @@ void PCheetah::Upd (QString upd)
    }
 
    if (! StrCm (u, CC("ttl")))  Up.tbaTtl->setText (Up.ttl);
-//    Gui.SetTtl (StrFmt (s, "`s - PianoCheetah", Up.ttl));
 
    if (! StrCm (u, CC("FLdn"))) {if (FL.pos < FL.lst.Ln-1)
                                               {++FL.pos;   _dFL->ReDo ();}}
@@ -368,7 +367,7 @@ TRC("Init");
    if (! f.Size (fn))  return MCfg ();      // ain't no point in goin on
 
 TRC(" got device.txt");
-   Midi.Load ();
+   Midi.Load ();   MCCInit ();
   ubyte i = 0;
   TStr  nm, ty, ds, dv;
    while (Midi.GetPos ('o', i++, nm, ty, ds, dv))
@@ -531,18 +530,18 @@ TRC(" lyr,tr,nt init");
    _nt->Init (ui->nt->width (), ui->nt->height ());
 
 TRC(" dlg init");
-   _dFL  = new DlgFL  (this);    _dFL->Init ();
-   _dCfg = new DlgCfg (this);   _dCfg->Init ();
-   _dTDr = new DlgTDr (this);   _dTDr->Init ();
-   _dCue = new DlgCue (this);   _dCue->Init ();
-   _dChd = new DlgChd (this);   _dChd->Init ();
-   _dCtl = new DlgCtl (this);   _dCtl->Init ();
-   _dTpo = new DlgTpo (this);   _dTpo->Init ();
-   _dTSg = new DlgTSg (this);   _dTSg->Init ();
-   _dKSg = new DlgKSg (this);   _dKSg->Init ();
-   _dQua = new DlgQua (this);   _dQua->Init ();
-   _dMov = new DlgMov (this);   _dMov->Init ();
-   _dHlp = new DlgHlp (this);   _dHlp->Init ();
+   _dFL   = new DlgFL   (this);     _dFL->Init ();
+   _dCfg  = new DlgCfg  (this);    _dCfg->Init ();
+   _dTDr  = new DlgTDr  (this);    _dTDr->Init ();
+   _dCue  = new DlgCue  (this);    _dCue->Init ();
+   _dChd  = new DlgChd  (this);    _dChd->Init ();
+   _dCtl  = new DlgCtl  (this);    _dCtl->Init ();
+   _dTpo  = new DlgTpo  (this);    _dTpo->Init ();
+   _dTSg  = new DlgTSg  (this);    _dTSg->Init ();
+   _dKSg  = new DlgKSg  (this);    _dKSg->Init ();
+   _dQua  = new DlgQua  (this);    _dQua->Init ();
+   _dMov  = new DlgMov  (this);    _dMov->Init ();
+   _dHlp  = new DlgHlp  (this);    _dHlp->Init ();
    connect (_dCfg, & DlgCfg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dTDr, & DlgTDr::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dCue, & DlgCue::sgCmd, this, [this](char *s)  {emit sgCmd (s);});

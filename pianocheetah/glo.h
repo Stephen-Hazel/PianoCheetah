@@ -135,7 +135,7 @@ struct PosDef {
 struct UTrkRow {
    ubyte dvt;   bool drm;   TStr lrn, ht, name, grp, snd, dev;   BStr tip;
 };
-struct UpdLst {
+struct UpdLst {                        // dlg val passin, etc, etc
    ubyt2 txH;
    QPixmap *oct, *pnbg, *pnbg2, *now, *dot, *cue, *bug, *fade, *tr;
    QAction *tbaPoz,     *tbaLrn, *tbaTtl;
@@ -158,9 +158,9 @@ struct UpdLst {
    Canvas   cnv, tcnv;
    PosDef   pos, posx;                 // edit pos junkss and a copy when needed
 
-// Dlg val passin (TDr, Ctl, etc)
-   ubyte   nR;
-   TStr     d [256][4];
+   ubyte   nR, id, rHop;
+   ubyt2       icc;
+   TStr     d [256][6];
 };
 extern UpdLst Up;                      // what gui needs from song
 
