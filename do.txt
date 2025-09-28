@@ -14,6 +14,9 @@ try to find all the good rush sounds
 
 code____________________________________________________________________________
 
+test out syn's envelope controls
+   somethins wrong with the pipes - EnvO::Init not gettin es from track name
+
 really test notes picked for ez tracks
    get that note match "text report" into dbg
       to notice places to make things better
@@ -31,8 +34,6 @@ really test notes picked for ez tracks
          15 and 19 lh match, rh diff by last notes
          16 and 20 lh match, rh diff
          at least a resync so 13 and 17 start at the same place
-
-test out syn's controls n envelopes
 
 pan draws weird lines off to the right on screen
 
