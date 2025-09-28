@@ -597,11 +597,22 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
 
 
 //______________________________________________________________________________
+/*ubyte FindBuf [2*1024*1024];*/
+
 static char *FLFind (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 // find cached mid files matchin search Col[NCol] - count,make found.txt
-{                              (void)len; (void)pos; (void)ptr;
-   for (ubyte i = 0;  i < NCol;  i++)  if (! StrSt (fn, Col [i]))
-                                           return nullptr;
+{ ubyte i;                     (void)len; (void)pos; (void)ptr;
+   for (i = 0;  i < NCol;  i++)  if (! StrSt (fn, Col [i]))  return nullptr;
+/* searchin strings inside .mid doesn't seem worth it
+**ubyt4 sz;
+**File  f;
+** {
+** // welp, fn doesn't match, check it's strings
+**    sz = f.Load (fn, FindBuf, sizeof (FindBuf));
+**    for (i = 0;  i < NCol;  i++)  if (! MemSt (FindBuf, Col [i], sz))
+**                                     return nullptr;
+** }
+*/
    NFnd++;
 //DBG("FLFind fn=`s", fn);
    FFnd.Put (fn);   FFnd.Put (CC("\n"));   return nullptr;
@@ -609,11 +620,11 @@ static char *FLFind (char *fn, ubyt2 len, ubyt4 pos, void *ptr)
 
 
 static char *FLCopy (char *fr, ubyt2 len, ubyt4 pos, void *ptr)
-// copy and Mid2Song found mids (limit to 100)
+// copy and Mid2Song found mids (limit to 500)
 { ubyte i;                     (void)len;            (void)ptr;
   BStr  to, frP, toP, cmd;
   File  f;
-   if (pos >= 100)  return CC("enough, pal!");
+   if (pos >= 500)  return CC("enough, pal!");
    StrCp (to, fr);   StrAp (to, CC(""), 4);   FnFix (to);
    StrFmt (frP, "`s/`s",          DirF, fr);
    StrFmt (toP, "`s/`s/path.txt", DirT, to);   f.Save (toP, frP, StrLn (frP));
@@ -660,8 +671,8 @@ DBG("no _midicache.txt for `s", dMid);
    f.DoText (fnC, nullptr, FLFind);   FFnd.Shut ();
 DBG("found `d", NFnd);
    if (NFnd == 0)   {Gui.Hey ("rats!  got nothin");   return;}
-   if (NFnd >= 100)  if (Gui.YNo (
-                            "I'm only copyin 100 of the midi files, pal.\n"
+   if (NFnd >= 500)  if (Gui.YNo (
+                            "I'm only copyin 500 of the midi files, pal.\n"
                             "wanna view all matched filenames?"))
                         App.Open (fnF);
 // ok copy em to 4_queue/found

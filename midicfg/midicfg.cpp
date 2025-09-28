@@ -89,6 +89,7 @@ DBG("  new dsc=`s", dsc [i]);
 */
 void MidiCfg::Load ()
 { ubyte i;
+  sbyt2 ri, ro;
   TStr  nm, ty, ds, dv, chk;
   char *rp [4];
    Midi.Load ();
@@ -124,11 +125,14 @@ void MidiCfg::Load ()
       }
       if (*nm)  Save ();
    }
+
    rp [0] = nm;   rp [1] = ty;   rp [2] = ds;   rp [3] = nullptr;
+   ri = _ti.CurRow ();   ro = _to.CurRow ();
    _ti.Open ();   _to.Open ();
    for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)  _ti.Put (rp);
    for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++)  _to.Put (rp);
    _ti.Shut ();   _to.Shut ();
+   _ti.HopTo (ri, 0);   _to.HopTo (ro, 0);
 
 // now syn cfgs
   TStr fn, s;
@@ -200,10 +204,12 @@ void MidiCfg::Save ()
 
 void MidiCfg::Mv (char du)
 {  if ((_io != 'i') && (_io != 'o'))  {Gui.Hey ("Click a row, dude");   return;}
-  ubyte cr, r;
-  TStr  n;
+  sbyt2 cr;
+  ubyte  r;
+  TStr   n;
   CtlTabl *t = (_io == 'i') ? & _ti : & _to;
-   StrCp (n, t->Get (cr = t->CurRow (), 0));
+   if ((cr = t->CurRow ()) < 0)       {Gui.Hey ("Click a row, dude");   return;}
+   StrCp (n, t->Get (cr, 0));
    for (r = 0;  r < Midi._len;  r++)
       if ((_io == Midi._lst [r].io) && (! StrCm (n, Midi._lst [r].name)))
          break;
@@ -227,6 +233,7 @@ void MidiCfg::Updt ()
   TStr  nm, ty, ds;
   ubyte c = t->CurCol ();
   sbyt2 r = t->CurRow (), ro;
+   if (r < 0)                         {Gui.Hey ("Click a row, dude");   return;}
 //DBG("Updt r=`d c=`d", r, c);
    StrCp (nm, t->Get (r, 0));   StrCp (ty, t->Get (r, 1));
    StrCp (ds, t->Get (r, 2));
@@ -306,7 +313,8 @@ void MidiCfg::TestI (ubyte mi, MidiEv e)
 
 
 void MidiCfg::TestO ()
-{  if (! StrCm (_to.Get (_to.CurRow (), 1), CC("syn")))  return;
+{  if (_to.CurRow () < 0)  return;
+   if (! StrCm (_to.Get (_to.CurRow (), 1), CC("syn")))  return;
   MidiO m (_to.Get (_to.CurRow (), 0), 'x');    // no gm init
    m.Put (9, MDrm(CC("snar")), 0x80|90);   m.Put (0, MKey (CC("4C")), 0x80|90);
    Zzz (300);                          // 3/10 sec

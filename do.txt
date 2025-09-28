@@ -1,69 +1,66 @@
 play____________________________________________________________________________
 
-play, study magic singable dumb songs, pick out riffs
-   petshopboys, depmode, yazoo "situation", erasure(vince clarke), assembly
-   owl city, journey whos crying now
+play, study magic singable dumb songs, pick out riffs, make a SONG
 
-find every rush sound
+   yazoo - only you, don't go, situation (move out)
+   owl city?
+   journey - don't stop believin, who's crying now, patiently,
+      feeling that way, just the same way, lovin touchin squeezin
+      lights, stay awhile, wheel in the sky,
+   erasure - always, love to hate you, chorus, sometimes, fingers and thumbs
+
+try to find all the good rush sounds
 
 
 code____________________________________________________________________________
 
-add pStp - (what ex IS tune?) stay within scale (chord?), no need for pStR
+really test notes picked for ez tracks
+   get that note match "text report" into dbg
+      to notice places to make things better
+   to zanarkand
+      bar 34 trill is incr and should start on 1, bar 70 too
+         incr always start on 1
+         decr on 5
+      check trill sync across hands
+      1-2 and 3-4 are exact same rhythm and note DIRECTION
+         but actual notes diff
+         maybe ez should match?
+         same for 5-8,9-12
+      13 and 17 match exactly (real notes that is)
+         14 and 18 lh match, rh ONE trailing note diff
+         15 and 19 lh match, rh diff by last notes
+         16 and 20 lh match, rh diff
+         at least a resync so 13 and 17 start at the same place
 
-strum ?
+test out syn's controls n envelopes
 
-build all the envs
-test,improve env mods
+pan draws weird lines off to the right on screen
+
+fix colors SOMEhow is _tr ctl using CTnt ??
+
+figure out drag n drop?
+
+
+spec____________________________________________________________________________
+
+note level control of envelopes etc via "note color"
+   palette of fx colors:
+      name=> all defaults overriden w set of control to set at once
+         ex: step5:     pBnR=5th pStp=key
+             phaserlr:  envs=phaser|panl
+   note color...  set only a note to phaserlr
+      if color!=0 (str != '')
+         note estr overrides chan = fxlist[color-1],
+
+strum?
+
+follow an osc?
+
+future env stuff:
    dur - discrete   *1/16 *2/16 *3/16 *4/16 .. *32/16
          discrete2  /16 /8 /4 /2 1 *2 *4 *8 *16
          continuous 0-1
-rand curve (level,subdur)
-follow an osc?
-
-MAIN:
-   osc(snd,note,phase) oSnd,oKey/oCnt  (0-?, 2100-10800=0-8700)
-   flt(cut,res)        fCut,fRes       (8000-13500=0-5500, 0-960)
-   amp                 amp             (    0..1)
-   pan                 pan             (-1..0..1)
-   ...fx(send,type,params) fx2, etc
-
-always:  note=>oKey  velo=>amp
-
-fx list:
-         (release env dur)
-   (bnd) oKey+oCnt * +-PBnd * pBnR       PBnd (regular)
-         scale +-15 ksig notes for oKey  bnd.scale
-         pan                             bnd.pan
-   (mod) velo > fCut                     vel.fCut
-         pedl > fCut                     ped.fCut
-         pedl > amp                      ped.amp
-
-   (env) 0..-1>pan    panl   x
-         0..1>pan     panr   x
-         sin>pan      pano   x
-         sin>fCut     wow    x
-         sin>oCnt     phaser x (tiny level kinda slow)
-         sin>oCnt     vibr     (noticable level)
-         sin>amp      trem
-
-         rnd>pan      panran
-
-         glide: glRate,glFrom
-         glis?  (round and retrigger on next)
-                ?glide amp, fCut too
-
-note level control (syn palette)
-   add sync (syn color) on NtDn(NtUp too?)
-   0=channel defaults, else...
-      picks from syn palette table which has...
-   name, sound, frq, cut, vol, pan, vel2cut, phasor, porta, pb2pan,
-                tremelo, vibrato, filter sweep
-         envelopes that adjust overall dur to wav of snd (if unlooped)
-         or attack phase of wav (pre loopBgn length)
-
-
-think/spec______________________________________________________________________
+   rand (sample and hold / osc follow)
 
 controls in gui - pad of 3 control,values (3 x droplist,button)
    pick control.  down on button follows mouse x to set value
@@ -81,10 +78,10 @@ in oct, are black notes slightly offset from strict 12/7 by
    slight narrowing/offsetting for a more aesthetic look?
 
 
-do2/doc_________________________________________________________________________
+doc_____________________________________________________________________________
 
 shoot ez linux
-   get your data backed up properly
+   get your data backed up properly - exfat
    make an iso and install it
 
 why is piano playin hard
@@ -98,7 +95,11 @@ how video   cleanin up a song
    editing raw .song with text editor
 
 
-backlog_________________________________________________________________________
+later___________________________________________________________________________
+
+find cheapest - weighted keyboard to chop  (roland rd64 too spendy)
+                small keyboard - prob my akai
+                small pc
 
 Info() doesn't seem to work..
 
@@ -109,8 +110,6 @@ put sounds with banks in a tooltip (strip *,bank)
 controller via joystick
 
 pc volume setting not set until partway thru
-
-tophat pcm_rate wanted 44100 got 48000 :/  but _frq stays 44100
 
 File::Open that's CASE INSENSITIVE
 
@@ -147,18 +146,12 @@ limit note editing in RCRD to only what makes sense
 
 EvIns - do i ALWAYS keep trk[].e in order throughout .song lifetime?
 
+midicfg - keep row hilited in Mv()
+
 control picker should show if control is used in song
    map cc zone1 to somethin how?
    hover should show track# etc
    pick all ctrls used in song
-
-FLFind should search for text inside .mid files too
-
-
-wrapping text in tables happens only on 2nd show
-   would LIKE to wrap at char instead of word
-
-what is messin up sounds back to piano?
 
 StrArr::Add,Ins callers need to USE new bool return code :/
 
@@ -175,7 +168,7 @@ ctrl list
    preserve across song load
    give controls fullname too
 
-CtlTr - icon centering - it's always just a "decoration role" on left
+CtlTr - icon centering - cuz just a "decoration role" on left
 
 control editing
    how to edit cues at nearly same time

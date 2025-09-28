@@ -179,8 +179,8 @@ void Song::PutCC (ubyte t, TrkEv *e)
   TStr  cs;
    StrCp (cs, CtlSt (e->ctrl));   dv = _f.trk [t].dev;
                                   ch = _f.trk [t].chn;
-if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s.`d tmr=`s",
-              Up.dev [dv].mo->Name (), ch, TmSt (d2, _timer->Get ()));
+if (App.trc) {TStr d1,d2;   StrFmt (d1, "PutCC `s `s.`d tmr=`s",
+              cs, Up.dev [dv].mo->Name (), ch, TmSt (d2, _timer->Get ()));
               DumpEv (e, t, _f.trk [t].p, d1);}
    if      (! StrCm (cs, CC("Tmpo")))
       PutTp (e->valu + (e->val2 << 8));

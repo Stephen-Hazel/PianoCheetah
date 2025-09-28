@@ -312,7 +312,7 @@ void PCheetah::Upd (QString upd)
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          _tr.Put (rp,                           Up.trk [i].tip);
          if (Cfg.ntCo == 2) {          // color by track (if lrn/show non drum)
-            if (((rp [0][0] == 'l') || (rp [1][0] == 's')) &&
+            if (((rp [0][0] == 'l') || (rp [1][0] == 'S')) &&
                 (! Up.trk [i].drm))
                _tr.SetColor (i, CMap (tc++));
          }
@@ -436,11 +436,11 @@ TRC(" tbar init");
 
   CtlTBar tb5 (this,                   // transport - play/pause/etc
       "restart"            "`:/tbar/time/0" "`1\0"
-      "previous loop/page" "`:/tbar/time/1" "`Left\0"
+      "previous loop/page" "`:/tbar/time/1" "`left\0"
       "previous bar"       "`:/tbar/time/2" "`2\0"
-      "play / pause"       "`:/tbar/time/3" "`Space\0"
+      "play / pause"       "`:/tbar/time/3" "`space\0"
       "next bar"           "`:/tbar/time/4" "`3\0"
-      "next loop/page"     "`:/tbar/time/5" "`Right\0",
+      "next loop/page"     "`:/tbar/time/5" "`right\0",
       "Time");
    Up.tbaPoz = tb5.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
                               Up.tbiPoz [1] = new QIcon (":/tbar/time/6");

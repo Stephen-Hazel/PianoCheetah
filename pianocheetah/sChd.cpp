@@ -29,8 +29,8 @@ static void SetSet (ubyt4 s [4], ubyte on [128])
 }
 
 
-typedef struct {ubyte root, tmpl, bass, hit [12];
-                ubyt4 pos, neg, mis, sc;} TryRow;
+struct TryRow {ubyte root, tmpl, bass, hit [12];
+               ubyt4 pos, neg, mis, sc;};
 TryRow Try [256*1024];
 ubyt4 NTry;
 

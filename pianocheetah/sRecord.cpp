@@ -203,17 +203,28 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
       for (c = 0;  c < _ccMap.Ln;  c++)  if ((_ccMap [c].dev == dev) &&
                                              (_ccMap [c].cc  == ev->ctrl))
          {StrCp (cSt, _ccMap [c].str);   break;}
-      if      (! *cSt) {
+      if      (! *cSt) {               // not mapped?  show cc map dlg (once)
          if (Up.id == 99)  {Up.id = dev;   Up.icc = ev->ctrl;   PreCtl ();}
       }
-      else if (! StrCm (cSt, CC("keycmd"))) {
+      else if (! StrCm (cSt, CC("keycmd"))) {    // edit on/off w help dlg (once
          if (ev->valu < 64)  {if (  _ed)  _ed = 0;  else return re;}
          else                {if (! _ed)  _ed = 1;  else return re;}
          emit sgUpd (_ed ? "dHlpO" : "dHlpS");
       }
-      else if (ev->ctrl = CtlEv (cSt)) {    // 0 if outa _f.ctl spots,etc
-         _rNow = ev->time;   re = Record (ev);
-         Info (StrFmt (s1, "`s = `d", cSt, ev->valu));
+      else if (ev->ctrl = CtlEv (cSt)) {         // 0 if outa _f.ctl spots,etc
+         _rNow = ev->time;
+         if      (! StrCm (cSt, CC("pBnR"))) {
+            ev->valu = CtlPBnR [c = CtlPBnRLn * ev->valu / 128].val;
+            StrCp (s2, CtlPBnR [c].str);
+         }
+         else if (! StrCm (cSt, CC("pStp"))) {
+            ev->valu = CtlPStp [c = CtlPStpLn * ev->valu / 128].val;
+            StrCp (s2, CtlPStp [c].str);
+         }
+         else
+            StrFmt (s2, "`d", ev->valu);
+         re = Record (ev);
+         Info (StrFmt (s1, "`s = `s", cSt, s2));
       }
 TRC("EvRcrd end - ctrl");
       return re;

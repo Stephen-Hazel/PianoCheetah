@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.31)
-
+set(QT_FORCE_CMP0156_TO_VALUE NEW)
 project(sfz2syn LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)

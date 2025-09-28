@@ -23,7 +23,7 @@ private:
    char   _io;
    CtlTabl _ti, _to;
 
-   void Save (), Mv (char du);
+   void Save (),  Mv (char du);
 
 protected:
    bool eventFilter (QObject *ob, QEvent *ev);

@@ -250,8 +250,11 @@ void Song::Ctl ()
          StrCp (_ccMap [n].str, ms);
          n++;   _ccMap.Ln++;
 
-         for (j = 0;  j < _f.ctl.Ln;  j++)  if (! StrCm (ms, CtlSt (j)))
-            _f.ctl [j].sho = *sh;
+         for (j = 0;  j < _f.ctl.Ln;  j++)  if (! StrCm (ms, CtlSt (j))) {
+            if      (*sh == 's')  _f.ctl [j].sho = 'y';
+            else if (*sh == 'h')  _f.ctl [j].sho = 'n';
+            else                  _f.ctl [j].sho = 'm';
+         }
       }
    }
    f.Shut ();
@@ -528,7 +531,7 @@ DBG("dnt=`s", MKey2Str (s1, dnt));
 
 
 //______________________________________________________________________________
-typedef struct {ubyte t;   ubyt4 p;} TPDef;
+struct TPDef {ubyte t;   ubyt4 p;};
 
 int TPCmp (void *a1, void *a2)         // by t,p desc
 { TPDef *p1 = (TPDef *)a1, *p2 = (TPDef *)a2;
