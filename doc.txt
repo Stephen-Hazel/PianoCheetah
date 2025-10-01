@@ -1,5 +1,11 @@
 doc.txt - stuff about pianocheetah and syn
 
+tracks with a [stuff suffix set special voice parameters
+   [vibr.1.2
+      will set vibrato env with level modulated by x1 and duration modulated by x2
+   [vibr.1.2 pano
+      will have 2 voices per note - 1st like above, 2nd doing pano env
+
 
 MAIN params of a syn "voice"
    osc  oSnd, oKey, oCnt  (0..nsounds-1, 21..108=0..87, -99..-99)

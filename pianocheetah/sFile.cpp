@@ -581,7 +581,7 @@ TRC(" map dev/chn/snd");
       if (Up.dev [_f.trk [t].dev].mo->Syn () &&
                                           (p = StrCh (_f.trk [t].name, '[')) ) {
          StrCp (buf, p+1);
-DBG(" tr=`d buf=`s", t, buf);
+DBG(" tr=`d envstr=`s", t, buf);
          Up.dev [_f.trk [t].dev].mo->Put (_f.trk [t].chn, MC_CC|19, 0, 0, buf);
       }
    }

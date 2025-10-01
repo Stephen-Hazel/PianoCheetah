@@ -14,8 +14,7 @@ try to find all the good rush sounds
 
 code____________________________________________________________________________
 
-test out syn's envelope controls
-   somethins wrong with the pipes - EnvO::Init not gettin es from track name
+test out syn's envelopes harder
 
 really test notes picked for ez tracks
    get that note match "text report" into dbg
