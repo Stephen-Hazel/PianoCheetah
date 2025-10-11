@@ -206,10 +206,9 @@ _pDn,(_pDn<_dn.Ln)?TmSt(s9,_dn [_pDn  ].time):"x",
       if      (! *cSt) {               // not mapped?  show cc map dlg (once)
          if (Up.id == 99)  {Up.id = dev;   Up.icc = ev->ctrl;   PreCtl ();}
       }
-      else if (! StrCm (cSt, CC("keycmd"))) {    // edit on/off w help dlg (once
-         if (ev->valu < 64)  {if (  _ed)  _ed = 0;  else return re;}
-         else                {if (! _ed)  _ed = 1;  else return re;}
-         emit sgUpd (_ed ? "dHlpO" : "dHlpS");
+      else if (! StrCm (cSt, CC("keyCmd"))) {    // edit on/off w help dlg (once
+         if (ev->valu < 64)  {if (  _ed)  {_ed = 0;   emit sgUpd ("dHlpS");}}
+         else                 if (! _ed)  {_ed = 1;   emit sgUpd ("dHlpO");}
       }
       else if (ev->ctrl = CtlEv (cSt)) {         // 0 if outa _f.ctl spots,etc
          _rNow = ev->time;

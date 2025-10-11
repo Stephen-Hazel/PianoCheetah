@@ -2,56 +2,6 @@
 
 #include "song.h"
 
-UCmdDef UCmd [] = {
-// done by gui/pcheetah
-   {"song<",     "song",       "load prev"},
-   {"songRand",  "",           "load random"},
-   {"song>",     "",           "load next"},
-   {"songKill",  "",           "DELETE SONG (be CAREful)"},
-   {"exit",      "",           "quit PianoCheetah"},
-   {"fullScr",   "",           "view full screen"},
-// done by thread/song/me
-   {"timeBar1",  "time",       "hop to 1st bar"},
-   {"time<",     "",           "prev bar"},
-   {"time>",     "",           "next bar"},
-   {"time<<",    "",           "prev page/loop/8th bar"},
-   {"time>>",    "",           "next page/loop/8th bar"},
-   {"timePoz",   "",           "play/pause"},
-   {"timeBug",   "",           "hop to loop with most bugs"},
-   {"tempoHop",  "tempo",      "tempo: 60%=>80%=>100%=>"},
-   {"tempo<",    "",           "down"},
-   {"tempo>",    "",           "up"},
-   {"tran<",     "transpose",  "down"},
-   {"tran>",     "",           "up"},
-   {"learn",     "recording",  "learn: hear=>play=>practice=>"},
-   {"recWipe",   "",           "wipe ALL (CAREFUL)"},
-   {"recSave",   "",           "save recording"},
-   {"color",     "",           "color: scale=>velocity=>track=>"},
-   {"ctrlMap",   "",           "map input => song controls"},
-   {"hearRec",   "",           "Hear your recording"},
-   {"hearLoop",  "",           "Hear loop notes to learn"}
-};
-ubyte NUCmd = BITS (UCmd);
-
-void Song::UCmdLoad ()
-// load .nt n .ky from device/keycmd.txt for given .cmd
-{ TStr fn, s;
-  ulong i, c;
-  StrArr t (CC("keycmd"), 50, 50*sizeof(TStr));
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/keycmd.txt"));   t.Load (fn);
-   for (i = 0;  i < t.num;  i++) {
-      StrCp (s, t.str [i]);   if (*s == '#')  continue;
-     ColSep ss (s, 3);
-      for (c = 0;  c < NUCmd;  c++)
-         if (! StrCm (ss.Col [0], CC(UCmd [c].cmd)))  break;
-      if (c >= NUCmd)
-{DBG("device/keycmd.txt is broke - no cmd='`s'", ss.Col [0]);   return;}
-      StrCp (UCmd [c].nt, ss.Col [1]);
-      StrCp (UCmd [c].ky, ss.Col [2]);
-   }
-}
-
-
 void Song::Cmd (QString s)
 { TStr  c;
   ubyte i;

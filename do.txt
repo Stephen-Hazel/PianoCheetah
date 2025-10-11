@@ -14,7 +14,11 @@ try to find all the good rush sounds
 
 code____________________________________________________________________________
 
-test out syn's envelopes harder
+get doc.txt ONTO the dang website
+
+restamp pianocheetah.tar.gz with EXACT defaults doc.txt mentions
+
+test out syn's envelopes harder - esp chorus-y things
 
 really test notes picked for ez tracks
    get that note match "text report" into dbg
@@ -34,14 +38,17 @@ really test notes picked for ez tracks
          16 and 20 lh match, rh diff
          at least a resync so 13 and 17 start at the same place
 
-pan draws weird lines off to the right on screen
-
-fix colors SOMEhow is _tr ctl using CTnt ??
+dbg why sounds are getting wrecked cuz
+   drums are off and track swaps to cp33 with no sounds
+   shouldn't it fallback to syn?
 
 figure out drag n drop?
 
 
+
 spec____________________________________________________________________________
+
+in note ev, pass duration so syn can do tricky echoes and stuff
 
 note level control of envelopes etc via "note color"
    palette of fx colors:
@@ -77,6 +84,8 @@ do unreachable powerchords, guitar strum, rhythm guitar
 in oct, are black notes slightly offset from strict 12/7 by
    slight narrowing/offsetting for a more aesthetic look?
 
+more obviously stacked notes somehow
+
 
 doc_____________________________________________________________________________
 
@@ -97,9 +106,13 @@ how video   cleanin up a song
 
 later___________________________________________________________________________
 
+pan draws weird lines off to the right on screen
+
 find cheapest - weighted keyboard to chop  (roland rd64 too spendy)
                 small keyboard - prob my akai
                 small pc
+
+solo a track?  (mute all others)
 
 Info() doesn't seem to work..
 

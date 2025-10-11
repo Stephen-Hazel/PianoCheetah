@@ -270,7 +270,7 @@ void DlgCtl::Upd ()
 void DlgCtl::Init ()
 { ubyte i;
    *MLst = '\0';     ZZApS (MLst, CC("-"));
-   for (i = 0;  i < NMCC;  i++)  if (! StrCm (MCC [i].s, CC("hold")))  break;
+   for (i = 0;  i < NMCC;  i++)  if (! StrCm (MCC [i].s, CC("keyCmd")))  break;
    while (i < NMCC)  ZZApS (MLst, MCC [i++].s);
 
    Gui.DlgLoad (this, "DlgCtl");

@@ -4,6 +4,74 @@
 
 TStr Kick;
 
+UCmdDef UCmd [] = {
+// done by gui/pcheetah
+   {"song<",     "song",       "previous song"},
+   {"songRand",  "",           "random song"},
+   {"song>",     "",           "next song"},
+   {"songKill",  "",           "DELETE SONG (be CAREful)"},
+   {"exit",      "",           "quit PianoCheetah"},
+   {"fullScr",   "",           "view:  full screen / tracks"},
+// done by thread/song/me
+   {"timeBar1",  "time",       "restart"},                           // 6
+   {"time<",     "",           "previous bar"},
+   {"time>",     "",           "next bar"},
+   {"time<<",    "",           "previous loop / page"},
+   {"time>>",    "",           "next loop / page"},                  // 10
+   {"timePoz",   "",           "play / pause"},
+   {"timeBug",   "",           "hop to loop with most bugs"},
+   {"tempoHop",  "tempo",      "tempo:  60% / 80% / 100%"},
+   {"tempo<",    "",           "decrease tempo"},
+   {"tempo>",    "",           "increase tempo"},                    // 15
+   {"tran<",     "transpose",  "down"},
+   {"tran>",     "",           "up"},
+   {"learn",     "recording",  "learn:  hear / play / practice"},
+   {"recWipe",   "",           "wipe ALL (CAREFUL)"},
+   {"recSave",   "",           "save recording"},                    // 20
+   {"color",     "",           "color:  scale / velocity / track"},
+   {"hearRec",   "",           "Hear your recording"},
+   {"hearLoop",  "",           "Hear loop notes to learn"}           // 23
+};
+ubyte NUCmd = BITS (UCmd);
+
+static void UCmdLoad ()
+// load .nt n .ky from device/keycmd.txt for given .cmd
+{ TStr fn, s;
+  ulong i, c;
+  StrArr t (CC("keycmd"), 50, 50*sizeof(TStr));
+   App.Path (fn, 'd');   StrAp (fn, CC("/device/keycmd.txt"));   t.Load (fn);
+   for (i = 0;  i < t.num;  i++) {
+      StrCp (s, t.str [i]);   if (*s == '#')  continue;
+     ColSep ss (s, 3);
+      for (c = 0;  c < NUCmd;  c++)
+         if (! StrCm (ss.Col [0], CC(UCmd [c].cmd)))  break;
+      if (c >= NUCmd) {
+DBG("device/keycmd.txt is broke - no cmd='`s'", ss.Col [0]);
+         continue;
+      }
+      StrCp (UCmd [c].nt, ss.Col [1]);
+      StrCp (UCmd [c].ky, ss.Col [2]);
+   }
+}
+
+static char *UCmdS (char *cmd)
+{ static TStr o, k, n;
+   *k = *n = '\0';
+   for (ubyte i = 0;  i < NUCmd;  i++)  if (! StrCm (cmd, CC(UCmd [i].cmd))) {
+      StrCp (k, CC(UCmd [i].ky));
+      StrCp (n, CC(UCmd [i].nt));   if (*n == '.') *n = '\0';
+      StrCp (o, CC(UCmd [i].desc));
+      if (*k || *n) {
+         StrAp (o, CC("  ["));   StrAp (o, k);
+         if (*k && *n)   StrAp (o, CC(" "));
+         StrAp (o, n);   StrAp (o, CC("]"));
+      }
+      break;
+   }
+   return o;
+}
+
+
 void PCheetah::Trak ()
 { QSplitter *sp = ui->spl;
   QList<int> sz = sp->sizes ();
@@ -239,8 +307,8 @@ void PCheetah::Upd (QString upd)
       if (i > 5)  emit sgCmd (upd);
       else  switch (i) {
          case 0:  SongPrv  ();   break;     // song<
-         case 1:  SongNxt  ();   break;     // song>
-         case 2:  SongRand ();   break;     // songRand
+         case 1:  SongRand ();   break;     // songRand
+         case 2:  SongNxt  ();   break;     // song>
          case 3:  SongKill ();   break;     // songKill
          case 4:  Gui.Quit ();   break;     // exit
          case 5:  Trak     ();   break;     // fullScr
@@ -353,7 +421,7 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
 
 
 void PCheetah::Init ()
-{ TStr fn;
+{ TStr fn, s [16];
   File f;
 TRC("Init");
    *Kick = '\0';
@@ -374,6 +442,7 @@ TRC(" got device.txt");
       if (StrCm (ty, CC("OFF")) && (*dv == '?'))
          {Gui.Hey (StrFmt (dv, "Hey! `s: `s (`s)  is off, pal...",
                                nm, ty, ds));   break;}
+   UCmdLoad ();
 TRC(" song init");
    _s = new Song;                      // git song worker thread goin
 
@@ -400,68 +469,79 @@ TRC(" song init");
    _thrSong.start ();
    emit sgCmd ("init");
 
-   setFocusPolicy (Qt::StrongFocus);   // so we get keyPressEvent()s
+   setFocusPolicy (Qt::StrongFocus);        // so we get keyPressEvent()s
 TRC(" tbar init");
-  CtlTBar tb2 (this,                   // top
-      "view fullscreen / track editing" "`:/tbar/0" "`v\0"
-      "configure midi devices"          "`:/tbar/1" "`\0"
-      "settings and junk"               "`:/tbar/2" "`\0",
-      "Config");
+
+// leftmost
+   StrCp  (s[1], UCmdS (CC("fullScr")));
+   StrFmt (s[0], "`s``:/tbar/0```z"
+                 "configure midi devices``:/tbar/1```z"
+                 "settings and junk``:/tbar/2```z",  s[1]);
+  CtlTBar tb2 (this, s[0], "Config");
    connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::Trak);
    connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
    connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
 
-  CtlTBar tb3 (this,                   // list/prev/next/rand song
-      "pick from song list" "`:/tbar/song/0" "`\0"
-      "previous song"       "`:/tbar/song/1" "`z\0"
-      "next song"           "`:/tbar/song/2" "`x\0"
-      "random song"         "`*??"           "`a\0",
-      "SongList");
+// song pickin
+   StrCp  (s[1], UCmdS (CC("song<"   )));
+   StrCp  (s[2], UCmdS (CC("song>"   )));
+   StrCp  (s[3], UCmdS (CC("songRand")));
+   StrFmt (s[0], "pick from song list``:/tbar/song/0```z"
+                 "`s``:/tbar/song/1```z"
+                 "`s``:/tbar/song/2```z"
+                 "`s``*??```z",  s[1],s[2],s[3]);
+  CtlTBar tb3 (this, s[0], "SongList");
    connect (tb3.Act (0), & QAction::triggered, this, & PCheetah::Load);
    connect (tb3.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
    connect (tb3.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
    connect (tb3.Act (3), & QAction::triggered, this, & PCheetah::SongRand);
 
-  CtlTBar tb4 (this,
-      "hear / play / practice\n"
-         "Click Lrn column of track grid to practice it.\n"
-         "Once you have played the song a few times, you can practice loops."
-                         "`view-visible" "`l\0",
-      "LearnMode");
+// learn button
+   StrCp  (s[1], UCmdS (CC("learn")));
+   StrFmt (s[0], "`s``view-visible```z",  s[1]);
+  CtlTBar tb4 (this, s[0], "LearnMode");
    Up.tbaLrn = tb4.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
                               Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
                               Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
    connect (tb4.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("learn");});
 
-  CtlTBar tb5 (this,                   // transport - play/pause/etc
-      "restart"            "`:/tbar/time/0" "`1\0"
-      "previous loop/page" "`:/tbar/time/1" "`left\0"
-      "previous bar"       "`:/tbar/time/2" "`2\0"
-      "play / pause"       "`:/tbar/time/3" "`space\0"
-      "next bar"           "`:/tbar/time/4" "`3\0"
-      "next loop/page"     "`:/tbar/time/5" "`right\0",
-      "Time");
+// transport - play/pause/etc
+   StrCp  (s[1], UCmdS (CC("timeBar1")));
+   StrCp  (s[1], UCmdS (CC("time<<"  )));
+   StrCp  (s[3], UCmdS (CC("time<"   )));
+   StrCp  (s[4], UCmdS (CC("timePoz" )));
+   StrCp  (s[5], UCmdS (CC("time>"   )));
+   StrCp  (s[6], UCmdS (CC("time>>"  )));
+   StrFmt (s[0], "`s``:/tbar/time/0```z"
+                 "`s``:/tbar/time/1```z"
+                 "`s``:/tbar/time/2```z"
+                 "`s``:/tbar/time/3```z"
+                 "`s``:/tbar/time/4```z"
+                 "`s``:/tbar/time/5```z",  s[1],s[2],s[3],s[4],s[5],s[6]);
+  CtlTBar tb5 (this, s[0], "Time");
    Up.tbaPoz = tb5.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
                               Up.tbiPoz [1] = new QIcon (":/tbar/time/6");
-   connect (tb5.Act (0), & QAction::triggered,
-            this, [this]() {emit sgCmd ("timeBar1");});
-   connect (tb5.Act (1), & QAction::triggered,
-            this, [this]() {emit sgCmd ("time<<");});
-   connect (tb5.Act (2), & QAction::triggered,
-            this, [this]() {emit sgCmd ("time<");});
-   connect (tb5.Act (3), & QAction::triggered,
-            this, [this]() {emit sgCmd ("timePoz");});
-   connect (tb5.Act (4), & QAction::triggered,
-            this, [this]() {emit sgCmd ("time>");});
-   connect (tb5.Act (5), & QAction::triggered,
-            this, [this]() {emit sgCmd ("time>>");});
-
-  CtlTBar tb6 (this,
-      "decrease tempo"           "`:/tbar/tmpo/0" "`F2\0"
-      "tempo to 60%=>80%=100%=>" "`:/tbar/tmpo/1" "`t\0"
-      "increase tempo"           "`:/tbar/tmpo/2" "`F3\0",
-      "Tempo");
+   connect (tb5.Act (0), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("timeBar1");});
+   connect (tb5.Act (1), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("time<<");});
+   connect (tb5.Act (2), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("time<");});
+   connect (tb5.Act (3), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("timePoz");});
+   connect (tb5.Act (4), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("time>");});
+   connect (tb5.Act (5), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("time>>");});
+// tempo
+   StrCp  (s[1], UCmdS (CC("tempo<"  )));
+   StrCp  (s[2], UCmdS (CC("tempoHop")));
+   StrCp  (s[3], UCmdS (CC("tempo>"  )));
+   StrFmt (s[0], "`s``:/tbar/tmpo/0```z"
+                 "`s``:/tbar/tmpo/1```z"
+                 "`s``:/tbar/tmpo/2```z",  s[1],s[1],s[2]);
+  CtlTBar tb6 (this, s[0], "Tempo");
    connect (tb6.Act (0), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo<");});
    connect (tb6.Act (1), & QAction::triggered,
@@ -469,35 +549,36 @@ TRC(" tbar init");
    connect (tb6.Act (2), & QAction::triggered,
             this, [this]() {emit sgCmd ("tempo>");});
 
+// editing stuff
   CtlTBar tb7 (this,
       "`split the learn track (3E and below) into new LH track"
-                                    "`:/tbar/trak/0" "`\0"
-      "`make drum track from clips" "`:/tbar/trak/1" "`\0"
-      "`insert track"               "`:/tbar/trak/2" "`\0"
-      "`delete track"               "`:/tbar/trak/3" "`\0"
-      "`scoot track up"             "`:/tbar/trak/4" "`\0"
-      "`scoot track down"           "`:/tbar/trak/5" "`\0",
+                                    "`:/tbar/trak/0`\0"
+      "`make drum track from clips" "`:/tbar/trak/1`\0"
+      "`insert track"               "`:/tbar/trak/2`\0"
+      "`delete track"               "`:/tbar/trak/3`\0"
+      "`scoot track up"             "`:/tbar/trak/4`\0"
+      "`scoot track down"           "`:/tbar/trak/5`\0",
 //    "`time scaling - for { to } => } scales to ^"
 //                                  "`:/tbar/trak/6" "`\0"
 //    "`time offsetting - for { to end => { moves to ^"
 //                                  "`:/tbar/trak/7" "`\0",
       "EditTrack");
-   connect (tb7.Act (0), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkEd sp");});
-   connect (tb7.Act (1), & QAction::triggered,
-            this, [this]() {emit sgCmd ("preTDr");});
-   connect (tb7.Act (2), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkEd +");});
-   connect (tb7.Act (3), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkEd x");});
-   connect (tb7.Act (4), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkEd u");});
-   connect (tb7.Act (5), & QAction::triggered,
-            this, [this]() {emit sgCmd ("trkEd d");});
-// connect (tb7.Act (6), & QAction::triggered,
-//          this, [this]() {emit sgCmd ("trkEd *");});
-// connect (tb7.Act (7), & QAction::triggered,
-//          this, [this]() {emit sgCmd ("trkEd -");});
+   connect (tb7.Act (0), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("trkEd sp");});
+   connect (tb7.Act (1), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("preTDr");});
+   connect (tb7.Act (2), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("trkEd +");});
+   connect (tb7.Act (3), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("trkEd x");});
+   connect (tb7.Act (4), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("trkEd u");});
+   connect (tb7.Act (5), & QAction::triggered, this,
+                                           [this]() {emit sgCmd ("trkEd d");});
+// connect (tb7.Act (6), & QAction::triggered, this,
+//                                         [this]() {emit sgCmd ("trkEd *");});
+// connect (tb7.Act (7), & QAction::triggered, this,
+//                                         [this]() {emit sgCmd ("trkEd -");});
 
   CtlTBar tb (this,
       "(I just show the song file for fullscreen)" "`*..." "`\0",

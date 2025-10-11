@@ -24,10 +24,6 @@ extern QColor CMap (ubyte n);
 extern char  KeyCol [13];              // in sEdit.cpp
 extern ubyte WXOfs  [12];
 
-struct UCmdDef {const char *cmd, *grp, *desc;   WStr nt, ky;};
-extern UCmdDef UCmd [];                // in sCmd.cpp
-extern ubyte  NUCmd;
-
 struct CCMDef {ubyte dev;   ubyt2 cc;   WStr str;};
 
 //______________________________________________________________________________
@@ -224,7 +220,6 @@ private:
    void  DbgPos  (char x = '\0');      // MsDn,Mv,Up are slots below
 
 // sCmd.cpp
-   void  UCmdLoad ();
    ubyte ChkETrk ();
    void  RecWipe (), Msg (char *s),
          EdSong (char ofs), EdTime (char ofs), EdTmpo (char ofs),

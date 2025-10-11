@@ -1,8 +1,34 @@
 doc.txt - stuff about pianocheetah and syn
 
+UI - sorry it's noot intuitive - you gotta read this stuff:
+
+   commands:
+      click on keyboard area to map controls
+         set one of the controls to "keycmd"
+            when that control's value is non 0,
+               the piano keys do commands
+               press F1 for the mapping of piano key/keyboard key => command.
+            when that control's value is 0, piano keys record normally.
+      edit pianocheetah/device/keycmd.txt to remap the commands
+         to different piano keys / keyboard keys
+
+   debug tracing
+      pianocheetah settings has a checkbox for "trace to dbg.txt"
+      it's at /home/you/.var/app/app.pianocheetah.pianocheetah/config/dbg.txt
+      I'll ask you to peek in there if we find bugs :/
+
+
+
+
+
+
+
+
+
 tracks with a [stuff suffix set special voice parameters
    [vibr.1.2
-      will set vibrato env with level modulated by x1 and duration modulated by x2
+      will set vibrato env with level modulated by x1 and duration modulated by
+x2
    [vibr.1.2 pano
       will have 2 voices per note - 1st like above, 2nd doing pano env
 

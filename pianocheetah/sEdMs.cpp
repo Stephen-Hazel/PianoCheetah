@@ -287,7 +287,6 @@ void Song::MsMv (Qt::MouseButtons b, sbyt2 x, sbyt2 y)
          StrAp (s, DevName (tr));
          if (! dr)  StrAp (s, StrFmt (s2, ".`d #`d `s",
                            _f.trk [tr].chn+1, tr+1, _f.trk [tr].name));
-         if (_f.trk [tr].ht == 'S')  StrAp (s, CC(" show"));
          Info (s);
       }
 //DBG(" Up.Pos at=`c got=`b str=`s", Up.pos.at, Up.pos.got, Up.pos.str);

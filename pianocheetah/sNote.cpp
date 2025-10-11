@@ -2,10 +2,13 @@
 
 #include "song.h"
 
+// 0 red    1 orange   2 yellow       3 greenyellow   4 green   5 aquagreen
+// 6 aqua   7 blue     8 bluepurple   9 purple       10 pink   11 magenta
 QColor CRng [128], CScl [12], CSclD [12], CTnt [4],
        CRec,  CMid, CBBg, CBt;
 
-static ubyte cmap [12] = {0, 4, 8,   1, 5, 9,   2, 6, 10,   3, 7, 11};
+// reorder em so they look distinct
+static ubyte cmap [12] = {11,7,5, 2,6,10, 0,8,9, 4,3,1};
 
 QColor CMap (ubyte n)  {return CScl [cmap [n % 12]];}
 
@@ -14,7 +17,7 @@ void CInit ()
    cr.Init (CRng);                                                  // prp,x,mag
    for (int i = 0;  i < 12;  i++)  {CScl  [i] = HSL (30*i, 100, 75);
                                     CSclD [i] = HSL (30*i, 100, 50);}
-   CTnt [0] = QColor (203, 254, 255);  // blue, red, green, yellow
+   CTnt [0] = QColor (203, 254, 255);  // lt blue, red, green, yellow
    CTnt [1] = QColor (255, 220, 255);//255,203,244
    CTnt [2] = QColor (203, 255, 212);
    CTnt [3] = QColor (255, 255, 203);

@@ -34,6 +34,11 @@ const ubyt2 SND_MAXD = 1024;           // max sound dirs per DevTyp
 const ubyt4 SND_NONE = 0xFFFFFFFF;     // no sound
 
 
+struct UCmdDef {const char *cmd, *grp, *desc;   WStr nt, ky;};
+extern UCmdDef UCmd [];                // user's key map
+extern ubyte  NUCmd;
+
+
 //______________________________________________________________________________
 // track, melo/drum note, ev pos of a notedown
 struct NtDef   {ubyte t, nt;   ubyt4 p;};
