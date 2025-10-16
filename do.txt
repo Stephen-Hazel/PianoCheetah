@@ -1,7 +1,7 @@
 play____________________________________________________________________________
 
 play, study magic singable dumb songs, pick out riffs, make a SONG
-
+   petshopboys
    yazoo - only you, don't go, situation (move out)
    owl city?
    journey - don't stop believin, who's crying now, patiently,
@@ -13,10 +13,6 @@ try to find all the good rush sounds
 
 
 code____________________________________________________________________________
-
-get doc.txt ONTO the dang website
-
-restamp pianocheetah.tar.gz with EXACT defaults doc.txt mentions
 
 test out syn's envelopes harder - esp chorus-y things
 
@@ -38,9 +34,15 @@ really test notes picked for ez tracks
          16 and 20 lh match, rh diff
          at least a resync so 13 and 17 start at the same place
 
-dbg why sounds are getting wrecked cuz
-   drums are off and track swaps to cp33 with no sounds
-   shouldn't it fallback to syn?
+when sounds are wrecked cuz a device is off,
+   can it fallback to syn? once avail?
+
+get doc.txt ONTO the dang website
+
+restamp pianocheetah.tar.gz with EXACT defaults doc.txt mentions
+
+
+really squish track display (tooltip everything - esp sounds)
 
 figure out drag n drop?
 
