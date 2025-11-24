@@ -8,6 +8,7 @@ gdb /app/bin/pianocheetah
 set logging enabled on
 thread apply all backtrace
 run
+where
 bt full
 */
 // args:   o   build only - for release to flathub
