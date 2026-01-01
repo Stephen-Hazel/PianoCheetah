@@ -1,2 +1,1 @@
-https://pianocheetah.app
-is where i put my docs
+https://pianocheetah.app for docs

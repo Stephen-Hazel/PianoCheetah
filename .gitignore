@@ -1,2 +1,4 @@
 */CMakeLists.txt.user
 .flatpak-builder
+_build/
+_repo/
