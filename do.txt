@@ -15,7 +15,15 @@ try to find all the good rush sounds
 
 code____________________________________________________________________________
 
-test out syn's envelopes harder - esp chorus-y things
+hand flip command
+midicfg's picker keeps saying "pick a row"
+song pick - make right side nicer
+
+make ui passable in dark mode sigh
+install shouldn't let you get stuck in a loop :(
+wipe needs to be fixed
+
+space doesn't unpoz - keymap
 
 really test notes picked for ez tracks
    get that note match "text report" into dbg
@@ -34,6 +42,8 @@ really test notes picked for ez tracks
          15 and 19 lh match, rh diff by last notes
          16 and 20 lh match, rh diff
          at least a resync so 13 and 17 start at the same place
+
+test out syn's envelopes harder - esp chorus-y things
 
 when sounds are wrecked cuz a device is off,
    can it fallback to syn? once avail?

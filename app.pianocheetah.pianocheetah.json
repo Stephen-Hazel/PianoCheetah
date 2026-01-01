@@ -13,20 +13,124 @@
       "--socket=fallback-x11",
       "--socket=pulseaudio"
    ],
+   "build-options" : {
+      "strip": true,
+      "no-debuginfo": true
+   },
    "modules": [
       {
-         "name": "cp_to_app",
+         "name": "_meta",
          "buildsystem": "simple",
-         "build-commands": [
-            "cp -pr share /app",
-            "cp -pr bin   /app"
-         ],
+         "build-commands": [ "cp -pr _meta/share /app" ],
          "sources": [
             {
                "type": "git",
-               "url": "https://github.com/Stephen-Hazel/pc_build.git",
-               "commit": "6d04ca7aa044cc8a333c140594d21b817782645a"
-            }
+               "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
+            },
+            {
+               "type": "git",
+               "url": "https://github.com/Stephen-Hazel/stv.git",
+            },
+         ]
+      },
+      {
+         "name": "pianocheetah",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "pianocheetah"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "midicfg",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "midicfg"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "initme",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "initme"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+
+      {
+         "name": "mid2song",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "mid2song"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "txt2song",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "txt2song"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "mod2song",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "mod2song"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "ll",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "ll"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "sfz2syn",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "sfz2syn"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "synsnd",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "synsnd"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "midimp",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "midimp"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
+         ]
+      },
+      {
+         "name": "song2wav",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {"type": "dir", "path": "song2wav"},
+            {"type": "dir", "path": "../stv", "dest": "stv"}
          ]
       }
    ]
