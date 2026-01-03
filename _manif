@@ -120,11 +120,11 @@
       },
 
       {
-         "name": "_meta",
+         "name": "_fpak",
          "buildsystem": "simple",
          "build-commands": [ "cp -pr share /app" ],
          "sources": [
-            {"type": "dir", "path": "_meta"}
+            {"type": "dir", "path": "_fpak"}
          ]
       }
    ]

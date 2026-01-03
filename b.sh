@@ -3,29 +3,58 @@
 // b - build with flatpak-builder n stuff
 // args:   o   build only - for release to flathub
 //         c   wipe config dir - for full reinstall
+//         d   build with debugging so ya can gdb inside it
    $arg = '';   if ($argc > 1)  $arg = $argv [1];
 
-// repo name n app triplet
+// app triplet n fpak cmds
    $app = "app.pianocheetah.pianocheetah";
    $f = "flatpak";   $fb = "$f-builder";
 
-// source => _build
-   system ("rm -fr _build _repo .$fb");
-   system ("mkdir  _build _repo");
-   system ("$fb --repo=_repo _build _manif", $rc);
-// build error :( or build only
-   if (($rc != 0) || ($arg == 'o'))  exit;
+   system ("rm -fr _build .$fb");      // cleanup
 
-// uninstall old app
+echo "...uninstall old one\n";
    system ("$f uninstall -y $app");
 
-// add repo, install, n remove repo  (just tryna be neat)
-   system ("$f remote-add --no-gpg-verify _repo");
-   system ("$f install --noninteractive   _repo $app");
-   system ("$f --force remote-delete      _repo");
+   if ($arg == 'd') {
+/*    DEBUGGIN !  then go...
+      flatpak run --command=sh --devel --filesystem=$(pwd) app_triplet
+      gdb /app/bin/pianocheetah
+      set logging enabled on
+      thread apply all backtrace
+      run
+      where
+      bt full
+*/    system ("mkdir _build");
+      system ("$fb --user --force-clean --install _build _manif.dbg", $rc);
+      system ("$f install --reinstall --user --assumeyes ".
+              "/home/sh/src/pianocheetah/.$fb/cache $app");
+      system ("$f install --reinstall --user --assumeyes ".
+              "/home/sh/src/pianocheetah/.$fb/cache $app".".Debug");
+      exit;
+   }
 
-// cleanup app's .var/app/ dir for full reset
-   system ("/home/sh/.bin/x");         # wipe dbg.txt
+// source => _build => install
+   system ("mkdir _build");
 
+echo "...compilin n installin\n";
+   system ("$fb --user --install _build _manif", $rc);
+   if (($rc != 0) || ($arg == 'o'))  exit;
+                                       // build error :(  or build only
+/*
+echo "...add repo\n";
+   system ("$f remote-add    _repo --no-gpg-verify");
+
+echo "...install it\n";
+   system ("$f install       _repo $app --noninteractive");
+
+echo "...remove repo\n";
+   system ("$f remote-delete _repo --force");
+*/
+
+echo "...cleanup\n";
+#  system ("rm -fr _build .$fb");     // cleanup
    if ($arg != 'c')  exit;
+
+// cleanup .var/app/ dir for full reset (wipe config files etc)
+echo "...reset config files\n";
    system ("rm -fr ~/.var/app/$app");
