@@ -1,8 +1,7 @@
 #!/bin/php
-<?php
-// b - build with flatpak-builder n stuff
-// args:  c  wipe config dir - for full reinstall
-//        d  build with debugging so ya can gdb inside it
+<?php # b.sh - build with flatpak-builder n stuff
+      # args:  c  wipe config dir - for full reinstall
+      #        d  build with debugging so ya can gdb inside it
    $arg = '';   if ($argc > 1)  $arg = $argv [1];
 
 // app triplet n fpak cmds
