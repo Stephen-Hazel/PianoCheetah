@@ -3,7 +3,7 @@
    "command": "pianocheetah",
    "sdk":     "org.kde.Sdk",
    "runtime": "org.kde.Platform",
-   "runtime-version": "6.9",
+   "runtime-version": "6.10",
    "finish-args": [
       "--filesystem=host",
       "--share=ipc",
@@ -21,52 +21,52 @@
       {
          "name": "_fpak",
          "buildsystem": "simple",
-         "build-commands": [ 
-			   "cp -pr _fpak/share /app"
-			],
+         "build-commands": [
+            "cp -pr _fpak/share /app"
+         ],
          "sources": [
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             }
          ]
       },
       {
          "name":   "pianocheetah",
-			"subdir": "pianocheetah",
-         "buildsystem": "cmake-ninja",
-         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
-			"sources": [
-            {
-               "type": "git",
-               "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
-            },
-            {
-               "type": "git",
-					"dest": "pianocheetah/stv",
-               "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
-            }
-		   ]
-      },
-      {
-         "name":   "midicfg",
-			"subdir": "midicfg",
+         "subdir": "pianocheetah",
          "buildsystem": "cmake-ninja",
          "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
          "sources": [
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "midicfg/stv",
+               "dest": "pianocheetah/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+            }
+         ]
+      },
+      {
+         "name":   "midicfg",
+         "subdir": "midicfg",
+         "buildsystem": "cmake-ninja",
+         "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
+         "sources": [
+            {
+               "type": "git",
+               "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+            },
+            {
+               "type": "git",
+               "dest": "midicfg/stv",
+               "url": "https://github.com/Stephen-Hazel/stv.git",
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -79,13 +79,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "initme/stv",
+               "dest": "initme/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -98,13 +98,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "mid2song/stv",
+               "dest": "mid2song/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -117,13 +117,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "txt2song/stv",
+               "dest": "txt2song/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -136,13 +136,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "mod2song/stv",
+               "dest": "mod2song/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -155,13 +155,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "ll/stv",
+               "dest": "ll/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -174,13 +174,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "sfz2syn/stv",
+               "dest": "sfz2syn/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -193,13 +193,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "synsnd/stv",
+               "dest": "synsnd/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -212,13 +212,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "midimp/stv",
+               "dest": "midimp/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       },
@@ -231,13 +231,13 @@
             {
                "type": "git",
                "url": "https://github.com/Stephen-Hazel/PianoCheetah.git",
-					"commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
+               "commit": "d4109c31616f71e71b72eb856ddf40d267223d0a"
             },
             {
                "type": "git",
-					"dest": "song2wav/stv",
+               "dest": "song2wav/stv",
                "url": "https://github.com/Stephen-Hazel/stv.git",
-					"commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
+               "commit": "3bd4ded08e9ce82124f27c8adef942f7fba7b941"
             }
          ]
       }
