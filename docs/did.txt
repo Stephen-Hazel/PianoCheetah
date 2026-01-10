@@ -3,8 +3,61 @@
 
 
 2025Dec
-   linux took a while sigh.
    much better docs on the website now
+
+
+2025May
+** release 2025-05-11
+   table columns are sized properly.
+   song files are listed properly.
+
+** release 2025-05-02
+   Doesn't core anymore - last release had broken link :/
+   Command keys on piano work properly.
+   Syn does glide (portamento).
+   Syn has envelopes (including LFOs done as an envelope).
+   New record live in hear mode.
+
+
+2024Dec
+** release 2024-12-19
+   Always EZ notes now (in play and practice).
+   Tracks have tooltips with #notes, #controls, first 3 of each detailed.
+   Tracks can be combined on a given playing octave now.
+
+
+2024Oct
+** release 2024-10-18
+   Fixed bad bug that wan't refreshing screen.
+   Recordings are now properly saved in 3_done directory with recSave command.
+   Cue editing is fixed.
+   EZ mode makes a new note upon any chord change.
+   You can hop to a random song in your midi dir now.
+
+
+2024Aug
+** release 2024-08-08
+   syn plays all sounds properly.
+   new song2wav to render .wav for a song.
+   it, sfz2syn, mod2song, midimp now have GUIs (in Song List dialog).
+   improved docs on my website.
+
+
+2024Apr
+** release 2024-04-29
+   find song crash fixed.  open text editor properly.  txt2song crash fixed.
+   txt2song now shows errors in a dialog.  fixed note chopping across columns.
+   songkill would fail due to old dirs.
+   limited song filename width to prevent horiz scrolling.
+
+
+2024Mar
+** release 2024-03-20
+   Initial release on flathub.
+
+
+Takes a while to learn Qt and rewrite
+   your monster win32 api app in it
 
 
 (below are the days of windows)
