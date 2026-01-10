@@ -1,2 +1,2508 @@
-2025/12  much better docs on the website now
-2026/01  starting to fine tune pch for next release
+2026Jan
+   starting to fine tune pch for next release
+
+
+2025Dec
+   linux took a while sigh.
+   much better docs on the website now
+
+
+(below are the days of windows)
+
+
+2020May
+   MidiRadio pretty solid now - midi_import dir.
+   hop to random song of samerating.  bump rating from a/b/c/none
+
+
+2020Apr
+   been futzing around with ezplay, song file format, drumtrack creator,
+   chord arranger, etc, sigh
+
+
+2019Nov
+   It's PianoCheetah Season again :)
+   emphasis on pop song composing and easysong
+
+   rebuy the software certificate.  but won't.  for a while.
+   you'll have to turn off your virus checker.  deal with it.
+   cleaned up the .song format a lot.  took a long time.  but found a lotta
+   hidden bugs so worth it.
+   syn is broke so it's out :(  hopefully it'll be back some day
+
+
+2019Feb
+   Workin on Lazr.exe for Hogmanayyy
+
+
+2019Jan
+** release 2019 Jan 16 - .song format, ez track, rand song, syn=dead:(
+   pianocheetah.com => pianocheetah.app
+   Syn is totally broke right now.  don't use it unless you're ok with
+      screeches.  Song2Wav still works at least.  Something about WASAPI
+      has changed in win10 :(  Researching.  Sigh.
+   New .song format - a text based midi format finally !!
+   New autosplit function to do most of it.
+      Finesse the split with rectangle dragging.
+   Took out style clip and UnMod stuff until later
+
+
+2018Nov
+   PianoCheetah hang (CoUnitialize) fiiinally found SHOISH
+   in loop practice, tempo auto-set by #bug times (60/80/100%)
+
+
+2018Sep
+   RandSong lives again :)
+   bugfix - handling _song.txt files properly now
+
+
+2018Jul
+** release 2018 Jul 27 - ui bug
+   bugfix - track control being drawn on top of toolbar
+
+** release 2018 Jul 21 - EZTrack is better, GUI cleanup, bug fixes
+   good lord!  been working on ez track mode and cleaning up learning
+       progression GUI
+   .mid backups are now put in a dir with same name as song.
+       (not in /old anymore)
+   stomped on some very very old bugs.
+
+
+2017Dec
+   new verse and chorus (autonumbered) lt blue and pink hilites.  else lt
+       green for intro/bridge/outro
+   new small hover only range cues to not bug you while playing but
+       still show repeats / common rhythms
+
+
+2017Nov
+** release 2017 Nov 21 - EZ Track algorithm is more solid
+   decided ez5 is the way to go.  no point in the other ways
+   still hoping to have videos soon...:/
+
+
+2017Oct
+** release 2017 Oct 02 - Install/MidiConfig a little nicer
+   it's pianocheetah season - vaca day per week till Dec :)
+   MidiConfig autorecognizes SOME (my:) devices at least.  Is cleaner.
+   Syn wasn't resetting maxVc,maxLevel making next song's sounds quieter
+      and quieter.
+   Fixed drummap sound resolving. You guys don't tell me nothin.
+
+
+2017Aug
+** release 2017 Aug 07 - syn and BUGS (feature) are finally solid(er)
+   workin on the sample conversion .exes and SYN more (took forEVER!!)
+
+
+2017May
+   BUGS!!  tempo errors (the main type of piano playing errors) are now
+      remembered and marked with bugs.  My best feature EVER.
+      And it's BUGS.
+
+
+2017Apr
+   syn and WAV import utils seem pretty solid (to me:)
+   MidiConfiger had some pretty serious bugs i just found :(
+
+
+2017Mar
+   fix some big probs with syn again.
+   recording is preserved till first key starting loop (to review better)
+
+
+2017Feb
+   been workin hard on syn.
+   UnMOD works - you can finally play "Leave The Brain.MOD" !!
+   UnSFZ and UnSF2 mostly work.  Still workin on true layers
+
+
+2016Nov
+   made 4 kinds of ez tracks.  I might settle on only ez8 later.
+   oops - ez tracks where playing during hearall/hearmine.  fixed.
+   fixed syn bugs like "all controls off" was wiping program changes;  drum
+      samples would loop;  other bugs too :/
+
+
+2016Oct
+** release 2016 Oct 10 - autopiano and on to videos
+   last release of pianocheetah for a while cuz I'm gonna FORCE myself
+       to start making videos :(
+   ok, ez tracks => auto-piano.  just a better algorithm and would only
+       require a 3 octave piano!  (that's fully weighted - sigh)
+   post videos: update syn's sounds with public domain SongSmith sound lib
+       (just the good sounds) and general debugging of syn's flakiness
+
+
+2016Sep
+   fingering/accents - solidified em.  no need for
+      staccatissimo,staccato,portato,tenuto cuz note display shows that.
+      new left/right hand,left/right foot for drums n organ.
+      just left accent,staccatissimo for general expression used however
+
+   cues - moved to left side with chords.  chords can be hidden.
+      made column division a little better, but could use improvement.
+      solidified cues better with icons.  range cues too so loops look nicer,
+      new "hilite" range, true crescendo, decrescendo.
+      no need for broken chord or staccato cuz notes show that.
+      more icons later probably
+
+
+2016Aug
+   WavPlayer automatically applies .sfz info to .wav files for syn
+
+
+2016Jul
+   WavPlayer can pop Waver for .wav file editing
+
+** release 2016 Jul 11 - tempo and recording NAILED
+   everything is finally debugged and STEVE IS HAPPY WITH THIS RELEASE !!
+
+   learn mode implies looping, lead mode is just looping off
+
+
+2016Jun
+   tempo change recording seems to finally work
+   recording LH and RH that can play out on seperate chans/sounds seems to
+       finally work
+   for Syn, my Focusrite 2i2 reports it CAN do a minimum latency of
+       3 msec.  But will only actually WORK at 10 msec (it's default latency).
+       so swapped Syn to use default latency :(
+   honestly I don't understand why i KEEP finding detrimental bugs
+       yet pianocheetah manages to not blow up for ME...  If SOMEBODY could
+       email me to be "tester #1 other than Steve", that might help...
+
+
+2016Apr
+   wasn't preserving shown controls
+
+
+2016Mar
+   for ez tracks, wasn't shushing rec notes used only for velocity
+   showing tempo as a line control - recording tempo versus prescribed
+       tempo
+   controls can be deleted with a right click now
+   drum tracks now have an input AND an output note.  so you can set
+       input to whatever your kit can generate and set output to the note
+       to play out midi (for ex, in=snare out=clap)
+
+
+2016Feb
+** release 2016 Feb 17 - ez tracks for the lazy !
+   select a "to learn" track, click track insert (+), pick "easy track".
+       makes a "one note at a time max" to set velocity and trigger all the
+       other notes.  piano playing for slackers.  screw playin those dang
+       octaves n chords
+   you can drag a note to a different key.  for when arps and hops are
+       too big.  for use with ez tracks.
+   recorded notes are shaded grey.  black for full velocity.  lighter grey
+       for lighter velocity.
+   fingering dialog has "kill all fingering" now
+   showing beats a little darker, showing compound timesigs better
+
+
+2016Jan
+   tempo wasn't being saved in default tempo songs
+   fixed timer bug that'd shush background tracks too early
+
+** release 2016 Jan 18 - pianohero and drumhero :)
+   you can now move a bunch of notes to a backing track for RH,LH.
+      insert a + track under the LH or RH learn tracks and move notes
+      to those background tracks so ya don't gotta play em (cheating:)
+   drums can be mapped to new drum notes if your kit can't make em.
+      click in the track name cell of a drum to pick.
+   corrected kick mapping (kick n kik2 were swapped from standard)
+   editing of keysig fixed
+   editing in track grid had bugs
+
+
+2015Dec
+   swapped back to multimedia timer from wasapi one.  wasapi had better
+      accuracy but would cause ANNOYing latency.  better now.
+   SETUP.exe and Die() are a lot cleaner (syn.exe is cleaned up)
+   total dang website rewrite to do responsive navigation and junk
+   lh and rh rec tracks can record rh and lh on different channels and
+      sounds so rh can be sawtooth lead and lh synth bass
+   loop review doesn't freak when you hop out of the loop now.  new review
+      at end of song recording now.
+
+
+2015Oct
+   basic control editing in place
+   better drawing of notes wrapping to top of next column
+   during autobackup in "old" dir, files older than 2 weeks are killed
+   clicking record dev thru list will eventually turn rec off for track
+      turning it into a regular play track - so recording is functional
+
+
+2015Oct
+** release 2015 Sep 23 - so long tinkerer, code signed
+   bought an EXPENSIVE code signing cert so hopefully less antivirus
+       hassles
+   track modes use 2 icons now :/  left is play(empty)/learn(arrow)/mute(x)/
+       record(red dot) and right is handtype/drum or show(eye) for play tracks.
+       So green arrow is now for LEARN tracks, not play tracks anymore.
+       Hover over em for help
+   putting control display in pcheetah - click piano part of note disp
+   drums shaped better, colored by drum group
+
+
+2015May
+** release 2015 May 15 - FINALLY A NEW RELEASE !!!!!!!
+   not been keepin up this log - sorry :(
+   [* loops have recording review now! and saving your recording includes
+       youuur microtempos
+   as ANY file is written, if an old dir exists, prev copy is moved there
+       as a cheap backup method
+   MUCH better MiniDumps being used now so way easier to find bugs :)
+
+
+2014Dec
+   Does drums correctly - I can use my elec drum kit now!
+   Unicode support finally added!!
+
+
+2014Aug
+   Met Annie!!  So you're gonna have to wait some more :)
+
+
+2014Jun
+   Sorry, tryin to freakin date lately and it takes for EVER...
+   downloading a songpack won't STOMP an existing dir
+
+
+2014Apr
+** release 2014 Apr 06 - bugs
+   finally have website docs refreshed - AAAAARGH !!
+   if a midi out device is off, next in list is used
+   loopinit now TOGGLES autoloops on/off and preserves the [*, [LH/RH,
+       and [LH/RH/HT loops you set
+   bugfix - keysig edits weren't being saved
+   bugfix - device closing died (often)
+
+
+2014Mar
+** release 2014 Mar 17 - bugs
+   bugfix - big bug w SETUP.exe - data dir wasn't zipped
+   bugfix - height of track window wasn't autosized right
+   bugfix - songpack download dialog was messed up
+
+** release 2014 Mar 06 - soundmapping bugfix, track editing
+   bugfix - sound/device mapping was broken.  If you have problems,
+       please re-download your device type or
+       completely uninstall and reinstall
+   first stab at track editing (ins/del/moveUp/Down).  Make a backup of your
+       song before trying these, please...
+
+** release 2014 Mar 02 - keysig, soundmapping, bugfixes
+   bugfix - loopinit was broke
+   bugfix - in learn mode, loop=n, often wasn't skipping to next )
+   keysignature is calculated if orig midi is C Maj or has no ksig
+   sounds are automatically mapped to a new device if not an exact match
+       on last assigned device (or last assigned device is no longer here
+       like at piano lesson)
+
+
+2014Feb
+** release 2014 Feb 16 - NOTE EDITING :)
+   make sure your midis are BACKED UP as there could be bugs
+   click top half of note to edit fingering, change track
+   click bottom half drags duration
+   clicking outside note drags a rectangle
+   if big rect, surrounded note(start)s can be handswapped or deleted
+   else adds new note with track,duration,velos like closest note
+   loop points and cues can be dragged in time
+   bugfix - error message window was RARELY showing :(
+   broken notes are handled better now
+   tooltips are better for track control
+
+
+2014Jan
+   bugfix - syn wasn't pausing drums well (at all - it could die)
+
+
+2013Dec
+** release 2013 Dec 31 - compact bars, quick keysig editor
+   empty bars are squished now so you can see more notes
+   note heights are now scaled down if they can be - which is VERY COOL
+      (and subbeats are shown only if notes happen on them)
+   bugfix - program changes set correctly, but then reset back to piano:(
+   bugfix - ReChord wasn't picking 1st in/out device correctly (n died)
+   new keysig editor - click on keys in notes display.  You can only add
+      ONE for now (or update existing keysigs).  Use Tinkerer to add more.
+
+** release 2013 Dec 16 - major GUI cleanup
+   Sorry, standard notation is gone for now.  (Until it's useful)
+   notes look like little "dig dug"s now - to show left/right hand
+   color can show track/scale/velocity now
+
+
+2013Nov
+   new loopInit button (in Cues dialog - click in cues area of note display)
+      that finds repeating sections to skip (colored blue in cue area)
+      and loops up the rest into 4 bar loops with half bar overlap
+      - IT IS AWESOME
+   key commands don't have focus probs any more (hit F1 for help)
+
+
+2013Oct
+   better song list now
+   GUI is a little more straightforward with buttons
+
+
+2013Sep
+   RH,LH tracks' hold pedal is muted in learn,lead,follow modes
+      so it doesn't clash with what you play.  It only goes out in
+      HearAll,HearMine.
+   editing tempo applies a % change for all tempo changes in song file
+      (% is saved with song, tempo change events are always left as is)
+   UnXI - convert .xi files to .WAV files
+
+
+2013Aug
+   bugfix - drumtracks with control changes weren't being played right
+   bugfix - ReChord updated for new syn config
+
+** release 2013 Aug  - bugfixes
+   bugfix - Sty2Song was making wrecked overlapping notes
+   bugfix - SYN was always being started if available which would kill
+       Microsoft GS Synth.  So that's back to working again.
+
+
+2013Jul
+** release 2013 Jul 11 - bugfixes
+   now if things Die, debugging can be auto-uploaded if user says yes
+   setting one SYN dev OFF sets em all (n back)
+   new Mid2Txt.exe that scans your crappily named midi files in a dir (and
+      all subdirs) for text events and makes a fix.bat file for renaming them
+      (uncrappily)
+   PianoCheetah bugfix of stys adding extra }s to song Dsc
+
+
+2013May
+** release 2013 May 28 - bugfix
+   DANggg - fixed bug that'd play ALL the NOTES since bar 1 upon hopping to
+      a new song spot.
+   also help windows were popping behind main one:(
+
+** release 2013 May 26 - ReChord
+   ReChord (chord sequencer for an arranger keyboard) is ready to try!
+      It uses 1st midi in device in MidiConfiger and midi out device of
+      =same= name.
+      (after install, exit out of PianoCheetah (you'll be "thrown into it") and
+       find ReChord at Start => Programs => PianoCheetah => ReChord)
+      off=>arm - sets start bar upon 1st recorded note
+      arm=>record - on 1st note, start bar is set and we've GOT something
+      (if no recorded events, it's back to "off" on manual mode change)
+       record=>play - we've collected some notes so play em on out in a
+      loop
+      play=>off - all notes off; back to doing nothing
+
+** release 2013 May 22 - chordals
+   Lord willin' the bugs are fixed...:(
+
+** release 2013 May 20 - chordals
+   fixed bugs in the STABILITY release...:/
+   if you turn on global setting to show chordals, it works pretty well
+
+** release 2013 May 18 - stability?
+   MidiConfiger has browse toolbar button to get to SYN's dir of .WAVs
+
+** release 2013 May 10 - arranger
+   new ReChord test app - will eventually be a performance engine.  But
+      currently just dumps ALL midiin on 1st MidiCfg device to
+      c:\ReChord.txt
+   Hop to bar 1 command now hops to start of loop (when looping is on)
+   .STY files in ..PianoCheetahSongs\SongClip\Style can be applied to a song
+      with chords now.  I've got some splainin' to do...
+   .txt format now understands leadsheets with
+      chord
+      F  / / / | F7 / / / | C / / / | C7 / / /
+      G7 / / / | F7 / / / | C / / / | G7 / / /  (etc)
+      chordend
+   fixed devicetype bug
+
+
+2013Mar
+** release 2013 Mar 23
+   Rats - fixed div by zero bug during install when downloading SYN
+   Drums display ok again.  Keys in PianoNotes are a little bigger now.
+
+
+2013Feb
+** release 2013 Feb 26
+   Nicer _HappyBirthday2.mid :)
+   Rats - midi files outside PianoCheetahSongs dir weren't being init'd
+      right.  Now defaults to hearAll,show tracks.  Before they were all
+      muted :(
+
+** release 2013 Feb 23
+   Hopefully, this release will be MUCH more stable...:/
+   If device scan skipped in MidiCfg, PianoCheetah looped.
+      Just always do scan.  PianoCheetah now stops with error.
+   Start of full fledged chord and style editing - currently only the
+      chord editing works.  Style based background tracks following chords will
+      come soon
+   Rats - key commands may have been broke:/
+   Rats - _song.txt files were being overwritten as .mid
+   Rats - taking out RandomSong for now.
+      Please delete \PianoCheetahSongs\Repertoire\RandomSong.mid.
+   making MidiConfiger list SYN first for output devices.
+
+
+2013Jan
+** release 2013 Jan 31
+   Rats - bug in hilighting RH red in PianoNotes fixed
+
+** release 2013 Jan 13
+   F1 key now pops the help window
+   better global settings/song settings windows
+   new RandomSong with levels and keysig pickable from global settings
+   noteview type is a global setting so you don't have to keep toggling
+       through them
+   loop position is remembered across save/load
+   chords aren't auto-calculated anymore.  Now there's a command that
+       (re)calculates / wipes chord symbols
+
+
+2012Dec
+   Tinkerer syncing taken out
+   relabeled learn modes for clarity - HearAll(new),play4me=>HearMine
+      wait4me=>Learn sync2me=>Lead off=Follow
+   and sheetsync=>AutoFlip
+   Txt2Song !KSig= with flat key wasn't read correctly;
+      new !text=*C#mM7 for chord symbols
+
+** release 2012 Dec 17
+   sync2me works -much- better now, but you're limited to 2 bars
+      back/foreward hops - at least you don't get LOST any more
+   Mod2Mid now WORKS :)  And it works GREAT !!
+   won't skip over () sections when in sync2me now
+   pops piano cfg dialog ONLY within keyboard header area now
+   syn - .wavs ending in _drum are unpitched, _hold skip release on
+      noteUp, _clip do both
+   RandomSong.mid always sorts to end of Learning,Repertoire now
+
+
+2012Nov
+** release 2012 Nov 21
+   PianoNotes has header area so green "now" at top SHOWs and you can see
+      octaves better.  Keysig put back in, too.
+   fingering dialog can swap a note to the other hand
+   made fingering have a white background to stand out better
+   SYN can load floating point .WAV files now
+
+** release 2012 Nov 05
+   new "guts" docs
+
+
+2012Oct
+   renaming WHOLE thing from PianoCheater to PianoCheetah and
+      completely redesigning website - AAAAARGH !!
+   nicer release notes page :)
+
+
+2012Sep
+   made a yamaha_cvp303 devicetype - Yamaha Clavinova
+   finishin up SYN's SoundTracker soundbank - SHEEEEEEOISH :/
+   syn treats any multisamples as unpitched if sound name ends with
+      _drum.wav (in addition to real drums somewhere in top drum dir)
+   now sorting tracks by "sound group" of track (keys/orch/bass/sndfx/drum)
+
+   fixed set local control off/on to only do midiins that have mout of
+      same name this would leave local control back ON on a song change :(
+   new prios: finish,release syn;  polish sync2me;  add RandSong;
+              polish std notation
+   new WavPlayer app for listening to a ton of .WAV files,
+      showing their stats and  playin em to preview em.
+      (right click a dir in WinExplorer and pick "Play WAVs")
+
+
+2012Aug
+   redid the DANG videos (a quick stab is all i can afford fer now)
+      n modernized pages a bit
+   starting a NEW half time project - SYN the second !!
+      sick of coding standard notation, so breaking into a COMPLETE
+         software synthesizer rewrite
+      NO more soundfonts, any vestiges of fluidsynth will be GONE.
+      a program change now refs a dir of WAV files
+         which can have key,velocity ranges.
+      done with loading WAVs, interpolation, mixing, n pan :)
+      done with filter, fx
+      instead of lfo n envelopes, will use "modWaves"
+         (to be explained later:/)
+      Half my time still spent on standard notation.
+      MAKe that full time...!!
+      drum notes all have their OWN channel in syn now :)
+      eventually (once pianocheater/tinkerer can handle it) you'll be able
+         to change fiterCut,Res,vol,pan,chor,rvrbSend on ANY drum note
+
+   chord recognition is better - taking bass notes into account more,
+      tossed 9
+   accidentals are offset horizontally now instead
+      of piling on each other
+   ties are curved and ALMOST right, but, hmmm...  more to go
+   new Waver app for editing .WAV files and showing the samples
+      (right click a .WAV file in WinExplorer and pick "Edit with Waver")
+
+
+2012Jul
+** release 2012 Jul 28
+   argh - most notes weren't being natural'd - fixed
+   durations and rests MUCH better
+   ties within bar done ok now (for durs like 15/16 in bass)
+   QUIte a bit better sheet music now :)
+
+** release 2012 Jul 24
+   pianonotes were displaying 1 bar too far resulting in a octave=-1 display :/
+   fixed sheet music durs (and beaming) QUITE a bit
+      now things are SORT of auto-quantized, but not really :/
+      (but, of course, more work to do there)
+
+** release 2012 Jul 21
+   made piano background more plain, but still with red line, middlec thicker
+   pianonotes show off-sheet red dots now (but not sheetmusic yet:/)
+   making GREAT progress with calc'ing good durs and rests and beams !!
+      (but, of course, more work to do there)
+
+** release 2012 Jul 08
+   pianonotes has red line btw octaves now so it's easier to orient yerself.
+   no more wait4me mode;  wait4meEZ becomes wait4me
+   flipped loop,trk pics on buttons to show CURRENT mode
+      (so they're consistent w/ other buttons and MAKE SENSE:)
+   killed another infinite loop bug having to do with paging :/
+
+** release 2012 Jul 02
+   rats - when you pick an empty drumtrack to learn, infinite loop :(  FIXED.
+   new config option (click on pianonotes display somewhere not on a note)
+      at end of a loop, now have option to swap between
+         LH=>RH=>... and
+         LH=>RH=>HT=>...
+
+** release 2012 Jul 01
+   rats - bugs with loops;
+      []() now drawn correctly
+      loops init right and WORK
+
+2012Jun
+** release 2012 Jun 20
+   pretty big changes to GUI - stripping it down to just the useful stuff
+      should be a little easier to find your way around, although, eh, more
+      work to do in this area...
+   got a start on rests, but not that great yet
+   looping - big changes...
+      [] => () show green brackets - always active.  change 1st to ) to NOT skip
+      new [] mark loops directly;  no autoLoopin bug spots;  byebye bugs:(
+      show ALL loops always;  if loop=y, current one is hilited bold red
+      loops CAN overlap  [MainLoopA  [SuffixA PrefixB]  MainLoopB]
+         but no loops completely inside other loops allowed
+      each time [ or ] added or killed, recalc matching and ignored.
+         ignored shows no red line;  else red line;  curr loop hilited;
+      song sees (, hops forward to next )
+      song sees ] hops back to =paired= [
+   identify LH/RH tracks better
+      if .mid came from HCX, mark RH,LH tracks and put in wait4meEZ
+      also does this if track has right/treble or left/bass in the track name
+   MidiConfiger stripped down to make it less confusing.
+      it plays to midiout and shows midiin events now (in top window)
+      general_midi => DEFAULT
+      setting devType to OFF scoots it to end
+   sends local control off on opening output dev when inp dev of same name is
+      open.  and always just turns local control on when closing a device.
+   SETUP
+      redone quite a bit for better handling of multiple users and
+      making midi file dirs easier to get to from plain ole wihnders
+   RepRpt is outa commission for a while - it'll come back pretty soon
+   bugfixes
+      leaving green now line at end of prev sheet row
+      green recording lines in sheets would go way past end of bar
+      hold recording line in pianonotes was wrecked
+      another inf loop bug in paging sheetmusic
+
+
+2012May
+** release 2012 May 20
+   inner ledger lines drawn correctly!!  per standard, but sighhh..
+      but a HT track means no inner ledgers,
+      NEEDs tracks to be hands seperate to show inner ledgers correctly
+   pardon my nonstandardness of the sheet music while I figure out a good way
+      to show your recording against the "to learn" notes...:/
+   using little LH,RH,HT icons instead of the dumb (non-obvious) keyboard icon
+   now green dots expand to flicker when you're missing some
+   track/notes splitter can be drug now - SHEESH that was tricky
+   whether to view track control is now saved with the song
+   corrected scale spellings in sheet music
+      which meant handlin double flats - ARGH !!
+   TONS of bug fixes :P
+      especially would infinite loop OFTEN when setting a track to LEARN mode:(
+      bug fixin has been murder lately :/
+   moved some of the dumb descrip stuff in Mid2Song to debug stream to keep
+      it's junkiness outa the practice file
+
+
+2012Apr
+** release 2012 Apr 29
+   sorry for so many releases lately, but it's WELL worth it this time :)
+   ONE DANG WINDOW now :)))     it's sooooooooooooooo nice !!
+   SETUP now has a taskbar entry - whoops alot of pianocheater apps didn't :/
+   REMOVE now asks if you want to delete whole c:\wherever\pianocheater dir
+   limited auto transpose to +-24 (used to be +-130 or somethin??)
+
+** release 2012 Apr 22
+   made autolooping quit splitting loops on 4 bars so they're almost always
+      joined unless there's a whole measure gap
+   turned off pause capturing for autolooping - spare it - just wrong keys
+   fixed keysig of CM,Am to use flats - oops
+   ledger lines were a little messed up - still need to really do em, but later
+
+
+** release 2012 Apr 14
+   multiple column pianonotes and multiple row sheetmusic DONE.
+      (well, the basics work, much finesse-ing to do)
+   Robotics is DONE - time to kick some butt
+   FINALLY got the page flippin worked out - that was TOUGH !!
+   sheet music now has juuust about everything pianonotes' got
+   lame attempt at ledger lines to get em into the release, WILL improve em :/
+
+
+2012Mar
+   FIRST robotics takin prio...
+   squishing max bars in when mixed sheetmusic/pianonotes
+
+
+2012Feb
+   FIRST robotics takin prio...
+   got sheet music showin the red x n green o's now :)
+   multi-row, multi-col mostly ok now :)
+
+
+2012Jan
+** release 2012 Jan 24
+   fix to bug looping - if it can't find a silent spot within 3 bars of bug,
+      it just uses bug position
+      (again, just a minor update to current version)
+
+** release 2012 Jan 19
+   SORRY - just a bug fix release - handles extra-ascii characters in midi
+      device names better - you'll still have to rename your unicode filenamed
+      midi files to use regular ascii instead of the tildes, etc.
+
+   makin good progress on multicolumn PianoNotes notation
+   makin good progress on multirow SheetMusic notation TOO !!
+      but much work to do still - probably a good month out :(
+   slightly better chord recognition now
+
+
+2011Dec
+   big rewrite - multiple cols of pianonotes, multiple rows of sheetmusic
+      sheetmusic gets red xs, green os, pink rec trails, etc, etc
+   no more scrolling, pageflips now - so both notations WORK for acoustics.
+   transparent green now line now :)
+   workin on an algorithmic composer that'll put together infinite random
+      songs for practicing sightreadin with
+
+
+2011Nov
+** release 2011 Nov 07
+   sync2me is fiiiiiinally usable.
+      YOU control time, not the timer within pianocheater.
+      Playing a song too fast scoots you to the notes early.
+      Playing too slow pauses for ya.
+      But tempo changes are recorded to play your rubato back EXACTLY.
+      If you messup, pianocheater will hop to where you're actually playing
+         on the fewest # "note sets" possible.
+      If the song has few repeats you MAY be able to autohop to any part of
+         the song just by playing the notes.
+         Most songs have repeats and will hop to the first of the repeats.
+         In MOST songs, you can autohop +- 2 bars.
+         In Some, +- 8 bars.
+         In Some very not repeating songs, you can hop ANYwhere :)
+   judgement/AutoLoopFinder works (read up below, please).
+
+
+2011Oct
+   STILL tuning sync2me's autohop, but we're gettin' close :/
+      also trackin down loopin/judgement bugs :/
+   bug fix - pcheater was diein' when a marker had # in it
+      (but not a sheet rep#)
+
+
+2011Sep
+   pianocheater draws overlapping notes WAY better now
+      (in pianonotes AND sheetmusic displays)
+      this also fixes a lot of sheetmusic problems with "held way too long"notes
+      and notes of same duration are grouped better in sheet music now
+      but still much to do in sheet music notation view
+   velocity scaling was messed up - it's aaaalmost PERFECT now
+      sometimes the scaling would CRANK some of the velocities to max - feexed
+   judgement (autoLoop'ing)
+      tossed out manually marked []s
+         now [ and ] mark EASY areas to SKIP (drawn in green)
+            sorry, but ya gotta edit your songs and reverse the [] areas now :/
+         loop=hop goes away
+            the "easy [] hops" ONLY happen in wait4me* modes when loop=n
+      manually mark loop by clicking juuust to left of PianoNotes right border
+         this drops in ladybugs and loops will be autowrapped around em.
+      when loop=n, in wait* n sync2me modes,
+         if wrong ntDn is hit or
+         pause>quarternote,
+            time is silently MARKED (for when loop=y)
+      when loop=y, loops are created grouping up these times
+      with manual "ladybug times"
+         groups bad times next to each other but tries to keep loops < 5 bars.
+            current loop shows redx, greenlight for wrongKeys, pozs respectively
+            (in rightmost area of pianonotes)
+         SORTED by worst to "not so bad" according to
+            ladybugs sorted by time, then
+            # distinct messup times in loop (bad keys weited 2x pauses)
+            so manually picked, then WORST FIRST
+         timeBar1  hops to loop #1
+         timeSect> hops to next worst (not as bad) loop (wrapping back to worst)
+         timeSect< hops to prev (worser) loop          (wrapping to least worst)
+      SO THE IDEA IS...
+         you mark off areas you don't care to practice with green []s manually
+         moving ] from end of song back to beginning to practice from end to
+         beginning (so most practice is of "climax" of song, not intro)
+         play thru song with loop=n
+         turn loop=y and cycle thru the loops and practice em.
+            if you find a loop particulary useful for practice,
+               drop a ladybug in an empty area to
+                  expand loop and make it PERManent.
+               also, click on a redx,greendot to kill em and shrink loop.
+         move green ] a little further back and repeat with loop=n, etc, etc
+   key commands for F keys below f10 were messed up - feexed
+   took out whole recNext thing - will have step entry recording later :/
+   fixed an infinite loop bug in Tinkerer if more than 255 lyric entries :(
+   bugfix - song wouldn't be removed from learn list in songlist window
+      if it happened to already exist in zDone dir
+
+
+2011Aug
+** release 2011 Aug 24
+   making more progress on sync2me's "find any riff anywhere" part ;)
+      eh, so far gotta limit it to 2 bars back n 4 bars forward
+      it's still not done, but it's time for a releeeEEEASE
+   ah RATS, pianocheater's SETUP was broke - MidiConfiger was still ref'ing to
+      a.pianocheater.com - blew up on soundfont download :(  feexed.
+
+
+2011Jul
+   (sorry - no release yet till more stuff is stomped)
+   reordered the commands (sorry) and added new "arp" and "listen" commands :)
+   arpeggio generator
+      makes a new track of arpeggios for the song based on chord calcs
+      param'd, but pretty static for now, randomization later
+         (don't try to practice these unless you're CRAZY:)
+         hit cancel to clear out the arp track when it starts drivin ya nuts
+   new "listen" command
+      IFF loop=y, learn=wait* or sync2me,
+         save current learn mode;  set learn=play4me;  hop to [
+         on hop back at ], restore learn mode
+   mousewheel scrolls time like in tinkerer's bar edit control
+      this can get annoying cuz mouse events queue faster than drawing can
+      happen...:/
+      make sure main window's keyinput control or pianonotes or sheetmusic
+         is active.  If songlist is active, you'll scroll thru the songs :)
+   show chords mode now puts a big O by bass of chord and . on chordals
+      no marking for non chordals within scale
+      / on accidentals (outside the scale)
+   "to learn" drum notes weren't being drawn right
+      still show on "keyboard now" display, but oh well :/
+      will need similar "drum now" display eventually
+   when paused and not in a wait4me mode,
+      playing notes unpauses ya now
+      instead of recording a bunch of notes with note on/offs at same time :/
+   fixed bug not showing red pause rect in time display sometimes :/
+
+
+2011Jun
+   rats - one last bug tweak (please redownload if ya got it yesterday=6/24 :/)
+
+** release 2011 Jun 24
+   first part of SYNC2ME is workin :)
+      when playing against "to learn" track(s)
+         you don't need to play perfectly.
+            you can miss notes here and there and time stays sync'd to YOU.
+         your rubato is recorded as tempo changes and notes stay on the beat.
+         The display's current time syncs to YOU.
+         this is for SAVing a recording with YOUR expression (rubato, velocity).
+         unfortunately, if you make mistakes, etc, pianocheater can
+            lose where you are - workin on that part now - pretty tough :/
+            eventually, you'll be able to play any riff to hop right to that
+               part of the song (or where it occurs next)
+   added artic to fingering
+      . stacatto        1/4
+      ' stacattisimo    1/100 :)
+      - tenuto/portato  1/2   legerrio is default=3/4 (means lightly)
+      > marcato         loud
+   added Fz (fortissimo) to dynamics dialogs
+   oops - fixed help buttons in pianocheater,tinkerer (new urls now:)
+   finally stomped down all the "mode buttons"
+      so they only show if there's something to set, and have decent defaults
+      and you can turn any window OFF and such stuphs
+   stomped many bugs
+      RepRpt problems due to not using passive ftp - feexed
+      for bmp sheetz, often wasn't starting at page 1 :/
+      fixed infinite loop bug that'd happen due to lyrics probs
+      loading a practice song always focuses key input control now
+         if just listening, songlist (initially) gets focus
+      when split notes happen, (a notedown with no noteup or visa versa)
+         pianonotes are drawn better now.
+      when changing learn mode, it no longer unpauses.
+         Seems more helpful to "stay put" when changing learn modes
+      also changing learn mode was doing a recWipe
+         NOT good when you're listening to a recorded song with learn left on :(
+      ALSO when loop=hop, it was doing a recWipe.
+         (also NOT good for listening to a recorded song)
+
+
+2011May
+** release 2011 May 29
+   FULL SCALE lyrics are DONE now
+      shows full 4 lines of hilited text   if lyrics have "returns"
+      else a scrolling hilited single line
+      adding lyrics:
+         copy lyric stanzas off one of the jillions of lyrics sites
+         turn on tinker syncing with eye icon in pianocheater,
+            now pcheater pastes bar# to clipboard
+         open lyrics in text editor
+            cursor to start of first line
+            when pianocheater plays bar where this lyric starts,
+               PASTE - to put in bar#
+            scoot cursor to start of next lyric, etc, etc
+            put LYRIC in first line of text file.
+         open THAT song in pianocheater
+            either with winexplorer to get just it or
+            open pianocheater, scoot to song JUST before it in list.
+         in text editor - select all, copy,
+         in pianocheater, pick that song to load it.
+         BOOM, your song has lyrics.
+   last of the neon over black text is GONE...:)
+      some nice big time,tempo displays now
+   now preserving song/recording velocity ratio when you play a note not
+      matching the "to learn" track events
+      used to be resetting it making volume skyrocket on background tracks when
+      you played a note not in "to learn" tracks
+   song/sound rating dialog height fixed when hiding sound rating
+
+** release 2011 May 24
+   ARGH, download song pack thing is fixed now (due to website change:/)
+
+** release 2011 May 22
+   pianonotes/sheetmusic drawing (threading) issues fixed
+      was causing notes to be underdrawn, overdrawn n such :(
+      always draw white notes first, then black (on top) for proper overlap
+   PianoNotes
+      moved settings out of MidiConfiger and onto PianoNotes window.
+         You'll need to re set your settings:
+         click on top piano keyboard to pop the settings dialog
+      sub-dialogs are auto-positioned now
+      dynamic/txt dialog and sheetmusic scribble dialog both have all
+         the usually needed markings:
+            . stacatto (has to be o to show on sheetz)
+            ~ arpeggiated chord
+            :( TOUGH (to work on) spot
+            [ ] brackets to delimit the "fracture" areas (tough whole areas)
+            but you still gotta use other text...
+               like a left hand stacatto section, I go:
+               LH . -  where it starts     and then | where it ends
+               etc, etc, etc...:/
+      editing [ and ] now refresh "outside brackets" when loop=y
+   RepRpt
+      redo for new website format
+      fixed bug where it wasn't sending .PNGs
+   SETUP
+      assoc pianocheater with *.txt files...:/
+      more uninstall info
+      on vista,win7 doin HKEY_CLASSES_ROOT\Applications\* entries now :/
+   toss out "sections" (kind of behind the scenes stuff Steve needed to do)
+      only markers now w #2, #3 suffix, etc
+      section dialog killed outa pianocheater
+      unroll killed outa tinkerer
+      (lots of cleaner code in everything now:)
+      Txt2Song fixes
+         txt2trak=>txt2song with !name=, !sound=, Unroll in .txt file now...
+         pianocheater,tinkerer,etc load *song.txt files,
+            but *.txt is ok for included files like drumtracks, etc
+
+
+2011Apr
+** release 2011 Apr 29
+   PianoCheater
+      bunch of (very difficult) optimizations to drawing PianoNotes display
+         so it doesn't chew cpu
+      so tweaked midi config's options dialog since we don't need refresh thing
+         add color notes by scale/off   (by velocity later, too)
+      fixed terrible bug in note durations for sheet music
+      changing RH,LH in track display wasn't refreshing PianoNotes' color
+   MidiConfiger - was resetting wasapi.cfg on each run - which would turn it
+      off if syn still had it at last sec :(
+      moved it to redo logic
+         (if you get a RATS about syn.exe not there, refresh midiconfiger)
+
+** release 2011 Apr 22
+   MidiConfiger has a new config dialog for some wierd configs
+   (wrench toolbar button)
+      show min keys or FULL keyrange on pianonotes screen
+      chord position #s can be toggled on/off
+      millisec timer period
+      refresh speed for PianoNotes window
+
+   a little streamlining of the songlist dialog
+      listen only vs. practice songlist radio buttons spec which songist to load
+      right clicking dir in win explorer => listen to all songs in that dir
+      else if any practice songs => practice
+      else if none => listen to songs from last time
+      else if no songs from last time, pop songlist dialog
+      (no more load/save songlists biz)
+
+** release 2011 Apr 20
+   PianoCheater
+      labelled bar in pianonotes display
+      you can pick new device by click in Play column of track display now :)
+         sound will be remapped to new dev, else set back to GM AcousticGrand
+      BASSMIDI driver support
+         it's lame API won't do sysex so I tweaked pcheater to not send it
+         (for bassmidi device only)
+         it's XP only - don't bother with bassmidi on Vista or better
+            on Vista or 7, it's latency is noticable
+            and my SYN softsynth's is way better ;)
+   MidiConfiger
+      starting it from PianoCheater also exits PCheater now (post save)
+         (too many wierd dependencies need to be reloaded)
+         and whenever MidiConfiger exits, it starts PCheater
+      uses OFF as a deviceType now  (so don't need seperate on/off column)
+      always does a save upon command dialog,main dialog exit (less hassle)
+   bug fixes:
+      SETUP app on XP had some BAD probs I've hopefully fixed
+         I suspect people couldn't get past install - especially on xp.
+         If anyone notices bugs during install  PLEASE TELL ME!!  grovel, grovel
+      chord calc - wasn't using keysig to get flat/sharp correctly
+      when loop=y was setting wrong boundary when at end of song
+      sheetmusic
+         when SheetSync=n, wasn't ever drawin calc'd sheetmusic:(
+         natural/sharp/flat not scooted past fingering
+         ties on unquantized songs were really messed up - fixed much as i could
+      scribble on bmp sheets needed to repos when window resizes
+         had only re-resolution'd per screen res - FEEXED
+         (except still not behaving right with mouse click biz)
+
+
+2011Mar
+** release 2011 Mar 25
+   sheetmusic
+      I know I've said it before, but NOW the updating problems are
+      ACTUALLY FIXED !!  (that was brutal:O)
+      ALL PianoNotes info is shown in sheetmusic window:
+         fracture []s, chords, dyna, holdpedal
+      green bars on notes show playing duration (kinda like pianonotes)
+
+** release 2011 Mar 23
+   pianonotes - wider white keys over where they cover black keys now
+   sheetmusic - shows Major/minor by keysig
+   when loop=y, loopBgn set to 1st silent time at least a half bar before [
+                loopEnd set to 1st silent time after next [ or ]
+      thicker brackets show these positions
+      so that you can practice lead in and lead out of the "drilled" section
+   recording "takes":
+      from songlist dialog, create new song - pick 4_4_4.mid
+         (make other songs for other timesigs with drumtracks, etc similarly
+          these are stored in \pianocheater\song\Init\ dir)
+      when song has no "to learn" tracks and Loop=y,
+         it assumes you're recording live and plays one bar before the [
+      you record from there till you mess up.
+      If you record no notes, it loops back and pauses,
+      else                    it replays what you've just recorded
+      recNext command scoots [ to last note
+         if already on last note, (pressing it 2nd time,etc)
+            it "backspaces" killing notes to the previous silent spot
+      make SURE you switch rec track back to non-recording before exiting song
+         or that recording is GONE :(
+      this recording mode is still almost as hard as playing the song live.
+         so step entry will be coming along some day.
+   SongList screen
+      after adding a new song, shows it in stats window too for editing
+      keeps pos in practice list (right side) better and
+      keeps curr selected song refreshed in stats window
+   bug fixes:
+      SYN was havin probs with drum pitch (snare would play at too high a frq)
+      just playing a song in Recorded\ made a new junky .mid with today's date
+      Cmd NtUps (unpaired noteup events) needed to be filtered
+         8cDn 4f#Dn 8cUp 4f#Up recorded last 4f#Up :(
+         simlar prob on loop end with notes down - FEEXED
+
+
+2011Feb
+** release 2011 Feb 24
+   rats, bug fix to view button (piano/sheet=>sheet/piano=>pianonotes=>sheetmus)
+   and sheetmusic still does have problems, but it's usable IF the song is
+      quantized already.  more fixes to come.
+
+** release 2011 Feb 23
+   have loop=y,n,hop now
+      n   - play whole song as usual
+      hop - tough areas marked with [ ]
+            play tough area, autohop over easy parts to next tough area, etc
+      y   - drill a tough area from [  (picked by timeSect<,> commands)
+            to next ] or 2nd [  (to practice into next section)
+            eh, email me for a better explanation.  i'll get it doc'd eventually
+   gave pianonotes dynamics dialog some [ ] :( buttons so ya don't gotta type em
+   sheetmusic notation window is MUCH better behaved now
+      It should finally be USEable
+      bugfixes
+         lots of "refresh"ing probs fixed
+         should always be correct height for all notes in song now
+         hacked in some fixes to problems with
+            gui and background thread both stomping on windows :/
+         found wrong keysig sometimes, and not eliminating accidentals correctly
+         divide by 0 sometimes during bar width calc :(
+
+** release 2011 Feb 14
+   oh the awesomeness of bein' laid off :)))
+   added view=PianoNotes, SheetMusic, Piano/Sheet, Sheet/Piano
+      and these AUTOMATICALLY size the DANG windows so this is no longer a
+      PAIN in the BUTT when you switch from one hand to other to both (h)
+      Or when you change which windows you want.
+      Now they're auto sized NICEly :)
+   added heel U and toe ^ to fingering for organ feet tracks
+   made an app to help me create sound.txt files for diff midi devices easier.
+      sounder - devtype\sound.txt maker
+      load progch bankhi banklo CustomSoundname
+      save gmname\custom_soundname progch bankhi banklo custom_soundname
+         except 1st custom_soundname of gm group (progch)
+         has no \custom_sn suffix (maps to pure gm)
+   bug fixes:
+      Song2Mid was putting in too many programchanges.
+         this would occasionally cause empty tracks to get added on EACH load in
+         PianoCheater,Tinkerer.  Over and over - an extra track each time:(
+      Tinkerer progchange control was drawn as line graph instead of ` mark:(
+   took out Sync2Me mode completely - it's an idea who's time has GONE :/
+      it's good stuff will be incorporated into wait4meEZ eventually
+
+
+2011Jan
+   added a default ascii keymap to install
+   new command - hand - to swap which tracks to learn (marked w LH,RH prefixes)
+      between learn left hand, right hand and both
+      it's a handy command (get it?  SORRY!!)
+
+** release 2011 Jan 08
+   possibly last release for 6 weeks - starting FIRST Robotics Team 1778 :)
+   sheetz scribble - click on scanned sheetz to add "scribbles"
+      buttons for quick stuff (fingering,loudness,markers)
+         else you enter whatever text you want
+      click and drag to move em.   right click to delete em.
+   chord notes are marked now
+      1 = bass of chord.  2,3,4,5 mean 2nd,3rd note of chord, etc
+                                                         (shows chord inversion)
+      x means non chord outside the keysig
+   png/bmp sheets would die with "out of memory" cuz I wasn't freein bmp mem
+      fixed!!
+   track mode has pretty lil icons now (green play tri, red x mute, keys learn)
+   now all piano tracks are colored per LH / RH prefix L=blue,R=red (drum=green)
+   right clicking track name (while NOT editing) toggles prefix to RH>LH>none>
+   defaults learn mode to play4me when .mid not from pianocheater
+   remembers last learn= mode when all tracks go to non-learn
+      restores it when any track goes to learn
+   sheetmusic and pianoroll windows now do pc keyboard commands
+      if they have keyboard focus
+      (don't NEEd to focus on little icon by songlist in main window any more)
+   Tinker wasn't redrawing screen correctly - fixed :/
+   Took out sync2me mode - just not ready for prime time :/
+
+
+2010Dec
+** release 2010 Dec 12
+   BEDBUGS !!   These bugs are all fixed:
+    - problems with Vista,Win7 Conexant cards still
+    - when editing fingering,dynamics on pianoroll screen,
+      not showing them till a refresh
+    - window height sizing wrecked due to new tracks list
+   And saves sheets window dimensions relative to screen w,h so moving to a pc
+      with lower,higher res looks the same (during piano lessons:)
+
+** release 2010 Dec 11
+   scooted keyboard to top with keysig,octave,midc,hilite symbols
+      label octaves at G too
+      red xs,green lights stay at "now" - green line
+      and fingering on top of green light
+   track control much glitzier now
+      can edit track name, sound directly now instead with dialog
+   i think I've got color stepping and ranging nailed finally
+   took out UPD.exe cuz of hassles with virus checkers - no auto checks no mo :(
+   fixed WASAPI check so people with lame Conexant soundcards can still use
+      PianoCheater on Vista+ - those things don't do WASAPI:(
+
+
+2010Nov
+** release 2010 Nov 06
+   i think SYN.EXE is finally ok !!!
+      we lose soundfont hardware support, but gain softsynth capability
+      but, ya gotta have Vista or Win7 - sorry - here's an excuse to upgrade? ;)
+         but it WILL work well on a plain jane soundcard !!
+         (I'm on a crappy RealTek and it works GREAT)
+      I dump a song's full bank of sounds at once now
+      (WAY faster than writin' to soundblaster api)
+      currently still doin 16 bit although 24 bits are in it's future
+   moved timer to syn.exe when vista or better - xp uses mm timer still
+      that's some HARD CORE code there;)
+   fixed up a way to SEE what's happening during the FRACKIN COMPLEX
+      control mapping process:  (sliders, pedals, knobs, buttons, etc, etc)
+      create a non empty file called {whereverYaPutIt}\pianocheater\rats.txt
+      download DebugView from
+         https://technet.microsoft.com/en-us/sysinternals/bb896647.aspx
+      and run it during pianocheater sessions.
+      NOW you can see controls being processed by pianocheater
+         and how the mapping occurs :)
+         (and maybe a few more informative things in the future)
+         rename or delete rats.txt when done debugging - it SLOWs things down:(
+
+
+2010Oct
+** release 2010 Oct 02
+   calc'd sheetz
+      got ties in there now (just straight green lines, not too pretty, oh well)
+      STILL need to get NONquantized songs to show up ok :/
+         but SYN.EXE awaits!!  ;)
+      showing bar #s now;   staff lines stop on last bar now (don't keep goin)
+      fixed bug when right partial beam kills rest of bar
+   new fingering,subbeat format to be more compat w other editors :(
+      append note,num/den to current str (,4b# or ,3/16)
+      add check for correct prev event
+   fixed bug in pianocheater's save when nonexistent device has no sound :/
+
+
+2010Sep
+** release 2010 Sep 22
+   page flipping on calc'd sheetz WERks now
+   manual and sync'd - when synced, green noteheads show playin notes!
+   Ash helped me find an insidious bug with storing fingering and subbeats in
+      midi files - other sequencers can change these events' order so I'll
+      need to rethink how I'm storing these.  But for now, I'll just check that
+      the previous event was indeed a note or timesig before STOMPing on it.
+
+** release 2010 Sep 16
+   KC sez the timer's 2x too slow - try on xp at home - good grief :(
+      back to oooole multimedia timer :/
+      Can't even get AT ole DMusic timer now - THANKS microsoft :(
+   beams split on beat now
+   fixed grid display on calc'd sheets
+
+** release 2010 Sep 15
+   new timer may not ALWAYS be capable of 1 msec dep on machine :(
+      fixed new time calc to take less capable machines into account
+      might fall back to DirectMusic timer...:/
+   put Rand() back in which i had to take out for 9/12 release to compile :/
+
+** release 2010 Sep 12
+   fixin stupid .dll needs of vc2010 - compiler/linker settings from hell fixed
+   new win2000+ timer
+   fixed green lines during sheetz flipping (sometimes)
+
+** release 2010 Sep 12
+   move to vc2010 express,resedit too:/
+   got ledger lines in (just on 4c, 2c-e, 4a-5c, else usin 16va/b)
+   accidentals are displayed correctly now
+   keysigs/timesigs are followed religiously now in pcheater
+      (tinkerer still needs to edit em perfectly-er)
+   startin' on beams!
+
+
+2010Aug
+** release 2010 Aug 22
+   fixed x magnification bug causing a lot of songs to show NO sheet music
+   got x offsetting of stems on same track same time in
+   if track name starts with R, stems below middle c will always go up
+                             L        above                         down
+** release 2010 Aug 14
+   fixed bug in MidiCfg - buffer for downloading devices wasn't BIG enough :(
+   live transpose (+/- halfsteps) stored w/ song and gui'd now
+   sort of "bracketted up" keysig symbols a bit
+      also, if keysig happens for notes "coming down the pipe",
+         solfege colors will swap to the new keysig/scale (on future notes)
+   GOOD start on stems and time spacing for sheet music display!
+
+
+2010Jul
+** release 2010 Jul 28
+   SORRY !!  :)
+   if SETUP can't find txtfile in registry, just forget those file exten assocs
+      (instead of SETUP just dieing with a confusing error)
+   stomped the bug makin Tinker&bmp sheet display flicker 16X during bar refresh
+
+** release 2010 Jul 27
+   RATS - velocity adjusting happening on recording tracks :( - feexed :/
+
+** release 2010 Jul 26
+   added background track noteon velocity adjusting (per recording) to wait4me:)
+   HAD to change color scheme again - keysig and note roll looks WAY better now
+
+** release 2010 Jul 24
+   scale colors now and cute little red Xs and green dots
+      colors are kinda CRAZY now, but -kind- of cool...;)
+         jury is still out on whether it stays in future note area...
+      so tonic is always red, dominant tone is cyan, leading tone pink, etc.
+   have a start on standard notation - if song has no sheet .bmp,
+      clicking sheetsync button shows (really lame so far) standard notation :)
+   time&lt;sect now works for loops similar to time>sect now
+   loop docs on TrickyParts page now
+
+** release 2010 Jul 11
+   too quick to release: loop>sect didn't work if on very START of curr loop :(
+
+** release 2010 Jul 09
+   Got start for a chord labeler.  More to do on it, but ok start
+      if bass is #/b, use #/b per ksig
+   bugfix - songlist dialog's Copy2Learn wasn't making sheet dir :(
+   now "ToDo!" is cleared when song has some practice notes
+   oops - only way to reshow a closed sheet window is to reload song :( - feexed
+   fixed bug that'd put Learn window off screen (occasionally) :/
+   start of a sheetz display of midi - oh noes...  got scale calc'd,
+      standard dur symbols next...
+   sheetsync and learn mode => buttons finally
+   fingering shown ON kbd now (instead of being obscured)
+   save sheetpos window in .mid now
+      (no more windowpos.cfg in .bmp dir needed and used for calc'd sheet wndo)
+   looping tricky sections
+      mark sections with dynamics comments (right area of fingering edit screen)
+      [ means start tricky section
+      ] means end tricky section
+      if Loop=y, song hops to 1st tricky section and loops it
+      use time>sect to hop to next tricky section
+   fixed songlist bug - when saving a non prac.songlist,
+      it'd still recalc and go back to prac.songlist
+   middle c has a cool little symbol now "naka"
+
+
+2010Jun
+** release 2010 Jun 17
+   Jammed a lame-ish foreign language detector in SETUP - a hack, but oh welllll
+   shortened MidiConfig'er's CmdKeymap config screen (for teeny screens)
+
+** release 2010 Jun 14
+   RATS - something wrong with SongDL getting it's songpack argument
+      it's empty sometimes :(  fixin THAT now :)
+
+** release 2010 Jun 13
+   fixed leftmost white note x offset problem
+   RATS - bug fix - SETUP => MidiConfig'er => death cuz no device.txt
+      shows "died" error message cuz check happens before initial creation of
+      device.txt - fixed n rerelease :/
+
+** release 2010 Jun 11
+   redid a LOT of docs and screenshots - bleh :P
+   PianoCheater/MidiConfig'er
+      now you can map regular pc (qwerty) keys to edit commands in MidiConfig'er
+      in pcheater, press tab to move from songlist to "keyboard inputter"
+         press esc to toggle between command layout and note layout modes
+         note layout plays notes from pc keyboard,
+         else does command map (shown in help screen).
+   PianoCheater
+      new SongList dialog button to create a .mid from scratch
+         (copies a template midi file to Learn dir and names it)
+      copy2learn autoconverts .song+.txt => .mid now
+      when moving a learn song to rep/zDone, asks if you wanna automark it DONE.
+      keysig wasn't displaying correctly sometimes
+      timesig wasn't showing correctly on main screen sometime due to subbeats
+   MidiConfig'er
+      made DeviceType downloader :)
+      devictype names are now in the FULL manufacturer_model format
+         GenMidi => general_midi, SFont => soundfont, cp33 => yamaha_cp33, etc
+      have a FULL precreated downloadable soundfont device now !!
+      ripped out sound, ccout, and global cc editing
+         spare it, just doc .txt file format.
+   RepRpt
+      completed my FULL repertoire into midi files now!  yeah!
+      a little prettier (some might say uglier:)
+      uses userinfo txt now
+      collapsible sections now (but links can't find a collapsed section dest)
+   SFontEditor
+      SFontBank that compiles \Device\soundfont\sound.txt
+      NOW happens when PianoCheater boots it (cuz SF2Rip has been run in past)
+   Mid2Wav lives again!!  bugs w/ timesigs feexed:)
+
+
+2010May
+** release 2010 May 23
+   PianoCheater
+      songlist dialog now has "song pack downloader" :)
+      RepRpt can upload ALL the songs in your Learn and Recorded dirs !!
+         (including sheets/midis/recorded mp3s!)
+         giving you your own repertoire website :)))
+      sheet scrolling was too harsh on my eyes - changed to "flipping"
+         one bar before page change, half of new page shows on top of current
+         with a "half frame" showing if it'll be scooted down
+            or other half is just drawn with no scoot needed
+         this needs to be DOC'd...:/
+         manual scrolling just does a straight page left/right
+
+** release 2010 May 06
+   PianoCheater
+      new learn=wait4meEASY(no hold)  don't need to hold notes, just hit initial
+         note ons - for those messy held note songs and so you can play slop :)
+      now stamps pract stats with today upon 30 recorded events.
+         for both midi AND sheet songs now.
+      new song stats dialog within songlist dialog for editing song stats.
+         practice, daily notes, revisit, default tempo, etc
+         click on a practice song to get to it.
+         tossing out top level descrip dialog since stats dialog works better
+      make the vertical text (lyrics/dynamics) in learn display a little bigger
+
+
+2010Apr
+   Tinkerer bugs - copy/paste - drums not recog'd, up velocity of 0 not loaded
+   PianoCheater
+      track mode now toggles from off=>?=>#=>off  (new order - easier for learn)
+      Learn window size now saved in .mid and NOT init'd too skinny
+         still need to size it to save pos tho :/
+      wait4me now shows new notes to press as green
+         even if already held down from prev notes (instead of blue)
+      fixed bug not displayin leftmost key to press
+
+** release 2010 Apr 04
+   best release EVER !!  :)
+   pianocheater -
+      BIG display changes - now looks AWESOME !!  keys are beautifully hilighted
+         but, it's kinda, umm, LOUD :/
+         More to do on this...  But it's pretty cool
+      also shortened lastpracticed comments
+   tinker - copy,append,paste,replace funcs and new clip text format for perl
+   song2mid/mid2song - fixed bug w timesig subbeats
+
+
+2010Mar
+** release 2010 Mar 21
+   Adding keysig and timesig-subbeat support
+      pcheater shows keysig now, uses timesig subbeat instead of song descrip sb
+      tinkerer can edit em (and finally shows subbeat)
+   sync2me mode will now search whole song when 4 NtDns don't match next notes
+   now song can have revisit= in notes and practice list will be sorted special:
+      normal sort by filename, but if in Learn or Rep dir,
+         max pract date is picked out of notes
+         revisit= is picked out of notes
+         if song should be revisited, it's sorted to top
+         else just sorted by max pract date so song practiced longest ago sorts
+                                                                          to top
+      this way, pianocheater keeps track of which song to practice FOR you.
+   made fingering window pop NEAR where you click
+   RepRpt cleaned up a bit and now lists matching Recorded\* and source=
+
+** release 2010 Mar 07
+   pretty piano keyboard in learn window now...:)
+   learn window shows drum notes too
+   click in learn display on a note to EDIT FINGERING now :)))
+      and on right side to EDIT/insert/remove DYNAMICS NOTES
+                                               (same thing as lyrics for now...)
+
+2010Feb
+** release 2010 Feb 28
+   new Learn=Sync2Me !!
+      bg tracks follow you in the song no matter how uneven your tempo, etc.
+      bg track velocity will match your recording velocity
+      tempo syncs to the tempo you're playing live
+      NICE for when you get notes,rhythms down and want to work on EXPRESSION
+   fixed bug where wait4me was LEAVING vol=0 on bg tracks
+      so if you ever toggled learn through wait4me you'ld never hear bg tracks:(
+   and my dang DscUpd func was putting in dup learn= and sheetsync= lines :(
+   got start for hold pedal display in learn mode
+   fixed prob w learn display when held notes go across sections in REC tracks
+
+** release 2010 Feb 14
+   fixed bugs
+      quite a few problems found with control mapping
+         most notably hold pedal causing tempo to go SUPER fast :(
+         control handling is MUCH more stable now.
+      always reloaded practice\* even if saved non prac.songlist :(
+   vastly improved Die()  you'll see ;)
+   PianoCheater's SongList dialog has new "repertoire report"
+      at least it's a start...
+      SongList dialog now STOPS song, cuz to delete/rename a prac song that's
+         already LOADED won't work cuz it gets saved w/ old name again later:/
+   Tinker
+      fixed broke print preview - STILL memory hoggin', but oh well :/
+      NoteFix now dumps all events to DbgView: so you can hunt for problem notes
+
+** release 2010 Feb 01
+   fixed bug in Mid2Song adding extra tracks if a "from pianocheater" .mid
+   tweaked docs some more
+
+
+2010Jan
+** release 2010 Jan 21
+   PianoCheater
+      ? tracks are colored in track display now to match learn mode display
+      new learn=play4me that solos the ? tracks while showin em
+      so now off=> play4me(preview difficulty)=> show2me(rec live to tempo)=>
+         wait4me(learn notes,fingering,rhythm)=> sync2me(MY tempo,dynamics)
+      fixed bug showing extra recorded notes in learn mode
+      fixed bug in tracking current section of sheet music
+   Tinkerer
+      when notes are colored by track,sound this shows in colored tracklist now
+      fixed NoteFix to elim completely dup notes while fixin
+   pointed PianoCheater,Tinkerer to new help web docs
+   SETUP - new checkbox for OPTional file associations
+
+** release 2010 Jan 10
+   stomped MAJOR bug in Die()
+      if anything doesn't work in SETUP_PIANOCHEATER.exe, Die used to go into
+      an infinite loop and die silently leaving user to think everything's cool
+      And since setup didn't complete, none of the apps will run without a Die()
+         which means THEY go into an infinite loop and die silently   :(((
+      STOMPED the bug - MUCHO thanks to Bob Felice for his testing !! :)))
+   good start on sync2me :)  But still bein' debugged so beware ;)
+   PianoCheater can edit Practice songs list gui-ly now  (more work to go tho)
+   finally gave Tinker a toolbar button for NoteFix
+      NoteFix can now shrink note duration and scale velocities quieter :)
+   rats - bug in Mid2Song always mutes DrumTracks in last release - feexed
+   fixed Mid2Song bug (for saving .mid) - 2 drumtracks=infinite loop - feexed
+   can't change page scrolling to happen in ONE beat per user request
+      toooo fast for MY eyes to follow - maybe config'able later...:/
+   fixed some notes that disappear in wait4me mode when noteon
+                                                   went beyond oldest time shown
+   toolbars now have a full 256 glorious colors;)
+
+
+2009Nov
+** release 2009 Nov 19
+   if you're installing from a PREVIOUS VERISON of pianocheater,
+      you'll NEED to copy your files in "whereever\Midi"
+         to "whereever\PianoCheater" =after= new install
+      and NOTE the new dir names in the PianoCheater dir
+         without _ prefix and so much dir nesting now :/
+   tossed out worthless "oops" command :/
+   # (mute) for drum track - wasn't loading back into pchtr/tink
+
+
+2009Oct
+   took out SetThreadExecutionState (that turns off screensaver)
+                                                         for win9x compatibility
+   major redo of piano and midi docs
+
+
+2009Sep
+   moved .cfg files to {PianoCheater}/device/etc dir so i can coexist with Vista
+   stomped the crash during app close
+   Wait4Me mode bug fix - wasn't echoing controls during pause
+   lyrics now show in wait4me display so you can stick dynamics in there
+   Sheet paging fixes
+
+** release 2009 Sep 26
+   changed Die() since auto-email doesn't always work :(
+      (Now opens an html error file to copy/paste into whichever email app)
+   fixed Mid2Wav handling of drums, etc
+   fixed manual forward scroll to go in increments so midi can go out
+   fixed tinker bug when moving notes (moving too many to wrong spot:()
+
+** release 2009 Sep 14
+   SFontEditor's toolbar now runs new Mid2Wav app :)
+   Tinker bugfix - going into track/drum/control dialog n hitting InsRow = death
+
+
+2009Aug
+** release 2009 Aug 22
+   fixed up MidiConfig'er to refresh EXISTING device list.
+      (no more REtyping your device names upon adding devices, etc:)
+   bug in MidiCfg picking CCMap column
+      (possibly affected other areas too - that use my "table" class)
+   Rats - drum clips weren't working since I added an extra dir :(
+      oops - and Txt2Trak still had _Txt dir in it :(
+      eh, might as well release again :/
+
+** release 2009 Aug 16
+   setup.exe wasn't using gui picked program files path - fixed
+   UPD.exe now pops pianocheater.com's releasenotes
+   renumbering octaves so 4 is middle c, not 5
+      allll the song files in .txt format needed to change :P
+      aaand the screen shots :P
+      aaand code everywhere...:P
+      aaaaaaand SF2 ripping and glueing :((((((((((  which means re-rip all SF2s
+   minor bug fix - rec>Dev was cycling correctly.
+   my dang gpp3 pedal was sending rogue HOLD events and freakin me out >;(
+   much work on Mid2Wav, but no dice yet :/
+
+
+2009Jul
+   renamed update.exe to UPD.exe to get around stupid vista UAC :(
+   much work on Mid2Wav, but no dice yet :/
+
+
+2009Jun
+** release 2009 Jun 29
+   Big huge bug in 20090628 :(  fixed.  gotta rererelease
+
+** release 2009 Jun 28
+   rats - fixed broken tinkerer sync'ing
+   yikes - fixed memory corruption bug in RecIns - a biggie - better rerelease
+
+
+2009Jun
+** release 2009 Jun 18
+   fixed help toolbar button links :/
+   glitzed up ditty's track listing
+   MidiCfg/PChtr can now map button controls to do_&lt;EdCmd> functions
+      and they show in help window
+   fixed sheet music sync bug when hopping bars
+   gave sheetsync a shared gui button w/ lrnMode
+      since songs will have either one or the other, not both
+   now if apps die, apps can auto email me (if ok'd by user)
+   new OOPS! command kills current bar rec events, hops back to prev bar
+      seemed like a good idea, but:( it's pretty tough to hear bar
+      boundaries and pick up again - rats - may take out...
+
+
+2009May
+   docs galore updated - bleh :(   FINALLY, back to writin' code :)
+   manual sheet music turn cmds for when you're not yet ready for a metronome
+
+
+2009Apr
+** release 2009 Apr 18
+   ok, time to STAMP release versions now (yyyymmdd format)
+   first PianoCheater release!!
+   somewhere around 3/4 of the way to 1.0 (first commercial release)
+   stabilization/debuggin' period while i
+      build new PianoCheater site, docs refresh - ARGH!!!
+
+
+2009Mar
+   Ditty=>PianoCheater
+      scanned .bmp sheet music display - per line or per half page
+         make dir with same filename prefix as .mid file
+         put 0001_0004.bmp file for each scanned page
+            0001 is 1st bar on page
+            0004 is 1st fully shown (not chopped by page split)
+               bar of 2nd half of page
+         or if you have a .bmp per sheet music line, just name as 0001.bmp
+      fixed default tempo which SHOWED 120 by WAS 110 for songs w/out tmpo cc
+      descrip text for autogenerating music_practice.html:
+         notes yyyymmdd Accomplishments/ToDoNext
+         pract yyyymm dd dd dd dd dd
+         (also)
+            subbeat=3  (etc)
+         opening descrip dialog auto-stamps notes,pract if today ain't there
+         shutting it wipes any empty notes
+   Tinker=>TinkerER ;/
+      is now single instance ONLY for PianoCheater invocations.
+         You can bring up several tinkerers now,
+         but PianoCheater only ever has ONE tinkerer open to show curr bar, etc
+      Help toolbar button now repairs unpaired note events
+         (on w no off, off w no on)
+         dorky UI, but I'm in a hurry ;(
+         (and still need to check for note overlap)
+         makes teeny 2 click notes, but at least you can del/edit em now
+      if no initial file given to load, loads song\_prep\init.mid  if it exists
+      repeating bar report was broke - fixed
+      DrumTrak is part of tinkerer now ("Track Stamper" toolbar button)
+         and can stamp bass tracks and other tracks, too now
+      Txt2Trak (behind the scenes now - pchtr and tink call it)
+         now does simple chords - trailing + for major,
+            +- minor, ++ aug, +* dim,
+            +7 dom7, +7- min7, +7+ maj7
+            +6 6th, ...
+   PSetEdit=>SFontEdit
+      it runs SF2Lst, SF2SFont and SFontBank from it's toolbar now
+
+
+2009Feb
+   complete overhaul of c:\MIDI directory structure.
+      PLEASE rename your existing c:\MIDI dir to, like, MIDI1 =before= install!!
+   bug fix in ditty
+      it'd hang at end of song sometimes
+      resizing section dialog didn't repaint right
+      bug in init'ing controllers to chase
+   bug fix in tinker
+      copy and kill didn't handle markers/lyrics correctly
+      copy had a bug scooting notes to right during copying
+   tinker now has an "unroll" function to dup all repeated sections
+      to prep such song for recording so you can record 2 verse variations, etc
+   ditty
+      scrapped "kill future rec notes" during time hop
+         rec notes HAVE to be killed by command now
+      song always loops back to start if any recording is goin on
+         (or loaded from compose dir)
+         learn @ mode's auto recWipe at end of song is off for now
+      practice songlist always re-finded from song\_Practice dir now
+         (minus done\ dir)
+      recSave of a _Practice dir song saves to _Recorded
+         changing songs/exiting/etc re-saves _Practice\*\*_rec songs
+      learn mode is at song level now (off/wait/show) saved in descrip for now:(
+      track mode is just whether it's a learn track (off/mute/learn)
+      muteAll won't change REC or ? tracks now
+
+
+2009Jan
+** release 2009 Jan 28
+   Last release of Ditty.  Long live PianoCheater!! :)
+   docs - aaaaaugh!!!  (MidiCfg/Ditty commands/learn mode are better now)
+   death in vista :(((  Actually due to buggy code for "device already grabbed"
+   redoin' learn mode display in seperate window
+      resizable now and no more flicker
+   fixed up autokill of rec events to kill from HopTo time till
+      end of last sect pre Hop
+      (optimising autokill to NOT kill off useful rec'd notes if song is sect'd)
+   any looping can be done via sections
+   changed green hilighting to middle of note for prac display
+   now we got STEP and BEND ModifyCommands in MidiCfg's EDIT mapping so
+      programchangers (that step from 0..#tracks+1) and pitchbenders can be used
+   now have edit KEY - no more "help mode" - help window pops when edit is on
+      more docs - auuuuuuugh!!!
+   added commands to edit fingering while in @ mode.  last key gets edited.
+      eh, too painful to hop to next time to edit fingering for: yanked it out:/
+   bug fixin w time hopping in learn modes, and hopping to start at end of song
+   Tinker can transpose now :)  all notes btw bgn/end bars on sel'd tracks
+      (doesn't do drum notes, of course)
+      to transpose a small set of notes, you'll need to move em to their own
+         track and select just that track, transpose and move em back
+         (till I think of a better way to select subsets of notes)
+
+
+2008Dec
+   made ditty,tinker show beat/4 subdivisions
+      hardcoded to /4 for now, config'd later...:/
+   more fixes to learn mode - workin better now
+   learn mode goes across sections now
+   fixed recording bug that would throw ditty into an infinite loop
+      (rarely, tough to find, but STOMPED)
+   oops - some bugs in songlist editing part of ditty - feexed
+   and songlist is now saved across sessions (even if using prac.songlist)
+   fixed some probs in learn mode at time=0
+   renamed TRAK ctrl back to EDIT
+   added STEP ccMod to allow progchange to be used for EDIT ctrl
+   made ditty not die when UPDATE.exe doesn't exist (some virus checkers whine)
+   added subbeat= to song descrip as a hack to allow subbeat=3 (defaults to 4)
+   made toolbar tooltips BIGGER and made em NOT go away
+   fixed some probs w subbeat lines in learn mode not showin right
+   changed "to play" note hilight to green instead of yellow
+   made red dot in pause bar for note to hit (to turn green)
+   fixed bug with sections during learn mode display
+
+
+2008Nov
+   learn mode (aka spoon feeder, aka pianohero) fixed up pretty good
+   redoin gui and ditty's live editing via the keyboard
+      major docs overhaul time again :/
+   made song picker, fixed randomness to not dup pick
+   for AddTrack's default sound, you can set it sneakily via making a file in
+      program files\Ditty\Ditty_Default_Sound.cfg (with the sound in it)
+   hopping back in time while recording erases recorded events that are now
+      "in the future" so you don't record notes on top of notes.
+      It's done silently, but it's kinda necessary...:/
+   implemented first cc "mod" command - FLIP swaps from 0..127 to 127..0
+      in MidiCfg's input map
+   in learn @ mode, now loops back to start at end of song
+
+
+2008Oct
+   Well, QUITE a few bug fixes :(  :)
+   Starting work on PianoHero mode...  toggle mute to ? and check it out...:)
+      (click just left of first char of track name:  space => # => ? => space)
+
+
+2008Sep
+   MAJOR RELEASE with full controller mapping, device types, way less ID #s
+   taking .song/.trak files OUT of the users' world for simplicity
+      just .mid and .song/.txt now :)
+   redid docs - PHEW !!
+   .song file format changes - you may need to read the docs again, sorry :/
+
+
+2008Feb - 2008 Aug
+   a LOT of WORK...!!
+
+
+2007Dec
+   MAJOR surgery to ditty and MidiIO.cpp and all kinds of stuff.
+   MidiGuy gets sucked into the hellish Song class...:(
+
+
+2007Nov
+   STABLE RELEASE NOT GONNA HAPPEN for a while - tons of code to rework
+   finally got a decent table editor setup goin (w/ some minor ui annoyances:()
+
+
+2007Sep
+   putting off fancy controller remapping biz to get a stable release again :/
+   edit ctrl (prog change) can be on any channel now (on 1st inp dev of MidiCfg)
+   any song in *Compose* dir turns on _rcrd now
+      (so next song in playlist isn't hopped to at end of song)
+   fixed bug w changing track sound - changing to an existing sound where the
+      old one was used by other tracks broke the other tracks
+   took out spoonfeeder for now - just not ready for primetime...:(
+   took out mastervol,balance,tune in prep for real controller mapping
+
+
+2007Aug
+   redoing MidiIn and MidiOut classes and MidiCfg app
+      for better controller mapping and handling of RPN,NRPN
+      well, thinkin bout it anyway...
+   when MidiIn dev ain't on or when in use, just do nothin.  pop a Hey()
+   Finally biting the bullet and converting docs to "shazware format".
+      docs are now going to be only on the web - slims ditty.zip to 265K :)
+      doc'ing my install/update details
+
+
+2007Jul
+   MidiCfg,Ditty,Tinker(all midi cfg using apps)
+      had to change midi config settings - can't store multimedia ID in config
+      file since it CHANGES when usb midi connection are added and removed :(
+      Make =SURE= you run MidiCfg -first- if you're updating Ditty
+   EditKey is now TOP key for editing on midi kbd and
+      only on -1st- midiin dev in list
+
+
+2007May
+   DrumTrak
+      automatically does Mid2Song/Txt2Trak and cleanup so you don't need to keep
+      the .trak files around
+
+
+2007Apr
+   new docs for piano practice :)      http://shazware.com/piano
+   Ditty
+      toggle mute (#) to ? to mark a track to learn
+      keyboard is displayed and song pauses until keys are
+      pressed/released to match
+      (not sure this is useful...)
+   docs update a bit for Txt2Trak
+
+
+2007Mar
+   Txt2Trak
+      repeat count at end of a #include .txt file includes it that many times
+         ex:  #DrumPat\Click4 80       (will include it 80 x)
+      new grace note dur of g
+         ex:  g 5e@
+            will create a legato 32nd note ENDing just before curr time
+            (and won't bump time at all)
+      new rolled chord via ~ prefix on dur
+         ex:  ~q 5ceg6c
+            will start the e a 64th note after the c,
+            then the g a 64th after that, etc, etc
+      tweaked V0..9 to map to vel=1-127
+         not 0-127 - noteon velo=0 is defined as noteOFF by midi
+         0,1,2,3,4,5,6,7,8,9 => 1,15,29,43,57,71,85,99,113,127
+         note sure how to map PP,P,MP,MF,F,FF exactly...?
+            PP,P,MP,MF,F,FF => V2,V4,V6,V7,V8,V9
+   Ditty
+      looks for filename.txt matching .song file and calls Txt2Trak for you
+         and kills off .trak when done
+      squashed another sections time calc bug - was calcing tsig end time wrong
+      note spoon feeder is done
+         but i dunno if it'll be useful after all :((
+
+
+2007Feb
+   Ditty
+      started dev on "note spoon feeder"
+      mark track as a "pracTrak" via mute mode (normal->mute->prac->normal->...)
+      when pracTrak, live keyboard displayed with next press/releases to do
+         (WAY too fast to humanly follow, but it's a start)
+   Tinker
+      song files can now store FINGERING !!
+         hover over MIDDLE of note with songcontrol in focus (==> is green) and
+         then mousewheel changes fingering :)   (similar to how you edit velo)
+      has PRINT PREVIEW now :)    (major addition to StvLib :)
+      prints song title n page number now
+      shows sound+dev assoc'd w track in check'd listbox now
+   Txt2Trak - new fingering syntax: append [5] to the note.  ex:  q 5e@[23]
+   DOCS refresh - Eeeeeyuck !!  i hate doin that :P
+   Mid2Song/Song2Mid
+      saves fingering in .mid now  (dang 2/28 one last bug fixed for this)
+      non GM sound names preserved in .mid and restored to .song now
+      preserving Copyright now (except for that dang non-ascii circle-c char)
+
+
+2007Jan
+   new Str class   (no functional change - just easier for me - no more LIMITS:)
+   UPDATE - new app that checks (only) weekly for a new version of ditty to D/L
+            when booting ditty (no background task stuff!)
+      sees if local version.txt is over a week old
+      if not, exits
+      if so, update version.txt's date to today (so no bugging for min of a wk)
+      D/L 10 byte version.txt from shazware.com
+      sees if shazware.com's version.txt is newer than local version.txt
+      if not, exits
+      if so, asks to D/L - if no, just copies new version.txt to local
+                           if yes, downloads new ditty.zip and exits
+   Ditty/Tinker
+      can load shorter times for lyrics,markers (ex:  1 = time 0, 1.2, etc)
+      fixed time bugs w songs having tsigs not starting at time=0
+   Tinker
+      color note by sound, too :)
+      right drag to delete or moveTrack events within boundary
+      (and fixed bugs - and some more)
+
+
+2006Dec
+   Tinker
+      color notes by trakno as well as velocity now :)
+      can save .mid format now  (via new Song2Mid.exe)
+         when saving specify .mid file ext to save in midi fmt
+      can edit note on and off velocity via mousewheel while hovering
+      fixed some marker/lyric editing bugs
+   Mid2Song tweaks
+      port meta event fixes
+      removed track# from track names
+         otherwise after multiple mid2song+song2mid's track names grow :P
+   took trk# out of marker events (to be like lyrics)
+
+
+2006Nov
+   startin Song2Mid finally...  bleh :P
+   Tinker wasn't sorting quite right for notes that end and start at the exact
+      same time (which shouldn't really happen, but oh well, that's .mid for ya)
+
+
+2006Oct
+   FIGURED OUT AudigyNotebook BUG!!! - can't reuse filenames for calced .SF2s!!!
+   fixed Ditty/SFontSet to work w AudigyNotebook - ahhhhhhh :)
+
+
+2006Sep
+   just piano practicin
+
+
+2006Aug
+   Tinker can print now!
+      prints columns of piano roll bars with notes oriented as on keyboard
+      looks pretty good - a little diff than on screen,
+         but good for making piano practicin' sheets
+
+
+2006Jul
+   end of job again - practicing and sound sorting and figurin out what to fixup
+   ditty - rec'ing new drum resizes screen now
+   ditty,tinker - oops - skippin comments again while loading
+      not req'ing .beat.ticks for marker pos anymore
+   ditty
+      shows marker in titlebar now
+      fixed bug w loading sections (verse2 was picking verse, etc)
+      #bars was wrong for sections
+      when last section ended, wasn't skipping to next song
+      was hopping too early on last section of track
+
+
+2006Jun
+   SFontBank - added Y/N box for less wait (by skipping cleanup)
+   Ditty - bugfix - rec'ing new drum snd not dumping to SFont dev
+           did the sectionlist gui
+           syncs tinker to "traktime" bar correctly now
+   sf2SFont - deletes dup drum .psets now
+      unfortunately in a random bank order (order the .sf2 has) but oh well
+   Tinker - repeating bar report thingy can check more than 1 track now
+
+
+2006May
+   MAJOR DOCS OVERHAUL - YOU BETTER APPRECIATE IT !!!
+   Txt2Trak - fixed some bugs and made it able to include files indefinitely w #
+   ditty - niggling bug fixes
+   Ditty/SFontBank - sorting sounds a little better (based on rating, too)
+   thinkin bout tinker...
+
+
+2006Apr
+   Ditty
+      Rate dialog will auto-rename _ sounds to without the _ and redo the dialog
+         until you hit cancel.  Makes sorting thru new sounds MUCH easier!
+         new song rating of X and &lt;nothing> now set up
+      TrkEdit now lets you tack on new recording tracks for drums,melodic sounds
+      better recording
+         can now just play new drum keys to create new drumtracks
+         can record multiple device/chans into particular tracks now
+      new edit track name,sound dialog
+      fixed bugs in time calcs for editctl of time
+   Tinker FINALLY can tell ditty to SHUTUP with the bar position notifications
+   SFontBank - wasn't creating _x dir so left unused .WAV files there - fixed
+
+
+2006Mar
+   EdiSn can now auto-chop-up a long wav of several songs by silent spots
+      into individual wav files per song
+   Ditty
+      now strips common path prefixes outa filenames in the songlist
+         (easier to read :)
+      tweaked the ui layout a lot
+      spiffed docs for Ditty to include keyboard mappings (plenty of em)
+      sf2SFont now uses a _ prefix for the new pset files thrown into SFont dir
+      ditty now sorts those to the end of the list per drum/inst
+      rating a sound from _ to non _ leaves your current pos so you don't have
+         to scoot all the way back to rate next sound
+   FINALLY updating website !!!
+   got my laptop networked - ahhh - can debug to desktop now
+      plus nicer ALL around - shoulda done this looong ago
+
+
+2006Feb
+   debugging the stupid audigy notebook bug - arrrrrrrgh - can't reproduce it:(
+
+
+2006Jan
+   Ditty now does KEYS for (rather lame) midi input (finallly)
+      z and row to right have low c notes (with sharps in row above)
+      q and row to right have middle c notes (with sharps above)
+      cursor down/up change the note velocity (default of 100)
+      cursor left/right change octave (default of 4 for z row, 5 for q row)
+      f1-f8 do toolbar buttons
+      f9-f12 do arrow buttons (value editing for rightmost arrows)
+      shift f9-shift f12 do leftmost arrow buttons
+   sections basically work, but currently have no gui.
+      i'm tired of em for now :(
+      edit song by hand and put in SECTIONS: block with
+         marker strings in order/reps desired -
+         markers MUST be on a bar boundary currently
+      ditty can skip forward/back a section via EdTime
+   starting to organize my soundfonts (agaaaaain)
+   sf2SFont
+      puts converted (non gm default) .sf2 presets into
+      SFont\_\SFPre\psetname.pset    for non gm and
+      SFont\_\GMDir\GMPre_SFPre.pset for gm nondefault
+      SFont\Drum\_\grp\sym\sym_SFPre.pset for drums
+      This way you can easily review the NEW presets in the _ dirs and
+         kill em all off if you want or get em in the right GM dirs and
+         move em to your main "all sorted out" dirs.
+   want to work on somethin FUN
+      so thinkin bout an "auto pitch bender" to take a sin/saw sfont inst and
+      autogenerate pitchbend events to get that "monosynth sound"...
+      Or die tryin...  Or give up...  Or -WHAT-everrrr...
+
+
+2005Dec
+   still goin...
+
+
+2005Nov
+   working on sections of markers
+      marker ctrl changes split sequence in time
+      sections (in .song file) list sections (delim'd by markers)
+         to play the song parts (verse, chorus, bridge, etc) in any order/reps
+      many changes to ditty timing, a few minor changes to tinker, mid2song
+
+
+2005Oct
+   Ditty debuggin done i theen
+   back to EdiSn
+      better display w mag and no reaccessing huge diskspace for right wav
+      playfrom/to
+      fixed plenty of bugs, etc
+
+
+2005Sep
+   done debuggin' ???
+   added ability to cache soundfont presets of WHOLE playlist
+      (for fast playback instead of flexible editing, etc)
+
+
+2005Aug
+   still debuggin' :(
+
+
+2005Jul
+   still debuggin' :(
+
+
+2005Jun
+   pretty big rewrite to cache devs/snds between songs
+
+
+2005May
+   FINALLY got an Audigy 2 - no midiport???  WHAT everrr...  still got my live
+   Ditty - corrected picking the right sf device# - oops bug fix
+   SFontSet - ditto
+   MidiCfg - tweaked for less mess
+
+
+2005Apr
+   tinker
+      Copy WORKS now!  pick barBgn,End w [], hover to dest bar, click +
+      handles mastervolume/masterbalance
+   ditty
+      load is interruptible now - no more WAIT if you scroll thru tons of songs
+         many speed improvements on the way :)
+      Pause WORKS now :)  click time display or use synth kbd
+      also a goto bar #1 in EdTime
+      songlist remembers current pos automatically now (w a > in the txt file)
+      fixed bug in song rating saying new file exists when it doesn't :/
+      new editctrls for masterVolume,Tune,Balance
+   sf2sfont - made main .WAV variable dynamic so low RAM folks can use it :)
+
+
+2005Mar
+   fixed sound rating bug during delete - it WORKS :)
+   TONS of new ideas from Dominique Paon - my brainz a-swimmin'
+      what to do first...  hmm...  thinkin time...:)
+   timing glitches have been due to background UI bmp tiling :(
+      spare the gui glitz till i figure out why...
+      thinkin bout using events in midiguy rather than msgloop
+   tinker gui for copying a clip is there but doesn't do anything yet
+      fixed del bug, spare doin copy till timer pausing in ditty is workin
+   gave LED display a pause indicator (red box)
+   made timer "pause"-able, gotta hook up UI tho
+
+
+2005Feb
+   Ditty can rate sounds now.
+   gave SFontBank a little better status
+
+
+2005Jan
+   RATS!
+      Tinker was broke, too...  save file died, no sounds during trak insert
+      Wasn't doing MidiDev.Load since squishin exe size :(
+      ok now :)
+   PSetEdit didn't load .pset files via winexplorer
+      fixed and added a "kick off edisn" button
+   sf2sfont was broke?  recompiled it and it works now...  Whaaa?
+   got a bunch of new .sf2s from sf2midi.com - mergin em into my collection...
+   updating docs - bleh :P
+
+
+2004Dec
+   EdiSn - save WORKS now
+           displays all pos's in minutes:seconds.samples format
+
+2004Nov
+   EdiSn - got bgn,end,loopBgn,loopEnd displayed now
+           got an editable pos now (for setting the above)
+
+2004Oct
+   found new job - contracting again :/   No time for nothin
+
+
+2004Sep
+   changed del icon to a "rate" icon to rate, rename and delete a songfile :)
+
+
+2004Aug
+   changed the del icon of ditty to actually del file in filesystem,
+      not just take it out of the playlist
+
+
+2004Jul
+   fixed bug in SFontBank.exe that'd make it just freeze.
+   thought i had bugs in ditty, but it was just my midipath :/
+
+
+2004Jun
+   shazware and checkin out processing.org - ditty kinda on hold till i get
+   back into graphics a bit :)
+
+
+2004May
+   memMapped files for EdiSn - stillll goin...
+   FINALLY updated website!!!
+
+
+2004Apr
+   done making ditty tinier
+   FINALLY back to EdiSn?  memMappedFiles n all :)
+
+
+2004Mar
+   recompilin ditty for tiny (no) clib - trickier :/
+
+
+2004Feb
+   recompilin shazware for tiny (no) clib
+
+2004Jan
+   still bootin shazware
+
+
+2003Dec
+   booted shazware
+
+
+2003Nov
+   tweaked Ned
+   back to EdiSn
+   fixed MidiCfg to put SFont devices first in list
+
+
+2003Oct
+   redoin registry/config file infrastructure stuph
+   started EdiSn :)
+
+
+2003Sep
+   new job still
+
+
+2003Aug
+   new job!  no time :/
+
+
+2003Jul
+   FINALLY done w PSetEdit.  Back to Ditty recording i spose...
+   learning php, built new ditty email list
+
+
+2003Jun
+   still workin on PSetEdit soundfont preset editing
+   built elshaz.com.  bye bye freeservers.com...
+
+
+2003May
+   PSetEdit - to edit soundfont presets on the fly ala vienna, but less bulky
+   can view ok now.  working on editing...
+
+
+2003Apr
+   Tinker
+      added saveall button with versioning so no naming necessary
+      changed rev# to start at _002  (Ditty too)
+      can edit all controllers now :)
+      "All" checkbox so new controllers can be added in
+      add/del drumnote now
+
+
+2003Mar
+   Tinker    - now has track insert, update, delete, scootup, scootdown
+               basic controller editing goin
+   Ditty     - sound editing a bit nicer - prev/next top group and prev/next 5
+   sf2SFont  - has a "wait" gui
+   SFontBank - added some progress messages during the wait
+   sf2SFont  - ditto
+
+
+2003Feb
+   Ditty and Tinker now have the basics!  (decent save functionality in both)
+   Tinker saves/plays selected tracks/controllers now (between time bgn and end)
+          has del clip function to kill off events tween clip bgn,end (all trks)
+   minor change to .TRAK format - old .trak files ain't compat anymore...:(
+   fixed bug in Ditty's Save of recorded track
+      (noteons were being saved as notepressure - dang)
+
+
+2003Jan
+   Tinker uses DrumMap from song file in addition to on drum notes to show
+      drum track - NOW i can finally use tinker to edit drums!
+   got rid of the stupid dependency on msvcrt7.dll or whatever that was
+
+
+2002Dec
+   Ditty
+      adds each note of drumtrack to drummap (if not there already)
+      files have ONE drumtrack, but are expanded to a drum
+         per track (for easier editing of sound/volume) (in Ditty only)
+   Ditty,SFontSet now use "Synth B" sblive device correctly
+   (built shelf in utility room, figurin out dremel, scrollsaw, router:)
+
+
+2002Nov
+   added EditKey param to MidiCfg
+      cuz my keyboard died - usin 5 octave one till repaired:(
+   (new tablesaw, built crosscut sled, etc)
+
+
+2002Oct
+   laid off;  learnin .NET, SqlSvr, C#, ADO, ASP, ETC, ETC, ETC
+
+
+2002Sep
+   (summer off with the kids, using ditty for practise, new roof, painting)
+
+
+2002Aug
+   (summer off with the kids, using ditty for practise, new roof, painting)
+
+
+2002Jul
+   Ditty - sends REAL fname to Tinker during rec'ing instead of old "_new.song"
+   DrumTrak - spiffed a bit for more elaborate patterns;  rep bars in pat line
+   SFontBank - more logical sorting now
+
+
+2002Jun
+   Ditty
+      can explode drumtracks now  (in Edit:  EdMute)
+      can find songs in a dir picked by windows explorer now :)
+      fixed save bug (it's been there for a while :()
+      fixed bug in sound picking - prevgroup / nextgroup
+      fixed song sorting bug
+   Tinker
+      spiffed BarQ a bit still not of a lotta use, but kinda helps :/
+      slightly better colors for controller graphs
+
+
+2002May
+   Ditty and Tinker sync better now - tinker doesn't GRIND ya...:/
+   Tinker - note deleting done now (still no save whole song yet)
+      leftclick=insert/update;  rightclick=delete
+      (and fixed some note editing bugs...:/)
+      track picker has checks to pick all/none/some/etc (right click it, too)
+      ctrl picker, too  (had to optimise chek ctrl for speed)
+   Whoops - never fixed sorting in SFontBank - fixed now :)
+
+
+2002Apr
+   Tinker - NOTE EDITING!!!  (but no save whole song yet)
+   finally squashed the "txtfile finding" bug in SETUPDITTY.exe
+
+
+2002Mar
+   Tinker
+    can send a clip to Ditty now
+    displays lyrics,markers (sorta lame, but they're there at least)
+   Ditty
+    editing reorganized a bit to be handier (although uglier)
+    changed mute editing a bit
+    added editmode so you can play/record the "edit" midi keyboard keys
+    turned off MasterTuneCents usage cuz it fries some softsynths
+    setwidth for songlist (and all CtlCmbos) now
+   Mid2Song
+    now parses track Marker events (like lyrics, but per track)
+    fixed a rare infinite loopin bug
+
+
+2002Feb
+   Ditty chases controllers !!!  :)))
+   can use the stupid .rmi files now
+   hopefully fixed incorrect StartMenu/Programs folder picked in SETUPDITTY.
+   added RPN controller support for MasterTuneCents and PitchBendRange
+      oops had PbendRange at 1 for a release there :/  fixed now
+
+
+2002Jan
+   fixed timesig display bugs in Ditty,Tinker (and bug in Ditty's Edit=>Time)
+   Ditty
+    drumnotes expanded to standard GS ones and FULL drummap editing
+    saves the WHOLE song including lyrics, etc, etc
+    listens to ALL "on" midi ins (up to max of 8 currently)
+    popup help of 4arrow area changes with edit type picked
+    gui and midi in update each other for current edit mode
+    added help button
+   Tinker
+    can show ALL controllers at ONCE now with diff height scaling!
+    remembers dirs, defaults good .trak filename for saving clips
+    velocity scale (rainbow:) fills screen width
+    BarQ now spits to a text file and takes tsig into account, etc
+    added help button
+   DrumTrak handles subdirs now and kicks ditty MUCH more interactively-ish(?)
+   spiffed nav of .html docs
+
+
+2001Dec
+   FINALLY have ditty on XP WORKin - worked around bug in Creative's sfman32.dll
+      (thanks to LasTNighT!)
+   got ridda the dang _ for _.song biz;  tossed SysX dir;
+   now you can click on Ditty's track display to pick edit track n edit type
+   Tinker can display notes, drums and controllers on ONE screen now
+   save uses {fn}_001.song, etc for filename
+
+
+2001Nov
+   been learning DirectMusic since my poor sblive won't go on XP...
+      can parse a .DLS file now, workin on a .sf2->.dls setup for Ditty  (later)
+
+
+2001Oct
+   ripping .SF2s and organizing the good presets into a BIG GOOD sound lib
+   with sf2SFont, etc
+
+
+2001Sep
+   a bit nicer icons
+   total soundfont drumset picking via Ditty :)
+
+
+2001Aug
+   splitting out soundfont drums for better/easier drumset editing
+   sayin goodbye to DeviceSound.txt, and extra DeviceTypes:
+      PvV3 :(, RoGS, EnKS, etc.  Just GenMidi and SFont now.
+
+
+2001Jul
+   Ditty n Tinker now remember window position stuff
+   got a fancier background onto Ditty...
+   redid app framework a bit - nicer now
+
+
+2001Jun
+   Just killed some bugs w the GS,XG handling
+   made Tinker sync up to Ditty's time when started from Ditty
+
+
+2001May
+   started using DirectMusic's clock
+   got ridda the LargeFonts screen layout problems
+
+
+2001Apr
+   cool SFont device! - use Cvt_to_Lst & Cvt_to_SFont to rip each preset out
+   SFontBank builds SFont_Bank.txt from .pset files
+   Ditty builds/dumps new sf2 on the fly (sorta kinda like DLS but not really)
+
+
+2001Mar
+   Banks handled better now (can handle SFont better plus can do GS,XG)
+      SFont devices correctly list banks there + descrip
+      Mid2Song converts bank changes (cc0) into soundnames w .bbb
+      Ditty maps sounds w .bbb to snd.bbb if exists, else snd (w/out .bbb)
+   cleaned up REMOVE.exe to commit suicide
+   finally cleaned up DrumTrak to sort it's lists
+
+
+2001Feb
+   Ditty - changed edit ctrl biz - progch sets which type, keys 8e-g do editin
+   ignorin MC_BANK on recording and translating any VOL to EXPR
+   new devtype "SFont" is GenMidi but fills in snd.Desc to soundfont preset name
+
+
+2001Jan
+   gotta sblive!  should i lose the PvV3,EnKS midiout?  :(
+   learnin bout .sf2 and sblive sound architecture
+   nicer (teeny-er) toolbar code
+   Tinker  starts w a better sized/zoomed display (note wise AND bars wise)
+   Mid2Song  sort DrumTrack to top
+   Ditty  fixed bug keepin time=1.1 from showin
+          now does "auto rec" for Compose directory song files
+
+2000Dec
+   fixed some fricken bugs in Mid2Song
+
+
+2000Nov
+   made DMusTest app to hear DirectX/DirectMusic/MSSynth's GM sounds
+   made TryWav app to preview lots of .wav files at once
+
+
+2000Oct
+   Ditty
+    - listview was TOO SLOW - back to static ctrl - somewhat nicer tho
+    - tossed Default\Chan99 stuff in Mid2Song,Ditty
+    - added correct timesig handling (not yet robust in Tinker, but passable)
+   Mid2Song
+    - now handle progch correctly when ctrl in front of 1st progch not assoc'd
+    - added correct timesig handling
+   DrumTrak
+    - added badly needed Tempo control
+   spiffed docs
+   tried out DirectMusic sorta
+
+
+2000Sep
+   SETUP
+    - now makes Ditty default .mid,.kar player n restores default on uninstall
+   MidiCfg
+    - upon Save, now kicks Ditty to reload MidiCfg
+   Ditty
+    - redid internal dev/snd/trk organization
+    - listview output looks a little classier than ole edit control
+    - toobar button for MidiCfg
+
+
+2000Aug
+   MidiCfg
+    - new app to configure the midi devices via gui
+    - added Online column to DeviceName.txt n fixed up apps to use it
+   DrumTrak
+    - new app that picks drum clips, ABABABACs em into a DrumTrak.song
+      and kicks Ditty to play it
+
+2000Jul
+   Mid2Song
+    - all drum notes n tempo events are consolidated into one DrumKit track now
+
+
+2000Jun
+   Ditty
+    - DeviceName.txt now has chan config for MidiOut: and swaps to another
+      device if snd can't get a channel on the default device
+    - added Edit: solo/mute  (fixed Edit: Sound bug w pgm/mapped snd)
+    - more button glitz (Edit: PickTrack split to own buttons)
+    - now boots Tinker at current bar
+
+
+2000May
+   Tinker
+    - lotso display fixes - color velocity & zoomin in both dimensions!!!
+
+   Ditty
+    - fixed prob w PvV3's Drum\Drum patch - had combi pointin at nothin :(
+    - added EnKS_Bank.txt - Ensoniq KS32 (SQx) patch list :)
+    - added RoGS_Bank.txt - Roland GS (approx SC55 level :/ ) patch list
+    - fixed bug for Edit: Snd (not settin track's new snd, etc)
+    - added Bars display of song's len in bars (assuming 4/4 still)
+
+
+2000Apr
+   Ditty/Mid2Song
+    - set up DeviceSound.txt so certain sounds always pick the best device
+   SETUPDITTY.exe
+    - no longer requires fricken WinZip biz
+   Ditty
+    - a bit of glitz for time,tempo,status displays
+    - added Edit Ctrl/Valu stuff to Ditty UI (to use it w/out a MidiIn)
+   Mid2Song
+    - fixed bug makin huge lines in .song file keepin Ditty n Tinker from loadin
+
+
+2000Mar
+   Ditty
+    - made window resizable, longer track names (Mid2Song fixup)
+    - stopped saving non recorded songs (hmmm - what about sound changes)
+   Tinker
+    - gets a drum display
+   SampSend
+    - can SDS load n save .wav files
+   SysX
+    - fixed some tweaky bugs
+
+
+2000Feb
+   PvV3
+    - added Combi and Fx editing, fixed up docs a bit
+
+
+2000Jan
+   Ditty
+    - can load .mid files directly now (temp .song/.trak made then killed)
+    - added "findsong" func to Ditty n lost SongList app
+
+
+1999Dec
+   SETUP.exe
+    - has editable install dir now
+   Ditty
+    - shows lyrics
+    - can now launch WordPad and Tinker to check out current song
+    - can load .songlist files now
+    - changed time refresh to per qnote for hi perf songs
+   Mid2Song
+    - .KAR explorer file mapping added
+    - Lyrics (std midi and karaoke fmt) now processed
+   SysX
+    - has Get capability now
+   sx2PvV3,PvV3
+    - new apps for Peavey DPM V3 patch editing
+   SongList
+    - new app to find all song files in a dir and subdirs
+
+
+1999Sep
+   did SETUP.exe and the start of Tinker.
+
+
+1999Apr
+   First release of Ditty and my family's webpage.
+   Primarily so folks could see it's there.
+
+
+1997-98???
+   spent a loooooong time spinning my wheels with MFC.
+   Started learnin Win32 API.
+
+
+1995-96???
+   95 was a busy year - bought house, had 2nd child, got married :)
+   Dove into the Mac - I didn't want to be a clone...
+   got some midi interface code started
+   got to the point of debugging a REALLY early start on a sequencer
+   totally GAVE UP and committed myself to CLONEZ.
+
+
+1989-94???
+   First dive into building a sequencer and patch editor for the Amiga
+   It was about as functional as Ditty's Sep99 windows version
+   I was happy.  Commodore died.  I was sad.
