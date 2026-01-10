@@ -20,3 +20,7 @@ CMakeList.txt s should have
  -  ../../stv/ui.cpp
  -  ../../stv/syn.cpp
  -  etc
+
+[do - to do list](../do.txt)
+
+[did - release notes](did.txt)
