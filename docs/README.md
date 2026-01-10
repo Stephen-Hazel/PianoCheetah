@@ -1,4 +1,4 @@
-# pianocheetah 
+# pianocheetah
 
 Steve's pianohero++ app
 
@@ -13,8 +13,9 @@ build this flatpak with
  - flatpak install org.kde.Sdk//6.10 org.kde.Platform//6.10
  - b.sh   (or b.sh d - for debugging)
 
-Uses my stv library of c++ assumed to be in ../stv
-CMakeList.txt s should have 
+Uses my stv library of c++ (assumed to be in ../stv)
+
+CMakeList.txt s should have
  -  ../../stv/os.cpp
  -  ../../stv/ui.cpp
  -  ../../stv/syn.cpp
