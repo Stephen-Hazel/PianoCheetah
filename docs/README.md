@@ -4,7 +4,7 @@ Steve's pianohero++ app
 
 ![logo](https://pianocheetah.app/img/logo.png "logo")
 
-https://pianocheetah.app for user docs
+https://pianocheetah.app/doc for user docs
 
 environment:  Qt c++ in a flatpak
 
