@@ -524,10 +524,12 @@ bool FLstDef::DoFN (char *fn)          // just do ma dir
 //______________________________________________________________________________
 void DlgFL::Pik ()
 { sbyt2 p;
-  TStr  fn, s, dt;
-  BStr  buf, etc;
-  ubyt4 r, i, d;
+  TStr  fn, s, bars, tmpo, tsig, ksig, prac, lyr;
+  ubyt4 r, i;
   StrArr tb (CC("FLstEtc"), 16000, 6000*sizeof(TStr));
+   StrCp (bars, CC("0"));   StrCp (tmpo, CC("120"));   StrCp (tsig, CC("4/4"));
+   StrCp (ksig, CC("C"));   StrCp (prac, CC(""));      StrCp (lyr,  CC("0"));
+
    if ((p = _t.CurRow ()) >= 0)  FL.pos = p;
    FL.ext = false;
 
@@ -536,29 +538,30 @@ void DlgFL::Pik ()
    tb.Load (fn, nullptr, CC("Track:"));
 
 // plow thru top of .song till we hit DrumMap: or Track: and load interestin etc
-   *buf = '\0';
-   for (d = r = 0; r < tb.NRow (); r++) {
+   for (r = 0;  r < tb.NRow ();  r++) {
       StrCp (s, tb.Get (r));
       if ((! MemCm (s, CC("DrumMap:"), 8)) ||
           (! MemCm (s, CC("Track:"  ), 6)))  break;
       if  (! MemCm (s, CC("info={"), 6)) {
-         d = 1;
          for (i = r+1;  i < tb.NRow ();  i++) {
-            if (! MemCm (tb.Get (i), CC("}"), 1))  break;
-            StrAp (buf, tb.Get (i));   StrAp (buf, CC("\n"));
+            StrCp (s, tb.Get (i));
+            if (! MemCm (s, CC("}"), 1))  break;
+
+            if (! MemCm (s, CC("bars" ), 4))  StrCp (bars, & s [7]);
+            if (! MemCm (s, CC("tempo"), 5))  StrCp (tmpo, & s [7]);
+            if (! MemCm (s, CC("tsig" ), 4))  StrCp (tsig, & s [7]);
+            if (! MemCm (s, CC("ksig" ), 4))  StrCp (ksig, & s [7]);
+            if (! MemCm (s, CC("prac" ), 4))  StrCp (prac, & s [7]);
+            if (! MemCm (s, CC("lyric"), 5))  StrCp (lyr,  & s [7]);
          }
       }
    }
-   for (d = r = 0; r < tb.NRow (); r++) {
-      StrCp (s, tb.Get (r));
-      if ((! MemCm (s, CC("DrumMap:"), 8)) ||
-          (! MemCm (s, CC("Track:"), 6)))  break;
-      if  (! MemCm (s, CC("notes "), 6)) {
-         d = 1;   StrAp (buf, CC("\n"));   StrAp (buf, & s [6]);
-                  StrAp (buf, CC("\n"));
-      }
-   }
-  CtlText e (ui->etc);   e.Clr ();   e.Add (buf);
+   { CtlLabl l (ui->bars);   l.Set (StrFmt (s, "bars\n`s",     bars));}
+   { CtlLabl l (ui->tmpo);   l.Set (StrFmt (s, "tempo\n`s",    tmpo));}
+   { CtlLabl l (ui->tsig);   l.Set (StrFmt (s, "timeSig\n`s",  tsig));}
+   { CtlLabl l (ui->ksig);   l.Set (StrFmt (s, "keySig\n`s",   ksig));}
+   { CtlLabl l (ui->prac);   l.Set (StrFmt (s, "practice\n`s", prac));}
+   { CtlLabl l (ui->lyr );   l.Set (StrFmt (s, "lyrics\n`s",   lyr ));}
 }
 
 
@@ -752,7 +755,7 @@ void DlgFL::Shut ()
 {  FL.pos = _t.CurRow ();   done (true);   lower ();   hide ();  }
 
 void DlgFL::Init ()
-{  Gui.DlgLoad (this, "DlgFL", ui->spl);
+{  Gui.DlgLoad (this, "DlgFL");
    FL.Load ();
   CtlTBar tb (this,
       "Up\n"         "Scoot song up in the list"
@@ -806,7 +809,7 @@ void DlgFL::Quit ()
   TStr t;
    StrCp (t, s.Get ());               App.CfgPut (CC("DlgFL_srch"), t);
    StrCp (t, CC(a.Get ()?"y":"n"));   App.CfgPut (CC("DlgFL_all"),  t);
-   Gui.DlgSave (this, "DlgFL", ui->spl);
+   Gui.DlgSave (this, "DlgFL");
 }
 
 

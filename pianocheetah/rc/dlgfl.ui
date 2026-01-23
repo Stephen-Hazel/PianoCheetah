@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>798</width>
-    <height>774</height>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,65 +24,117 @@
   </property>
   <layout class="QVBoxLayout" name="layFL">
    <item>
-    <widget class="QSplitter" name="spl">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
+    <layout class="QHBoxLayout" name="hl">
+     <item>
+      <widget class="QCheckBox" name="all">
+       <property name="minimumSize">
+        <size>
+         <width>60</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>All</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lSrch">
+       <property name="text">
+        <string>Search</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="srch"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="fLst">
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
      </property>
-     <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="vl1">
-       <item>
-        <layout class="QHBoxLayout" name="hl">
-         <item>
-          <widget class="QCheckBox" name="all">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>All</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="lSrch">
-           <property name="text">
-            <string>Search</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="srch"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QTableWidget" name="fLst">
-         <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="layoutWidget2">
-      <layout class="QVBoxLayout" name="vl2">
-       <item>
-        <widget class="QTextEdit" name="etc">
-         <property name="font">
-          <font>
-           <family>Noto Mono</family>
-          </font>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
+     </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hl2">
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="bars">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>56</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>56</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>bars</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="tmpo">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>tempo</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="tsig">
+       <property name="text">
+        <string>timeSig</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="ksig">
+       <property name="text">
+        <string>keySig</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="prac">
+       <property name="text">
+        <string>practice</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lyr">
+       <property name="maximumSize">
+        <size>
+         <width>56</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>lyrics</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

@@ -127,12 +127,15 @@ void MidiCfg::Load ()
    }
 
    rp [0] = nm;   rp [1] = ty;   rp [2] = ds;   rp [3] = nullptr;
-   ri = _ti.CurRow ();   ro = _to.CurRow ();
+// argh - not easy keepin tracka last clicked list...
+  char pio = _io;   ri = _ti.CurRow ();   ro = _to.CurRow ();
    _ti.Open ();   _to.Open ();
    for (i = 0;  Midi.GetPos ('i', i, nm, ty, ds, dv);  i++)  _ti.Put (rp);
    for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++)  _to.Put (rp);
    _ti.Shut ();   _to.Shut ();
-   _ti.HopTo (ri, 0);   _to.HopTo (ro, 0);
+   if (pio == 'o')  {_ti.HopTo (ri, 0);   _to.HopTo (ro, 0);}
+   else             {_to.HopTo (ro, 0);   _ti.HopTo (ri, 0);}
+   _io = pio;
 
 // now syn cfgs
   TStr fn, s;
@@ -234,7 +237,6 @@ void MidiCfg::Updt ()
   ubyte c = t->CurCol ();
   sbyt2 r = t->CurRow (), ro;
    if (r < 0)                         {Gui.Hey ("Click a row, dude");   return;}
-//DBG("Updt r=`d c=`d", r, c);
    StrCp (nm, t->Get (r, 0));   StrCp (ty, t->Get (r, 1));
    StrCp (ds, t->Get (r, 2));
    if (c == 0) {
@@ -330,12 +332,12 @@ void MidiCfg::MidiIEv ()
 
 
 void MidiCfg::Init ()
-{  _io = ' ';   _nMI = 0;
+{  _nMI = 0;   _io = 'i';
 DBG("Init");
    InitDevType ();
    Gui.WinLoad ();
-  TStr fn;
-  File f;
+  TStr  fn;
+  File  f;
   ulong ln;
   CtlSpin bu (ui->spbBuf, 32, 128);
    bu.Set (64);
@@ -368,6 +370,7 @@ DBG("Init");
    connect (this, & MidiCfg::Reload, this, & MidiCfg::Load,
             Qt::QueuedConnection);
    emit Reload ();
+   _io = 'i';   _ti.HopTo (0, 0);
 DBG("Init end");
 }
 

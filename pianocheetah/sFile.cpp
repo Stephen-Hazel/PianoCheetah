@@ -86,30 +86,17 @@ void Song::DscSave ()                  // put stats into _dsc
    StrFmt (buf, "learn=`c",     Up.lrn);                 DscPut (buf);
 
 // ok, make our summary thingy
-// prac   RH LH HT DRUM REC
+// prac   RH LH DRUM
    *pr = '\0';
    for (i = 0;  i < _f.trk.Ln;  i++)
-      if ((! TDrm (i)) && (_f.trk [i].ht < '4'))
+      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht < '4'))
          {StrAp (pr, CC("LH "));   break;}
    for (i = 0;  i < _f.trk.Ln;  i++)
-      if ((! TDrm (i)) && (_f.trk [i].ht > '3'))
+      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht > '3'))
          {StrAp (pr, CC("RH "));   break;}
    for (i = 0;  i < _f.trk.Ln;  i++)
-      if  (TDrm (i))
+      if (TLrn (i) &&    TDrm (i))
          {StrAp (pr, CC("Drum "));   break;}
-   for (i = 0;  i < _f.trk.Ln;  i++)
-      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht < '4'))
-         {StrAp (pr, CC("REC_LH "));   break;}
-   for (i = 0;  i < _f.trk.Ln;  i++)
-      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht > '3'))
-         {StrAp (pr, CC("REC_RH "));   break;}
-   for (i = 0;  i < _f.trk.Ln;  i++)
-      if (TLrn (i) && (! TDrm (i)) && (_f.trk [i].ht >= '1') &&
-                                      (_f.trk [i].ht <= '7'))
-         {StrAp (pr, CC("REC_HT "));   break;}
-   for (i = 0;  i < _f.trk.Ln;  i++)
-      if (TLrn (i) && TDrm (i))
-         {StrAp (pr, CC("REC_DRUM "));   break;}
    if (*pr)
       {StrCp (& pr [7], pr);   MemCp (pr, CC("prac   "), 7);
                                StrAp (pr, CC("\n"));}

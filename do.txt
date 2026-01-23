@@ -15,15 +15,11 @@ try to find all the good rush sounds
 
 code____________________________________________________________________________
 
-hand flip command
-midicfg's picker keeps saying "pick a row"
-song pick - make right side nicer
+wipe needs to be fixed - dbg
 
-make ui passable in dark mode sigh
-install shouldn't let you get stuck in a loop :(
-wipe needs to be fixed
+when drums is dead, you can still pick it in trak's dev and pc crashes
 
-space doesn't unpoz - keymap
+install shouldn't let you get stuck in a loop :(  dbg
 
 really test notes picked for ez tracks
    get that note match "text report" into dbg
@@ -43,6 +39,8 @@ really test notes picked for ez tracks
          16 and 20 lh match, rh diff
          at least a resync so 13 and 17 start at the same place
 
+make dark mode ok - await email?
+
 test out syn's envelopes harder - esp chorus-y things
 
 when sounds are wrecked cuz a device is off,
@@ -60,6 +58,8 @@ figure out drag n drop?
 spec____________________________________________________________________________
 
 in note ev, pass duration so syn can do tricky echoes and stuff
+
+whistle compose?
 
 note level control of envelopes etc via "note color"
    palette of fx colors:
@@ -116,6 +116,8 @@ how video   cleanin up a song
 
 
 later___________________________________________________________________________
+
+if tsig is n/d/*, show _ e & a for /4  or _ & a for /3
 
 pan draws weird lines off to the right on screen
 

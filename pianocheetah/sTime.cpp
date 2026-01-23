@@ -23,17 +23,21 @@ KSgRow *Song::KSig (ubyt4 tm)
 char *Song::TmStr (char *str, ubyt4 tm, ubyt4 *tL8r, ubyte *subt)
 // put song time into a string w bar.beat;  maybe return time of next bt & subbt
 { TSgRow *ts;
-  ubyt4  dBr, dBt, l8r;
-  ubyt2   br,  bt;
+  ubyt4  dBr, dBt, dSb, l8r;
+  ubyt2   br,  bt,  sb;
   ubyte  sub;
-   ts = TSig (tm);   dBt = M_WHOLE / ts->den;
-                     dBr = dBt     * ts->num;
-                     sub =           ts->sub;
+   ts = TSig (tm);   dBt = M_WHOLE    / ts->den;
+                     dBr = dBt        * ts->num;
+                     dSb = dBt / (sub = ts->sub);
    br  = (ubyt2)(ts->bar + (tm - ts->time) / dBr);
    bt  = (ubyt2)(1 +      ((tm - ts->time) % dBr) / dBt);
+//DBG("tm=`d  num=`d den=`d sub=`d  br=`d bt=`d  dBr=`d dBt=`d dSb=`d",
+//tm,  ts->num, ts->den, sub,  br, bt,  dBr, dBt, dSb);
    l8r = ts->time + (br - ts->bar) * dBr + dBt * bt;
-   StrFmt (str, "`d.`d", br, bt);   if (tL8r) *tL8r = l8r;
-                                    if (subt) *subt = sub;
+   if (ts->den >= 10)  StrFmt (str, "`d.`02d", br, bt);
+   else                StrFmt (str, "`d.`d",   br, bt);
+   if (tL8r) *tL8r = l8r;
+   if (subt) *subt = sub;
    return str;
 }
 

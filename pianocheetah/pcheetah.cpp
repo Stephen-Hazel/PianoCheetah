@@ -9,34 +9,34 @@ UCmdDef UCmd [] = {
    {"song<",     "song",       "previous song"},
    {"songRand",  "",           "random song"},
    {"song>",     "",           "next song"},
-   {"songKill",  "",           "DELETE SONG (be CAREful)"},
+   {"songKill",  "",           "DELETE song  (be careful:)"},
    {"exit",      "",           "quit PianoCheetah"},
    {"fullScr",   "",           "view:  full screen / tracks"},
 // done by thread/song/me
    {"timeBar1",  "time",       "restart"},                           // 6
    {"time<",     "",           "previous bar"},
    {"time>",     "",           "next bar"},
-   {"time<<",    "",           "previous loop / page"},
-   {"time>>",    "",           "next loop / page"},                  // 10
+   {"time<<",    "",           "previous page / loop"},
+   {"time>>",    "",           "next page / loop"},                  // 10
    {"timePoz",   "",           "play / pause"},
    {"timeBug",   "",           "hop to loop with most bugs"},
-   {"tempoHop",  "tempo",      "tempo:  60% / 80% / 100%"},
+   {"tempoHop",  "tempo",      "hop tempo:  60% / 80% / 100%"},
    {"tempo<",    "",           "decrease tempo"},
    {"tempo>",    "",           "increase tempo"},                    // 15
-   {"tran<",     "transpose",  "down"},
-   {"tran>",     "",           "up"},
+   {"tran<",     "transpose",  "transpose down"},
+   {"tran>",     "",           "transpose up"},
    {"learn",     "recording",  "learn:  hear / play / practice"},
-   {"recWipe",   "",           "wipe ALL (CAREFUL)"},
+   {"recWipe",   "",           "wipe recording  (be careful:)"},
    {"recSave",   "",           "save recording"},                    // 20
    {"color",     "",           "color:  scale / velocity / track"},
    {"hearRec",   "",           "Hear your recording"},
-   {"hearLoop",  "",           "Hear loop notes to learn"}           // 23
+   {"hearLoop",  "",           "Hear the notes to learn"}            // 23
 };
 ubyte NUCmd = BITS (UCmd);
 
 static void UCmdLoad ()
 // load .nt n .ky from device/keycmd.txt for given .cmd
-{ TStr fn, s;
+{ TStr fn, s, k;
   ulong i, c;
   StrArr t (CC("keycmd"), 50, 50*sizeof(TStr));
    App.Path (fn, 'd');   StrAp (fn, CC("/device/keycmd.txt"));   t.Load (fn);
@@ -50,7 +50,8 @@ DBG("device/keycmd.txt is broke - no cmd='`s'", ss.Col [0]);
          continue;
       }
       StrCp (UCmd [c].nt, ss.Col [1]);
-      StrCp (UCmd [c].ky, ss.Col [2]);
+      StrCp (UCmd [c].ky, ss.Col [2]);      // one weirdo: spc=>' '
+      if (! StrCm (UCmd [c].ky, CC("spc")))  StrCp (UCmd [c].ky, CC(" "));
    }
 }
 
@@ -407,11 +408,11 @@ void PCheetah::keyPressEvent (QKeyEvent *e)
   ubyte i;
   key   k;
   TStr  s;
-//DBG("keyPressEvent raw mod=`d key=`d", e->modifiers (), e->key ());
+DBG("keyPressEvent raw mod=`d key=`d", e->modifiers (), e->key ());
    if (! (k = km.Map (e->modifiers (), e->key ())))  return;
 
    StrCp (s, km.Str (k));
-//DBG("   keystr=`s", s);
+DBG("   keystr='`s'", s);
    for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
    if      (i < NUCmd)               Upd (UCmd [i].cmd);
    else if (! StrCm (s, CC("d")))    emit sgCmd ("dump");
