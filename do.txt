@@ -15,11 +15,19 @@ try to find all the good rush sounds
 
 code____________________________________________________________________________
 
-wipe needs to be fixed - dbg
+midicfg - make dump on right wider, top hlayout stay min size
 
-when drums is dead, you can still pick it in trak's dev and pc crashes
+dark mode, designed icons
+   bigger text for button
+   refresh given Gui.Dark()
+   use track hilite bg color based on Gui.Dark()
+      and oct bmp, etc, etc
 
-install shouldn't let you get stuck in a loop :(  dbg
+w/recwipe needs to be fixed - dbg
+   recwipe erases Lrn tracks...  is that old??  i think rec stuff is in 98,99
+   playback recording wrecks stuff
+
+hook up a track volume
 
 really test notes picked for ez tracks
    get that note match "text report" into dbg
@@ -39,9 +47,11 @@ really test notes picked for ez tracks
          16 and 20 lh match, rh diff
          at least a resync so 13 and 17 start at the same place
 
-make dark mode ok - await email?
-
 test out syn's envelopes harder - esp chorus-y things
+
+when drums is dead, you can still pick it in trak's dev and pc crashes
+
+install shouldn't let you get stuck in a loop :(  dbg
 
 when sounds are wrecked cuz a device is off,
    can it fallback to syn? once avail?

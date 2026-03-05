@@ -304,13 +304,13 @@ void MidiCfg::TestI (ubyte mi, MidiEv e)
    }
    else     StrFmt (& buf [StrLn (buf)], "`s=`d",
                                             MCtl2Str (b2, e.ctrl, 'r'), e.valu);
-  CtlText tx (ui->txtEv);
-   StrCp (t, tx.Get ());
+  CtlLabl lb (ui->lblEv);
+   StrCp (t, lb.Get ());
    ln = 0;
    for (i = 0;  i < StrLn (t);  i++)  if (t [i] == '\n')  ln++;
    if (ln >= 20)  StrCp (t, StrCh (t, '\n') + 1);
    StrAp (t, buf);   StrAp (t, CC("\n"));
-   tx.Clr ();   tx.Add (t);
+   lb.Set (t);
 }
 
 
@@ -341,16 +341,15 @@ DBG("Init");
   ulong ln;
   CtlSpin bu (ui->spbBuf, 32, 128);
    bu.Set (64);
-  CtlTBar tb (this,
-      "Refresh device lists\n"
-       "(if you've installed/uninstalled/forgot to power on devices)"
-                                "`:/tbar/0" "`\0"
-      "Scoot device up a row"   "`:/tbar/1" "`\0"
-      "Scoot device down a row" "`:/tbar/2" "`\0"
-   );
-   connect (tb.Act (0), & QAction::triggered, this, & MidiCfg::Load);
-   connect (tb.Act (1), & QAction::triggered, this, & MidiCfg::Up);
-   connect (tb.Act (2), & QAction::triggered, this, & MidiCfg::Dn);
+  CtlTBar tb;
+   tb.Init (this, "app");
+   tb.Btn (0, CC("Refresh device lists\n"
+                 "(if you've added/removed/forgot to power on devices)"));
+   tb.Btn (1, CC("Scoot device up a row"));
+   tb.Btn (2, CC("Scoot device down a row"));
+   connect (tb.Act (0), & QAction::triggered,  this, & MidiCfg::Load);
+   connect (tb.Act (1), & QAction::triggered,  this, & MidiCfg::Up);
+   connect (tb.Act (2), & QAction::triggered,  this, & MidiCfg::Dn);
    _ti.Init  (ui->tblI,
       "_input device\0"
       "_type\0"

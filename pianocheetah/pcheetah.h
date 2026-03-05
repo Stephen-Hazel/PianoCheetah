@@ -366,12 +366,13 @@ public:
    {  ui = new Ui::PCheetah;   ui->setupUi (this);  }
   ~PCheetah ()         {delete ui;}
 
-   void Init (), Quit ();
+   void SetPMs (), SetTB (),   Init (), Quit ();
 
    Song *_s;
 
 private:
    Ui::PCheetah *ui;
+   CtlTBar      _tb, _tbFL, _tbCue, _tbChd;
    CtlTabl      _tr;
    CtlNt       *_nt;
    DlgFL       *_dFL;

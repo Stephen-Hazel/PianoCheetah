@@ -55,23 +55,23 @@ DBG("device/keycmd.txt is broke - no cmd='`s'", ss.Col [0]);
    }
 }
 
-static char *UCmdS (char *cmd)
+static char *UCmdS (const char *cmd)   // return tooltip as "desc  [key note]"
 { static TStr o, k, n;
    *k = *n = '\0';
-   for (ubyte i = 0;  i < NUCmd;  i++)  if (! StrCm (cmd, CC(UCmd [i].cmd))) {
-      StrCp (k, CC(UCmd [i].ky));
-      StrCp (n, CC(UCmd [i].nt));   if (*n == '.') *n = '\0';
+   for (ubyte i = 0;  i < NUCmd;  i++)  if (! StrCm (CC(cmd),
+                                                     CC(UCmd [i].cmd))) {
+      StrCp (k, CC(UCmd [i].ky));   if (*k == ' ')  StrCp (k, CC("space"));
+      StrCp (n, CC(UCmd [i].nt));   if (*n == '.')  *n = '\0';
       StrCp (o, CC(UCmd [i].desc));
       if (*k || *n) {
-         StrAp (o, CC("  ["));   StrAp (o, k);
-         if (*k && *n)   StrAp (o, CC(" "));
-         StrAp (o, n);   StrAp (o, CC("]"));
+         StrAp (o, CC("  ["));
+         StrAp (o, k);   if (*k && *n)  StrAp (o, CC(" "));   StrAp (o, n);
+         StrAp (o, CC("]"));
       }
-      break;
+      return o;
    }
-   return o;
+   return CC("");
 }
-
 
 void PCheetah::Trak ()
 { QSplitter *sp = ui->spl;
@@ -317,7 +317,7 @@ void PCheetah::Upd (QString upd)
       return;
    }
 
-   if (! StrCm (u, CC("ttl")))  Up.tbaTtl->setText (Up.ttl);
+   if (! StrCm (u, CC("ttl")))  _tb.Act (29)->setText (Up.ttl);
 
    if (! StrCm (u, CC("FLdn"))) {if (FL.pos < FL.lst.Ln-1)
                                               {++FL.pos;   _dFL->ReDo ();}}
@@ -350,10 +350,8 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, CC("bars")))  { CtlLabl l (ui->bars);  l.Set (Up.bars);}
    if (! StrCm (u, CC("tmpo")))  { CtlLabl l (ui->tmpo);  l.Set (Up.tmpo);}
    if (! StrCm (u, CC("tsig")))  { CtlLabl l (ui->tSig);  l.Set (Up.tsig);}
-   if (! StrCm (u, CC("tbPoz")))  Up.tbaPoz->setIcon (
-                                     *Up.tbiPoz [Up.uPoz ? 1 : 0]);
-   if (! StrCm (u, CC("tbLrn")))  Up.tbaLrn->setIcon (
-                                     *Up.tbiLrn [PLAY ? 1 : (PRAC ? 2 : 0)]);
+   if (! StrCm (u, CC("tbPoz")))  _tb.Set (14, Up.uPoz ? 0 : 1);
+   if (! StrCm (u, CC("tbLrn")))  _tb.Set (9,  PLAY ? 1 : (PRAC ? 2 : 0));
    if (! StrCm (u, CC("lyr"))) {
      CtlText t (ui->lyr);
      QColor  fg = t.Fg (), hi = t.Hi ();
@@ -421,8 +419,117 @@ DBG("   keystr='`s'", s);
 }
 
 
+void PCheetah::SetPMs ()               // all dem bitmaps
+{  Up.bug   = new QPixmap (":/note/bug");
+   Up.cue   = new QPixmap (":/note/cue");
+   Up.dot   = new QPixmap (":/note/dot");
+   Up.fade  = new QPixmap (":/note/fade");
+   Up.now   = new QPixmap (":/note/now");
+   Up.oct   = new QPixmap (":/note/oct");
+   Up.pnbg  = new QPixmap (":/note/pnbg");
+   Up.pnbg2 = new QPixmap (":/note/pnbg2");
+   Up.tpm   = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
+}
+
+
+void PCheetah::SetTB ()                // toolbars take some messin with
+{  _tb.Init (this, "app");
+TRC(" tbar init");
+
+// global-y
+   _tb.Btn (0, UCmdS ("fullScr"));
+   _tb.Btn (1, CC("configure midi devices"));
+   _tb.Btn (2, CC("settings and junk"));
+   connect (_tb.Act (0), & QAction::triggered,  this, & PCheetah::Trak);
+   connect (_tb.Act (1), & QAction::triggered,  this, & PCheetah::MCfg);
+   connect (_tb.Act (2), & QAction::triggered,  this, & PCheetah::GCfg);
+   _tb.Sep (3);
+
+// song pickin
+   _tb.Btn (4, CC("pick from song list"));
+   _tb.Btn (5, UCmdS ("song<"));
+   _tb.Btn (6, UCmdS ("song>"));
+   _tb.Btn (7, UCmdS ("songRand"), "*??");
+   connect (_tb.Act (4), & QAction::triggered,  this, & PCheetah::Load);
+   connect (_tb.Act (5), & QAction::triggered,  this, & PCheetah::SongPrv);
+   connect (_tb.Act (6), & QAction::triggered,  this, & PCheetah::SongNxt);
+   connect (_tb.Act (7), & QAction::triggered,  this, & PCheetah::SongRand);
+   _tb.Sep (8);
+
+// learn mode
+   _tb.Btn (9, UCmdS ("learn"));
+   _tb.Ico (9, 1);
+   _tb.Ico (9, 2);
+   connect (_tb.Act (9), & QAction::triggered,
+                         this, [this]() {emit sgCmd ("learn");});
+   _tb.Sep (10);
+
+// transport - play/pause/etc
+   _tb.Btn (11, UCmdS ("timeBar1"));
+   _tb.Btn (12, UCmdS ("time<<"));
+   _tb.Btn (13, UCmdS ("time<"));
+   _tb.Btn (14, UCmdS ("timePoz"));
+   _tb.Ico (14, 1);
+   _tb.Btn (15, UCmdS ("time>"));
+   _tb.Btn (16, UCmdS ("time>>"));
+   connect (_tb.Act (11), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("timeBar1");});
+   connect (_tb.Act (12), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("time<<"  );});
+   connect (_tb.Act (13), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("time<"   );});
+   connect (_tb.Act (14), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("timePoz" );});
+   connect (_tb.Act (15), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("time>"   );});
+   connect (_tb.Act (16), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("time>>"  );});
+   _tb.Sep (17);
+
+// tempo
+   _tb.Btn (18, UCmdS ("tempo<"  ));
+   _tb.Btn (19, UCmdS ("tempoHop"));
+   _tb.Btn (20, UCmdS ("tempo<"  ));
+   connect (_tb.Act (18), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("tempo<"  );});
+   connect (_tb.Act (19), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("tempoHop");});
+   connect (_tb.Act (20), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("tempo<"  );});
+   _tb.Sep (21);
+
+// editing stuff
+   _tb.Btn (22, CC("split the learn track (3E and below) into new LH track"));
+   _tb.Btn (23, CC("make drum track from clips"));
+   _tb.Btn (24, CC("insert track"));
+   _tb.Btn (25, CC("delete track"));
+   _tb.Btn (26, CC("scoot track up"));
+   _tb.Btn (27, CC("scoot track down"));
+// "time scaling - for { to } => } scales to ^"
+//    this, [this]() {emit sgCmd ("trkEd *");});
+// "time offsetting - for { to end => { moves to ^"
+//    this, [this]() {emit sgCmd ("trkEd -");});
+   connect (_tb.Act (22), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("trkEd sp");});
+   connect (_tb.Act (23), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("preTDr");});
+   connect (_tb.Act (24), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("trkEd +");});
+   connect (_tb.Act (25), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("trkEd x");});
+   connect (_tb.Act (26), & QAction::triggered,
+                          this, [this]() {emit sgCmd ("trkEd u");});
+   connect (_tb.Act (27), & QAction::triggered,
+                         this, [this]() {emit sgCmd ("trkEd d");});
+   _tb.Sep (28);
+
+   _tb.Btn (29, CC("(I just show the song filename in fullscreen)"), "*...");
+   connect (_tb.Act (29), & QAction::triggered,  this, & PCheetah::Trak);
+}
+
+
 void PCheetah::Init ()
-{ TStr fn, s [16];
+{ TStr fn;
   File f;
 TRC("Init");
    *Kick = '\0';
@@ -450,18 +557,11 @@ TRC(" song init");
    CInit ();                           // init all them thar colors
    Gui.WinLoad (ui->spl);
    Up.cnv.SetFont ("Noto Sans", 12);   Up.tcnv.SetFont ("Noto Sans", 12);
+   Up.txH = Up.cnv.FontH ();
+
    Gui.A ()->setStyleSheet ("QToolTip {font: 15pt monospace;}");
 
-   Up.txH   = Up.cnv.FontH ();
-   Up.bug   = new QPixmap (":/bug");   // all dem bitmaps
-   Up.cue   = new QPixmap (":/cue");
-   Up.dot   = new QPixmap (":/dot");
-   Up.fade  = new QPixmap (":/fade");
-   Up.now   = new QPixmap (":/now");
-   Up.oct   = new QPixmap (":/oct");
-   Up.pnbg  = new QPixmap (":/pnbg");
-   Up.pnbg2 = new QPixmap (":/pnbg2");
-   Up.tpm   = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
+   SetPMs ();
 
    _s->moveToThread (& _thrSong);
    connect (this,       & PCheetah::sgCmd,   _s,   & Song::Cmd);
@@ -470,124 +570,13 @@ TRC(" song init");
    _thrSong.start ();
    emit sgCmd ("init");
 
+// connect (QGuiApplication::styleHints (), & QStyleHints::colorSchemeChanged,
+//          this, [this]() {emit sgCmd ("draw");});
    setFocusPolicy (Qt::StrongFocus);        // so we get keyPressEvent()s
-TRC(" tbar init");
 
-// leftmost
-   StrCp  (s[1], UCmdS (CC("fullScr")));
-   StrFmt (s[0], "`s``:/tbar/0```z"
-                 "configure midi devices``:/tbar/1```z"
-                 "settings and junk``:/tbar/2```z",  s[1]);
-  CtlTBar tb2 (this, s[0], "Config");
-   connect (tb2.Act (0), & QAction::triggered, this, & PCheetah::Trak);
-   connect (tb2.Act (1), & QAction::triggered, this, & PCheetah::MCfg);
-   connect (tb2.Act (2), & QAction::triggered, this, & PCheetah::GCfg);
+   SetTB ();
 
-// song pickin
-   StrCp  (s[1], UCmdS (CC("song<"   )));
-   StrCp  (s[2], UCmdS (CC("song>"   )));
-   StrCp  (s[3], UCmdS (CC("songRand")));
-   StrFmt (s[0], "pick from song list``:/tbar/song/0```z"
-                 "`s``:/tbar/song/1```z"
-                 "`s``:/tbar/song/2```z"
-                 "`s``*??```z",  s[1],s[2],s[3]);
-  CtlTBar tb3 (this, s[0], "SongList");
-   connect (tb3.Act (0), & QAction::triggered, this, & PCheetah::Load);
-   connect (tb3.Act (1), & QAction::triggered, this, & PCheetah::SongPrv);
-   connect (tb3.Act (2), & QAction::triggered, this, & PCheetah::SongNxt);
-   connect (tb3.Act (3), & QAction::triggered, this, & PCheetah::SongRand);
-
-// learn button
-   StrCp  (s[1], UCmdS (CC("learn")));
-   StrFmt (s[0], "`s``view-visible```z",  s[1]);
-  CtlTBar tb4 (this, s[0], "LearnMode");
-   Up.tbaLrn = tb4.Act (0);   Up.tbiLrn [0] = new QIcon (":/tbar/lrn/0");
-                              Up.tbiLrn [1] = new QIcon (":/tbar/lrn/1");
-                              Up.tbiLrn [2] = new QIcon (":/tbar/lrn/2");
-   connect (tb4.Act (0), & QAction::triggered,
-            this, [this]() {emit sgCmd ("learn");});
-
-// transport - play/pause/etc
-   StrCp  (s[1], UCmdS (CC("timeBar1")));
-   StrCp  (s[1], UCmdS (CC("time<<"  )));
-   StrCp  (s[3], UCmdS (CC("time<"   )));
-   StrCp  (s[4], UCmdS (CC("timePoz" )));
-   StrCp  (s[5], UCmdS (CC("time>"   )));
-   StrCp  (s[6], UCmdS (CC("time>>"  )));
-   StrFmt (s[0], "`s``:/tbar/time/0```z"
-                 "`s``:/tbar/time/1```z"
-                 "`s``:/tbar/time/2```z"
-                 "`s``:/tbar/time/3```z"
-                 "`s``:/tbar/time/4```z"
-                 "`s``:/tbar/time/5```z",  s[1],s[2],s[3],s[4],s[5],s[6]);
-  CtlTBar tb5 (this, s[0], "Time");
-   Up.tbaPoz = tb5.Act (3);   Up.tbiPoz [0] = new QIcon (":/tbar/time/3");
-                              Up.tbiPoz [1] = new QIcon (":/tbar/time/6");
-   connect (tb5.Act (0), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("timeBar1");});
-   connect (tb5.Act (1), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("time<<");});
-   connect (tb5.Act (2), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("time<");});
-   connect (tb5.Act (3), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("timePoz");});
-   connect (tb5.Act (4), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("time>");});
-   connect (tb5.Act (5), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("time>>");});
-// tempo
-   StrCp  (s[1], UCmdS (CC("tempo<"  )));
-   StrCp  (s[2], UCmdS (CC("tempoHop")));
-   StrCp  (s[3], UCmdS (CC("tempo>"  )));
-   StrFmt (s[0], "`s``:/tbar/tmpo/0```z"
-                 "`s``:/tbar/tmpo/1```z"
-                 "`s``:/tbar/tmpo/2```z",  s[1],s[1],s[2]);
-  CtlTBar tb6 (this, s[0], "Tempo");
-   connect (tb6.Act (0), & QAction::triggered,
-            this, [this]() {emit sgCmd ("tempo<");});
-   connect (tb6.Act (1), & QAction::triggered,
-            this, [this]() {emit sgCmd ("tempoHop");});
-   connect (tb6.Act (2), & QAction::triggered,
-            this, [this]() {emit sgCmd ("tempo>");});
-
-// editing stuff
-  CtlTBar tb7 (this,
-      "`split the learn track (3E and below) into new LH track"
-                                    "`:/tbar/trak/0`\0"
-      "`make drum track from clips" "`:/tbar/trak/1`\0"
-      "`insert track"               "`:/tbar/trak/2`\0"
-      "`delete track"               "`:/tbar/trak/3`\0"
-      "`scoot track up"             "`:/tbar/trak/4`\0"
-      "`scoot track down"           "`:/tbar/trak/5`\0",
-//    "`time scaling - for { to } => } scales to ^"
-//                                  "`:/tbar/trak/6" "`\0"
-//    "`time offsetting - for { to end => { moves to ^"
-//                                  "`:/tbar/trak/7" "`\0",
-      "EditTrack");
-   connect (tb7.Act (0), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("trkEd sp");});
-   connect (tb7.Act (1), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("preTDr");});
-   connect (tb7.Act (2), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("trkEd +");});
-   connect (tb7.Act (3), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("trkEd x");});
-   connect (tb7.Act (4), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("trkEd u");});
-   connect (tb7.Act (5), & QAction::triggered, this,
-                                           [this]() {emit sgCmd ("trkEd d");});
-// connect (tb7.Act (6), & QAction::triggered, this,
-//                                         [this]() {emit sgCmd ("trkEd *");});
-// connect (tb7.Act (7), & QAction::triggered, this,
-//                                         [this]() {emit sgCmd ("trkEd -");});
-
-  CtlTBar tb (this,
-      "(I just show the song file for fullscreen)" "`*..." "`\0",
-      "SongFile");
-   connect (tb.Act (0), & QAction::triggered, this, & PCheetah::Trak);
-   Up.tbaTtl = tb.Act (0);
-
-TRC(" lyr,tr,nt init");
+TRC(" tr,nt control init");
   CtlText t (ui->lyr);
    _tr.Init (ui->tr,
       "*Lrn\0"
@@ -613,17 +602,29 @@ TRC(" lyr,tr,nt init");
 
 TRC(" dlg init");
    _dFL   = new DlgFL   (this);     _dFL->Init ();
+DBG("a");
    _dCfg  = new DlgCfg  (this);    _dCfg->Init ();
+DBG("b");
    _dTDr  = new DlgTDr  (this);    _dTDr->Init ();
+DBG("c");
    _dCue  = new DlgCue  (this);    _dCue->Init ();
+DBG("d");
    _dChd  = new DlgChd  (this);    _dChd->Init ();
+DBG("e");
    _dCtl  = new DlgCtl  (this);    _dCtl->Init ();
+DBG("f");
    _dTpo  = new DlgTpo  (this);    _dTpo->Init ();
+DBG("g");
    _dTSg  = new DlgTSg  (this);    _dTSg->Init ();
+DBG("h");
    _dKSg  = new DlgKSg  (this);    _dKSg->Init ();
+DBG("i");
    _dQua  = new DlgQua  (this);    _dQua->Init ();
+DBG("j");
    _dMov  = new DlgMov  (this);    _dMov->Init ();
+DBG("k");
    _dHlp  = new DlgHlp  (this);    _dHlp->Init ();
+DBG("l");
    connect (_dCfg, & DlgCfg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dTDr, & DlgTDr::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dCue, & DlgCue::sgCmd, this, [this](char *s)  {emit sgCmd (s);});

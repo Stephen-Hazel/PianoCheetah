@@ -1,8 +1,8 @@
 <RCC>
     <qresource>
         <file>app.ico</file>
-        <file>tbar/0.png</file>       
-        <file>tbar/1.png</file>       
-        <file>tbar/2.png</file>       
+        <file>tbar/app/0.png</file>
+        <file>tbar/app/1.png</file>
+        <file>tbar/app/2.png</file>
     </qresource>
 </RCC>

@@ -156,7 +156,7 @@ void DlgChd::Pop ()
 void DlgChd::UnDo ()
 { TStr s;
   CtlBttn undo (ui->undo);
-   undo.Get (s);   StrCp (s, & s [8]);   Set (s);
+   StrCp (s, undo.Get ());   StrCp (s, & s [8]);   Set (s);
    ReDo ();   Cmd (StrFmt (s, "@`d", _tm1));
 }
 
@@ -164,25 +164,22 @@ void DlgChd::UnDo ()
 //______________________________________________________________________________
 void DlgChd::Init ()
 {  Gui.DlgLoad (this, "DlgChd");
-  CtlTBar tb (this,
-      "guess chords\n"
-      "   calculate whole song's chords\n"
-      "   using notes of selected practice tracks"
-         "`:/tbar/chd/0" "`\0"
-      "pop chords\n"
-      "   plop some random happy pop chords into this section"
-         "`:/tbar/chd/1" "`\0"
-      "delete all chords  (be carefulll)"
-         "`:/tbar/chd/2" "`\0"
-   );
-   connect (tb.Act (0), & QAction::triggered, this, [this]() {Cmd (CC("?"));});
-   connect (tb.Act (1), & QAction::triggered, this, [this]() {Cmd (CC("+"));});
-   connect (tb.Act (2), & QAction::triggered, this, [this]() {Cmd (CC("x"));});
-   connect (ui->shhh, & QPushButton::clicked, this, [this]()
-                                              {emit sgCmd (CC("timePoz"));});
-   connect (ui->undo, & QPushButton::clicked, this, [this]() {UnDo ();});
+  CtlTBar tb;
+   tb.Init (this, "chd");
+   tb.Btn (0, CC("guess chords\n"
+                 "   calculate whole song's chords\n"
+                 "   using notes of selected practice tracks"));
+   tb.Btn (1, CC("pop chords\n"
+                 "   plop some random happy pop chords into this section"));
+   tb.Btn (2, CC("delete all chords  (be carefulll)"));
+   connect (tb.Act (0), & QAction::triggered,  this, [this]() {Cmd (CC("?"));});
+   connect (tb.Act (1), & QAction::triggered,  this, [this]() {Cmd (CC("+"));});
+   connect (tb.Act (2), & QAction::triggered,  this, [this]() {Cmd (CC("x"));});
+   connect (ui->shhh, & QPushButton::clicked,  this, [this]()
+                                               {emit sgCmd (CC("timePoz"));});
+   connect (ui->undo, & QPushButton::clicked,  this, [this]() {UnDo ();});
    connect (ui->pop,  QOverload<int>::of(& QComboBox::currentIndexChanged),
-                                              this, [this]() {Pop  ();});
+                                               this, [this]() {Pop  ();});
 }
 
 
@@ -331,60 +328,64 @@ void DlgCue::Shut ()  {done (true);   lower ();   hide ();}
 
 void DlgCue::Init ()
 {  Gui.DlgLoad (this, "DlgCue");
-  CtlTBar tb (this,
-      "redo loops and erase all bug history"
-                         "`:/tbar/cue/a0"  "`\0"
-      "delete this cue"  "`:/tbar/cue/a1"  "`\0"
-      "text / non repeating section"
-                         "`:/tbar/cue/b0"  "`\0"
-      "verse section"    "`:/tbar/cue/b1"  "`\0"
-      "chorus section"   "`:/tbar/cue/b2"  "`\0"
-      "break section"    "`:/tbar/cue/b3"  "`\0"
-      "crescendo"        "`:/tbar/cue/b4"  "`\0"
-      "decrescendo"      "`:/tbar/cue/b5"  "`\0"
-      "fermata"          "`:/tbar/cue/c0"  "`\0"
-      "tremelo"          "`:/tbar/cue/c1"  "`\0"
-      "star"             "`:/tbar/cue/c2"  "`\0"
-      "happy"            "`:/tbar/cue/c3"  "`\0"
-      "sad"              "`:/tbar/cue/c4"  "`\0"
-      "mad"              "`:/tbar/cue/c5"  "`\0"
-      "piano x3"         "`*ppp"           "`\0"
-      "piano x2"         "`*pp"            "`\0"
-      "piano"            "`*p"             "`\0"
-      "mezzo piano"      "`*mp"            "`\0"
-      "mezzo forte"      "`*mf"            "`\0"
-      "forte"            "`*f"             "`\0"
-      "forte x2"         "`*ff"            "`\0"
-      "forte x3"         "`*fff"           "`\0"
-      "forzando"         "`*Fz"            "`\0"
-   );
-   connect (tb.Act (0),  & QAction::triggered, this, [this]()
-                                                           {Set ("loopInit");});
-   connect (tb.Act (1),  & QAction::triggered, this, [this]()  {Set ("");});
-   connect (tb.Act (2),  & QAction::triggered, this, [this]()  {Set ("```");});
-   connect (tb.Act (3),  & QAction::triggered, this, [this]()
-                                                           {Set ("(verse");});
-   connect (tb.Act (4),  & QAction::triggered, this, [this]()
-                                                           {Set ("(chorus");});
-   connect (tb.Act (5),  & QAction::triggered, this, [this]()
-                                                           {Set ("(break");});
-   connect (tb.Act (6),  & QAction::triggered, this, [this]()  {Set ("<");});
-   connect (tb.Act (7),  & QAction::triggered, this, [this]()  {Set (">");});
-   connect (tb.Act (8),  & QAction::triggered, this, [this]()  {Set ("`fer");});
-   connect (tb.Act (9),  & QAction::triggered, this, [this]()  {Set ("`tre");});
-   connect (tb.Act (10), & QAction::triggered, this, [this]()  {Set ("`sta");});
-   connect (tb.Act (11), & QAction::triggered, this, [this]()  {Set ("`hap");});
-   connect (tb.Act (12), & QAction::triggered, this, [this]()  {Set ("`sad");});
-   connect (tb.Act (13), & QAction::triggered, this, [this]()  {Set ("`mad");});
-   connect (tb.Act (14), & QAction::triggered, this, [this]()  {Set ("ppp");});
-   connect (tb.Act (15), & QAction::triggered, this, [this]()  {Set ("pp");});
-   connect (tb.Act (16), & QAction::triggered, this, [this]()  {Set ("p");});
-   connect (tb.Act (17), & QAction::triggered, this, [this]()  {Set ("mp");});
-   connect (tb.Act (18), & QAction::triggered, this, [this]()  {Set ("mf");});
-   connect (tb.Act (19), & QAction::triggered, this, [this]()  {Set ("f");});
-   connect (tb.Act (20), & QAction::triggered, this, [this]()  {Set ("ff");});
-   connect (tb.Act (21), & QAction::triggered, this, [this]()  {Set ("fff");});
-   connect (tb.Act (22), & QAction::triggered, this, [this]()  {Set ("Fz");});
+  CtlTBar tb;
+   tb.Init (this, "cue");
+   tb.Btn (0, CC("redo loops and erase all bug history"));
+   tb.Btn (1, CC("delete this cue"));
+   connect (tb.Act (0), & QAction::triggered,
+                        this, [this]() {Set ("loopInit");});
+   connect (tb.Act (1), & QAction::triggered,
+                        this, [this]() {Set ("");});
+   tb.Sep (2);
+
+   tb.Btn (3, CC("text / non repeating section"));
+   tb.Btn (4, CC("verse section"));
+   tb.Btn (5, CC("chorus section"));
+   tb.Btn (6, CC("break section"));
+   connect (tb.Act (3), & QAction::triggered,
+                        this, [this]() {Set ("```");});
+   connect (tb.Act (4), & QAction::triggered,
+                        this, [this]() {Set ("(verse");});
+   connect (tb.Act (5), & QAction::triggered,
+                        this, [this]() {Set ("(chorus");});
+   connect (tb.Act (6), & QAction::triggered,
+                        this, [this]() {Set ("(break");});
+   tb.Sep (7);
+
+   tb.Btn ( 8, CC("crescendo"));
+   tb.Btn ( 9, CC("decrescendo"));
+   tb.Btn (10, CC("fermata"));
+   tb.Btn (11, CC("tremelo"));
+   tb.Btn (12, CC("star"));
+   tb.Btn (13, CC("happy"));
+   tb.Btn (14, CC("sad"));
+   tb.Btn (15, CC("mad"));
+   tb.Btn (16, CC("piano x3"),    "*ppp");
+   tb.Btn (17, CC("piano x2"),    "*pp");
+   tb.Btn (18, CC("piano"),       "*p");
+   tb.Btn (19, CC("mezzo piano"), "*mp");
+   tb.Btn (20, CC("mezzo forte"), "*mf");
+   tb.Btn (21, CC("forte"),       "*f");
+   tb.Btn (22, CC("forte x2"),    "*ff");
+   tb.Btn (23, CC("forte x3"),    "*fff");
+   tb.Btn (24, CC("forzando"),    "*Fz");
+   connect (tb.Act ( 8), & QAction::triggered,  this, [this]() {Set ("<");});
+   connect (tb.Act ( 9), & QAction::triggered,  this, [this]() {Set (">");});
+   connect (tb.Act (10), & QAction::triggered,  this, [this]() {Set ("`fer");});
+   connect (tb.Act (11), & QAction::triggered,  this, [this]() {Set ("`tre");});
+   connect (tb.Act (12), & QAction::triggered,  this, [this]() {Set ("`sta");});
+   connect (tb.Act (13), & QAction::triggered,  this, [this]() {Set ("`hap");});
+   connect (tb.Act (14), & QAction::triggered,  this, [this]() {Set ("`sad");});
+   connect (tb.Act (15), & QAction::triggered,  this, [this]() {Set ("`mad");});
+   connect (tb.Act (16), & QAction::triggered,  this, [this]() {Set ("ppp");});
+   connect (tb.Act (17), & QAction::triggered,  this, [this]() {Set ("pp");});
+   connect (tb.Act (18), & QAction::triggered,  this, [this]() {Set ("p");});
+   connect (tb.Act (19), & QAction::triggered,  this, [this]() {Set ("mp");});
+   connect (tb.Act (20), & QAction::triggered,  this, [this]() {Set ("mf");});
+   connect (tb.Act (21), & QAction::triggered,  this, [this]() {Set ("f");});
+   connect (tb.Act (22), & QAction::triggered,  this, [this]() {Set ("ff");});
+   connect (tb.Act (23), & QAction::triggered,  this, [this]() {Set ("fff");});
+   connect (tb.Act (24), & QAction::triggered,  this, [this]() {Set ("Fz");});
 }
 
 void DlgCue::Quit ()  {Gui.DlgSave (this, "DlgCue");}
@@ -757,36 +758,36 @@ void DlgFL::Shut ()
 void DlgFL::Init ()
 {  Gui.DlgLoad (this, "DlgFL");
    FL.Load ();
-  CtlTBar tb (this,
-      "Up\n"         "Scoot song up in the list"
-                     "`:/tbar/flst/0" "`\0"
-      "Down\n"       "Scoot song down in the list"
-                     "`:/tbar/flst/1" "`\0"
-      "Search\n"     "Search a big midi file dir for matching search strings\n"
-                     "   fill in the search box below THEN click me"
-                     "`:/tbar/flst/2" "`\0"
-      "MidiImport\n" "Pick a dir tree with midi files to convert to songs\n"
-                     "in the 4_queue dir"
-                     "`:/tbar/flst/3" "`\0"
-      "Song2Wav\n"   "Render .song to a .wav file"
-                     "`:/tbar/flst/4" "`\0"
-      "Sfz2Syn\n"    "Pick a dir with .sfz files to add to a Syn sound bank"
-                     "`:/tbar/flst/5" "`\0"
-      "Mod2Song\n"   "Pick a .mod file to convert to\n"
-                     "a .song and a Syn sound bank"
-                     "`:/tbar/flst/6" "`\0"
-      "Browse\n"     "Open file browser in PianoCheetah/device directory\n"
-                     "   to delete/rename/etc"
-                     "`:/tbar/flst/7" "`\0"
-   );
-   connect (tb.Act (0), & QAction::triggered, this, & DlgFL::Up);
-   connect (tb.Act (1), & QAction::triggered, this, & DlgFL::Dn);
-   connect (tb.Act (2), & QAction::triggered, this, & DlgFL::Find);
-   connect (tb.Act (3), & QAction::triggered, this, & DlgFL::MidImp);
-   connect (tb.Act (4), & QAction::triggered, this, & DlgFL::Song2Wav);
-   connect (tb.Act (5), & QAction::triggered, this, & DlgFL::Sfz2Syn);
-   connect (tb.Act (6), & QAction::triggered, this, & DlgFL::Mod2Song);
-   connect (tb.Act (7), & QAction::triggered, this, & DlgFL::Brow);
+  CtlTBar tb;
+   tb.Init (this, "flst");
+   tb.Btn (0, CC("Up\n"
+                 "Scoot song up in the list"));
+   tb.Btn (1, CC("Down\n"
+                 "Scoot song down in the list"));
+   tb.Btn (2, CC("Search\n"
+                 "Search a big midi file dir for matching search strings\n"
+                 "   fill in the search box below THEN click me"));
+   tb.Btn (3, CC("MidiImport\n"
+                 "Pick a dir tree with midi files to convert to songs\n"
+                 "in the 4_queue dir"));
+   tb.Btn (4, CC("Song2Wav\n"
+                 "Render .song to a .wav file"));
+   tb.Btn (5, CC("Sfz2Syn\n"
+                 "Pick a dir with .sfz files to add to a Syn sound bank"));
+   tb.Btn (6, CC("Mod2Song\n"
+                 "Pick a .mod file to convert to\n"
+                 "a .song and a Syn sound bank"));
+   tb.Btn (7, CC("Browse\n"
+                 "Open file browser in PianoCheetah/device directory\n"
+                 "   to delete/rename/etc"));
+   connect (tb.Act (0), & QAction::triggered,  this, & DlgFL::Up);
+   connect (tb.Act (1), & QAction::triggered,  this, & DlgFL::Dn);
+   connect (tb.Act (2), & QAction::triggered,  this, & DlgFL::Find);
+   connect (tb.Act (3), & QAction::triggered,  this, & DlgFL::MidImp);
+   connect (tb.Act (4), & QAction::triggered,  this, & DlgFL::Song2Wav);
+   connect (tb.Act (5), & QAction::triggered,  this, & DlgFL::Sfz2Syn);
+   connect (tb.Act (6), & QAction::triggered,  this, & DlgFL::Mod2Song);
+   connect (tb.Act (7), & QAction::triggered,  this, & DlgFL::Brow);
 
    _t.Init (ui->fLst, "Stage\0Song\0", nullptr, 'w');
    connect (ui->fLst, &QTableWidget::itemClicked,       this, & DlgFL::Pik);

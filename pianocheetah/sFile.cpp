@@ -391,16 +391,16 @@ void Song::Load (char *fn)
   TrkEv *e2;
   STable st [TB_MAX];
    Wipe ();
+TRC(" title");
    App.Path (buf, 'd');   StrAp (buf, CC("/4_queue/"));    // git window title
    if (MemCm (fn, buf, StrLn (buf)))  FnName (fnt, fn);
    else                               StrCp  (fnt, & fn [StrLn (buf)]);
    StrCp (Up.ttl, fnt);   emit sgUpd ("ttl");
-// Gui.SetTtl (StrFmt (buf, "`s - PianoCheetah", fnt));
    StrCp (_f.fn, fn);   _f.got = false;
 
+TRC(" file load");
    StrAp (fn, CC("/a.song"));
    if (! f.Size (fn)) {TRC("Song::Load  file size=0");   return;}
-
    if (_f.ev)  delete [] _f.ev;        // hope ya init'd it or BOOM :(
    _f.ev = NULL;   _f.nEv = 0;   _f.maxEv = 0;
    st [TB_DSC].Init (CC("Descrip:"), 1, MAX_DSC);
@@ -411,9 +411,8 @@ void Song::Load (char *fn)
 
    if ((m = f.DoText (fn, & st, SongRec)))
       {TRC("Song::Load  DoText err=`s", m);   return;}
-//st [TB_DSC].Dump (); st [TB_TRK].Dump (); st [TB_DRM].Dump ();
-//st [TB_LYR].Dump (); st [TB_EVT].Dump ();
 
+TRC (" get dsc");
    for (e = 0, ln = st [TB_DSC].NRow ();  e < ln;  e++) {
       StrCp (buf, st [TB_DSC].Get (e, 0));
       if (StrLn (_f.dsc) + StrLn (buf) + 3 > sizeof (_f.dsc))

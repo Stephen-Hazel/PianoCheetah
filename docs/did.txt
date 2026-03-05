@@ -1,5 +1,7 @@
 2026Jan
-   starting to fine tune pch for next release
+   moved song stats to bottom of dialog.
+   beat 2 digits wide now when timesig numerator>=10
+   fix dark mode, hired a designer for COOL icons
 
 
 2025Dec

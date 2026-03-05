@@ -5,10 +5,10 @@
    
   <name>PianoCheetah</name>
    
-  <summary>a better way to play it</summary>
+  <summary>Piano for mere mortals</summary>
   
   <metadata_license>MIT</metadata_license>
-  <project_license>Unlicense</project_license>
+  <project_license>MIT</project_license>
    
   <url type="homepage">https://pianocheetah.app</url>
   <developer id="app.pianocheetah">

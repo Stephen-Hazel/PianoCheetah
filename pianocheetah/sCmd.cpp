@@ -182,7 +182,8 @@ void Song::EdLrn (char ofs)            // this has gotten pretty hairy :(
       if (t >= _f.trk.Ln) {
          Up.lrn = LHEAR;
          Hey (CC("First, pick track(s) to practice - "
-                 "click left track icon into a green arrow (practice track)"));
+                 "click track's Lrn column into a green arrow "
+                 "(practice track)"));
       }
       else {
          if      (PLAY)  {Up.lrn = LPRAC;   SetLp ('i');}

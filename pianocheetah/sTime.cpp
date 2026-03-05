@@ -34,7 +34,7 @@ char *Song::TmStr (char *str, ubyt4 tm, ubyt4 *tL8r, ubyte *subt)
 //DBG("tm=`d  num=`d den=`d sub=`d  br=`d bt=`d  dBr=`d dBt=`d dSb=`d",
 //tm,  ts->num, ts->den, sub,  br, bt,  dBr, dBt, dSb);
    l8r = ts->time + (br - ts->bar) * dBr + dBt * bt;
-   if (ts->den >= 10)  StrFmt (str, "`d.`02d", br, bt);
+   if (ts->num >= 10)  StrFmt (str, "`d.`02d", br, bt);
    else                StrFmt (str, "`d.`d",   br, bt);
    if (tL8r) *tL8r = l8r;
    if (subt) *subt = sub;
