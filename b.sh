@@ -15,7 +15,8 @@ echo "...uninstall old one\n";
 
    if ($arg == 'd') {
 /*    DEBUGGIN !  then go...
-      flatpak run --command=sh --devel --filesystem=$(pwd) app.pianocheetah.pianocheetah
+      flatpak run --command=sh --devel --filesystem=$(pwd)
+              app.pianocheetah.pianocheetah
       gdb /app/bin/pianocheetah
       set logging enabled on
       thread apply all backtrace

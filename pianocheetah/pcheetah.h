@@ -395,6 +395,7 @@ protected:
    void keyPressEvent (QKeyEvent *e);
 
 public slots:
+   void ReDark ();
    void GCfg   ();
    void MCfg   ();
    void Load   ();

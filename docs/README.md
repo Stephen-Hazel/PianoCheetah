@@ -21,6 +21,6 @@ CMakeList.txt s should have
  -  ../../stv/syn.cpp
  -  etc
 
-[do - to do list](../do.txt)
+[do - to do list](do.txt)
 
 [did - release notes](did.txt)

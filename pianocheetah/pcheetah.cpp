@@ -397,6 +397,9 @@ void PCheetah::Upd (QString upd)
 
    if (! MemCm (u, CC("hey "), 4))   Gui.Hey (& u [4]);
    if (! MemCm (u, CC("die "), 4))  {Gui.Hey (& u [4]);   Gui.Quit ();}
+   if (! MemCm (u, CC("dark"), 4)) {
+      _tb.ReDo ();
+   }
 }
 
 
@@ -528,6 +531,9 @@ TRC(" tbar init");
 }
 
 
+void PCheetah::ReDark ()  {Gui.ReIco ();   _tb.ReDo ();}
+
+
 void PCheetah::Init ()
 { TStr fn;
   File f;
@@ -570,8 +576,8 @@ TRC(" song init");
    _thrSong.start ();
    emit sgCmd ("init");
 
-// connect (QGuiApplication::styleHints (), & QStyleHints::colorSchemeChanged,
-//          this, [this]() {emit sgCmd ("draw");});
+   connect (QGuiApplication::styleHints (), & QStyleHints::colorSchemeChanged,
+            this, & PCheetah::ReDark);
    setFocusPolicy (Qt::StrongFocus);        // so we get keyPressEvent()s
 
    SetTB ();
@@ -602,29 +608,17 @@ TRC(" tr,nt control init");
 
 TRC(" dlg init");
    _dFL   = new DlgFL   (this);     _dFL->Init ();
-DBG("a");
    _dCfg  = new DlgCfg  (this);    _dCfg->Init ();
-DBG("b");
    _dTDr  = new DlgTDr  (this);    _dTDr->Init ();
-DBG("c");
    _dCue  = new DlgCue  (this);    _dCue->Init ();
-DBG("d");
    _dChd  = new DlgChd  (this);    _dChd->Init ();
-DBG("e");
    _dCtl  = new DlgCtl  (this);    _dCtl->Init ();
-DBG("f");
    _dTpo  = new DlgTpo  (this);    _dTpo->Init ();
-DBG("g");
    _dTSg  = new DlgTSg  (this);    _dTSg->Init ();
-DBG("h");
    _dKSg  = new DlgKSg  (this);    _dKSg->Init ();
-DBG("i");
    _dQua  = new DlgQua  (this);    _dQua->Init ();
-DBG("j");
    _dMov  = new DlgMov  (this);    _dMov->Init ();
-DBG("k");
    _dHlp  = new DlgHlp  (this);    _dHlp->Init ();
-DBG("l");
    connect (_dCfg, & DlgCfg::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dTDr, & DlgTDr::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
    connect (_dCue, & DlgCue::sgCmd, this, [this](char *s)  {emit sgCmd (s);});
@@ -684,7 +678,7 @@ int main (int argc, char *argv [])
   QApplication app (argc, argv);
   PCheetah     win;
    App.Init ();                        //TODO scrsaver off.  limit one instance?
-   Gui.Init (& app, & win, "PianoCheetah");   win.Init ();   RandInit ();
+   Gui.Init (& app, & win, "PianoCheetah", "d");   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
    qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton" );

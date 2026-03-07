@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>app.png</file>
+        <file>app.ico</file>
+        <file>app_d.png</file>
         <file>trak/lrn.svg</file>
         <file>trak/mute.svg</file>
         <file>trak/S.ico</file>
