@@ -366,7 +366,7 @@ public:
    {  ui = new Ui::PCheetah;   ui->setupUi (this);  }
   ~PCheetah ()         {delete ui;}
 
-   void SetPMs (), SetTB (),   Init (), Quit ();
+   void SetPix (), SetTBar (),   Init (), Quit ();
 
    Song *_s;
 
@@ -392,10 +392,10 @@ private:
    void SongKill ();
 
 protected:
+// virtual bool event (QEvent *e) override;
    void keyPressEvent (QKeyEvent *e);
 
 public slots:
-   void ReDark ();
    void GCfg   ();
    void MCfg   ();
    void Load   ();

@@ -1,27 +1,47 @@
 <RCC>
     <qresource prefix="/">
-        <file>app.ico</file>
+        <file>app.png</file>
         <file>app_d.png</file>
-        <file>trak/lrn.svg</file>
-        <file>trak/mute.svg</file>
-        <file>trak/S.ico</file>
+        <file>tabl/lrn.svg</file>
+        <file>tabl/mute.svg</file>
+        <file>tabl/S.png</file>
+        <file>tabl/1.png</file>
+        <file>tabl/2.png</file>
+        <file>tabl/3.png</file>
+        <file>tabl/4.png</file>
+        <file>tabl/5.png</file>
+        <file>tabl/6.png</file>
+        <file>tabl/7.png</file>
+        <file>tabl/S_d.png</file>
+        <file>tabl/1_d.png</file>
+        <file>tabl/2_d.png</file>
+        <file>tabl/3_d.png</file>
+        <file>tabl/4_d.png</file>
+        <file>tabl/5_d.png</file>
+        <file>tabl/6_d.png</file>
+        <file>tabl/7_d.png</file>
         <file>note/bug.png</file>
         <file>note/cue.png</file>
         <file>note/dot.png</file>
         <file>note/fade.png</file>
         <file>note/now.png</file>
         <file>note/oct.png</file>
-        <file>note/pnbg.png</file>
-        <file>note/pnbg2.png</file>
+        <file>note/bg.png</file>
+        <file>note/bg2.png</file>
+        <file>note/bg_d.png</file>
+        <file>note/bg2_d.png</file>
         <file>tbar/app/0.png</file>
         <file>tbar/app/1.png</file>
-        <file>tbar/app/2.ico</file>
+        <file>tbar/app/2.png</file>
         <file>tbar/app/4.png</file>
         <file>tbar/app/5.png</file>
         <file>tbar/app/6.png</file>
         <file>tbar/app/9.png</file>
+        <file>tbar/app/9_d.png</file>
         <file>tbar/app/9_1.png</file>
+        <file>tbar/app/9_1_d.png</file>
         <file>tbar/app/9_2.png</file>
+        <file>tbar/app/9_2_d.png</file>
         <file>tbar/app/11.png</file>
         <file>tbar/app/12.png</file>
         <file>tbar/app/13.png</file>
@@ -45,7 +65,7 @@
         <file>tbar/flst/4.png</file>
         <file>tbar/flst/5.png</file>
         <file>tbar/flst/6.png</file>
-        <file>tbar/flst/7.svg</file>
+        <file>tbar/flst/7.png</file>
         <file>tbar/cue/0.png</file>
         <file>tbar/cue/1.png</file>
         <file>tbar/cue/3.png</file>

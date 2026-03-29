@@ -24,21 +24,15 @@ void Song::ReTrk ()
       Up.trk [r].drm = TDrm (r);
       StrCp (Up.trk [r].lrn, _f.trk [r].shh ? CC("mute")
                           : (_f.trk [r].lrn ? CC("lrn") : CC("")));
-      *s = _f.trk [r].ht;
-      if (_f.trk [r].lrn) {
-         if ((*s >= '1') && (*s <= '7')) {
-            s[1] = *s;   *s = '*';     // un-icon it
-            StrCp (& s [2], CC((s [1] < '4') ? "LH" : "RH"));
-         }
-         else  *s = '\0';
-      }
-      else {
-         if (*s == 'S') s [1] = '\0';   else *s = '\0';
-      }
+      *s = _f.trk [r].ht;   s [1] = '\0';
+      if (_f.trk [r].lrn)
+         {if (! ((*s >= '1') && (*s <= '7')))  *s = '\0';}
+      else
+         if (*s != 'S')  *s = '\0';
       StrCp (Up.trk [r].ht, s);
+DBG("tr=`d lrn='`s' ht='`s'", r, Up.trk [r].lrn, Up.trk [r].ht);
       StrCp (Up.trk [r].name, _f.trk [r].name);
       StrCp (s, SndName (r));
-//DBG("tr=`d snd=`s", r, s);
       *g = '\0';
       if (*s) {
          StrCp (g, s);

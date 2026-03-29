@@ -4,32 +4,42 @@
 
 // 0 red    1 orange   2 yellow       3 greenyellow   4 green   5 aquagreen
 // 6 aqua   7 blue     8 bluepurple   9 purple       10 pink   11 magenta
-QColor CRng [128], CScl [12], CSclD [12], CTnt [4],
-       CRec,  CMid, CBBg, CBt;
+QColor CRng [128], CScl [2][12], CTnt [2][4], CBar [2][3], COct;
 
 // reorder em so they look distinct
 static ubyte cmap [12] = {11,7,5, 2,6,10, 0,8,9, 4,3,1};
 
-QColor CMap (ubyte n)  {return CScl [cmap [n % 12]];}
+QColor CMap (ubyte n)
+{  return CScl [Gui.Dark () ? 1:0][cmap [n % 12]];}
 
 void CInit ()
 { ColRng cr;                           // Scl[12]=red,ora,yel,x,grn,trq,x,blu,x,
    cr.Init (CRng);                                                  // prp,x,mag
-   for (int i = 0;  i < 12;  i++)  {CScl  [i] = HSL (30*i, 100, 75);
-                                    CSclD [i] = HSL (30*i, 100, 50);}
-   CTnt [0] = QColor (203, 254, 255);  // lt blue, red, green, yellow
-   CTnt [1] = QColor (255, 220, 255);//255,203,244
-   CTnt [2] = QColor (203, 255, 212);
-   CTnt [3] = QColor (255, 255, 203);
-   CRec     = HSL (30*11, 100, 40);    // rec notes
-   CMid     = QColor (255,  72,  77);  // middle c
-   CBBg     = QColor (225, 225, 225);  // black key bg / drum div
-   CBt      = QColor (205, 205, 205);  // beat line color
+   for (int i = 0;  i < 12;  i++)  {CScl [0][i] = HSL (30*i, 100, 75);
+                                    CScl [1][i] = HSL (30*i, 100, 40);}
+   CTnt [0][0] = HSL (210, 100, 95);   // lt blue, pink, green, grey
+   CTnt [0][1] = HSL (300, 100, 95);
+   CTnt [0][2] = HSL (150, 100, 95);
+   CTnt [0][3] = QColor (239, 240, 241);
+   CTnt [1][0] = HSL (210, 100, 20);   // dk blue, purp, green, grey
+   CTnt [1][1] = HSL (300, 100, 20);
+   CTnt [1][2] = HSL (150, 100, 20);
+   CTnt [1][3] = QColor (32, 35, 38);
+
+   CBar [0][0] = HSL (30*7, 100, 30);
+   CBar [0][1] = HSL (30*7, 100, 80);
+   CBar [0][2] = HSL (30*7, 100, 90);
+   CBar [1][0] = HSL (30*7, 100, 70);
+   CBar [1][1] = HSL (30*7, 100, 30);
+   CBar [1][2] = HSL (30*7, 100, 20);
+   COct = QColor (35, 38, 41);         // light mode's fg (text) color
 /*
 for (ubyte i = 0;  i < 12;  i++)
-DBG("`02d `02x`02x`02x", i, CScl[i].red (), CScl[i].green (), CScl[i].blue());
+DBG("`02d `02x`02x`02x",
+i, CScl[0][i].red (), CScl[0][i].green (), CScl[0][i].blue());
 for (ubyte i = 0;  i < 12;  i++)
-DBG("`02d `02x`02x`02x", i, CSclD[i].red (), CSclD[i].green (),CSclD[i].blue());
+DBG("`02d `02x`02x`02x",
+i, CScl[1][i].red (), CScl[1][i].green (), CScl[1][i].blue());
 */
 }
 
@@ -122,8 +132,9 @@ TRC("DrawRec all=`b pp=`d", all, pp);
                x1 = w*(vl-tpMn)/(tpMx-tpMn);   y  = Tm2Y (t1, & co);
                x2 = w*(v2-tpMn)/(tpMx-tpMn);   y2 = Tm2Y (t2, & co);
 //DBG("     x1=`d y=`d x2=`d y2=`d cl=`c", x1, y, x2, y2, cl);
-               qc = CBLACK;   if (cl=='s') qc = CSclD [4]; // slow=>green
-                              if (cl=='f') qc = CSclD [0]; // fast=>red
+               qc = Color ("fg");
+               if (cl=='s') qc = CScl [1][4];    // slow=>green
+               if (cl=='f') qc = CScl [1][0];    // fast=>red
                Up.cnv.RectF (x+x1, y, 2, y2-y+1, qc); // vline vl, t1-t2
                if (v2) {                              // hline vl-v2, t2
                   if      (x1 < x2) Up.cnv.RectF (x+x1, y2, x2-x1+1, 2, qc);
@@ -263,7 +274,7 @@ TRC("DrawRec all=`b pp=`d", all, pp);
 //------------------------------------------------------------------------------
 void Song::DrawSym (SymDef *s, ColDef *co)
 // draw round rect w scale/velo color, fill with drum=blu,white/black + scc
-{ ubyte tr, t, tc, key, ef, n;
+{ ubyte tr, t, tc, key, ef, n, dk = Gui.Dark () ? 1:0;
   bool  dr;
   char  ha;
   ubyt2 mo, x, y, w, h, dx, dw, dh;
@@ -276,20 +287,20 @@ void Song::DrawSym (SymDef *s, ColDef *co)
 // first get the color - clr is main color, kc is white/black
    if (dr) {
       switch (MDrm2Grp (trk->din)) {
-         case 0:  clr = CSclD [ 0];   break;     // kick red
-         case 1:  clr = CSclD [ 4];   break;     // snar green
-         case 2:  clr = CSclD [ 7];   break;     // hhat blue
-         case 3:  clr = CSclD [ 6];   break;     // cymb cyan
-         case 4:  clr = CSclD [ 2];   break;     // toms yellow
-         case 5:  clr = CSclD [ 9];   break;     // latn purple
-         case 6:  clr = CSclD [ 1];   break;     // misc orange
-         default: clr = CSclD [11];   break;     // x    magenta
+         case 0:  clr = CScl [1-dk][ 0];   break;     // kick red
+         case 1:  clr = CScl [1-dk][ 4];   break;     // snar green
+         case 2:  clr = CScl [1-dk][ 7];   break;     // hhat blue
+         case 3:  clr = CScl [1-dk][ 6];   break;     // cymb cyan
+         case 4:  clr = CScl [1-dk][ 2];   break;     // toms yellow
+         case 5:  clr = CScl [1-dk][ 9];   break;     // latn purple
+         case 6:  clr = CScl [1-dk][ 1];   break;     // misc orange
+         default: clr = CScl [1-dk][11];   break;     // x    magenta
       }                                // oops doin velocity
       if (Cfg.ntCo == 1)  clr = CRng [(nt->dn == NONE) ? 64 :
                                       (trk->e [nt->dn].valu & 0x7F)];
    }
    else if (SHRCRD)                    // f to purple so it shows better
-      clr = CScl [((tc = n % 12) == 5) ? 9 : tc];
+      clr = CScl [dk][((tc = n % 12) == 5) ? 9 : tc];
    else
       switch (Cfg.ntCo) {
          case 2:                       // track
@@ -301,7 +312,7 @@ void Song::DrawSym (SymDef *s, ColDef *co)
             break;
          default:                      // scale - pitched per keysig
             key = KSig (nt->tm)->key;
-            clr = CScl [((n % 12) + 12 - key) % 12];
+            clr = CScl [dk][((n % 12) + 12 - key) % 12];
       }
    kc = (dr || (KeyCol [n%12] == 'w')) ? CWHITE : CBLACK;
 
@@ -367,6 +378,7 @@ void Song::DrawPg (ubyt4 pp)
   TStr  cs, str, snm, snt;
   ubyt4 nTrk, tMn, tMx, p, q, ne, t1, t2, ts, lt;
   bool  ccg, bug = false;
+  ubyte dk = Gui.Dark () ? 1:0;
   KSgRow *ks;
   TrkEv  *e;
   TpoRow *te;
@@ -374,12 +386,16 @@ void Song::DrawPg (ubyt4 pp)
   PagDef *pg = & _pag [0];
   ColDef  co;
   BlkDef *bl;
-//TRC("DrawPg `d", pp);
+  QColor  qc;
+TRC("DrawPg `d", pp);
 // load constant-ish stuffs
    trk = & _f.trk [0];   nTrk = _f.trk.Ln;   tw = 8;   th = Up.txH;
-   Up.cnv.RectF (0, 0, Up.w, Up.h, CWHITE);     // cls to white
+   Up.cnv.RectF (0, 0, Up.w, Up.h, Color ("bg"));     // cls to white
+  QColor cbar = CBar [dk][0], csbt = CBar [dk][1], csbx = CBar [dk][2];
+  ubyte midc = MKey ("4c");
+
    for (c = 0;  c < pg [pp].nCol;  c++) {
-      MemCp (& co, & pg [pp].col [c], sizeof (co));    // load column specs
+      MemCp (& co, & pg [pp].col [c], sizeof (co));   // load column specs
       tMn = co.blk [0].tMn;   tMx = co.blk [co.nBlk-1].tMx;
       qw = (_lrn.chd?th:0) + W_Q;
       qx = co.x + 4;   nx = co.nx;   cx = co.dx + co.nDrm*W_NT;
@@ -388,47 +404,51 @@ void Song::DrawPg (ubyt4 pp)
 
    // non-last column border vline w rounded ends
       if (c < pg [pp].nCol-1) {
-         Up.cnv.RectF (co.x+co.w-8,      1, 4, 1, CBLACK);
-         Up.cnv.RectF (co.x+co.w-7,      2, 4, 1, CBLACK);
-         Up.cnv.RectF (co.x+co.w-6,      3, 4, 1, CBLACK);
-         Up.cnv.RectF (co.x+co.w-5, 4, 4, co.h-7, CBLACK);
-         Up.cnv.RectF (co.x+co.w-6, co.h-3, 4, 1, CBLACK);
-         Up.cnv.RectF (co.x+co.w-7, co.h-2, 4, 1, CBLACK);
-         Up.cnv.RectF (co.x+co.w-8, co.h-1, 4, 1, CBLACK);
+         x = co.x + co.w - 6;
+         Up.cnv.RectF (x,        0, 4, 1, cbar);
+         Up.cnv.RectF (x+1,      1, 4, 1, cbar);
+         Up.cnv.RectF (x+2,      2, 4, 1, cbar);
+         Up.cnv.RectF (x+3,      3, 4, 1, cbar);
+
+         Up.cnv.RectF (x+4,      4, 4, co.h-7, cbar);
+
+         Up.cnv.RectF (x+3, co.h-3, 4, 1, cbar);
+         Up.cnv.RectF (x+2, co.h-2, 4, 1, cbar);
+         Up.cnv.RectF (x+1, co.h-1, 4, 1, cbar);
+         Up.cnv.RectF (x,   co.h,   4, 1, cbar);
       }
-//TStr s1,s2,s3,s4;
-//DBG("c=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d "
-//"qx=`d nx=`d cx=`d qw=`d nw=`d",
-//c,TmSt(s1,tMn),TmSt(s2,tMx),
-//MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
+TStr s1,s2,s3,s4;
+DBG("c=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d "
+"qx=`d nx=`d cx=`d qw=`d nw=`d",
+c,TmSt(s1,tMn),TmSt(s2,tMx),
+MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
 
    // draw bg horiz rect (white&black keyboard);  label octaves at b|c
-      Up.cnv.SetFg (CBLACK);
+      Up.cnv.SetFg (COct);
 
       if (SHRCRD) {                    // WAYY diff
          for (x = nx, oc = 0;  oc < 7;  oc++, x += w) {
             w = 0;   if (! co.oMx [oc])  continue;
 
-            if (x > nx)  {Up.cnv.RectF (x, 0, 2, co.h, CBLACK);
-                          x += 2;}
+            if (x > nx)  x += 2;
             MKey2Str (snm, nm = co.oMn [oc]);
             MKey2Str (snt, nt = co.oMx [oc]);
 
          // keyboard oct at top of col
             x1 = (snm[1]-'c')*W_NTW;   w = W_NTW*(snt[1]-snm[1]+1);
 //DBG(" oct x=`d nm=`s nm=`s w=`d x1=`d", x, snm, snt, w, x1);
-            Up.cnv.Blt (*Up.oct,   x, 0,                  x1, 0, w, H_KB);
+            Up.cnv.Blt (*Up.oct,      x, 0,                  x1, 0, w, H_KB);
 
          // background stripes down the col
-            Up.cnv.Blt (*Up.pnbg2, x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
+            Up.cnv.Blt (*Up.bg2 [dk], x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
 
          // oct label at left, left div line unless 1st
             StrFmt (str, "`d", oc+1);
             Up.cnv.Text (x+2,      15+th, str);
             Up.cnv.Text (x+w-tw-3, 15+th, str);
          }
-         if ((x > nx) && co.nDrm)      // red vert line btw melo n drum
-                          Up.cnv.RectF (x, 0, 2, co.h, CBLACK);
+         if ((x > nx) && co.nDrm)      // vert line btw melo n drum
+                          Up.cnv.RectF (x, 0, 2, co.h, qc);
       }
       else {
       // prep ksig biz
@@ -451,17 +471,14 @@ void Song::DrawPg (ubyt4 pp)
 //DBG(" oct x=`d nt=`d nd=`d w=`d x1=`d wb=`d", x, nt, nd, w, x1, wb);
 
          // keyboard oct at top of col
-            Up.cnv.Blt (*Up.oct,  x, 0,                  x1, 0, w, H_KB);
+            Up.cnv.Blt (*Up.oct,     x, 0,                  x1, 0, w, H_KB);
 
          // background stripes down the col
-            Up.cnv.Blt (*Up.pnbg, x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
+            Up.cnv.Blt (*Up.bg [dk], x, H_KB, w, co.h-H_KB, x1, 0, w, 1);
 
-         // label at b|c borders;  also middle c line unless at left border
+         // octaves at b|c borders
             StrFmt (str, "`d", oc-1);
-            if (nt ==  0) {Up.cnv.Text (x+2,      13, str);
-                           if ((oc == 5) && (x != nx))
-                              Up.cnv.RectF (x, H_KB, 1, co.h-H_KB, CMid);
-                          }
+            if (nt ==  0)  Up.cnv.Text (x+2,      13, str);
             if (nd == 11)  Up.cnv.Text (x+w-tw-3, 13, str);
 
          // draw curr keysig;  if in scale, put step color
@@ -471,9 +488,10 @@ void Song::DrawPg (ubyt4 pp)
                                                n2++, x2 += W_NT)
                   if (ksig [n2 % 12] != ' ')
                      Up.cnv.RectF (x2 + w2, 5, W_NT-w2*2, W_NT-w2*2-2,
-                                           CSclD [((n2 % 12) + 12 - key) % 12]);
+                                   CScl [1][((n2 % 12) + 12 - key) % 12]);
             wb = 0;
          }
+      // octaves at edges
          for (nt = co.nMn;;  nt++) {   // 1st w from left non B,C
             nd = nt % 12;
             if (nt >= co.nMx)  break;
@@ -497,11 +515,14 @@ void Song::DrawPg (ubyt4 pp)
       }
    //__________________________________
    // vert line per drum(top),ctl(base) - skip 1st ctl's line
-      for (x = co.dx, t = 0;  t < co.nDrm;  t++)
-         {x += W_NT;   Up.cnv.RectF (x-1, 0, 1, co.h, CBBg);}
+      for (x = co.dx, t = 0;  t < co.nDrm;  t++) {
+         x += W_NT;    Up.cnv.RectF (x-1, 0, 1, co.h, cbar);
+      }
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho != 'n') {
-         w = th;   if (_f.ctl [t].sho == 'y') w = 32+2;
-         if (x > cx) Up.cnv.RectF  (x,   0, 1, co.h, CBBg);   x += w;
+         w = th;
+         if (_f.ctl [t].sho == 'y') w = 32+2;
+         if (x > cx)   Up.cnv.RectF (x,   0, 1, co.h, cbar);
+         x += w;
       }
 
    // draw bars/beats/subbeats background lines - 1st time is beat just b4 tMn
@@ -510,44 +531,64 @@ void Song::DrawPg (ubyt4 pp)
         char *bp;
          TmStr (str, t1, & t2);   bp = 1 + StrCh (str, '.');
          if (! StrCm (bp, CC("1"))) {  // beat 1 = bar:  dk bar
-            Up.cnv.RectF (nx, y, nw, 2, CDBLU);
+            Up.cnv.RectF (nx, y, nw, 2, cbar);
             tn = TSig (t1)->num;
             tn = ((tn < 6) || (tn % 3)) ? 0 : (tn / 3);    // compound tsig num?
             bt = 0;
          }
          else if (sb)                  // color "sub compound" lighter
-            Up.cnv.RectF (nx, y, nw, 1, (tn && (bt % 3)) ? CBt : CDBLU);
+            Up.cnv.RectF (nx, y, nw, 1, (tn && (bt % 3)) ? csbx : cbar);
          if (sb > 1)  while (--sb) {   // loop thu any subbt
             ts = t1 + sb * (t2 - t1) / bl->sb;
-            Up.cnv.RectF (nx, Tm2Y (ts, & co), nw, 1, CBBg);
+            Up.cnv.RectF (nx, Tm2Y (ts, & co), nw, 1, csbt);
          }
       }
-      Up.cnv.RectF (nx, co.h, nw, 2, CDBLU);  // an end bar for col
+      Up.cnv.RectF (nx, co.h, nw+1, 2, cbar);    // an end bar for col
+
+   // oct dividers in ez, else middle c
+      if (SHRCRD)
+         for (x = nx, oc = 0;  oc < 7;  oc++, x += w) {
+            w = 0;   if (! co.oMx [oc])  continue;
+
+            if (x > nx)  {Up.cnv.RectF (x, 0, 2, co.h, cbar);   x += 2;}
+            MKey2Str (snm, co.oMn [oc]);
+            MKey2Str (snt, co.oMx [oc]);   w = W_NTW*(snt[1]-snm[1]+1);
+         }
+      else {
+DBG("midc=`d nmn=`d nmx=`d", midc, co.nMn, co.nMx);
+         if ((co.nMn < midc) && (midc < co.nMx)) {
+DBG("   did it");
+            Up.cnv.RectF (Nt2X (midc, & co), H_KB, 1, co.h-H_KB, CScl [1][0]);
+         }
+      }
 
    // drum & ctl labels on top of bg time lines
       x1 = cx - co.nDrm*W_NT;
-      Up.cnv.SetFg (CBLACK);
+      Up.cnv.SetFg (Color ("fg"));
       for (x = x1, p = 0;  p < co.nDrm;  p++) {
          t = co.dMap [p];
          StrCp (str, trk [t].name);   str [4] = '\0';
-                               Up.cnv.TextV (x, 3, str);   x += W_NT;
+         Up.cnv.TextV (x, 3, str);   x += W_NT;
       }
       for (x = cx, t = 0;  t < _f.ctl.Ln;  t++)  if (_f.ctl [t].sho != 'n') {
          w = th;   if (_f.ctl [t].sho == 'y')  w = 32+2;
          Up.cnv.TextV (x, 3, CtlSt (t));   x += w;
       }
-      if ((x > x1) && (c < pg [pp].nCol-1))
-         Up.cnv.RectF (x1, 0, x-x1-1, 2, CBLACK);
+      if ((x > x1) && (c < pg [pp].nCol-1)) {
+         Up.cnv.RectF (x1, 0,    x-x1-1, 2, cbar);
+         Up.cnv.RectF (x1, co.h, x-x1-1, 2, cbar);
+      }
+
    //__________________________________
    // cue n chd
      ubyt2 ve = 0, ch = 0, br = 0;
      bool  sw = true;
    // cue,chd bg lt yellow default bg (ch,ve on top)
       y = Tm2Y (tMn, & co);
-      Up.cnv.RectF (qx, y, qw, co.h-y, CTnt [3]);
+      Up.cnv.RectF (qx, y, qw, co.h-y, CTnt [dk][3]);
 
    // FIRST (v/c/b/etc rect hilites so underneath-est (text later)
-      Up.cnv.TextVC (nx-W_Q, 0, CC("Cues"), CBLACK);
+      Up.cnv.TextVC (nx-W_Q, 0, CC("Cues"), Color ("fg"));
       for (ne = _f.cue.Ln, p = 0;  p < ne;  p++)
          if (* (StrCp (str, _f.cue [p].s)) == '(') {
             t1 = _f.cue [p].time;   t2 = Bar2Tm (9999);
@@ -562,7 +603,7 @@ void Song::DrawPg (ubyt4 pp)
                else if (! StrCm (str, CC("(chorus")))  cno = 1;
                else if (  StrSt (str, CC("(break")))   cno = 2;
                else                                    cno = 3;
-               Up.cnv.RectF (qx, y, qw, y2-y+1, CTnt [cno]);
+               Up.cnv.RectF (qx, y, qw, y2-y+1, CTnt [dk][cno]);
             }
          }
    // THEN < or >
@@ -605,7 +646,7 @@ void Song::DrawPg (ubyt4 pp)
                   StrFmt (str, "break `d",  br);
             else  StrCp  (str, & str [1]);
             y = Tm2Y (t1, & co);
-            Up.cnv.TextVC (nx-W_Q, y+4, str, CBLACK);
+            Up.cnv.TextVC (nx-W_Q, y+4, str, Color ("fg"));
 
             *str = '(';             // sorry !!
          }
@@ -622,24 +663,25 @@ void Song::DrawPg (ubyt4 pp)
          else if (! StrCm (str, CC("`mad")))  {x = 136;   w = 24;}
          if (x)  Up.cnv.Blt (*Up.cue, (ubyt2)nx-W_Q, y, x, 0,
                                                         w, Up.cue->height ());
-         else    Up.cnv.TextVC (nx-W_Q, y, str, CBLACK);
+         else    Up.cnv.TextVC (nx-W_Q, y, str, Color ("fg"));
       }
 
    // chords (in their own column)
       if (_lrn.chd) {
-         Up.cnv.TextVC (qx, 0, CC("Chds"), CBLACK);
+         Up.cnv.TextVC (qx, 0, CC("Chds"), Color ("fg"));
          for (ne = _f.chd.Ln, p = 0;
                  (p < ne) && (_f.chd [p].time < tMn);  p++)  sw = (! sw);
          for (;  (p < ne) && (_f.chd [p].time < tMx);  p++) {sw = (! sw);
             y = Tm2Y (_f.chd [p].time, & co);
-            Up.cnv.TextVC (qx, y, _f.chd [p].s, sw ? CSclD[0]:CSclD[7]);
+            Up.cnv.TextVC (qx, y, _f.chd [p].s,
+                           sw ? CScl [1-dk][0]:CScl [1-dk][7]);
          }
       }
 
    // bar #s on top
       for (p = 0;  p < co.nBlk;  p++) {
          StrFmt (str, "`d", co.blk [p].bar);
-         Up.cnv.TextC (nx+1, co.blk [p].y+3, str, CDBLU);
+         Up.cnv.TextC (nx+1, co.blk [p].y+3, str, cbar);
       }
    //__________________________________
    // ok, dump the note symbols
@@ -658,7 +700,7 @@ void Song::DrawPg (ubyt4 pp)
          if ( (! StrCm (CC("ksig"), cs)) ||
               (! StrCm (CC("tsig"), cs)) || (! StrCm (CC("tmpo"), cs)) )
             ccg = true;
-         df = 0;   vt = 'u';   cno = (Cfg.ntCo == 2) ? 0 : 7;
+         df = 0;   vt = 'u';   cno = (Cfg.ntCo == 2) ? 0 : 4;
          for (ct = 0;  ct < NMCC;  ct++)  if (! StrCm (MCC [ct].s, cs))
             {df = MCC [ct].dflt;   vt = MCC [ct].typ;   break;}
 //DBG(" cc=`d=`s dflt=`d typ=`c", cc, cs, df, vt);
@@ -666,7 +708,7 @@ void Song::DrawPg (ubyt4 pp)
       // tempo is super special...  _f.tpo has prescribed (non act) tmpo +-.25
          if (! StrCm (CC("tmpo"), cs)) {    // first get range +-.25 in tpMn,Mx
 //TStr d1,d2,d3,d4;
-           QColor qc= CScl [7];
+           QColor qc = CScl [dk][4];   // green ?
             bug = true;
          // go thru prescribed tempo evs, get min,max and adj w clip for tpMn,Mx
             te = & _f.tpo [0];   ne = _f.tpo.Ln;   vl = 120;
@@ -730,7 +772,7 @@ void Song::DrawPg (ubyt4 pp)
 //DBG("cc  p=`d/`d pTm=`s pVl=`d", p, ne, TmSt(z1,e [p].time), e [p].valu);
                if      (vt == 'x') {
                   CtlX2Str (str, cs, & e [p]);
-                  Up.cnv.TextVC (x, Tm2Y (e [p].time, & co), str, CBLACK);
+                  Up.cnv.TextVC (x, Tm2Y (e [p].time, & co), str, Color ("fg"));
                }
                else if (vt == 'o') {
                   y2 = Tm2Y (e [p].time, & co);
@@ -739,7 +781,8 @@ void Song::DrawPg (ubyt4 pp)
                   if (t1 != NONE) {
                      if (t1 < tMn)  t1 = tMn;
                      y = Tm2Y (t1, & co);   // continue vert line
-                     if (vl >= 64)  Up.cnv.RectF (x, y, 2, y2-y+1, CScl [cno]);
+                     if (vl >= 64)
+                        Up.cnv.RectF (x, y, 2, y2-y+1, CScl [dk][cno]);
                   }
                   t1 = e [p].time;   vl = e [p].valu;
                }
@@ -752,13 +795,15 @@ void Song::DrawPg (ubyt4 pp)
                   if (t1 != NONE) {
                      if (t1 < tMn)  t1 = tMn;
                      y = Tm2Y (t1, & co);   // continue vert line
-                     if (vl != df)  Up.cnv.RectF (x1, y, 2, y2-y+1, CScl [cno]);
+                     if (vl != df)
+                        Up.cnv.RectF (x1, y, 2, y2-y+1, CScl [dk][cno]);
                   }
                   if      (x1 < x2)
-                     Up.cnv.RectF (x1, y2, x2-x1+1, 2, CScl [cno]);
+                     Up.cnv.RectF (x1, y2, x2-x1+1, 2, CScl [dk][cno]);
                   else if (x1 > x2)
-                     Up.cnv.RectF (x2, y2, x1-x2+1, 2, CScl [cno]);
-                  Up.cnv.RectF (x2-1, y2-1, 4, 4, CScl [cno]);  // dot at x2,y2
+                     Up.cnv.RectF (x2, y2, x1-x2+1, 2, CScl [dk][cno]);
+                  Up.cnv.RectF (x2-1, y2-1, 4, 4,
+                                CScl [dk][cno]);  // dot at x2,y2
                   t1 = e [p].time;   vl = e [p].valu;
                }
             }
@@ -767,8 +812,9 @@ void Song::DrawPg (ubyt4 pp)
                if ((t1 == NONE) || (t1 < tMn))  t1 = tMn;
                y = Tm2Y (t1, & co);   y2 = Tm2Y (tMx, & co);
                if (vt == 'o')
-                  {if (vl >= 64)  Up.cnv.RectF (x, y, 2, y2-y+1, CScl [cno]);}
-               else  Up.cnv.RectF (x+w*vl/127,     y, 2, y2-y+1, CScl [cno]);
+                  {if (vl >= 64)
+                     Up.cnv.RectF (x,          y, 2, y2-y+1, CScl [dk][cno]);}
+               else  Up.cnv.RectF (x+w*vl/127, y, 2, y2-y+1, CScl [dk][cno]);
             }
             if (Cfg.ntCo == 2)  if (++cno >= 12)  cno = 0;
          }
@@ -958,7 +1004,7 @@ void Song::Draw (char all)
 //TRC("Draw _rNow=`s np=`d _pg=`d _tr=`d all=`c",
 //TmSt(d1,_rNow), _pag.Ln, _pg, _tr, all);
    if (_pag.Ln == 0) {                 // nothin therez yet - cls
-      Up.cnv.RectF  (0, 0, Up.w, Up.h, CWHITE);
+      Up.cnv.RectF  (0, 0, Up.w, Up.h, Color ("bg"));
       MemSet (& Up.tpos, 0, sizeof (QRect));
       Up.cnv.end ();   Up.tcnv.end ();
       return;
@@ -981,7 +1027,7 @@ void Song::Draw (char all)
          ha = pg [p+1].h;   xa = 0;   wa = Up.w; // draw blank area around bar
          xb = (x < 80) ? 0 : (x-80);
          yb = (y < 80) ? 0 : (y-80);
-         Up.cnv.RectF (xb, yb, wa-(xb-xa), ha-yb, CWHITE);
+         Up.cnv.RectF (xb, yb, wa-(xb-xa), ha-yb, Color ("bg"));
          Up.cnv.Blt (*Up.tpm, x, y, 0, 0, w, h); // stamp last bar on top
          _rc.setLeft  (x);   _rc.setTop    (y);
          _rc.setWidth (w);   _rc.setHeight (h);

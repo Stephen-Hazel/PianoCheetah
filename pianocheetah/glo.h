@@ -142,9 +142,7 @@ struct UTrkRow {
 };
 struct UpdLst {                        // dlg val passin, etc, etc
    ubyt2 txH;
-   QPixmap *oct, *pnbg, *pnbg2, *now, *dot, *cue, *bug, *fade, *tr;
-   QAction *tbaPoz,     *tbaLrn, *tbaTtl;
-   QIcon   *tbiPoz [2], *tbiLrn [3];
+   QPixmap *oct, *bg [2], *bg2 [2], *now, *dot, *cue, *bug, *fade, *tr;
 // stuff Song sets for gui
    bool  uPoz;                         // user said poz, not just learn mode
    char  lrn;
@@ -169,10 +167,7 @@ struct UpdLst {                        // dlg val passin, etc, etc
 };
 extern UpdLst Up;                      // what gui needs from song
 
-
-//______________________________________________________________________________
-extern QColor CRng [128], CScl [12], CSclD [12], CTnt [4],
-              CMid, CBBg, CBt;
+extern QColor CScl [2][12];
 
 
 //______________________________________________________________________________

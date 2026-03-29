@@ -42,6 +42,8 @@ echo "...compilin n installin\n";
 
 echo "...cleanup\n";
    system ("rm -fr _build .$fb");
+   system ("echo x " .
+             ">/home/sh/.var/app/app.pianocheetah.pianocheetah/config/dbg.txt");
    if ($arg != 'c')  exit;
 
 // cleanup .var/app/ dir for full reset (wipe config files etc)

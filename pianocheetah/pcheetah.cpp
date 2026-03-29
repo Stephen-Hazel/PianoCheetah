@@ -1,4 +1,4 @@
-// pcheetah.cpp - PianoCheetah - Steve's weird midi sequencer
+ // pcheetah.cpp - PianoCheetah - Steve's weird midi sequencer
 
 #include "pcheetah.h"
 
@@ -60,6 +60,7 @@ static char *UCmdS (const char *cmd)   // return tooltip as "desc  [key note]"
    *k = *n = '\0';
    for (ubyte i = 0;  i < NUCmd;  i++)  if (! StrCm (CC(cmd),
                                                      CC(UCmd [i].cmd))) {
+DBG("cmd=`s desc=`s", cmd, UCmd [i].desc);
       StrCp (k, CC(UCmd [i].ky));   if (*k == ' ')  StrCp (k, CC("space"));
       StrCp (n, CC(UCmd [i].nt));   if (*n == '.')  *n = '\0';
       StrCp (o, CC(UCmd [i].desc));
@@ -68,6 +69,7 @@ static char *UCmdS (const char *cmd)   // return tooltip as "desc  [key note]"
          StrAp (o, k);   if (*k && *n)  StrAp (o, CC(" "));   StrAp (o, n);
          StrAp (o, CC("]"));
       }
+DBG("o=`s", o);
       return o;
    }
    return CC("");
@@ -317,42 +319,45 @@ void PCheetah::Upd (QString upd)
       return;
    }
 
-   if (! StrCm (u, CC("ttl")))  _tb.Act (29)->setText (Up.ttl);
+   if (! StrCm (u, "ttl"))  _tb.Act (29)->setText (Up.ttl);
 
-   if (! StrCm (u, CC("FLdn"))) {if (FL.pos < FL.lst.Ln-1)
+   if (! StrCm (u, "FLdn")) {if (FL.pos < FL.lst.Ln-1)
                                               {++FL.pos;   _dFL->ReDo ();}}
-   if (! StrCm (u, CC("FLup"))) {if (FL.pos)  {--FL.pos;   _dFL->ReDo ();}}
-   if (! StrCm (u, CC("FLgo"))) {_dFL->Shut ();   LoadGo ();}
-   if (! StrCm (u, CC("FLex"))) {_dFL->Shut ();   Gui.Quit ();}
+   if (! StrCm (u, "FLup")) {if (FL.pos)  {--FL.pos;   _dFL->ReDo ();}}
+   if (! StrCm (u, "FLgo")) {_dFL->Shut ();   LoadGo ();}
+   if (! StrCm (u, "FLex")) {_dFL->Shut ();   Gui.Quit ();}
 
-   if (! StrCm (u, CC("nt")))     _nt->update ();
-   if (! StrCm (u, CC("ntCur")))  _nt->Cur ();
-   if (! StrCm (u, CC("dTDr")))   _dTDr->Open ();
-   if (! StrCm (u, CC("dCue")))   _dCue->Open ();
-   if (! StrCm (u, CC("dChd")))   _dChd->Open ();
-   if (! StrCm (u, CC("dCtl")))   _dCtl->Open ();
-   if (! StrCm (u, CC("dTpo")))   _dTpo->Open ();
-   if (! StrCm (u, CC("dTSg")))   _dTSg->Open ();
-   if (! StrCm (u, CC("dKSg")))   _dKSg->Open ();
-   if (! StrCm (u, CC("dQua")))   _dQua->Open ();
-   if (! StrCm (u, CC("dMov")))   _dMov->Open ();
-   if (! StrCm (u, CC("dHlpO")))  _dHlp->Open ();
-   if (! StrCm (u, CC("dHlpS")))  _dHlp->Shut ();
+   if (! StrCm (u, "nt"))     _nt->update ();
+   if (! StrCm (u, "ntCur"))  _nt->Cur ();
+   if (! StrCm (u, "dTDr"))   _dTDr->Open ();
+   if (! StrCm (u, "dCue"))   _dCue->Open ();
+   if (! StrCm (u, "dChd"))   _dChd->Open ();
+   if (! StrCm (u, "dCtl"))   _dCtl->Open ();
+   if (! StrCm (u, "dTpo"))   _dTpo->Open ();
+   if (! StrCm (u, "dTSg"))   _dTSg->Open ();
+   if (! StrCm (u, "dKSg"))   _dKSg->Open ();
+   if (! StrCm (u, "dQua"))   _dQua->Open ();
+   if (! StrCm (u, "dMov"))   _dMov->Open ();
+   if (! StrCm (u, "dHlpO"))  _dHlp->Open ();
+   if (! StrCm (u, "dHlpS"))  _dHlp->Shut ();
 
-   if (! StrCm (u, CC("time"))) {
-     CtlLabl l (ui->time);
+   if (! StrCm (u, "time")) {
      TStr s;
       StrCp (s, Up.time);
-      if (*s == 'X')
-         StrFmt (s, "<span style='color: red;'>`s</span>", & Up.time [1]);
+     bool poz = (*s == 'X');
+      if (poz)  StrCp (s, & s [1]);
+     CtlLabl l (ui->time);
+      l.SetBold (poz);
+      l.SetFg (poz ? Color ("fgSel") : Color ("fg"));
+      l.SetBg (poz ? CScl [1][0]     : Color ("bg"));
       l.Set (s);
    }
-   if (! StrCm (u, CC("bars")))  { CtlLabl l (ui->bars);  l.Set (Up.bars);}
-   if (! StrCm (u, CC("tmpo")))  { CtlLabl l (ui->tmpo);  l.Set (Up.tmpo);}
-   if (! StrCm (u, CC("tsig")))  { CtlLabl l (ui->tSig);  l.Set (Up.tsig);}
-   if (! StrCm (u, CC("tbPoz")))  _tb.Set (14, Up.uPoz ? 0 : 1);
-   if (! StrCm (u, CC("tbLrn")))  _tb.Set (9,  PLAY ? 1 : (PRAC ? 2 : 0));
-   if (! StrCm (u, CC("lyr"))) {
+   if (! StrCm (u, "bars"))  { CtlLabl l (ui->bars);  l.Set (Up.bars);}
+   if (! StrCm (u, "tmpo"))  { CtlLabl l (ui->tmpo);  l.Set (Up.tmpo);}
+   if (! StrCm (u, "tsig"))  { CtlLabl l (ui->tSig);  l.Set (Up.tsig);}
+   if (! StrCm (u, "tbPoz"))  _tb.Set (14, Up.uPoz ? 1 : 0);
+   if (! StrCm (u, "tbLrn"))  _tb.Set (9,  PLAY ? 1 : (PRAC ? 2 : 0));
+   if (! StrCm (u, "lyr")) {
      CtlText t (ui->lyr);
      QColor  fg = t.Fg (), hi = t.Hi ();
       t.Clr ();
@@ -369,7 +374,7 @@ void PCheetah::Upd (QString upd)
       }
    }
 
-   if (! StrCm (u, CC("trk"))) {
+   if (! StrCm (u, "trk")) {
      char *rp [32];
      BStr  tip;
       _tr.Open ();   rp [6] = nullptr;
@@ -378,28 +383,16 @@ void PCheetah::Upd (QString upd)
          rp [2] = Up.trk [i].name;     rp [3] = Up.trk [i].grp;
          rp [4] = Up.trk [i].snd;      rp [5] = Up.trk [i].dev;
          _tr.Put (rp,                           Up.trk [i].tip);
-         if (Cfg.ntCo == 2) {          // color by track (if lrn/show non drum)
-            if (((rp [0][0] == 'l') || (rp [1][0] == 'S')) &&
-                (! Up.trk [i].drm))
-               _tr.SetColor (i, CMap (tc++));
-         }
-         else {
-            switch (rp [1][1]) {       // color lh/rh
-               case 'L':  tc = 0;   break;
-               case 'R':  tc = 1;   break;
-               default:   tc = 9;
-            }
-            if (tc < 2)  _tr.SetColor (i, CTnt [tc]);
-         }
+         if ((Cfg.ntCo == 2) &&        // color by track (if lrn/show non drum)
+             ((rp [0][0] == 'l') || (rp [1][0] == 'S')) &&
+             (! Up.trk [i].drm))
+            _tr.SetColor (i, 0, CMap (tc++));
       }
       _tr.Shut ();   _tr.HopTo (Up.eTrk, 0);
    }
 
-   if (! MemCm (u, CC("hey "), 4))   Gui.Hey (& u [4]);
-   if (! MemCm (u, CC("die "), 4))  {Gui.Hey (& u [4]);   Gui.Quit ();}
-   if (! MemCm (u, CC("dark"), 4)) {
-      _tb.ReDo ();
-   }
+   if (! MemCm (u, "hey ", 4))   Gui.Hey (& u [4]);
+   if (! MemCm (u, "die ", 4))  {Gui.Hey (& u [4]);   Gui.Quit ();}
 }
 
 
@@ -414,28 +407,30 @@ DBG("keyPressEvent raw mod=`d key=`d", e->modifiers (), e->key ());
 
    StrCp (s, km.Str (k));
 DBG("   keystr='`s'", s);
-   for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, CC(UCmd [i].ky)))  break;
+   for (i = 0;  i < NUCmd;  i++)  if (! StrCm (s, UCmd [i].ky))  break;
    if      (i < NUCmd)               Upd (UCmd [i].cmd);
-   else if (! StrCm (s, CC("d")))    emit sgCmd ("dump");
-   else if (! StrCm (s, CC("f01")))  _dHlp->Open ();
+   else if (! StrCm (s, "d"))    emit sgCmd ("dump");
+   else if (! StrCm (s, "f01"))  _dHlp->Open ();
    else QMainWindow::keyPressEvent (e);
 }
 
 
-void PCheetah::SetPMs ()               // all dem bitmaps
-{  Up.bug   = new QPixmap (":/note/bug");
-   Up.cue   = new QPixmap (":/note/cue");
-   Up.dot   = new QPixmap (":/note/dot");
-   Up.fade  = new QPixmap (":/note/fade");
-   Up.now   = new QPixmap (":/note/now");
-   Up.oct   = new QPixmap (":/note/oct");
-   Up.pnbg  = new QPixmap (":/note/pnbg");
-   Up.pnbg2 = new QPixmap (":/note/pnbg2");
-   Up.tpm   = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
+void PCheetah::SetPix ()               // all dem bitmaps
+{  Up.bug  = new QPixmap (":/note/bug");
+   Up.cue  = new QPixmap (":/note/cue");
+   Up.dot  = new QPixmap (":/note/dot");
+   Up.fade = new QPixmap (":/note/fade");
+   Up.now  = new QPixmap (":/note/now");
+   Up.oct  = new QPixmap (":/note/oct");
+   Up.bg  [0] = new QPixmap (":/note/bg");
+   Up.bg  [1] = new QPixmap (":/note/bg_d");
+   Up.bg2 [0] = new QPixmap (":/note/bg2");
+   Up.bg2 [1] = new QPixmap (":/note/bg2_d");
+   Up.tpm = new QPixmap ((32+88)*W_NT, M_WHOLE*4);
 }
 
 
-void PCheetah::SetTB ()                // toolbars take some messin with
+void PCheetah::SetTBar ()              // toolbars take some messin with
 {  _tb.Init (this, "app");
 TRC(" tbar init");
 
@@ -452,7 +447,7 @@ TRC(" tbar init");
    _tb.Btn (4, CC("pick from song list"));
    _tb.Btn (5, UCmdS ("song<"));
    _tb.Btn (6, UCmdS ("song>"));
-   _tb.Btn (7, UCmdS ("songRand"), "*??");
+   _tb.Btn (7, UCmdS ("songRand"), "*^??");
    connect (_tb.Act (4), & QAction::triggered,  this, & PCheetah::Load);
    connect (_tb.Act (5), & QAction::triggered,  this, & PCheetah::SongPrv);
    connect (_tb.Act (6), & QAction::triggered,  this, & PCheetah::SongNxt);
@@ -531,7 +526,19 @@ TRC(" tbar init");
 }
 
 
-void PCheetah::ReDark ()  {Gui.ReIco ();   _tb.ReDo ();}
+/*
+bool PCheetah::event (QEvent *e)
+{  if (e->type () == QEvent::ApplicationPaletteChange) {
+DBG("dark/light change");
+      update ();
+DBG("reico,retb");
+      Gui.ReIco ();
+      _tb.ReDo ();
+DBG("dark/light done");
+   }
+   return QApplication::event (e);
+}
+*/
 
 
 void PCheetah::Init ()
@@ -567,7 +574,7 @@ TRC(" song init");
 
    Gui.A ()->setStyleSheet ("QToolTip {font: 15pt monospace;}");
 
-   SetPMs ();
+   SetPix ();
 
    _s->moveToThread (& _thrSong);
    connect (this,       & PCheetah::sgCmd,   _s,   & Song::Cmd);
@@ -576,22 +583,19 @@ TRC(" song init");
    _thrSong.start ();
    emit sgCmd ("init");
 
-   connect (QGuiApplication::styleHints (), & QStyleHints::colorSchemeChanged,
-            this, & PCheetah::ReDark);
    setFocusPolicy (Qt::StrongFocus);        // so we get keyPressEvent()s
 
-   SetTB ();
+   SetTBar ();
 
 TRC(" tr,nt control init");
-  CtlText t (ui->lyr);
    _tr.Init (ui->tr,
-      "*Lrn\0"
+      "+Lrn\0"
      "*_Hand\0"
       "_Track\0"
       "_SnGrp\0"
       "_Sound\0"
-      "_Dev.Ch\0", TrPop);
-   _tr.SetRowH (Gui.FontH ()+1);
+      "_Dev.Ch\0", TrPop, "none", "row");
+   _tr.SetRowH (32);
 
    ui->tr->setContextMenuPolicy (Qt::CustomContextMenu);
    connect (ui->tr, & QTableWidget::itemClicked, this, & PCheetah::TrClk);

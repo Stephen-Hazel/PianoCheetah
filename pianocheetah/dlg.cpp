@@ -789,7 +789,7 @@ void DlgFL::Init ()
    connect (tb.Act (6), & QAction::triggered,  this, & DlgFL::Mod2Song);
    connect (tb.Act (7), & QAction::triggered,  this, & DlgFL::Brow);
 
-   _t.Init (ui->fLst, "Stage\0Song\0", nullptr, 'w');
+   _t.Init (ui->fLst, "Stage\0Song\0", nullptr, "single", "row", 'w');
    connect (ui->fLst, &QTableWidget::itemClicked,       this, & DlgFL::Pik);
    connect (ui->fLst, &QTableWidget::itemDoubleClicked, this, & DlgFL::Shut);
    _t.SetColWrapOK (1);

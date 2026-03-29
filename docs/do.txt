@@ -12,19 +12,46 @@ play, study magic singable dumb songs, pick out riffs, make a SONG
 
 try to find all the good rush sounds
 
+make a video for that piano guy
+beat cheat sheet
+make a readme about bringin it to mac,win :/
+
 
 code____________________________________________________________________________
 
-midicfg - make dump on right wider, top hlayout stay min size
 
-dark mode
-   bigger text for tb btns
-   changing theme doesn't redraw everything - only picked on app init
-      so my ReDark needs to kick somethin
-      hmm midicfg with no dark specifics does update on theme pick minus toolbar
-   use track hilite bg color based on Gui.Dark()
-      and oct bmp, etc, etc
-   await designed icons
+desktop icon - how do i flip btw light/dark mode?
+   catch dark/light mode change and update properly?
+
+
+trills goin up down up don't show well (and are hard to play)
+   make BEAT variable h, not just bar?
+   queue/hmmm/etc/MichelLegrand_BriansSong
+   put trill on thumb always as it's stronger than pinky
+   small little connected dots maybe?
+
+how did track control snap before?
+
+rebuild a.song a better way without moving dirs around
+
+pipewire audio
+drag and drop for short way to do several ^ at a time, etc
+
+midicfg - faster scoot up somehow (why does reading audio cfg take so long?)
+
+songlist - don't limit song fn width
+   maybe scrolling will be ok now that table is set more
+
+don't show time counting in empty song?
+
+give lyrics better color
+keycmd doesn't show on control list
+drum map won't let you map back to nothin
+in track tooltip, show note range, and control list
+
+make search work within queue,learn,etc too
+
+drumz get wrecked somehow
 
 w/recwipe needs to be fixed - dbg
    recwipe erases Lrn tracks...  is that old??  i think rec stuff is in 98,99
