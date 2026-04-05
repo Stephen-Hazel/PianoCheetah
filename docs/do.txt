@@ -19,23 +19,23 @@ make a readme about bringin it to mac,win :/
 
 code____________________________________________________________________________
 
-
-desktop icon - how do i flip btw light/dark mode?
+dark mode
+   fix up cue dialog icons w new colors somehow
+   desktop icon - how do i flip btw light/dark mode?
    catch dark/light mode change and update properly?
-
-
-trills goin up down up don't show well (and are hard to play)
-   make BEAT variable h, not just bar?
-   queue/hmmm/etc/MichelLegrand_BriansSong
-   put trill on thumb always as it's stronger than pinky
-   small little connected dots maybe?
-
-how did track control snap before?
 
 rebuild a.song a better way without moving dirs around
 
-pipewire audio
+pipewire exitaudio out
 drag and drop for short way to do several ^ at a time, etc
+
+trills goin up down up don't show well (and are hard to play)
+   put trill on thumb always as it's stronger than pinky
+   make BEAT variable h, not just bar?
+   queue/hmmm/etc/MichelLegrand_BriansSong
+   small little connected dots maybe?
+
+how did track control snap before?
 
 midicfg - faster scoot up somehow (why does reading audio cfg take so long?)
 
