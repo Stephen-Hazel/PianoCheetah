@@ -17,11 +17,14 @@ void CInit ()
    cr.Init (CRng);                                                  // prp,x,mag
    for (int i = 0;  i < 12;  i++)  {CScl [0][i] = HSL (30*i, 100, 75);
                                     CScl [1][i] = HSL (30*i, 100, 40);}
-   CTnt [0][0] = HSL (210, 100, 95);   // lt blue, pink, green, grey
+// lt blue=#e5f2ff pink=#ffe5ff green=#e5fff2 lt grey=#eff0f1
+   CTnt [0][0] = HSL (210, 100, 95);
    CTnt [0][1] = HSL (300, 100, 95);
    CTnt [0][2] = HSL (150, 100, 95);
    CTnt [0][3] = QColor (239, 240, 241);
-   CTnt [1][0] = HSL (210, 100, 20);   // dk blue, purp, green, grey
+
+// dk blue=#003366 purp=#660066 green=#006633 dk grey=#202326
+   CTnt [1][0] = HSL (210, 100, 20);
    CTnt [1][1] = HSL (300, 100, 20);
    CTnt [1][2] = HSL (150, 100, 20);
    CTnt [1][3] = QColor (32, 35, 38);
@@ -33,6 +36,7 @@ void CInit ()
    CBar [1][1] = HSL (30*7, 100, 30);
    CBar [1][2] = HSL (30*7, 100, 20);
    COct = QColor (35, 38, 41);         // light mode's fg (text) color
+   // dark 252,252,252=#fcfcfc            =#232629
 /*
 for (ubyte i = 0;  i < 12;  i++)
 DBG("`02d `02x`02x`02x",

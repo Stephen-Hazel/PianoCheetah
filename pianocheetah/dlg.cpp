@@ -330,18 +330,18 @@ void DlgCue::Init ()
 {  Gui.DlgLoad (this, "DlgCue");
   CtlTBar tb;
    tb.Init (this, "cue");
-   tb.Btn (0, CC("redo loops and erase all bug history"));
-   tb.Btn (1, CC("delete this cue"));
+   tb.Btn (0, "redo loops and erase all bug history");
+   tb.Btn (1, "delete this cue");
    connect (tb.Act (0), & QAction::triggered,
                         this, [this]() {Set ("loopInit");});
    connect (tb.Act (1), & QAction::triggered,
                         this, [this]() {Set ("");});
    tb.Sep (2);
 
-   tb.Btn (3, CC("text / non repeating section"));
-   tb.Btn (4, CC("verse section"));
-   tb.Btn (5, CC("chorus section"));
-   tb.Btn (6, CC("break section"));
+   tb.Btn (3, "text / non repeating section", "d");
+   tb.Btn (4, "verse section", "d");
+   tb.Btn (5, "chorus section", "d");
+   tb.Btn (6, "break section", "d");
    connect (tb.Act (3), & QAction::triggered,
                         this, [this]() {Set ("```");});
    connect (tb.Act (4), & QAction::triggered,
@@ -352,23 +352,23 @@ void DlgCue::Init ()
                         this, [this]() {Set ("(break");});
    tb.Sep (7);
 
-   tb.Btn ( 8, CC("crescendo"));
-   tb.Btn ( 9, CC("decrescendo"));
-   tb.Btn (10, CC("fermata"));
-   tb.Btn (11, CC("tremelo"));
-   tb.Btn (12, CC("star"));
-   tb.Btn (13, CC("happy"));
-   tb.Btn (14, CC("sad"));
-   tb.Btn (15, CC("mad"));
-   tb.Btn (16, CC("piano x3"),    "*ppp");
-   tb.Btn (17, CC("piano x2"),    "*pp");
-   tb.Btn (18, CC("piano"),       "*p");
-   tb.Btn (19, CC("mezzo piano"), "*mp");
-   tb.Btn (20, CC("mezzo forte"), "*mf");
-   tb.Btn (21, CC("forte"),       "*f");
-   tb.Btn (22, CC("forte x2"),    "*ff");
-   tb.Btn (23, CC("forte x3"),    "*fff");
-   tb.Btn (24, CC("forzando"),    "*Fz");
+   tb.Btn ( 8, "crescendo");
+   tb.Btn ( 9, "decrescendo");
+   tb.Btn (10, "fermata");
+   tb.Btn (11, "tremelo");
+   tb.Btn (12, "star");
+   tb.Btn (13, "happy");
+   tb.Btn (14, "sad");
+   tb.Btn (15, "mad");
+   tb.Btn (16, "piano x3",    "*ppp");
+   tb.Btn (17, "piano x2",    "*pp");
+   tb.Btn (18, "piano",       "*p");
+   tb.Btn (19, "mezzo piano", "*mp");
+   tb.Btn (20, "mezzo forte", "*mf");
+   tb.Btn (21, "forte",       "*f");
+   tb.Btn (22, "forte x2",    "*ff");
+   tb.Btn (23, "forte x3",    "*fff");
+   tb.Btn (24, "forzando",    "*Fz");
    connect (tb.Act ( 8), & QAction::triggered,  this, [this]() {Set ("<");});
    connect (tb.Act ( 9), & QAction::triggered,  this, [this]() {Set (">");});
    connect (tb.Act (10), & QAction::triggered,  this, [this]() {Set ("`fer");});

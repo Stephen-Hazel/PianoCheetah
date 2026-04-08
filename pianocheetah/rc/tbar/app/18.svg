@@ -2,16 +2,7 @@
   <defs id="defs3051">
     <style type="text/css" id="current-color-scheme">
       .ColorScheme-Text {
-        color:#000080;
-      }
-      .cls-1 {
-         fill: #333; /* Dark color for light mode */
-            transition: fill 0.3s; /* Smooth transition */
-         }
-         @media (prefers-color-scheme: dark) {
-            .cls-1 {
-            fill: #fff; /* Light color for dark mode */
-         }
+        color:#006633;
       }
       </style>
   </defs>

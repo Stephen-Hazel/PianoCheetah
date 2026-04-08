@@ -76,14 +76,15 @@ DBG("o=`s", o);
 }
 
 void PCheetah::Trak ()
-{ QSplitter *sp = ui->spl;
-  QList<int> sz = sp->sizes ();
-   if (sz [0])                         // table does minimumExpand ta werk
-        {Gui.FullSc (true);   sp->setSizes (QList<int>() << 0  <<  width ());}
-
-   else {Gui.FullSc (false);  sp->setSizes (QList<int>() << 90 <<
-                                                              (width () - 90));}
-
+{ QTableWidget *t = ui->tr;
+  QSplitter *sp   = ui->spl;
+  QList<int> sz   = sp->sizes ();
+  int w  = width ();
+  int wt = _tr.W ();   if (wt == 0) wt = 30;
+DBG("sz0=`d sz1=`d w=`d wt=`d", sz[0], sz[1], w, wt);
+   if (sz [0])
+        {Gui.FullSc (true);   sp->setSizes (QList<int>() << 0  <<  w    );}
+   else {Gui.FullSc (false);  sp->setSizes (QList<int>() << wt << (w-wt));}
 }
 
 void PCheetah::GCfg ()  {_dCfg->Open ();}
@@ -389,6 +390,11 @@ void PCheetah::Upd (QString upd)
             _tr.SetColor (i, 0, CMap (tc++));
       }
       _tr.Shut ();   _tr.HopTo (Up.eTrk, 0);
+
+     int w  = width ();
+     int wt = _tr.W ();
+     QSplitter *sp = ui->spl;
+      sp->setSizes (QList<int>() << wt << (w-wt));
    }
 
    if (! MemCm (u, "hey ", 4))   Gui.Hey (& u [4]);
@@ -436,15 +442,15 @@ TRC(" tbar init");
 
 // global-y
    _tb.Btn (0, UCmdS ("fullScr"));
-   _tb.Btn (1, CC("configure midi devices"));
-   _tb.Btn (2, CC("settings and junk"));
+   _tb.Btn (1, "configure midi devices");
+   _tb.Btn (2, "settings and junk");
    connect (_tb.Act (0), & QAction::triggered,  this, & PCheetah::Trak);
    connect (_tb.Act (1), & QAction::triggered,  this, & PCheetah::MCfg);
    connect (_tb.Act (2), & QAction::triggered,  this, & PCheetah::GCfg);
    _tb.Sep (3);
 
 // song pickin
-   _tb.Btn (4, CC("pick from song list"));
+   _tb.Btn (4, "pick from song list");
    _tb.Btn (5, UCmdS ("song<"));
    _tb.Btn (6, UCmdS ("song>"));
    _tb.Btn (7, UCmdS ("songRand"), "*^??");
@@ -485,9 +491,9 @@ TRC(" tbar init");
    _tb.Sep (17);
 
 // tempo
-   _tb.Btn (18, UCmdS ("tempo<"  ));
-   _tb.Btn (19, UCmdS ("tempoHop"));
-   _tb.Btn (20, UCmdS ("tempo<"  ));
+   _tb.Btn (18, UCmdS ("tempo<"  ), "d");
+   _tb.Btn (19, UCmdS ("tempoHop"), "d");
+   _tb.Btn (20, UCmdS ("tempo<"  ), "d");
    connect (_tb.Act (18), & QAction::triggered,
                           this, [this]() {emit sgCmd ("tempo<"  );});
    connect (_tb.Act (19), & QAction::triggered,
@@ -497,12 +503,12 @@ TRC(" tbar init");
    _tb.Sep (21);
 
 // editing stuff
-   _tb.Btn (22, CC("split the learn track (3E and below) into new LH track"));
-   _tb.Btn (23, CC("make drum track from clips"));
-   _tb.Btn (24, CC("insert track"));
-   _tb.Btn (25, CC("delete track"));
-   _tb.Btn (26, CC("scoot track up"));
-   _tb.Btn (27, CC("scoot track down"));
+   _tb.Btn (22, "split the learn track (3E and below) into new LH track", "d");
+   _tb.Btn (23, "make drum track from clips", "d");
+   _tb.Btn (24, "insert track", "d");
+   _tb.Btn (25, "delete track", "d");
+   _tb.Btn (26, "scoot track up", "d");
+   _tb.Btn (27, "scoot track down", "d");
 // "time scaling - for { to } => } scales to ^"
 //    this, [this]() {emit sgCmd ("trkEd *");});
 // "time offsetting - for { to end => { moves to ^"
@@ -598,6 +604,7 @@ TRC(" tr,nt control init");
    _tr.SetRowH (32);
 
    ui->tr->setContextMenuPolicy (Qt::CustomContextMenu);
+   ui->tr->setSizeAdjustPolicy (QAbstractScrollArea::AdjustToContents);
    connect (ui->tr, & QTableWidget::itemClicked, this, & PCheetah::TrClk);
    connect (ui->tr, & QTableWidget::customContextMenuRequested,
                                                  this, & PCheetah::TrClkR);

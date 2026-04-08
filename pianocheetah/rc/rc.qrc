@@ -3,7 +3,7 @@
         <file>app.svg</file>
         <file>app_d.svg</file>
         <file>tabl/lrn.svg</file>
-        <file>tabl/mute.png</file>
+        <file>tabl/mute.svg</file>
         <file>tabl/S.svg</file>
         <file>tabl/1.svg</file>
         <file>tabl/2.svg</file>
@@ -56,6 +56,15 @@
         <file>tbar/app/25.svg</file>
         <file>tbar/app/26.svg</file>
         <file>tbar/app/27.svg</file>
+        <file>tbar/app/18_d.svg</file>
+        <file>tbar/app/19_d.svg</file>
+        <file>tbar/app/20_d.svg</file>
+        <file>tbar/app/22_d.svg</file>
+        <file>tbar/app/23_d.svg</file>
+        <file>tbar/app/24_d.svg</file>
+        <file>tbar/app/25_d.svg</file>
+        <file>tbar/app/26_d.svg</file>
+        <file>tbar/app/27_d.svg</file>
         <file>tbar/flst/0.svg</file>
         <file>tbar/flst/1.svg</file>
         <file>tbar/flst/2.png</file>
@@ -65,11 +74,15 @@
         <file>tbar/flst/6.png</file>
         <file>tbar/flst/7.svg</file>
         <file>tbar/cue/0.svg</file>
-        <file>tbar/cue/1.png</file>
-        <file>tbar/cue/3.png</file>
-        <file>tbar/cue/4.png</file>
-        <file>tbar/cue/5.png</file>
-        <file>tbar/cue/6.png</file>
+        <file>tbar/cue/1.svg</file>
+        <file>tbar/cue/3.svg</file>
+        <file>tbar/cue/4.svg</file>
+        <file>tbar/cue/5.svg</file>
+        <file>tbar/cue/6.svg</file>
+        <file>tbar/cue/3_d.svg</file>
+        <file>tbar/cue/4_d.svg</file>
+        <file>tbar/cue/5_d.svg</file>
+        <file>tbar/cue/6_d.svg</file>
         <file>tbar/cue/8.png</file>
         <file>tbar/cue/9.png</file>
         <file>tbar/cue/10.png</file>
@@ -80,6 +93,6 @@
         <file>tbar/cue/15.png</file>
         <file>tbar/chd/0.png</file>
         <file>tbar/chd/1.png</file>
-        <file>tbar/chd/2.png</file>
+        <file>tbar/chd/2.svg</file>
     </qresource>
 </RCC>
