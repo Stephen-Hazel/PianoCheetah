@@ -22,7 +22,7 @@ void CfgDef::Load ()                   // load global settings
   ubyt2  i;
 TRC("CfgDef::Load");
    Init ();
-   App.Path (fn, 'c');   StrAp (fn, CC("/cfg.txt"));   t.Load (fn);
+   App.Path (fn, 'c');   StrAp (fn, "/cfg.txt");   t.Load (fn);
    for (i = 0;  i < t.num;  i++) {
       StrCp (s, t.str [i]);   if (! (p = StrCh (s, '=')))  continue;
       *p = '\0';   StrCp (v, p+1);
@@ -40,7 +40,7 @@ void CfgDef::Save ()                   // save global settings
 TRC("CfgDef::Save");
    StrFmt (buf, "ntCo=`d\n"  "barCl=`s\n"   "sVol=`d\n",
                  ntCo,        barCl?"y":"n", sVol);
-   App.Path (fn, 'c');   StrAp (fn, CC("/cfg.txt"));
+   App.Path (fn, 'c');   StrAp (fn, "/cfg.txt");
    f.Save (fn, buf, StrLn (buf));
 }
 
@@ -102,11 +102,11 @@ void DlgChd::ReDo ()
 TRC("DlgChd::ReDo");
 // pull our chord picks to make chd string
   CtlList root (ui->root), type (ui->type), bass (ui->bass);
-   root.GetS (chd);   StrCp (s, CC(MChd [type.Get ()].lbl));   bass.GetS (s2);
-   if (! StrCm (chd, CC("(none)")))  *chd = '\0';     // no chord at all?
+   root.GetS (chd);   StrCp (s, MChd [type.Get ()].lbl);   bass.GetS (s2);
+   if (! StrCm (chd, "(none)"))  *chd = '\0';     // no chord at all?
    else {
       StrAp (chd, s);
-      if (StrCm (s2, CC("(none)")))  {StrAp (chd, CC("/"));   StrAp (chd, s2);}
+      if (StrCm (s2, "(none)"))  {StrAp (chd, "/");   StrAp (chd, s2);}
    }
 // enable/dis per picks
                  type.Enable (true);    bass.Enable (true);
@@ -135,7 +135,7 @@ void DlgChd::Set (char *s)
    if (*ch) {
       i = ((ch [1] == 'b') || (ch [1] == '#')) ? 2 : 1;    // type pos
       c = & ch [i];
-      for (j = 0;  j < NMChd;  j++)  if (! StrCm (c, CC(MChd [j].lbl), 'x'))
+      for (j = 0;  j < NMChd;  j++)  if (! StrCm (c, MChd [j].lbl, 'x'))
                                         {type.Set (j);   break;}
       *c = '\0';                       // chop it off
    }
@@ -166,12 +166,12 @@ void DlgChd::Init ()
 {  Gui.DlgLoad (this, "DlgChd");
   CtlTBar tb;
    tb.Init (this, "chd");
-   tb.Btn (0, CC("guess chords\n"
-                 "   calculate whole song's chords\n"
-                 "   using notes of selected practice tracks"));
-   tb.Btn (1, CC("pop chords\n"
-                 "   plop some random happy pop chords into this section"));
-   tb.Btn (2, CC("delete all chords  (be carefulll)"));
+   tb.Btn (0, "guess chords\n"
+              "   calculate whole song's chords\n"
+              "   using notes of selected practice tracks");
+   tb.Btn (1, "pop chords\n"
+              "   plop some random happy pop chords into this section");
+   tb.Btn (2, "delete all chords  (be carefulll)");
    connect (tb.Act (0), & QAction::triggered,  this, [this]() {Cmd (CC("?"));});
    connect (tb.Act (1), & QAction::triggered,  this, [this]() {Cmd (CC("+"));});
    connect (tb.Act (2), & QAction::triggered,  this, [this]() {Cmd (CC("x"));});
@@ -201,13 +201,13 @@ TRC("DlgChd::Open");
      ColSep c (btw [i], 80);
       pop.InsLs (c.Col [0]);
       for (ubyte j = 1;  c.Col [j][0];  j++)
-         {StrCp (it, CC(" "));   StrAp (it, c.Col [j]);   pop.InsLs (it);}
+         {StrCp (it, " ");   StrAp (it, c.Col [j]);   pop.InsLs (it);}
    }
    StrCp (ch, Up.pos.str);   StrCp (s, ch);
    if (! nbtw)  {undo.Enable (false);   pop.InsLs (CC("(none)"), 0);}
    else {        undo.Enable (true);
-      if (! Up.pos.got)  StrCp (s, CC("(none)"));
-      StrCp (it, CC("restore "));   StrAp (it, s);   undo.Set (it);
+      if (! Up.pos.got)  StrCp (s, "(none)");
+      StrCp (it, "restore ");   StrAp (it, s);   undo.Set (it);
    }
    pop.Set (0);
 
@@ -217,7 +217,7 @@ TRC("DlgChd::Open");
   CtlList root (ui->root, c), type (ui->type), bass (ui->bass, c);
    type.ClrLs ();
    for (i = 0;  i < NMChd;  i++) {
-      StrCp (t, CC("............"));
+      StrCp (t, "............");
       for (j = 0;  MChd [i].tmp [j] != 'x';  j++)
          t [(ubyte)(MChd [i].tmp [j])] = IntvMap [(ubyte)(MChd [i].tmp [j])];
       StrFmt (s, "`<5s  `s  `s", MChd [i].lbl, t, MChd [i].etc?MChd [i].etc:"");
@@ -255,19 +255,19 @@ void DlgCtl::Upd ()
   ubyte c = _t.CurCol ();
   TStr  s;
    if (c != 3)  return;
-   StrCp (s, _t.Get (r, 2));   if (! StrCm (s, CC("-")))  return;
+   StrCp (s, _t.Get (r, 2));   if (! StrCm (s, "-"))  return;
 
    StrCp (s, _t.Get (r, 3));           // hide/mini/show
-   if      (*s == 'h')  StrCp (s, CC("mini"));
-   else if (*s == 'm')  StrCp (s, CC("show"));
-   else                 StrCp (s, CC("hide"));
+   if      (*s == 'h')  StrCp (s, "mini");
+   else if (*s == 'm')  StrCp (s, "show");
+   else                 StrCp (s, "hide");
    _t.Set (r, 3, s);
 }
 
 void DlgCtl::Init ()
 { ubyte i;
    *MLst = '\0';     ZZApS (MLst, CC("-"));
-   for (i = 0;  i < NMCC;  i++)  if (! StrCm (MCC [i].s, CC("keyCmd")))  break;
+   for (i = 0;  i < NMCC;  i++)  if (! StrCm (MCC [i].s, "keyCmd"))  break;
    while (i < NMCC)  ZZApS (MLst, MCC [i++].s);
 
    Gui.DlgLoad (this, "DlgCtl");
@@ -309,7 +309,7 @@ void DlgCtl::Quit ()  {Gui.DlgSave (this, "DlgCtl");}
 
 void DlgCue::Set (const char *s)
 { TStr s1, s2;
-   if (StrCm (CC(s), CC("```")))  StrCp (s1, CC(s));
+   if (StrCm (s, "```"))  StrCp (s1, s);
    else {
      CtlLine l (ui->str);
       StrCp (s1, l.Get ());
@@ -406,7 +406,7 @@ static bool SongOK (void *ptr, char dfx, char *fn)
 // find any a.song files and put em in (StrArr)ptr
 { StrArr *a = (StrArr *) ptr;
   ubyt4   ln = StrLn (fn);
-   if ( (dfx == 'f') && (ln > 7) && (! StrCm (& fn [ln-7], CC("/a.song"))) )
+   if ( (dfx == 'f') && (ln > 7) && (! StrCm (& fn [ln-7], "/a.song")) )
       {fn [ln-7] = '\0';   if (! a->Add (fn))  return true;}
    return false;
 }

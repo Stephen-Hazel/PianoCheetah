@@ -19,38 +19,42 @@ make a readme about bringin it to mac,win :/
 
 code____________________________________________________________________________
 
-lyr syllable hilight skips last one in line
-drum map won't let you map back to nothin
-give lyrics better color
+rebuild a.song a better way without moving dirs around
+   make search work within queue,learn,etc too
+   songlist - don't limit song fn width
 
-trills goin up down up don't show well
-   small little connected dots maybe?
-   put trill on thumb always
-   make BEAT variable h?
-   queue/hmmm/etc/MichelLegrand_BriansSong
+midicfg
+   why does reading midi cfg take so long?
+   dbg how drumz get wrecked
 
 dark mode
    desktop icon - how do i flip btw light/dark mode?
    redraw everythin on caught dark/light mode change
 
-rebuild a.song a better way without moving dirs around
-   make search work within queue,learn,etc too
-   songlist - don't limit song fn width
+w/recwipe needs to be fixed - dbg
+   recwipe erases Lrn tracks...  is that old??  i think rec stuff is in 98,99
+   playback recording wrecks stuff
 
-drag and drop for short way to do several ^ at a time, etc
+RELEASE EET
 
-midicfg
-   why does reading midi cfg take so long?
-   drumz get wrecked somehow
+lyr syllable hilight skips last one in line
+give lyrics better color
+
+trills goin up down up don't show well
+   sloppy chords show as trills...
+   small connected dots maybe?
+   put trill on thumb always
+   make BEAT variable h?
+   queue/hmmm/etc/MichelLegrand_BriansSong
+
+dragNdrop for track table n midicfg tables
+
+pipewire - check out _demo/play/wavsynth
 
 keycmd doesn't show on control list
 in track tooltip, show note range, and control list
 
 colors for sound groups?
-
-w/recwipe needs to be fixed - dbg
-   recwipe erases Lrn tracks...  is that old??  i think rec stuff is in 98,99
-   playback recording wrecks stuff
 
 hook up a track volume
 

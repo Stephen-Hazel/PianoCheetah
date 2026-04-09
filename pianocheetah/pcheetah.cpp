@@ -39,35 +39,34 @@ static void UCmdLoad ()
 { TStr fn, s, k;
   ulong i, c;
   StrArr t (CC("keycmd"), 50, 50*sizeof(TStr));
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/keycmd.txt"));   t.Load (fn);
+   App.Path (fn, 'd');   StrAp (fn, "/device/keycmd.txt");   t.Load (fn);
    for (i = 0;  i < t.num;  i++) {
       StrCp (s, t.str [i]);   if (*s == '#')  continue;
      ColSep ss (s, 3);
       for (c = 0;  c < NUCmd;  c++)
-         if (! StrCm (ss.Col [0], CC(UCmd [c].cmd)))  break;
+         if (! StrCm (ss.Col [0], UCmd [c].cmd))  break;
       if (c >= NUCmd) {
 DBG("device/keycmd.txt is broke - no cmd='`s'", ss.Col [0]);
          continue;
       }
       StrCp (UCmd [c].nt, ss.Col [1]);
       StrCp (UCmd [c].ky, ss.Col [2]);      // one weirdo: spc=>' '
-      if (! StrCm (UCmd [c].ky, CC("spc")))  StrCp (UCmd [c].ky, CC(" "));
+      if (! StrCm (UCmd [c].ky, "spc"))  StrCp (UCmd [c].ky, " ");
    }
 }
 
 static char *UCmdS (const char *cmd)   // return tooltip as "desc  [key note]"
 { static TStr o, k, n;
    *k = *n = '\0';
-   for (ubyte i = 0;  i < NUCmd;  i++)  if (! StrCm (CC(cmd),
-                                                     CC(UCmd [i].cmd))) {
+   for (ubyte i = 0;  i < NUCmd;  i++)  if (! StrCm (cmd, UCmd [i].cmd)) {
 DBG("cmd=`s desc=`s", cmd, UCmd [i].desc);
-      StrCp (k, CC(UCmd [i].ky));   if (*k == ' ')  StrCp (k, CC("space"));
-      StrCp (n, CC(UCmd [i].nt));   if (*n == '.')  *n = '\0';
-      StrCp (o, CC(UCmd [i].desc));
+      StrCp (k, UCmd [i].ky);   if (*k == ' ')  StrCp (k, "space");
+      StrCp (n, UCmd [i].nt);   if (*n == '.')  *n = '\0';
+      StrCp (o, UCmd [i].desc);
       if (*k || *n) {
-         StrAp (o, CC("  ["));
-         StrAp (o, k);   if (*k && *n)  StrAp (o, CC(" "));   StrAp (o, n);
-         StrAp (o, CC("]"));
+         StrAp (o, "  [");
+         StrAp (o, k);   if (*k && *n)  StrAp (o, " ");   StrAp (o, n);
+         StrAp (o, "]");
       }
 DBG("o=`s", o);
       return o;
@@ -89,7 +88,7 @@ DBG("sz0=`d sz1=`d w=`d wt=`d", sz[0], sz[1], w, wt);
 
 void PCheetah::GCfg ()  {_dCfg->Open ();}
 void PCheetah::MCfg ()  {DBG("gonna midicfg");
-                         StrCp (Kick, CC("midicfg"));   Gui.Quit ();}
+                         StrCp (Kick, "midicfg");   Gui.Quit ();}
 void PCheetah::LoadGo ()
 { TStr s;   emit sgCmd (StrFmt (s, "load `s", FL.lst [FL.pos]));  }
 
@@ -97,7 +96,7 @@ void PCheetah::Load ()  {emit sgCmd ("wipe");   _dFL->Open ();}
 
 
 static char *LstLen (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
-{  if (MemCm (ln, CC("DIDXX "), 6)) FL.xLen++;   return nullptr;  }
+{  if (MemCm (ln, "DIDXX ", 6)) FL.xLen++;   return nullptr;  }
 
 static File  Fw;
 
@@ -106,7 +105,7 @@ static char *LstGet (char *ln, ubyt2 len, ubyt4 pos, void *ptr)
   static ubyt4 n;
    StrFmt (o, "`s\n", ln);
    if (pos == 0)  n = 0;
-   if (MemCm (o, CC("DIDXX "), 6))
+   if (MemCm (o, "DIDXX ", 6))
       if (n++ == FL.xPos)  {StrCp (FL.xFn, ln);   StrFmt (o, "DIDXX `s\n", ln);}
    Fw.Put (o);   return nullptr;
 }
@@ -132,7 +131,7 @@ TRC("   xPos=`d xLen=`d xFn=`s dMid=`s", FL.xPos, FL.xLen, FL.xFn, dMid);
 
 // ok copy it to 4_queue/found
   TStr fr, to, frP, toP, cmd;
-   StrCp  (to, FL.xFn);   StrAp (to, CC(""), 4);   FnFix (to);
+   StrCp  (to, FL.xFn);   StrAp (to, "", 4);   FnFix (to);
    StrFmt (frP, "`s/`s",          dMid, FL.xFn);
    StrFmt (toP, "`s/`s/path.txt", dFnd, to);   f.Save (toP, frP, StrLn (frP));
    StrFmt (toP, "`s/`s/a.mid",    dFnd, to);   f.Copy (frP, toP);
@@ -201,7 +200,7 @@ void PCheetah::SongKill ()
   Path  d;
    if ((p = FL.pos) >= FL.lst.Ln)  return;
 TRC("SongKill `s", FL.lst [FL.pos]);
-   StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, CC("/4_queue/"));
+   StrCp (dr, FL.lst [p]);   App.Path (t, 'd');   StrAp (t, "/4_queue/");
    if (MemCm (dr, t, StrLn (t)))
       {Gui.Hey ("songKill only works in 4_queue dir");   return;}
 
@@ -240,7 +239,7 @@ TRC("dvt=`d name=`s", Up.trk [r].dvt, Up.dvt [Up.trk [r].dvt].Name ());
    }                                   // else fall thru to readonly
    if ((c == 3) || (c == 4)) {
      ubyte dvt = Up.trk [r].dvt;
-      if (Up.trk [r].drm && StrCm (Up.dvt [Up.trk [r].dvt].Name (), CC("syn")))
+      if (Up.trk [r].drm && StrCm (Up.dvt [Up.trk [r].dvt].Name (), "syn"))
          return '\0';                  // no sound editin on nonsyn drums
       if (c == 3)  Up.dvt [dvt].SGrp (ls,                 Up.trk [r].drm);
       if (c == 4)  Up.dvt [dvt].SNam (ls, Up.trk [r].grp, Up.trk [r].drm);
@@ -249,8 +248,8 @@ TRC("dvt=`d name=`s", Up.trk [r].dvt, Up.dvt [Up.trk [r].dvt].Name ());
    if (c == 5) {
      ubyte d = 0;
      TStr  n, t, x;
-      StrCp (ls, CC("+"));   ls += 2;
-      while (Midi.GetPos ('o', d++, n, t, x, x))  if (StrCm (t, CC("OFF")))
+      StrCp (ls, "+");   ls += 2;
+      while (Midi.GetPos ('o', d++, n, t, x, x))  if (StrCm (t, "OFF"))
          {StrCp (ls, n);   ls += (StrLn (n)+1);}
       *ls = '\0';
       return 'l';
@@ -306,7 +305,7 @@ void PCheetah::Upd (QString upd)
   ubyte i;
    StrCp (u, UnQS (upd));
 //TRC("Upd `s", u);
-   for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, CC(UCmd [i].cmd)))  break;
+   for (i = 0;  i < NUCmd;  i++)  if (! StrCm (u, UCmd [i].cmd))  break;
    if (i < NUCmd) {
       if (i > 5)  emit sgCmd (upd);
       else  switch (i) {
@@ -527,7 +526,7 @@ TRC(" tbar init");
                          this, [this]() {emit sgCmd ("trkEd d");});
    _tb.Sep (28);
 
-   _tb.Btn (29, CC("(I just show the song filename in fullscreen)"), "*...");
+   _tb.Btn (29, "(I just show the song filename in fullscreen)", "*...");
    connect (_tb.Act (29), & QAction::triggered,  this, & PCheetah::Trak);
 }
 
@@ -558,7 +557,7 @@ TRC("Init");
    _dTpo = nullptr;   _dTSg = nullptr;   _dKSg = nullptr;
    _dQua = nullptr;   _dMov = nullptr;   _dHlp = nullptr;
 
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/device.txt"));
+   App.Path (fn, 'd');   StrAp (fn, "/device/device.txt");
    if (! f.Size (fn))  return MCfg ();      // ain't no point in goin on
 
 TRC(" got device.txt");
@@ -566,7 +565,7 @@ TRC(" got device.txt");
   ubyte i = 0;
   TStr  nm, ty, ds, dv;
    while (Midi.GetPos ('o', i++, nm, ty, ds, dv))
-      if (StrCm (ty, CC("OFF")) && (*dv == '?'))
+      if (StrCm (ty, "OFF") && (*dv == '?'))
          {Gui.Hey (StrFmt (dv, "Hey! `s: `s (`s)  is off, pal...",
                                nm, ty, ds));   break;}
    UCmdLoad ();
