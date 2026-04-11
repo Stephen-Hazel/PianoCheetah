@@ -10,9 +10,9 @@ void MidiCfg::InitDevType ()
   StrArr a;
   ubyt2  n, i, q;
   char  *p;
-   App.Path (dev, 'd');   StrAp (dev, CC("/device"));
+   App.Path (dev, 'd');   StrAp (dev, "/device");
    a.GetDir (dev);   n = a.NRow ();
-   StrCp (DevTyp, CC("OFF"));
+   StrCp (DevTyp, "OFF");
    for (q = 4, i = 0;  i < n;  i++)    // make a zz str for gui
       {StrCp (& DevTyp [q], p = a.Get (i));   q += StrLn (p) + 1;}
    DevTyp [q] = '\0';
@@ -25,19 +25,12 @@ void MidiCfg::InitDevType ()
 }
 
 
-char TPop (char *ls, ubyt2 r, ubyte c)
-{  *ls = '\0';
-   if (c == 1) {ZZCp (ls, DevTyp);   return 'l';}
-   if (c == 0)                       return 'e';
-   return '\0';
-}
-
-
 void MidiCfg::ShutMIn ()
 {  while (_nMI) {                      // shut midi ins
       --_nMI;
       disconnect (_mi [_nMI], & MidiI::MidiIEv, this, & MidiCfg::MidiIEv);
-      delete _mi [_nMI];   _mi [_nMI] = nullptr;
+      delete _mi [_nMI];               // kinda slowww cuz thread end wait
+      _mi [_nMI] = nullptr;
    }
 }
 
@@ -45,11 +38,9 @@ void MidiCfg::ShutMIn ()
 void MidiCfg::RedoMIn ()
 { TStr  iname, t, xs;
   ubyte i;
-DBG("RedoMIn bgn");
    ShutMIn ();
    i = 0;
-   while (Midi.GetPos ('i', i++, iname, t, xs, xs))
-                                                    if (StrCm (t, CC("OFF"))) {
+   while (Midi.GetPos ('i', i++, iname, t, xs, xs))  if (StrCm (t, "OFF")) {
       if (_nMI == BITS (_mi))  break;  // got room?
       _mi [_nMI] = new MidiI (iname);
       connect (_mi [_nMI], & MidiI::MidiIEv, this, & MidiCfg::MidiIEv);
@@ -61,15 +52,14 @@ DBG("RedoMIn bgn");
 DBG("Eh, oooone mo taaaahm");
       ShutMIn ();
       i = 0;
-      while (Midi.GetPos ('i', i++, iname, t, xs, xs))
-                                                    if (StrCm (t, CC("OFF"))) {
+      while (Midi.GetPos ('i', i++, iname, t, xs, xs))  if (StrCm (t, "OFF")) {
          if (_nMI == BITS (_mi))  break;    // got room?
          _mi [_nMI] = new MidiI (iname);
          connect (_mi [_nMI], & MidiI::MidiIEv, this, & MidiCfg::MidiIEv);
          _nMI++;
       }
    }
-DBG("RedoMIn end");
+   Load ();
 }
 
 
@@ -98,16 +88,16 @@ void MidiCfg::Load ()
       if  (*dv == '?')  {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
   bool syn = false;                    // add syn if missin
    for (i = 0;  Midi.GetPos ('o', i, nm, ty, ds, dv);  i++) {
-      if (! StrCm (ty, CC("syn")))  syn = true;
-      if ((*dv == '?') && (StrCm (ty, CC("syn"))))
+      if (! StrCm (ty, "syn"))  syn = true;
+      if ((*dv == '?') && (StrCm (ty, "syn")))
                         {StrFmt (chk, "`s/`s/`s", nm, ty, ds);   break;}
    }
    if ((! syn) && (Midi._len < MAX_DEV)) {
              Midi._lst [Midi._len].io = 'o';
-      StrCp (Midi._lst [Midi._len].name, CC("syn"));
-      StrCp (Midi._lst [Midi._len].type, CC("syn"));
-      StrCp (Midi._lst [Midi._len].desc, CC("PianoCheetah Synthesizer"));
-      StrCp (Midi._lst [Midi._len].dev,  CC("!"));
+      StrCp (Midi._lst [Midi._len].name, "syn");
+      StrCp (Midi._lst [Midi._len].type, "syn");
+      StrCp (Midi._lst [Midi._len].desc, "PianoCheetah Synthesizer");
+      StrCp (Midi._lst [Midi._len].dev,  "!");
       Midi._len++;
    }
    if (*chk) {
@@ -142,11 +132,9 @@ void MidiCfg::Load ()
   StrArr t (CC("cfg"), 2, 2*sizeof(TStr));
   CtlList so (ui->lstSyn);
   CtlSpin bu (ui->spbBuf);
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/syn/cfg.txt"));   t.Load (fn);
+   App.Path (fn, 'd');   StrAp (fn, "/device/syn/cfg.txt");   t.Load (fn);
    if (t.str [0][0])  so.SetS (         t.str [0]);    else so.Set (0);
    if (t.str [1][0])  bu.Set  (Str2Int (t.str [1]));   else bu.Set (64);
-
-   RedoMIn ();
 }
 
 
@@ -156,9 +144,10 @@ void MidiCfg::Save ()
   ubyte i, d, n;
   bool  got;
   File  f;
+DBG("Save bgn");
    if (Midi._len == 0)
       Gui.Hey ("You don't SEEM to have any midi devices :(");
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/device.txt"));
+   App.Path (fn, 'd');   StrAp (fn, "/device/device.txt");
    if (! f.Open (fn, "w"))
       {Gui.Hey ("Save couldn't write device.txt");   return;}
 // in
@@ -169,13 +158,13 @@ void MidiCfg::Save ()
       "MidiIn:\n"));
    for (i = 0;  i < Midi._len;  i++)
       if ((Midi._lst [i].io == 'i') &&
-             StrCm (Midi._lst [i].type, CC("OFF")) )
+             StrCm (Midi._lst [i].type, "OFF") )
          f.Put (StrFmt (buf, "`s  `s  `s\n",
             Midi._lst [i].name, Midi._lst [i].type, Midi._lst [i].desc));
 // OFFs last...
    for (i = 0;  i < Midi._len;  i++)
       if ((Midi._lst [i].io == 'i') &&
-          (! StrCm (Midi._lst [i].type, CC("OFF"))))
+          (! StrCm (Midi._lst [i].type, "OFF")))
          f.Put (StrFmt (buf, "`s  `s  `s\n",
             Midi._lst [i].name, Midi._lst [i].type, Midi._lst [i].desc));
 // out
@@ -184,12 +173,12 @@ void MidiCfg::Save ()
       "MidiOut:\n"));
    for (i = 0;  i < Midi._len;  i++)
       if ((Midi._lst [i].io == 'o') &&
-             StrCm (Midi._lst [i].type, CC("OFF")) )
+             StrCm (Midi._lst [i].type, "OFF") )
          f.Put (StrFmt (buf, "`s  `s  `s\n",
             Midi._lst [i].name, Midi._lst [i].type, Midi._lst [i].desc));
    for (i = 0;  i < Midi._len;  i++)
       if ((Midi._lst [i].io == 'o') &&
-          (! StrCm (Midi._lst [i].type, CC("OFF"))))
+          (! StrCm (Midi._lst [i].type, "OFF")))
          f.Put (StrFmt (buf, "`s  `s  `s\n",
             Midi._lst [i].name, Midi._lst [i].type, Midi._lst [i].desc));
    f.Shut ();
@@ -197,11 +186,21 @@ void MidiCfg::Save ()
   CtlList so (ui->lstSyn);
   CtlSpin bu (ui->spbBuf);
   TStr s, s1;
-   App.Path (fn, 'd');   StrAp (fn, CC("/device/syn/cfg.txt"));
+   App.Path (fn, 'd');   StrAp (fn, "/device/syn/cfg.txt");
    StrFmt (s, "`s\n`d\n", so.GetS (s1), bu.Get ());
    f.Save (fn, s, StrLn (s));
+DBG("Save start Reload");
 
    emit Reload ();
+DBG("Save end");
+}
+
+
+char TPop (char *ls, ubyt2 r, ubyte c)
+{  *ls = '\0';
+   if (c == 1) {ZZCp (ls, DevTyp);   return 'l';}
+   if (c == 0)                       return 'e';
+   return '\0';
 }
 
 
@@ -258,9 +257,9 @@ void MidiCfg::Updt ()
    }
    if (c == 1)
       for (ro = 0;  ro < Midi._len;  ro++) {
-         if (StrCm (ty, CC("OFF"))) {  // only do both i,o if NOT goin OFF
+         if (StrCm (ty, "OFF")) {      // only do both i,o if NOT goin OFF
             if (! StrCm (Midi._lst [ro].desc, ds))
-               if (StrCm (Midi._lst [ro].type, CC("OFF")) ||
+               if (StrCm (Midi._lst [ro].type, "OFF") ||
                          (Midi._lst [ro].io == _io))  // only THIS rec
                   StrCp (Midi._lst [ro].type, ty);
          }
@@ -292,7 +291,7 @@ void MidiCfg::TestI (ubyte mi, MidiEv e)
    if      (e.ctrl < 128)           // note
       MNt2Str (& buf [StrLn (buf)], & e);
    else if (e.ctrl < MC_CC) {       // std midi ctrl
-      if (e.ctrl > MC_PBND)  StrAp (buf, CC("?"));
+      if (e.ctrl > MC_PBND)  StrAp (buf, "?");
       else {
          StrFmt (& buf [StrLn (buf)], "`s=`d",
             CtrlSt [e.ctrl-128], (e.ctrl == MC_PBND) ? (e.valu-64) : e.valu);
@@ -309,14 +308,14 @@ void MidiCfg::TestI (ubyte mi, MidiEv e)
    ln = 0;
    for (i = 0;  i < StrLn (t);  i++)  if (t [i] == '\n')  ln++;
    if (ln >= 20)  StrCp (t, StrCh (t, '\n') + 1);
-   StrAp (t, buf);   StrAp (t, CC("\n"));
+   StrAp (t, buf);   StrAp (t, "\n");
    lb.Set (t);
 }
 
 
 void MidiCfg::TestO ()
 {  if (_to.CurRow () < 0)  return;
-   if (! StrCm (_to.Get (_to.CurRow (), 1), CC("syn")))  return;
+   if (! StrCm (_to.Get (_to.CurRow (), 1), "syn"))  return;
   MidiO m (_to.Get (_to.CurRow (), 0), 'x');    // no gm init
    m.Put (9, MDrm(CC("snar")), 0x80|90);   m.Put (0, MKey (CC("4C")), 0x80|90);
    Zzz (300);                          // 3/10 sec
@@ -343,11 +342,11 @@ DBG("Init");
    bu.Set (64);
   CtlTBar tb;
    tb.Init (this, "app");
-   tb.Btn (0, CC("Refresh device lists\n"
-                 "(if you've added/removed/forgot to power on devices)"));
-   tb.Btn (1, CC("Scoot device up a row"));
-   tb.Btn (2, CC("Scoot device down a row"));
-   connect (tb.Act (0), & QAction::triggered,  this, & MidiCfg::Load);
+   tb.Btn (0, "Refresh device lists\n"
+              "(if you've added/removed/forgot to power on devices)");
+   tb.Btn (1, "Scoot device up a row");
+   tb.Btn (2, "Scoot device down a row");
+   connect (tb.Act (0), & QAction::triggered,  this, & MidiCfg::RedoMIn);
    connect (tb.Act (1), & QAction::triggered,  this, & MidiCfg::Up);
    connect (tb.Act (2), & QAction::triggered,  this, & MidiCfg::Dn);
    _ti.Init  (ui->tblI,
@@ -368,7 +367,9 @@ DBG("Init");
 
    connect (this, & MidiCfg::Reload, this, & MidiCfg::Load,
             Qt::QueuedConnection);
-   emit Reload ();
+   Midi.Load ();
+   RedoMIn ();
+   Load ();
    _io = 'i';   _ti.HopTo (0, 0);
 DBG("Init end");
 }

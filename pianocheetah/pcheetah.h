@@ -1,8 +1,6 @@
 // pcheetah.h - PianoCheetah - Steve's weird midi sequencer
 
-#ifndef PCHEETAH_H
-#define PCHEETAH_H
-
+#pragma once
 #include "ui_pcheetah.h"
 #include "ui_dlgcfg.h"
 #include "ui_dlgfl.h"
@@ -417,6 +415,3 @@ public slots:
 signals:
    void sgCmd (QString cmd);           // shhh, load, draw, cmds, etc
 };
-
-
-#endif // PCHEETAH_H

@@ -1,8 +1,6 @@
 // song.h - thread dealin w song data, midi, timer - da guts
 
-#ifndef SONG_H
-#define SONG_H
-
+#pragma once
 #include "glo.h"
 
 // lrn modes:  hear, hearRec, practice, play
@@ -302,6 +300,3 @@ signals:
    void sgCmd (QString cmd);
    void sgUpd (QString upd);           // gui talkin
 };
-
-
-#endif // SONG_H

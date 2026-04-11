@@ -19,13 +19,9 @@ make a readme about bringin it to mac,win :/
 
 code____________________________________________________________________________
 
-rebuild a.song a better way without moving dirs around
-   make search work within queue,learn,etc too
-   songlist - don't limit song fn width
+midicfg - dbg how drumz get wrecked
 
-midicfg
-   why does reading midi cfg take so long?
-   dbg how drumz get wrecked
+pipewire - keep on f'in that chicken
 
 dark mode
    desktop icon - how do i flip btw light/dark mode?
@@ -37,19 +33,13 @@ w/recwipe needs to be fixed - dbg
 
 RELEASE EET
 
-lyr syllable hilight skips last one in line
-give lyrics better color
-
-trills goin up down up don't show well
-   sloppy chords show as trills...
-   small connected dots maybe?
-   put trill on thumb always
-   make BEAT variable h?
-   queue/hmmm/etc/MichelLegrand_BriansSong
-
-dragNdrop for track table n midicfg tables
-
-pipewire - check out _demo/play/wavsynth
+FLst
+   make search work within queue,learn,etc too
+   hittin esc w no song should quit pc
+lyr
+   hilight skips last one in line
+   give em better color
+dragNdrop for track table, FLst table, n midicfg tables
 
 keycmd doesn't show on control list
 in track tooltip, show note range, and control list
@@ -58,6 +48,13 @@ colors for sound groups?
 
 hook up a track volume
 
+trills goin up down up don't show well
+   need to detect trills versus sloppy chords (play trill vs one chord note)
+   always anchor trill on thumb - pinky trill ain't fun
+   show trills as small connected dots?
+      somehow so they don't overlap when going 1 2 1 2 1
+   make BEAT variable h?  (not just bar)
+   queue/hmmm/etc/MichelLegrand_BriansSong
 really test notes picked for ez tracks
    get that note match "text report" into dbg
       to notice places to make things better

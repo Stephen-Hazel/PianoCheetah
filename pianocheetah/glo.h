@@ -1,8 +1,6 @@
 // glo.h - global vars sigh
 
-#ifndef GLO_H
-#define GLO_H
-
+#pragma once
 #include "stv/ui.h"
 #include "stv/timer.h"
 #include "stv/syn.h"
@@ -195,6 +193,3 @@ extern FLstDef FL;
 
 
 extern ubyte ChdBtw (TStr **out, char *i1, char *i2);      // in sChd.cpp
-
-
-#endif  // GLO_H

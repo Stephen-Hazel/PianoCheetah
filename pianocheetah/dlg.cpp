@@ -594,7 +594,7 @@ void DlgFL::ReDo ()                    // FL.lst/FL.pos => gui tbl
       _t.Put (ro);
    }
    _t.Shut ();
-   if (_t.ColW (1) > 600)  _t.SetColW (1, 600);  // or we get scrollin right :(
+// if (_t.ColW (1) > 600)  _t.SetColW (1, 600);  // or we get scrollin right :(
    _t.HopTo (FL.pos, 0);
    Pik ();
 }

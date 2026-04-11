@@ -502,28 +502,28 @@ TRC(" tbar init");
    _tb.Sep (21);
 
 // editing stuff
-   _tb.Btn (22, "split the learn track (3E and below) into new LH track", "d");
-   _tb.Btn (23, "make drum track from clips", "d");
+   _tb.Btn (22, "scoot track up", "d");
+   _tb.Btn (23, "scoot track down", "d");
    _tb.Btn (24, "insert track", "d");
    _tb.Btn (25, "delete track", "d");
-   _tb.Btn (26, "scoot track up", "d");
-   _tb.Btn (27, "scoot track down", "d");
+   _tb.Btn (26, "split the learn track (3E and below) into new LH track", "d");
+   _tb.Btn (27, "make drum track from clips", "d");
 // "time scaling - for { to } => } scales to ^"
 //    this, [this]() {emit sgCmd ("trkEd *");});
 // "time offsetting - for { to end => { moves to ^"
 //    this, [this]() {emit sgCmd ("trkEd -");});
    connect (_tb.Act (22), & QAction::triggered,
-                          this, [this]() {emit sgCmd ("trkEd sp");});
+                          this, [this]() {emit sgCmd ("trkEd u");});
    connect (_tb.Act (23), & QAction::triggered,
-                          this, [this]() {emit sgCmd ("preTDr");});
+                          this, [this]() {emit sgCmd ("trkEd d");});
    connect (_tb.Act (24), & QAction::triggered,
                           this, [this]() {emit sgCmd ("trkEd +");});
    connect (_tb.Act (25), & QAction::triggered,
                           this, [this]() {emit sgCmd ("trkEd x");});
    connect (_tb.Act (26), & QAction::triggered,
-                          this, [this]() {emit sgCmd ("trkEd u");});
+                          this, [this]() {emit sgCmd ("trkEd sp");});
    connect (_tb.Act (27), & QAction::triggered,
-                         this, [this]() {emit sgCmd ("trkEd d");});
+                          this, [this]() {emit sgCmd ("preTDr");});
    _tb.Sep (28);
 
    _tb.Btn (29, "(I just show the song filename in fullscreen)", "*...");

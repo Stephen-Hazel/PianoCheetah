@@ -1,8 +1,6 @@
 // ctlNt.h
 
-#ifndef CTLNT_H
-#define CTLNT_H
-
+#pragma once
 #include "glo.h"
 
 class CtlNt: public QWidget {
@@ -45,5 +43,3 @@ protected:                             // our main bg pixmap is in Up.pm
 // setMouseTracking(true) to get mousemoves even while no button held
 // underMouse to see if mouse is over me
 };
-
-#endif // CTLNT_H
