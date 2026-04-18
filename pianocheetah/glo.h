@@ -171,7 +171,7 @@ extern QColor CScl [2][12];
 //______________________________________________________________________________
 struct CfgDef {
 // global settings from etc/cfg.txt       (global prefs for all songs)
-   ubyte ntCo, sVol;                   // note color, syn vol
+   ubyte ntCo;                         // note color
    bool  barCl;                        // send bar# to clipboard? (for lyr edit)
    void  Init (), Load (), Save ();    // for global settings (not song)
    sbyte tran;

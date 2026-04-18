@@ -17,9 +17,6 @@ TRC("Song::Init bgn");
       QObject::connect (_mi [d].mi, & MidiI::MidiIEv, this, & Song::MIn);
    CCMapLoad ();
    Wipe ();
-   if (Sy.Dead () && StrCm (Sy._snDsc, CC("OFF")))  Die (CC(
-      "Another app owns sound device.\n"
-      "So no Syn till you close that app and restart PianoCheetah :("));
 TRC("Song::Init end");
 }
 

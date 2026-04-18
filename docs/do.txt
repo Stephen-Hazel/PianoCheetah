@@ -12,16 +12,12 @@ play, study magic singable dumb songs, pick out riffs, make a SONG
 
 try to find all the good rush sounds
 
-make a video for that piano guy
-beat cheat sheet
-make a readme about bringin it to mac,win :/
-
 
 code____________________________________________________________________________
 
 midicfg - dbg how drumz get wrecked
 
-pipewire - keep on f'in that chicken
+pipewire - gettin closer - i guessss add syn to midicfg?
 
 dark mode
    desktop icon - how do i flip btw light/dark mode?
@@ -86,9 +82,6 @@ restamp pianocheetah.tar.gz with EXACT defaults doc.txt mentions
 
 
 really squish track display (tooltip everything - esp sounds)
-
-figure out drag n drop?
-
 
 
 spec____________________________________________________________________________

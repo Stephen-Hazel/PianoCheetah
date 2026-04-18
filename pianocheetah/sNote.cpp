@@ -421,11 +421,11 @@ TRC("DrawPg `d", pp);
          Up.cnv.RectF (x+1, co.h-1, 4, 1, cbar);
          Up.cnv.RectF (x,   co.h,   4, 1, cbar);
       }
-TStr s1,s2,s3,s4;
-DBG("c=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d "
-"qx=`d nx=`d cx=`d qw=`d nw=`d",
-c,TmSt(s1,tMn),TmSt(s2,tMx),
-MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
+//TStr s1,s2,s3,s4;
+//DBG("c=`d tMn=`s tMx=`s nMn=`s nMx=`s w=`d h=`d x=`d "
+//"qx=`d nx=`d cx=`d qw=`d nw=`d",
+//c,TmSt(s1,tMn),TmSt(s2,tMx),
+//MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
 
    // draw bg horiz rect (white&black keyboard);  label octaves at b|c
       Up.cnv.SetFg (COct);
@@ -559,9 +559,9 @@ MKey2Str(s3,co.nMn),MKey2Str(s4,co.nMx),co.w,co.h,co.x, qx,nx,cx,qw,nw);
             MKey2Str (snt, co.oMx [oc]);   w = W_NTW*(snt[1]-snm[1]+1);
          }
       else {
-DBG("midc=`d nmn=`d nmx=`d", midc, co.nMn, co.nMx);
+//DBG("midc=`d nmn=`d nmx=`d", midc, co.nMn, co.nMx);
          if ((co.nMn < midc) && (midc < co.nMx)) {
-DBG("   did it");
+//DBG("   did it");
             Up.cnv.RectF (Nt2X (midc, & co), H_KB, 1, co.h-H_KB, CScl [1][0]);
          }
       }

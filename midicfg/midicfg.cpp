@@ -16,12 +16,6 @@ void MidiCfg::InitDevType ()
    for (q = 4, i = 0;  i < n;  i++)    // make a zz str for gui
       {StrCp (& DevTyp [q], p = a.Get (i));   q += StrLn (p) + 1;}
    DevTyp [q] = '\0';
-
-   Snd.Load ();
-  CtlList so (ui->lstSyn);
-   so.ClrLs ();
-   for (i = 0;  i < Snd.len;  i++)  so.InsLs (Snd.lst [i].desc);
-   so.InsLs (CC("OFF"));
 }
 
 
@@ -126,15 +120,6 @@ void MidiCfg::Load ()
    if (pio == 'o')  {_ti.HopTo (ri, 0);   _to.HopTo (ro, 0);}
    else             {_to.HopTo (ro, 0);   _ti.HopTo (ri, 0);}
    _io = pio;
-
-// now syn cfgs
-  TStr fn, s;
-  StrArr t (CC("cfg"), 2, 2*sizeof(TStr));
-  CtlList so (ui->lstSyn);
-  CtlSpin bu (ui->spbBuf);
-   App.Path (fn, 'd');   StrAp (fn, "/device/syn/cfg.txt");   t.Load (fn);
-   if (t.str [0][0])  so.SetS (         t.str [0]);    else so.Set (0);
-   if (t.str [1][0])  bu.Set  (Str2Int (t.str [1]));   else bu.Set (64);
 }
 
 
@@ -183,14 +168,7 @@ DBG("Save bgn");
             Midi._lst [i].name, Midi._lst [i].type, Midi._lst [i].desc));
    f.Shut ();
 
-  CtlList so (ui->lstSyn);
-  CtlSpin bu (ui->spbBuf);
-  TStr s, s1;
-   App.Path (fn, 'd');   StrAp (fn, "/device/syn/cfg.txt");
-   StrFmt (s, "`s\n`d\n", so.GetS (s1), bu.Get ());
-   f.Save (fn, s, StrLn (s));
 DBG("Save start Reload");
-
    emit Reload ();
 DBG("Save end");
 }
@@ -338,8 +316,6 @@ DBG("Init");
   TStr  fn;
   File  f;
   ulong ln;
-  CtlSpin bu (ui->spbBuf, 32, 128);
-   bu.Set (64);
   CtlTBar tb;
    tb.Init (this, "app");
    tb.Btn (0, "Refresh device lists\n"

@@ -59,7 +59,7 @@ static char *UCmdS (const char *cmd)   // return tooltip as "desc  [key note]"
 { static TStr o, k, n;
    *k = *n = '\0';
    for (ubyte i = 0;  i < NUCmd;  i++)  if (! StrCm (cmd, UCmd [i].cmd)) {
-DBG("cmd=`s desc=`s", cmd, UCmd [i].desc);
+//DBG("cmd=`s desc=`s", cmd, UCmd [i].desc);
       StrCp (k, UCmd [i].ky);   if (*k == ' ')  StrCp (k, "space");
       StrCp (n, UCmd [i].nt);   if (*n == '.')  *n = '\0';
       StrCp (o, UCmd [i].desc);
@@ -68,7 +68,7 @@ DBG("cmd=`s desc=`s", cmd, UCmd [i].desc);
          StrAp (o, k);   if (*k && *n)  StrAp (o, " ");   StrAp (o, n);
          StrAp (o, "]");
       }
-DBG("o=`s", o);
+//DBG("o=`s", o);
       return o;
    }
    return CC("");

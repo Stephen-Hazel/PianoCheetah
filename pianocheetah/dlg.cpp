@@ -12,7 +12,6 @@ void CfgDef::Init ()                   // default the global settings
 {  tran   = 0;                         // tran comes from .song
    ntCo   = 0;                         // scale
    barCl  = false;
-   sVol   = 30;
 }
 
 void CfgDef::Load ()                   // load global settings
@@ -28,9 +27,7 @@ TRC("CfgDef::Load");
       *p = '\0';   StrCp (v, p+1);
       if (StrSt (s, CC("ntCo"  )))  Cfg.ntCo   = (ubyte)Str2Int (v);
       if (StrSt (s, CC("barCl" )))  Cfg.barCl  = (*v == 'y') ? true:false;
-      if (StrSt (s, CC("sVol"  )))  Cfg.sVol   = (ubyte)Str2Int (v);
    }
-   Sy._vol = (real)Cfg.sVol / 100.0;
 }
 
 void CfgDef::Save ()                   // save global settings
@@ -38,8 +35,8 @@ void CfgDef::Save ()                   // save global settings
   TStr fn;
   File f;
 TRC("CfgDef::Save");
-   StrFmt (buf, "ntCo=`d\n"  "barCl=`s\n"   "sVol=`d\n",
-                 ntCo,        barCl?"y":"n", sVol);
+   StrFmt (buf, "ntCo=`d\n"  "barCl=`s\n",
+                 ntCo,        barCl?"y":"n");
    App.Path (fn, 'c');   StrAp (fn, "/cfg.txt");
    f.Save (fn, buf, StrLn (buf));
 }
@@ -50,10 +47,8 @@ void DlgCfg::Open ()
 { TStr ts;
 TRC("DlgCfg::Open");
   CtlSpin tr (ui->tran, -12, 12);
-  CtlSldr s  (ui->sVol, 0, 100);
   CtlChek b  (ui->barCl), t (ui->trc);
    tr.Set (Cfg.tran);
-   s.Set  (Cfg.sVol);
    b.Set  (Cfg.barCl);   t.Set (App.trc);
    show ();   raise ();   activateWindow ();
 }
@@ -62,22 +57,15 @@ void DlgCfg::Shut ()                   // set em n save em
 { TStr ts;
 TRC("DlgCfg.Shut");
   CtlSpin tr (ui->tran);
-  CtlSldr s  (ui->sVol);
   CtlChek b  (ui->barCl), t (ui->trc);
    Cfg.tran  = tr.Get ();
-   Cfg.sVol  = s.Get ();
    Cfg.barCl = b.Get ();   App.TrcPut (t.Get ());
    Cfg.Save ();                        // in case we die early :/
-   Sy._vol = (real)Cfg.sVol / 100.0;
    done (true);   lower ();   hide ();
 }
 
 void DlgCfg::Init ()
 {  Cfg.Load ();   Gui.DlgLoad (this, "DlgCfg");
-   connect (ui->sVol, & QSlider::valueChanged, this, [this]() {
-     CtlSldr s (ui->sVol);
-      Sy._vol = (real)s.Get () / 100.0;
-   });
    connect (ui->quan, & QPushButton::clicked, this, [this]()
    {  emit sgCmd (CC("quan"));
    });
