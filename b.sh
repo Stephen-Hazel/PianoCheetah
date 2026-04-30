@@ -30,6 +30,8 @@ echo "...uninstall old one\n";
               "/home/sh/src/pianocheetah/.$fb/cache $app");
       system ("$f install --reinstall --user --assumeyes ".
               "/home/sh/src/pianocheetah/.$fb/cache $app".".Debug");
+      system ("echo x " .
+             ">/home/sh/.var/app/app.pianocheetah.pianocheetah/config/dbg.txt");
       exit;
    }
 

@@ -390,8 +390,8 @@ private:
    void SongKill ();
 
 protected:
-// virtual bool event (QEvent *e) override;
    void keyPressEvent (QKeyEvent *e);
+   void changeEvent   (QEvent    *e);
 
 public slots:
    void GCfg   ();

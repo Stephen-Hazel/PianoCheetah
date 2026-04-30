@@ -17,15 +17,17 @@ class MidiCfg: public QMainWindow {
    Q_OBJECT
 private:
    Ui::MidiCfg *ui;
-   MidiI *_mi [16];
-   ubyte _nMI;
-   char   _io;
+   MidiI  *_mi [16];
+   ubyte  _nMI;
+   CtlTBar _tb;
+   char    _io;
    CtlTabl _ti, _to;
 
    void Save (),  Mv (char du);
 
 protected:
    bool eventFilter (QObject *ob, QEvent *ev);
+   void changeEvent (QEvent *ev);
 
 public:
    MidiCfg (QWidget *par = nullptr)

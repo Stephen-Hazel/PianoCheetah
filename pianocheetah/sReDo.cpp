@@ -30,7 +30,7 @@ void Song::ReTrk ()
       else
          if (*s != 'S')  *s = '\0';
       StrCp (Up.trk [r].ht, s);
-DBG("tr=`d lrn='`s' ht='`s'", r, Up.trk [r].lrn, Up.trk [r].ht);
+//DBG("tr=`d lrn='`s' ht='`s'", r, Up.trk [r].lrn, Up.trk [r].ht);
       StrCp (Up.trk [r].name, _f.trk [r].name);
       StrCp (s, SndName (r));
       *g = '\0';

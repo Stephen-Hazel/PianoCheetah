@@ -1,4 +1,4 @@
- // pcheetah.cpp - PianoCheetah - Steve's weird midi sequencer
+// pcheetah.cpp - PianoCheetah - Steve's weird midi sequencer
 
 #include "pcheetah.h"
 
@@ -322,7 +322,7 @@ void PCheetah::Upd (QString upd)
    if (! StrCm (u, "ttl"))  _tb.Act (29)->setText (Up.ttl);
 
    if (! StrCm (u, "FLdn")) {if (FL.pos < FL.lst.Ln-1)
-                                              {++FL.pos;   _dFL->ReDo ();}}
+                                          {++FL.pos;   _dFL->ReDo ();}}
    if (! StrCm (u, "FLup")) {if (FL.pos)  {--FL.pos;   _dFL->ReDo ();}}
    if (! StrCm (u, "FLgo")) {_dFL->Shut ();   LoadGo ();}
    if (! StrCm (u, "FLex")) {_dFL->Shut ();   Gui.Quit ();}
@@ -420,6 +420,17 @@ DBG("   keystr='`s'", s);
 }
 
 
+void PCheetah::changeEvent (QEvent *ev)
+{  QMainWindow::changeEvent (ev);
+   if (ev->type () == QEvent::ApplicationPaletteChange ||
+       ev->type () == QEvent::PaletteChange) {
+DBG("dark/light change");
+      Gui.ReIco ();   _tb.ReDo ();   _nt->update ();
+DBG("dark/light done");
+   }
+}
+
+
 void PCheetah::SetPix ()               // all dem bitmaps
 {  Up.bug  = new QPixmap (":/note/bug");
    Up.cue  = new QPixmap (":/note/cue");
@@ -441,7 +452,7 @@ TRC(" tbar init");
 
 // global-y
    _tb.Btn (0, UCmdS ("fullScr"));
-   _tb.Btn (1, "configure midi devices");
+   _tb.Btn (1, "configure midi devices", "d");
    _tb.Btn (2, "settings and junk");
    connect (_tb.Act (0), & QAction::triggered,  this, & PCheetah::Trak);
    connect (_tb.Act (1), & QAction::triggered,  this, & PCheetah::MCfg);
@@ -529,21 +540,6 @@ TRC(" tbar init");
    _tb.Btn (29, "(I just show the song filename in fullscreen)", "*...");
    connect (_tb.Act (29), & QAction::triggered,  this, & PCheetah::Trak);
 }
-
-
-/*
-bool PCheetah::event (QEvent *e)
-{  if (e->type () == QEvent::ApplicationPaletteChange) {
-DBG("dark/light change");
-      update ();
-DBG("reico,retb");
-      Gui.ReIco ();
-      _tb.ReDo ();
-DBG("dark/light done");
-   }
-   return QApplication::event (e);
-}
-*/
 
 
 void PCheetah::Init ()
@@ -688,7 +684,7 @@ int main (int argc, char *argv [])
   QApplication app (argc, argv);
   PCheetah     win;
    App.Init ();                        //TODO scrsaver off.  limit one instance?
-   Gui.Init (& app, & win, "PianoCheetah", "d");   win.Init ();   RandInit ();
+   Gui.Init (& app, & win, "PianoCheetah", 'd');   win.Init ();   RandInit ();
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<sbyt2>("sbyt2");
    qRegisterMetaType<Qt::MouseButton >("Qt::MouseButton" );

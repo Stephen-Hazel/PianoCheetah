@@ -250,15 +250,6 @@ void MidiCfg::Updt ()
 
 
 //------------------------------------------------------------------------------
-bool MidiCfg::eventFilter (QObject *ob, QEvent *ev)
-{  if (ev->type () == QEvent::FocusIn) {
-      if (ob == ui->tblI)  {_io = 'i'; DBG("io=i");}
-      if (ob == ui->tblO)  {_io = 'o'; DBG("io=o");}
-   }
-   return QObject::eventFilter (ob, ev);
-}
-
-
 char *CtrlSt [3] = {CC("Prog"),CC("Prss"),CC("PBnd")};
 
 void MidiCfg::TestI (ubyte mi, MidiEv e)
@@ -308,6 +299,26 @@ void MidiCfg::MidiIEv ()
 }
 
 
+bool MidiCfg::eventFilter (QObject *ob, QEvent *ev)
+{  if (ev->type () == QEvent::FocusIn) {
+      if (ob == ui->tblI)  {_io = 'i'; DBG("io=i");}
+      if (ob == ui->tblO)  {_io = 'o'; DBG("io=o");}
+   }
+   return QObject::eventFilter (ob, ev);
+}
+
+
+void MidiCfg::changeEvent (QEvent *ev)
+{  QMainWindow::changeEvent (ev);
+   if (ev->type () == QEvent::ApplicationPaletteChange ||
+       ev->type () == QEvent::PaletteChange) {
+DBG("dark/light change");
+      Gui.ReIco ();   _tb.ReDo ();
+DBG("dark/light done");
+   }
+}
+
+
 void MidiCfg::Init ()
 {  _nMI = 0;   _io = 'i';
 DBG("Init");
@@ -316,15 +327,14 @@ DBG("Init");
   TStr  fn;
   File  f;
   ulong ln;
-  CtlTBar tb;
-   tb.Init (this, "app");
-   tb.Btn (0, "Refresh device lists\n"
+   _tb.Init (this, "app");
+   _tb.Btn (0, "Refresh device lists\n"
               "(if you've added/removed/forgot to power on devices)");
-   tb.Btn (1, "Scoot device up a row");
-   tb.Btn (2, "Scoot device down a row");
-   connect (tb.Act (0), & QAction::triggered,  this, & MidiCfg::RedoMIn);
-   connect (tb.Act (1), & QAction::triggered,  this, & MidiCfg::Up);
-   connect (tb.Act (2), & QAction::triggered,  this, & MidiCfg::Dn);
+   _tb.Btn (1, "Scoot device up a row");
+   _tb.Btn (2, "Scoot device down a row");
+   connect (_tb.Act (0), & QAction::triggered,  this, & MidiCfg::RedoMIn);
+   connect (_tb.Act (1), & QAction::triggered,  this, & MidiCfg::Up);
+   connect (_tb.Act (2), & QAction::triggered,  this, & MidiCfg::Dn);
    _ti.Init  (ui->tblI,
       "_input device\0"
       "_type\0"
@@ -361,8 +371,8 @@ DBGTH("MidiCfg");
 DBG("bgn");
    qRegisterMetaType<ubyte>("ubyte");
    qRegisterMetaType<Qt::MouseButtons>("Qt::MouseButtons");
-   App.Init ();   Gui.Init (& app, & win, "MidiCfg");   win.Init ();
-  int rc = Gui.Loop ();                                 win.Quit ();
+   App.Init ();   Gui.Init (& app, & win, "MidiCfg", 'd');   win.Init ();
+  int rc = Gui.Loop ();                                      win.Quit ();
    App.Spinoff (CC("pianocheetah"));
 DBG("end");
    return rc;

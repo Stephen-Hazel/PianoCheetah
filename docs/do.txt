@@ -15,19 +15,25 @@ try to find all the good rush sounds
 
 code____________________________________________________________________________
 
+make some videos
+
+why does pc core?
+
 midicfg - dbg how drumz get wrecked
-
-pipewire - gettin closer - i guessss add syn to midicfg?
-
-dark mode
-   desktop icon - how do i flip btw light/dark mode?
-   redraw everythin on caught dark/light mode change
+   left drums on.  ok in morning.  then at 4, drums,pedals get wrecked.
 
 w/recwipe needs to be fixed - dbg
    recwipe erases Lrn tracks...  is that old??  i think rec stuff is in 98,99
    playback recording wrecks stuff
 
 RELEASE EET
+
+dark/light mode flip - pcheetah
+   flip to light - time area bg ok but fg still white from dark mode
+                   and time still lite/dark without red pause showing
+   lyr bg doesnt change but fg prob does?
+   notes need a redraw
+   track table doesn't redraw but midicfg's is ok
 
 FLst
    make search work within queue,learn,etc too

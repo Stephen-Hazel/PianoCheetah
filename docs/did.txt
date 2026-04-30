@@ -1,3 +1,7 @@
+2026Apr
+   syn uses pipewire now!  audio shared and midicfg doesn't need to set syn.
+
+
 2026Jan
    moved song stats to bottom of dialog.
    beat 2 digits wide now when timesig numerator>=10
